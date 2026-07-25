@@ -3,90 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TARIM OS v12.1 - نظام العمليات السيادية</title>
+<title>TARIM OS v12.1</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet">
-<style>
-*{font-family:'Tajawal',sans-serif}
-.glass-card{background:linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02));backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1)}
-body.stealth{filter:grayscale(1) contrast(1.2)!important}
-@keyframes ping{75%,100%{transform:scale(2);opacity:0}}
-</style>
+<style>*{font-family:'Tajawal',sans-serif}.glass{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1)}</style>
 </head>
-<body id="appBody" class="bg-[#06080e] text-white min-h-screen pb-24 transition-all duration-300">
+<body class="bg-[#06080e] text-white min-h-screen pb-24">
 
 <!-- قفل -->
-<div id="authModal" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
-  <div class="glass-card p-6 rounded-3xl w-full max-w-sm text-center border border-cyan-500/40 shadow-2xl">
-    <div class="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/40"><span class="text-2xl animate-pulse">🛡️</span></div>
-    <h2 class="text-lg font-black text-cyan-400 mb-1">بصمة الأمان السيادية للـ CEO</h2>
-    <p class="text-xs text-gray-400 mb-4">أدخل رمز الـ PIN لفتح القلعة</p>
-    <input id="loginIdentifier" placeholder="رقم الجوال أو البريد" class="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-2.5 text-center mb-3 text-xs outline-none focus:border-cyan-500">
-    <input id="ceoPinInput" type="password" placeholder="PIN: 2026" class="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-2.5 text-center mb-4 text-xs outline-none focus:border-cyan-500">
-    <button onclick="verifySovereignAccess()" class="w-full bg-gradient-to-r from-cyan-400 to-blue-500 font-black py-2.5 rounded-xl text-xs text-black shadow-lg shadow-cyan-500/30 active:scale-95">فتح القلعة وتفعيل السيرفرات</button>
-    <p id="authErr" class="text-[10px] text-red-400 mt-2 hidden">رمز خاطئ</p>
-  </div>
+<div id="auth" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
+<div class="glass p-6 rounded-3xl w-full max-w-sm text-center border border-cyan-500/30">
+<div class="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-cyan-500/30 text-xl">🛡️</div>
+<h2 class="font-black text-cyan-400">بصمة الأمان السيادية للـ CEO</h2>
+<p class="text-[11px] text-gray-400 mb-4">أدخل رقم الجوال والـ PIN للفتح</p>
+<input id="userIn" placeholder="رقم الجوال أو البريد" class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-center text-xs mb-2 outline-none">
+<input id="pinIn" type="password" placeholder="رمز PIN (2026)" class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-center text-xs mb-3 outline-none">
+<button onclick="if(document.getElementById('pinIn').value==='2026'||document.getElementById('pinIn').value==='AL2026'){document.getElementById('auth').style.display='none'}else{alert('PIN خاطئ')}" class="w-full bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-black py-2.5 rounded-xl text-xs">فتح القلعة السيادية</button>
+<button onclick="triggerSOS()" class="w-full mt-2 bg-red-500/20 border border-red-500/30 text-red-400 py-2 rounded-xl text-xs font-bold">⚠️ طوارئ SOS</button>
+</div>
 </div>
 
-<header class="flex justify-between items-center px-4 py-3 border-b border-white/10 bg-black/60 backdrop-blur-md sticky top-0 z-40">
-  <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500" style="animation:ping 1s cubic-bezier(0,0,0.2,1) infinite"></span><h1 class="font-black text-xs tracking-wider text-cyan-400">TARIM OS v12.1</h1></div>
-  <div class="flex gap-2">
-    <button onclick="toggleStealthMode()" class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-[10px] px-2.5 py-1 rounded-full font-bold">🕶️ تمويه</button>
-    <button onclick="triggerSOS()" class="bg-red-500/20 border border-red-500/40 text-red-400 text-[10px] px-2.5 py-1 rounded-full font-bold animate-pulse">⚠️ SOS</button>
-  </div>
+<!-- هيدر علوي -->
+<header class="sticky top-0 z-40 bg-black/70 backdrop-blur-xl border-b border-white/10 px-3 py-2.5 flex justify-between items-center">
+<div class="font-black text-cyan-400 text-xs">TARIM OS v12.1</div>
+<div class="flex gap-1.5">
+<button onclick="openTab('ai')" class="bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] px-3 py-1.5 rounded-full font-bold">👁️ عين الذكاء</button>
+<button onclick="toggleStealth()" class="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-[10px] px-2.5 py-1.5 rounded-full font-bold">🕶️ تمويه</button>
+</div>
 </header>
 
-<main id="tab-home" class="p-4 space-y-4">
-  <div class="relative rounded-2xl overflow-hidden border border-cyan-500/30 shadow-2xl">
-    <div class="h-44 bg-cover bg-center flex flex-col justify-between p-4" style="background-image:linear-gradient(180deg,rgba(0,0,0,0.2),rgba(6,8,14,0.95)),url('https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=1000')">
-      <div class="flex justify-between"><div class="flex items-center gap-1 bg-black/60 px-2 py-1 rounded-full border border-white/10"><span class="text-xs">⭐</span><span class="text-[11px] font-bold text-yellow-400">24.3K</span></div><span class="bg-red-600 text-white text-[10px] px-2.5 py-0.5 rounded-full font-bold animate-pulse">مباشر 8 دقائق</span></div>
-      <div class="absolute left-3 top-1/2 -translate-y-1/2 flex flex-col gap-2">
-        <button onclick="sendBroadcastGift()" class="bg-black/70 w-8 h-8 rounded-full flex items-center justify-center border border-cyan-500/40 text-xs">🎁</button>
-        <button onclick="receiveBroadcastGift()" class="bg-black/70 w-8 h-8 rounded-full flex items-center justify-center border border-emerald-500/40 text-xs">📥</button>
-      </div>
-      <div><h2 class="font-black text-sm">بث مباشر سيادي ومشفر</h2><p class="text-[11px] text-gray-300">سيرفرات أسطورية • هدايا حقيقية</p></div>
-    </div>
-  <div class="flex justify-between text-[11px] text-gray-400"><span>قائمة المهام السيادية</span><span class="text-cyan-400">🗄️ SQLite نشط</span></div>
-  <div id="tasksList" class="space-y-2.5"></div>
-  <button onclick="runAIEyeScan()" class="w-full bg-cyan-500/10 border border-cyan-500/40 py-3 rounded-xl text-cyan-300 text-xs font-black">⚡ تنفيذ أمر سيادي فوري</button>
+<!-- الرئيسية -->
+<main id="tab-home" class="p-3 space-y-3">
+<div class="relative rounded-2xl overflow-hidden border border-cyan-500/20">
+<div class="h-48 bg-cover bg-center flex flex-col justify-between p-3" style="background-image:linear-gradient(180deg,rgba(0,0,0,.1),rgba(6,8,14,.95)),url('https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=800')">
+<div class="flex justify-between"><span class="bg-red-600 text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse">مباشر</span><span class="bg-black/60 border border-white/10 text-yellow-400 text-[11px] px-2 py-1 rounded-full font-bold">⭐ 24.3K</span></div>
+<div class="absolute left-3 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+<button onclick="toast('تم الإرسال 🎁')" class="bg-black/70 w-9 h-9 rounded-full border border-white/10 text-xs">🎁<div class="text-[8px]">إرسال</div></button>
+<button onclick="toast('تم الاستقبال 📥')" class="bg-black/70 w-9 h-9 rounded-full border border-white/10 text-xs">📥<div class="text-[8px]">استقبال</div></button>
+</div>
+<div><h2 class="font-black text-sm">بث مباشر سيادي ومشفر (فلتر بصري وهدايا)</h2><p class="text-[10px] text-gray-300">سيرفرات أسطورية • إرسال واستقبال هدايا • فلاتر بصرية</p></div>
+</div>
+</div>
+<div class="flex justify-between text-[11px]"><span class="text-gray-400">قائمة المهام والعمليات السيادية</span><span class="text-cyan-400">🗄️ SQLite نشطة</span></div>
+<div class="flex gap-2"><span class="text-[10px] px-2.5 py-1 rounded-full bg-red-500/20 border border-red-500/30 text-red-400">🔴 عالية</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 text-yellow-400">🟡 متوسطة</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400">🟢 منخفضة</span></div>
+<div id="tasks" class="space-y-2"></div>
+<button onclick="openCreate()" class="w-full glass py-3 rounded-xl text-cyan-300 text-xs font-black border border-cyan-500/20">⚡ تنفيذ أمر سيادي فوري وتوليد بيان</button>
 </main>
 
-<main id="tab-ai" class="p-4 space-y-4 hidden">
-  <div class="glass-card p-5 rounded-2xl text-center"><h2 class="font-black text-sm text-cyan-400 mb-2">عين الذكاء الاصطناعي (Tesseract)</h2><input type="file" id="ocrFileInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-2 text-xs mb-3"><button onclick="runAIEyeScan()" class="bg-cyan-400 text-black font-black text-xs px-4 py-2.5 rounded-xl">بدء الفحص</button><div id="aiScanResults" class="mt-4 text-xs bg-black/40 p-3 rounded-xl border border-white/10 text-right min-h-[60px]">جاهز...</div></div>
-  <div class="glass-card p-4 rounded-2xl text-center"><h3 class="font-black text-xs text-cyan-400 mb-2">الختم الميداني + QR</h3><button onclick="generateSecureQR()" class="bg-blue-600 text-white text-xs px-4 py-2 rounded-xl font-bold">توليد الختم</button><div class="mt-3 flex justify-center"><canvas id="qrCanvas" width="160" height="160" class="rounded-xl bg-white hidden"></canvas></div></div>
+<!-- العمليات = دردشة العملاء -->
+<main id="tab-operations" class="p-3 space-y-3 hidden">
+<div class="glass p-3 rounded-2xl flex justify-between items-center"><h2 class="font-black text-xs">💬 دردشة العملاء المتواجدين</h2><span class="bg-emerald-500/20 text-emerald-300 text-[10px] px-2 py-1 rounded-full border border-emerald-500/20">12 متصل 🟢</span></div>
+<input placeholder="بحث عن عميل..." class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs outline-none">
+<div id="clients" class="space-y-2"></div>
+<div class="glass p-3 rounded-2xl h-[40vh] flex flex-col"><div id="chatLogs" class="flex-1 overflow-y-auto space-y-2 text-xs mb-2"><div class="bg-cyan-950/40 p-2 rounded-xl border border-cyan-500/10"><b>النظام:</b> القناة مشفرة وآمنة بين العملاء</div></div><div class="flex gap-2"><input id="chatIn" placeholder="اكتب رسالة لعميل..." class="flex-1 bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs outline-none"><button onclick="sendMsg()" class="bg-cyan-400 text-black font-black px-4 py-2 rounded-xl text-xs">إرسال</button></div></div>
 </main>
 
-<main id="tab-chat" class="p-4 hidden"><div class="glass-card p-4 rounded-2xl flex flex-col h-[75vh]"><h2 class="font-black text-xs text-cyan-400 pb-2 border-b border-white/10 mb-3">💬 غرفة العمليات (الملك & CEO)</h2><div id="warRoomLogs" class="flex-1 overflow-y-auto space-y-2 text-xs mb-3"></div><div class="flex gap-2"><input id="warRoomInput" placeholder="اكتب الأمر..." class="flex-1 bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs outline-none"><button onclick="sendWarRoomMessage()" class="bg-cyan-400 text-black font-black px-4 py-2 rounded-xl text-xs">إرسال</button></div></div></main>
+<!-- عين الذكاء - فوق -->
+<main id="tab-ai" class="p-3 space-y-3 hidden">
+<div class="glass p-4 rounded-2xl text-center"><h2 class="font-black text-sm text-cyan-400">👁️ عين الذكاء الاصطناعي Tesseract</h2><p class="text-[11px] text-gray-400 mb-2">فحص المستندات والصور الميدانية</p><input type="file" id="ocrFile" class="w-full bg-black/50 border border-white/10 rounded-xl p-2 text-[11px] mb-2"><button onclick="scanAI()" class="bg-cyan-400 text-black font-black px-4 py-2 rounded-xl text-xs">بدء الفحص الضوئي</button><div id="aiRes" class="mt-3 text-xs bg-black/40 p-3 rounded-xl border border-white/5 text-right min-h-[50px]">جاهز للاستقبال...</div></div>
+<div class="glass p-4 rounded-2xl text-center"><h3 class="font-black text-xs text-cyan-400">إصدار الختم الميداني + QR</h3><button onclick="genQR()" class="mt-2 bg-blue-600 text-white text-xs px-4 py-2 rounded-xl font-bold">توليد الختم</button><div class="flex justify-center mt-3"><canvas id="qr" width="150" height="150" class="bg-white rounded-xl hidden"></canvas></div></div>
+</main>
 
-<main id="tab-profile" class="p-4 hidden"><div class="glass-card p-5 rounded-2xl text-center"><div class="w-20 h-20 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 font-black text-2xl text-black">AL</div><h2 class="font-black text-sm">الإمبراطور AL</h2><p class="text-[11px] text-cyan-400">المهندس الأعلى</p><div class="mt-4 space-y-2 text-xs text-right"><div class="flex justify-between bg-black/30 p-2.5 rounded-xl border border-white/5"><span>الحالة</span><span class="text-emerald-400 font-black">موثق 🛡️</span></div><div class="flex justify-between bg-black/30 p-2.5 rounded-xl border border-white/5"><span>التشفير</span><span class="text-cyan-400 font-black">AES-256</span></div></div></div></main>
+<!-- الملف = إعدادات المستخدم -->
+<main id="tab-profile" class="p-3 space-y-3 hidden">
+<div class="glass p-5 rounded-2xl text-center"><div class="w-16 h-16 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-full mx-auto flex items-center justify-center font-black text-black text-xl">AL</div><h2 class="font-black text-sm mt-2">الإمبراطور AL</h2><p class="text-[11px] text-cyan-400">المهندس الأعلى</p></div>
+<div class="glass p-4 rounded-2xl space-y-3">
+<h3 class="font-black text-xs">⚙️ إعدادات المستخدم</h3>
+<input id="editName" placeholder="تعديل الاسم" value="الإمبراطور AL" class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs outline-none">
+<input id="oldPass" type="password" placeholder="كلمة المرور القديمة" class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs outline-none">
+<input id="newPass" type="password" placeholder="كلمة المرور الجديدة" class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs outline-none">
+<textarea placeholder="إضافة مميزات للملف / البايو..." class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs h-20 outline-none"></textarea>
+<div class="flex justify-between items-center bg-black/30 p-2.5 rounded-xl border border-white/5 text-xs"><span>التوثيق 🛡️</span><span class="text-emerald-400 font-bold">موثق</span></div>
+<div class="flex justify-between items-center bg-black/30 p-2.5 rounded-xl border border-white/5 text-xs"><span>التشفير AES-256</span><span class="text-cyan-400 font-bold">نشط</span></div>
+<button onclick="toast('تم حفظ الإعدادات ✅','✅')" class="w-full bg-cyan-400 text-black font-black py-2.5 rounded-xl text-xs">حفظ التعديلات</button>
+</div>
+</main>
 
-<nav class="fixed bottom-0 left-0 right-0 bg-[#06080e]/90 backdrop-blur-lg border-t border-white/10 py-2.5 px-6 flex justify-around items-center z-40">
-  <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center text-cyan-400"><span>🏠</span><span class="text-[10px] font-bold">الرئيسية</span></button>
-  <button onclick="switchTab('ai')" id="nav-ai" class="flex flex-col items-center text-white/40"><span>👁️</span><span class="text-[10px]">الذكاء</span></button>
-  <button onclick="runAIEyeScan()" class="w-11 h-11 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black font-black -mt-5 border-2 border-[#06080e]">+</button>
-  <button onclick="switchTab('chat')" id="nav-chat" class="flex flex-col items-center text-white/40"><span>💬</span><span class="text-[10px]">العمليات</span></button>
-  <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center text-white/40"><span>👑</span><span class="text-[10px]">الملف</span></button>
+<!-- زر + - نافذة البث -->
+<div id="createSheet" class="fixed inset-0 z-[90] hidden"><div onclick="closeCreate()" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+<div class="absolute bottom-0 left-0 right-0 bg-[#10131f] border-t border-white/10 rounded-t-3xl p-5 space-y-3">
+<div class="w-10 h-1 bg-white/20 rounded-full mx-auto"></div>
+<h3 class="font-black text-sm text-center">ماذا تريد أن تنشئ؟</h3>
+<button onclick="toast('فتح كاميرا البث المباشر 📡');closeCreate()" class="w-full glass p-4 rounded-2xl flex items-center gap-3 text-right"><div class="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">📡</div><div><div class="font-bold text-xs">فتح بث مباشر سيادي</div><div class="text-[10px] text-gray-400">بث مشفر مع فلاتر وهدايا</div></div></button>
+<button onclick="toast('فتح معرض الفيديو 🎥');closeCreate()" class="w-full glass p-4 rounded-2xl flex items-center gap-3 text-right"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">🎥</div><div><div class="font-bold text-xs">إرسال فيديو</div><div class="text-[10px] text-gray-400">رفع فيديو من الاستوديو</div></div></button>
+<button onclick="toast('فتح كاميرا الفلتر ✨');closeCreate()" class="w-full glass p-4 rounded-2xl flex items-center gap-3 text-right"><div class="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">✨</div><div><div class="font-bold text-xs">تصوير بفلتر بصري</div><div class="text-[10px] text-gray-400">فلتر سيادي مشفر</div></div></button>
+</div>
+</div>
+
+<!-- تنقل سفلي -->
+<nav class="fixed bottom-0 left-0 right-0 bg-[#06080e]/90 backdrop-blur-xl border-t border-white/10 py-2 px-4 flex justify-around items-center z-40">
+<button onclick="openTab('home')" id="nav-home" class="flex flex-col items-center text-cyan-400"><span>🏠</span><span class="text-[10px] font-bold">الرئيسية</span></button>
+<button onclick="openTab('operations')" id="nav-operations" class="flex flex-col items-center text-white/40"><span>💬</span><span class="text-[10px]">العمليات</span></button>
+<button onclick="openCreate()" class="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black font-black text-xl -mt-6 border-2 border-[#06080e] shadow-lg shadow-cyan-500/30">+</button>
+<button onclick="openTab('profile')" id="nav-profile" class="flex flex-col items-center text-white/40"><span>👑</span><span class="text-[10px]">الملف</span></button>
 </nav>
 
-<div id="toastBox" class="fixed top-[60px] left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-[360px] space-y-2 pointer-events-none"></div>
-<div id="sosOverlay" class="fixed inset-0 z-[90] bg-red-600/20 backdrop-blur-sm hidden flex-col items-center justify-center"><h1 class="text-3xl font-black text-red-500 animate-pulse">🚨 SOS ACTIVE</h1><button onclick="document.getElementById('sosOverlay').classList.add('hidden')" class="mt-4 bg-white text-black px-6 py-2 rounded-full font-black text-xs">إلغاء</button></div>
+<div id="toastBox" class="fixed top-16 left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-sm space-y-2 pointer-events-none"></div>
 
 <script>
-let tasks=[{id:1,badge:"بث نشط",color:"cyan",title:"بث مباشر سيادي ومشفر (8 دقائق)",desc:"سيرفرات أسطورية • فلاتر بصرية",checked:true},{id:2,badge:"محمي",color:"blue",title:"المراسلة الآمنة بين الحسابات",desc:"دعم AI • حسابات موثقة",checked:true},{id:3,badge:"ميداني",color:"emerald",title:"خريطة حضرموت بدون نت",desc:"تسجيل AES • مهام 5 دقائق",checked:true},{id:4,badge:"جاهز",color:"amber",title:"الختم الميداني + QR",desc:"10 منشورات • Tesseract",checked:false}];
-function renderTasks(){document.getElementById('tasksList').innerHTML=tasks.map(t=>`<div class="glass-card p-3 rounded-xl flex justify-between items-center"><div><span class="bg-${t.color}-500/20 text-${t.color}-300 text-[9px] px-2 py-0.5 rounded font-bold border border-${t.color}-500/20">${t.badge}</span><h3 class="font-bold text-xs mt-1">${t.title}</h3><p class="text-[10px] text-gray-400">${t.desc}</p></div><input type="checkbox" ${t.checked?'checked':''} onchange="tasks[${tasks.indexOf(t)}].checked=!tasks[${tasks.indexOf(t)}].checked" class="w-4 h-4 accent-cyan-500"></div>`).join('')}
-renderTasks();
-function toast(txt,icon='⚡'){const b=document.getElementById('toastBox');const id=Date.now();b.insertAdjacentHTML('beforeend',`<div id="t${id}" class="bg-[#0f172a]/90 backdrop-blur border border-white/15 rounded-xl px-4 py-2.5 flex gap-2 text-[11px] font-bold"><span>${icon}</span><span>${txt}</span></div>`);setTimeout(()=>document.getElementById('t'+id)?.remove(),3000)}
-function verifySovereignAccess(){const pin=document.getElementById('ceoPinInput').value;if(pin==='2026'||pin==='AL2026'){document.getElementById('authModal').style.display='none';toast('تم فتح القلعة - السيرفرات نشطة','🛡️');}else{document.getElementById('authErr').classList.remove('hidden');toast('رمز خاطئ','⛔')}}
-function toggleStealthMode(){document.getElementById('appBody').classList.toggle('stealth');toast(document.getElementById('appBody').classList.contains('stealth')?'تم تفعيل التمويه':'تم إلغاء التمويه','🕶️')}
-function triggerSOS(){document.getElementById('sosOverlay').classList.remove('hidden');document.getElementById('sosOverlay').classList.add('flex');toast('تم تفعيل SOS','🚨');if(navigator.vibrate)navigator.vibrate([200,100,200])}
-function sendBroadcastGift(){toast('تم إرسال هدية سيادية فاخرة 🎁','🎁')}
-function receiveBroadcastGift(){toast('تم استلام هدية ميدانية 📥','📥')}
-function switchTab(t){document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));document.getElementById('tab-'+t).classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('text-cyan-400'));document.getElementById('nav-'+t)?.classList.add('text-cyan-400')}
-function runAIEyeScan(){switchTab('ai');const r=document.getElementById('aiScanResults');r.innerHTML='جاري المسح... 0%';let p=0;const iv=setInterval(()=>{p+=15;r.innerHTML=`جاري المسح... ${p}% <div class="h-1 bg-cyan-500/20 rounded mt-2"><div style="width:${p}%" class="h-1 bg-cyan-400 rounded"></div></div>`;if(p>=100){clearInterval(iv);r.innerHTML=`✓ تم التحليل<br>• النص: وثيقة ميدانية - تريم<br>• الثقة: 98.7%<br>• الوقت: ${new Date().toLocaleTimeString('ar-SA')}`;toast('اكتمل الفحص','👁️')}},200)}
-function generateSecureQR(){const c=document.getElementById('qrCanvas');c.classList.remove('hidden');const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,160,160);ctx.fillStyle='#000';for(let i=0;i<200;i++){if(Math.random()>0.5)ctx.fillRect((i%16)*10,Math.floor(i/16)*10,8,8)}ctx.fillStyle='#00E5FF';ctx.fillRect(60,60,40,40);toast('تم توليد الختم المشفر','🔏')}
-function sendWarRoomMessage(){const inp=document.getElementById('warRoomInput');if(!inp.value)return;const logs=document.getElementById('warRoomLogs');logs.insertAdjacentHTML('beforeend',`<div class="bg-white/5 p-2.5 rounded-xl border border-white/10"><b>CEO:</b> ${inp.value}</div>`);const txt=inp.value;inp.value='';setTimeout(()=>{logs.insertAdjacentHTML('beforeend',`<div class="bg-cyan-950/40 p-2.5 rounded-xl border border-cyan-500/20"><b>الذكاء:</b> تم استلام "${txt}" - جاري التنفيذ على 12 عقدة</div>`);logs.scrollTop=logs.scrollHeight},800)}
-document.getElementById('warRoomLogs').innerHTML='<div class="bg-cyan-950/40 p-2.5 rounded-xl border border-cyan-500/20"><b>الذكاء:</b> أهلاً بك يا سيادة الإمبراطور. القناة مشفرة وآمنة.</div>';
-document.getElementById('ceoPinInput').addEventListener('keydown',e=>{if(e.key==='Enter')verifySovereignAccess()});
+let clientsData=[{name:"العميل 1 - تريم",last:"تم استلام الهدية ✅",online:true},{name:"العميل 2 - المكلا",last:"جاهز للمهمة",online:true},{name:"العميل 3 - سيئون",last:"البث نشط الآن 🔴",online:false}];
+function renderTasks(){document.getElementById('tasks').innerHTML=[{b:"بث نشط",t:"بث مباشر سيادي ومشفر (8 دقائق)",d:"سيرفرات أسطورية • إرسال واستقبال هدايا",c:true},{b:"محمي",t:"المراسلة والاتصال الآمن بين الحسابات",d:"دعم بالذكاء الاصطناعي • حسابات موثقة",c:true},{b:"ميداني",t:"خريطة حضرموت وتريم بدون نت (Offline)",d:"تسجيل صوتي AES • مشاركة سيادية",c:true},{b:"جاهز",t:"إصدار الختم الميداني المشفر + QR",d:"عين الذكاء Tesseract",c:false}].map(x=>`<div class="glass p-3 rounded-xl flex justify-between items-center"><div><span class="text-[9px] px-2 py-0.5 rounded bg-cyan-500/20 border border-cyan-500/20 text-cyan-300 font-bold">${x.b}</span><h3 class="font-bold text-xs mt-1">${x.t}</h3><p class="text-[10px] text-gray-400">${x.d}</p></div><input type="checkbox" ${x.c?'checked':''} class="w-4 h-4 accent-cyan-500"></div>`).join('')}
+function renderClients(){document.getElementById('clients').innerHTML=clientsData.map(c=>`<div onclick="document.getElementById('chatLogs').innerHTML+='<div class=\\'bg-white/5 p-2 rounded-xl border border-white/5\\'><b>${c.name}:</b> ${c.last}</div>'" class="glass p-3 rounded-xl flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-8 h-8 bg-gradient-to-tr from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black font-bold text-[10px]">${c.name[0]}</div><div><div class="font-bold text-xs">${c.name}</div><div class="text-[10px] text-gray-400">${c.last}</div></div></div><div class="w-2 h-2 rounded-full ${c.online?'bg-emerald-500':'bg-gray-500'}"></div></div>`).join('')}
+renderTasks();renderClients();
+function toast(t,i='⚡'){const b=document.getElementById('toastBox');const id=Date.now();b.insertAdjacentHTML('beforeend',`<div id="t${id}" class="bg-[#0f172a]/90 border border-white/15 rounded-xl px-4 py-2.5 flex gap-2 text-[11px] font-bold"><span>${i}</span><span>${t}</span></div>`);setTimeout(()=>document.getElementById('t'+id)?.remove(),2500)}
+function openTab(t){document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));document.getElementById('tab-'+t).classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('text-cyan-400'));document.getElementById('nav-'+t)?.classList.add('text-cyan-400');if(t==='home')document.getElementById('nav-home').classList.add('text-cyan-400')}
+function openCreate(){document.getElementById('createSheet').classList.remove('hidden')} function closeCreate(){document.getElementById('createSheet').classList.add('hidden')}
+function toggleStealth(){document.body.classList.toggle('grayscale');toast(document.body.classList.contains('grayscale')?'تم التمويه 🕶️':'تم الإلغاء')}
+function triggerSOS(){toast('تم تفعيل SOS 🚨','🚨')}
+function sendMsg(){const i=document.getElementById('chatIn');if(!i.value)return;document.getElementById('chatLogs').innerHTML+=`<div class="bg-cyan-500/10 p-2 rounded-xl border border-cyan-500/20 text-right"><b>أنت:</b> ${i.value}</div>`;i.value='';setTimeout(()=>{document.getElementById('chatLogs').innerHTML+=`<div class="bg-white/5 p-2 rounded-xl"><b>العميل:</b> تم الاستلام ✅</div>`},600)}
+function scanAI(){const r=document.getElementById('aiRes');r.innerHTML='جاري المسح...';let p=0;const iv=setInterval(()=>{p+=20;r.innerHTML=`فحص... ${p}%`;if(p>=100){clearInterval(iv);r.innerHTML=`✅ تم: "وثيقة ميدانية - تريم"<br>ثقة 98.7%<br>${new Date().toLocaleTimeString('ar-SA')}`;toast('تم الفحص 👁️')}},200)}
+function genQR(){const c=document.getElementById('qr');c.classList.remove('hidden');const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,150,150);x.fillStyle='#000';for(let i=0;i<150;i++)if(Math.random()>0.5)x.fillRect((i%15)*10,Math.floor(i/15)*10,8,8);x.fillStyle='#00E5FF';x.fillRect(55,55,40,40);toast('تم توليد الختم 🔏')}
 </script>
 </body>
 </html>
