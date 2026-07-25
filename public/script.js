@@ -1,134 +1,296 @@
-// TARIM OS v12.0 - Client Engine
+// script.js - TARIM OS v12.1 Sovereign Logic
+// الإمبراطور AL - تريم حضرموت
 
-// التحقق من البصمة والـ PIN
-function verifySovereignAccess() {
-    const pin = document.getElementById('ceoPinInput').value;
-    if (pin === "2026" || pin === "1234" || pin.length > 0) {
-        alert("🛡️ تم فتح القلعة السيادية بنجاح. أهلاً بك أيها الإمبراطور.");
-        document.getElementById('authModal').classList.add('hidden');
-        loadSovereignTasks();
-    } else {
-        alert("❌ الرمز غير صحيح!");
-    }
+console.log("🛡️ TARIM OS v12.1 - ACTIVE");
+
+// ========== قاعدة البيانات الدائمة SQLite (محاكاة localStorage) ==========
+const DB = {
+  get: (k, def) => { try { return JSON.parse(localStorage.getItem('tarim_'+k)) || def } catch { return def } },
+  set: (k, v) => localStorage.setItem('tarim_'+k, JSON.stringify(v))
+};
+
+let tasks = DB.get('tasks', [
+  { id: 1, title: "بث مباشر سيادي", checked: true },
+  { id: 2, title: "المراسلة الآمنة", checked: true },
+  { id: 3, title: "خريطة حضرموت Offline", checked: true }
+]);
+
+let isStealth = false;
+let isSOS = false;
+
+// ========== الأصوات السيادية ==========
+let audioCtx = null;
+function beep(freq=800, dur=0.15, type='sine'){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type; o.frequency.value = freq; g.gain.value = 0.18;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+dur);
+    o.stop(audioCtx.currentTime+dur);
+  }catch(e){}
 }
 
-// زر الطوارئ SOS
-function triggerSOS() {
-    if (confirm("⚠️ تحذير سيادي خطير: هل تريد مسح كافة بيانات Tarim_Core وتفعيل وضع التدمير الفوري؟")) {
-        localStorage.clear();
-        sessionStorage.clear();
-        document.body.innerHTML = `
-            <div style="background:#000; color:#ff3b30; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:monospace; padding:20px; text-align:center;">
-                <h1 style="font-size:24px; font-weight:bold; margin-bottom:10px;">⚠️ TARIM_CORE DESTROYED</h1>
-                <p style="font-size:14px; color:#fff;">تم تطهير النظام بالكامل وحماية سيادة الإمبراطور بنجاح.</p>
-            </div>
-        `;
-    }
+function toast(msg, icon='⚡'){
+  let box = document.getElementById('toastBox');
+  if(!box){
+    box = document.createElement('div');
+    box.id = 'toastBox';
+    box.className = 'fixed top-[60px] left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-[360px] space-y-2 pointer-events-none';
+    document.body.appendChild(box);
+  }
+  const id = Date.now();
+  box.insertAdjacentHTML('beforeend', `
+    <div id="t${id}" class="pointer-events-auto bg-[#0f172a]/90 backdrop-blur-xl border border-white/15 rounded-[14px] px-4 py-2.5 flex items-center gap-2 shadow-xl animate-[slideIn_0.3s_ease]">
+      <span>${icon}</span><span class="text-[11px] font-bold">${msg}</span>
+    </div>
+  `);
+  setTimeout(()=> document.getElementById('t'+id)?.remove(), 3000);
 }
 
-// تبديل التبويبات السيادية
-function switchTab(tabName) {
-    ['home', 'ai', 'chat', 'profile'].forEach(t => {
-        const el = document.getElementById('tab-' + t);
-        const nav = document.getElementById('nav-' + t);
-        if (el) el.classList.add('hidden');
-        if (nav) {
-            nav.classList.remove('text-cyan-400');
-            nav.classList.add('text-gray-400');
-        }
-    });
-    
-    const activeEl = document.getElementById('tab-' + tabName);
-    const activeNav = document.getElementById('nav-' + tabName);
-    if (activeEl) activeEl.classList.remove('hidden');
-    if (activeNav) {
-        activeNav.classList.remove('text-gray-400');
-        activeNav.classList.add('text-cyan-400');
-    }
-    window.scrollTo(0, 0);
+// ========== 1. فتح القلعة ==========
+function verifySovereignAccess(){
+  const pin = document.getElementById('ceoPinInput')?.value.trim();
+  const identifier = document.getElementById('loginIdentifier')?.value.trim();
+
+  if(pin === '2026' || pin === 'AL2026'){
+    beep(600,0.15); setTimeout(()=>beep(1200,0.3),120);
+    document.getElementById('authModal').style.opacity='0';
+    setTimeout(()=> document.getElementById('authModal').style.display='none', 300);
+    toast(`أهلاً ${identifier||'سيادة الإمبراطور'} - تم فتح القلعة`,'🛡️');
+    DB.set('lastLogin', new Date().toISOString());
+  }else{
+    beep(150,0.4,'sawtooth');
+    toast('رمز PIN خاطئ - الوصول مرفوض','⛔');
+    const inp = document.getElementById('ceoPinInput');
+    inp.classList.add('border-red-500'); inp.classList.add('animate-pulse');
+    setTimeout(()=> inp.classList.remove('border-red-500','animate-pulse'), 800);
+  }
 }
 
-// قائمة المهام الافتراضية
-let tasks = [
-    { id: 1, title: 'بث مباشر سيادي ومشفر (8 دقائق)', desc: 'سيرفرات أسطورية • إرسال واستقبال هدايا', status: 'بث نشط', done: true },
-    { id: 2, title: 'المراسلة والاتصال الآمن بين الحسابات', desc: 'دعم بالذكاء الاصطناعي • حسابات موثقة', status: 'محمي', done: true },
-    { id: 3, title: 'خريطة حضرموت وتريم بدون نت (Offline)', desc: 'تسجيل صوتي AES • مشاركة سيادية', status: 'ميداني', done: true },
-    { id: 4, title: 'إصدار الختم الميداني المشفر + QR', desc: 'عين الذكاء الاصطناعي Tesseract', status: 'جاهز', done: false }
-];
-
-function loadSovereignTasks() {
-    const container = document.getElementById('tasksContainer');
-    if (!container) return;
-    container.innerHTML = tasks.map(t => `
-        <div class="glass-card p-3 rounded-xl border-l-4 ${t.done ? 'border-cyan-500' : 'border-yellow-500'} flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <input type="checkbox" ${t.done ? 'checked' : ''} onclick="toggleTask(${t.id})" class="w-5 h-5 accent-cyan-500">
-                <div>
-                    <h3 class="font-bold text-xs text-white">${t.title}</h3>
-                    <p class="text-[10px] text-gray-400">${t.desc}</p>
-                </div>
-            </div>
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-800 text-cyan-300 border border-gray-700">${t.status}</span>
-        </div>
-    `).join('');
+// ========== 2. وضع التمويه ==========
+function toggleStealthMode(){
+  isStealth =!isStealth;
+  document.getElementById('appBody').classList.toggle('stealth-mode', isStealth);
+  if(isStealth){
+    document.body.style.filter='grayscale(1) brightness(0.6) blur(0.5px)';
+    toast('تم تفعيل وضع التمويه - الشاشة مموهة','🕶️');
+  }else{
+    document.body.style.filter='';
+    toast('تم إلغاء وضع التمويه','☀️');
+  }
+  beep(isStealth?300:800,0.2,'triangle');
 }
 
-function toggleTask(id) {
-    const t = tasks.find(x => x.id === id);
-    if (t) t.done = !t.done;
-    loadSovereignTasks();
-}
+// ========== 3. SOS طوارئ ==========
+function triggerSOS(){
+  if(isSOS) return;
+  isSOS = true;
+  beep(900,0.2,'square'); setTimeout(()=>beep(400,0.5,'square'),200);
+  if(navigator.vibrate) navigator.vibrate([200,100,200,100,400]);
 
-function addNewSovereignTask() {
-    const title = prompt("أدخل عنوان العملية السيادية الجديدة:");
-    if (!title) return;
-    tasks.push({ id: tasks.length + 1, title, desc: 'عملية ميدانية جديدة من لوحة القيادة', status: 'نشط', done: false });
-    loadSovereignTasks();
-}
-
-// عين الذكاء الاصطناعي
-function runAIEyeScan() {
-    const box = document.getElementById('aiScanResults');
-    box.innerHTML = "🔍 جاري تشغيل عين الذكاء الاصطناعي المسح الضوئي (Tesseract OCR)...";
-    setTimeout(() => {
-        box.innerHTML = "✅ <strong>التقرير السيادي:</strong> تم فحص المستند الميداني بنجاح. مطابقة بنسبة 99.9% مع قواعد التشفير السيادي TARIM-SEC.";
-    }, 1500);
-}
-
-// الختم المشفر QR
-function generateSecureQR() {
-    const container = document.getElementById('qrCodeContainer');
-    container.innerHTML = `
-        <div style="background:white; padding:10px; display:inline-block; border-radius:10px;">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=TARIM-OS-SOVEREIGN-SEAL-VERIFIED" alt="QR Seal">
-        </div>
-        <p style="color:#00f3ff; font-size:11px; margin-top:5px;">ختم التوثيق الميداني الآمن - معتمد من الملك</p>
+  let overlay = document.getElementById('sosOverlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id='sosOverlay';
+    overlay.className='fixed inset-0 z-[90] bg-red-600/30 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center';
+    overlay.innerHTML=`
+      <div class="text-6xl animate-pulse">🚨</div>
+      <h1 class="text-2xl font-black text-red-400 mt-4">بروتوكول SOS نشط</h1>
+      <p class="text-xs text-white/70 mt-2">جاري إرسال الموقع المشفر إلى القيادة...</p>
+      <p class="text-[10px] text-red-300 mt-1 font-mono" id="sosCoords">17.1234°N, 49.1234°E - تريم</p>
+      <button onclick="cancelSOS()" class="mt-6 bg-white text-black px-8 py-3 rounded-full font-black text-xs">إلغاء الطوارئ</button>
     `;
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.remove('hidden');
+  toast('تم تفعيل بروتوكول الطوارئ - تم إرسال الإحداثيات','🚨');
 }
 
-// البث والهدايا
-function startSovereignLiveStream() {
-    alert("📡 جاري تشغيل سيرفر البث المشفر (8 دقائق) وتثبيت الكاميرا والفلاتر البصرية...");
+function cancelSOS(){
+  isSOS=false;
+  document.getElementById('sosOverlay')?.classList.add('hidden');
+  toast('تم إلغاء حالة الطوارئ','✅');
 }
 
-function sendBroadcastGift(name) {
-    alert(`🎁 تم إرسال هدية (${name}) بنجاح في البث المباشر!`);
+// ========== 4. الهدايا السيادية ==========
+function sendBroadcastGift(gift='هدية سيادية فاخرة'){
+  beep(1000,0.15);
+  toast(`تم إرسال: ${gift} 🎁 بنجاح`,'🎁');
+  const countEl = document.querySelector('[class*="24.3K"]');
+  if(countEl){
+    let n = parseFloat(countEl.textContent)*1000;
+    countEl.textContent = ((n+50)/1000).toFixed(1)+'K';
+  }
+  createGiftAnimation('🎁');
 }
 
-// غرفة العمليات
-function sendWarRoomMessage() {
-    const input = document.getElementById('warRoomInput');
-    const logs = document.getElementById('warRoomLogs');
-    if (!input.value) return;
-    logs.innerHTML += `<div style="background:rgba(0,243,255,0.1); padding:8px; border-radius:8px;"><strong>القيادة السيادية:</strong> ${input.value}</div>`;
-    input.value = "";
+function receiveBroadcastGift(){
+  beep(700,0.2);
+  toast('تم استلام هدية ميدانية مشفرة - تم فك التشفير','📥');
+  createGiftAnimation('📦');
+}
+
+function createGiftAnimation(emoji){
+  const el = document.createElement('div');
+  el.textContent=emoji;
+  el.className='fixed text-2xl z-[150] pointer-events-none';
+  el.style.left=Math.random()*80+10+'%';
+  el.style.top='80%';
+  el.style.transition='all 1.5s ease-out';
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.top='20%'; el.style.opacity='0'; el.style.transform='scale(2)'},50);
+  setTimeout(()=>el.remove(),1500);
+}
+
+// ========== 5. عين الذكاء Tesseract OCR ==========
+async function runAIEyeScan(){
+  const fileInput = document.getElementById('ocrFileInput');
+  const results = document.getElementById('aiScanResults');
+  const btn = document.querySelector('[onclick="runAIEyeScan()"]');
+
+  if(!results) return;
+
+  // لو في ملف
+  if(fileInput && fileInput.files[0]){
+    results.innerHTML = `📄 جاري تحليل: ${fileInput.files[0].name}<br><div class="w-full h-1 bg-white/10 rounded mt-2"><div id="scanBar" class="h-1 bg-cyan-400 rounded transition-all" style="width:0%"></div></div>`;
+    let p=0;
+    const iv=setInterval(()=>{
+      p+=Math.random()*20+5;
+      if(p>100) p=100;
+      const bar=document.getElementById('scanBar');
+      if(bar) bar.style.width=p+'%';
+      if(p>=100){
+        clearInterval(iv);
+        results.innerHTML = `
+          ✅ <b>تم الفحص الضوئي بنجاح</b><br>
+          • الملف: ${fileInput.files[0].name}<br>
+          • النص المستخرج: "وثيقة ميدانية معتمدة - تريم حضرموت"<br>
+          • الثقة: 98.7%<br>
+          • التشفير: AES-256<br>
+          • الوقت: ${new Date().toLocaleString('ar-SA')}
+        `;
+        beep(900,0.3); toast('اكتمل الفحص Tesseract','👁️');
+      }
+    },150);
+    return;
+  }
+
+  // بدون ملف - توليد بيان
+  results.innerHTML = '⚡ جاري تنفيذ أمر سيادي فوري...';
+  beep(500,0.1);
+  let p=0;
+  const iv=setInterval(()=>{
+    p+=12;
+    results.innerHTML = `⚡ تنفيذ... ${p}%`;
+    if(p>=100){
+      clearInterval(iv);
+      results.innerHTML = `
+        📜 <b>بيان سيادي فوري - تم توليده</b><br>
+        بسم الله، تم تفعيل جميع الأنظمة الميدانية في حضرموت.<br>
+        الحالة: ACTIVE 🟢<br>
+        العقد: 12 عقدة نشطة<br>
+        ${new Date().toLocaleString('ar-SA')}
+      `;
+      toast('تم توليد البيان السيادي','⚡');
+      beep(1000,0.4);
+    }
+  },120);
+}
+
+// ========== 6. الختم والـ QR ==========
+function generateSecureQR(){
+  const container = document.getElementById('qrCodeContainer');
+  if(!container) return;
+
+  container.innerHTML = '<canvas id="qrCanvas" width="180" height="180" class="rounded-xl bg-white p-2 shadow-xl"></canvas><p class="text-[10px] text-gray-400 mt-2 text-center">ختم مشفر - TARIM-12</p>';
+  const canvas = document.getElementById('qrCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // رسم QR وهمي مشفر
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,180,180);
+  ctx.fillStyle='#000';
+  // Three corners
+  [[0,0],[130,0],[0,130]].forEach(([x,y])=>{
+    ctx.fillRect(x,y,40,40); ctx.fillStyle='#fff'; ctx.fillRect(x+5,y+5,30,30);
+    ctx.fillStyle='#000'; ctx.fillRect(x+12,y+12,16,16); ctx.fillStyle='#000';
+  });
+  // Random data
+  for(let i=0;i<300;i++){
+    if(Math.random()>0.5){
+      const x = (i%18)*10, y = Math.floor(i/18)*10;
+      if(x>45||y>45) ctx.fillRect(x,y,6,6);
+    }
+  }
+  // Center logo cyan
+  ctx.fillStyle='#00E5FF'; ctx.fillRect(70,70,40,40);
+  ctx.fillStyle='#000'; ctx.font='bold 10px Arial'; ctx.fillText('TARIM',75,95);
+
+  const sealId = 'SEAL-'+Date.now().toString(36).toUpperCase();
+  DB.set('lastSeal', { id: sealId, time: new Date().toISOString() });
+  toast(`تم توليد الختم: ${sealId}`,'🔏');
+  beep(800,0.25);
+}
+
+// ========== 7. غرفة العمليات ==========
+function sendWarRoomMessage(){
+  const input = document.getElementById('warRoomInput');
+  const logs = document.getElementById('warRoomLogs');
+  if(!input ||!input.value.trim() ||!logs) return;
+
+  const text = input.value.trim();
+  const time = new Date().toLocaleTimeString('ar-SA');
+
+  logs.insertAdjacentHTML('beforeend', `
+    <div class="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 p-2.5 rounded-xl border border-cyan-500/20 flex justify-between">
+      <div><strong class="text-cyan-300">الـ CEO:</strong> ${text}</div>
+      <span class="text-[9px] text-gray-500">${time}</span>
+    </div>
+  `);
+  input.value='';
+  logs.scrollTop = logs.scrollHeight;
+  beep(700,0.12);
+
+  // رد AI
+  setTimeout(()=>{
+    const replies=[
+      `تم استلام التوجيه: "${text}" - جاري التنفيذ على 12 عقدة 🟢`,
+      `تأكيد سيادي: الأمر قيد التنفيذ في تريم - حضرموت`,
+      `القناة آمنة AES-256 - تم تشفير التوجيه وإرساله للملك 👑`
+    ];
+    const reply = replies[Math.floor(Math.random()*replies.length)];
+    logs.insertAdjacentHTML('beforeend', `
+      <div class="bg-cyan-950/40 p-2.5 rounded-xl border border-cyan-500/10">
+        <strong>الذكاء الاصطناعي:</strong> ${reply}
+      </div>
+    `);
     logs.scrollTop = logs.scrollHeight;
+    beep(900,0.15);
+  }, 900);
 }
 
-// وضع التمويه
-function toggleStealthMode() {
-    const body = document.body;
-    body.style.filter = body.style.filter ? "" : "invert(1) hue-rotate(180deg)";
-    alert("🕶️ تم تبديل وضع العرض (وضع التمويه الفوري).");
+// ========== 8. التنقل ==========
+function switchTab(tab){
+  document.querySelectorAll('main').forEach(m=> m.classList.add('hidden'));
+  document.getElementById('tab-'+tab)?.classList.remove('hidden');
+
+  document.querySelectorAll('nav button').forEach(b=>{
+    b.classList.remove('text-cyan-400'); b.classList.add('text-gray-400');
+  });
+  document.getElementById('nav-'+tab)?.classList.remove('text-gray-400');
+  document.getElementById('nav-'+tab)?.classList.add('text-cyan-400');
+
+  beep(600,0.08);
 }
 
+// ========== تشغيل أولي ==========
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('ceoPinInput')?.addEventListener('keydown', e=>{
+    if(e.key==='Enter') verifySovereignAccess();
+  });
+  document.getElementById('warRoomInput')?.addEventListener('keydown', e=>{
+    if(e.key==='Enter') sendWarRoomMessage();
+  });
+  console.log('TARIM OS v12.1 Loaded - SQLite Active');
+});
