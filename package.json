@@ -1,7 +1,7 @@
 {
-  "name": "tarim-os-backend",
-  "version": "8.4.0",
-  "description": "Sovereign Backend for TARIM OS v8.4",
+  "name": "tarim-os",
+  "version": "12.1.0",
+  "description": "TARIM OS Sovereign System",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -14,4 +14,3 @@
     "socket.io": "^4.7.5"
   }
 }
-
