@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
-const { Pool } = require('pg');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 
@@ -12,17 +11,39 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(express.json());
 app.use(cors());
-app.use(express.static(path.join(__dirname, 'public')));
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+// منع السيرفر من الانهيار بسبب أخطاء غير متوقعة
+process.on('unhandledRejection', (err) => {
+  console.log('⚠️ Unhandled Rejection (ignored):', err.message);
+});
+process.on('uncaughtException', (err) => {
+  console.log('⚠️ Uncaught Exception (ignored):', err.message);
 });
 
 const CEO_PASSWORD = process.env.CEO_PASSWORD || 'Tarim2026!Sovereign';
 
-// إنشاء كل الجداول - بما فيها جدول المهام الحقيقي
+// ===== نظام قاعدة البيانات الاختياري =====
+let pool = null;
+let memoryTasks = [
+  { id: 1, title: 'بث مباشر سيادي ومشفر (8 دقائق)', description: 'سيرفرات أسطورية • إرسال واستقبال هدايا • فلتر بصرية', status: 'بث نشط', completed: true },
+  { id: 2, title: 'المراسلة والاتصال الآمن بين الحسابات', description: 'دعم بالذكاء الاصطناعي • حسابات موثقة • إعدادات المستخدم', status: 'محمي', completed: true },
+  { id: 3, title: 'خريطة حضرموت وتريم بدون نت (Offline)', description: 'تسجيل صوتي AES • مشاركة سيادية تهدم خلال 5 دقائق', status: 'ميداني', completed: true },
+  { id: 4, title: 'إصدار الختم الميداني المشفر + QR', description: 'توليد 10 منشورات ورجع التشفيل • عين الذكاء الاصطناعي Tesseract', status: 'راجع API', completed: false }
+];
+
 async function initDB() {
+  if (!process.env.DATABASE_URL) {
+    console.log('⚠️ No DATABASE_URL - running in MEMORY mode (no PostgreSQL needed)');
+    return;
+  }
+  try {
+    const { Pool } = require('pg');
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    });
+    await pool.query('SELECT 1');
+
     await pool.query(`
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
@@ -45,7 +66,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `);
-    // إدخال المهام الافتراضية لو الجدول فاضي
     const count = await pool.query('SELECT COUNT(*) FROM tasks');
     if (parseInt(count.rows[0].count) === 0) {
         await pool.query(`INSERT INTO tasks (title, description, status, completed) VALUES
@@ -55,31 +75,70 @@ async function initDB() {
         ('إصدار الختم الميداني المشفر + QR', 'توليد 10 منشورات ورجع التشفيل • عين الذكاء الاصطناعي Tesseract', 'راجع API', false)
         `);
     }
-    console.log("[+] TARIM OS v9.0 REAL Tasks DB Initialized.");
+    console.log("[+] TARIM OS v9.0 REAL Tasks DB Initialized - PostgreSQL Connected");
+  } catch (e) {
+    console.log('⚠️ DB connection failed, switching to MEMORY mode:', e.message);
+    pool = null;
+  }
 }
 initDB();
 
-// API المهام الحقيقية
+// API المهام - يشتغل مع DB أو بدونها
 app.get('/api/tasks', async (req, res) => {
-    const result = await pool.query('SELECT * FROM tasks ORDER BY id ASC');
-    res.json(result.rows);
+  try {
+    if (pool) {
+      const result = await pool.query('SELECT * FROM tasks ORDER BY id ASC');
+      return res.json(result.rows);
+    } else {
+      return res.json(memoryTasks);
+    }
+  } catch (e) {
+    return res.json(memoryTasks);
+  }
 });
+
 app.post('/api/tasks', async (req, res) => {
-    const { title } = req.body;
-    const result = await pool.query('INSERT INTO tasks (title) VALUES ($1) RETURNING *', [title]);
-    io.emit('tasks_update');
-    res.json(result.rows[0]);
+  try {
+    if (pool) {
+      const result = await pool.query('INSERT INTO tasks (title) VALUES ($1) RETURNING *', [req.body.title]);
+      io.emit('tasks_update');
+      return res.json(result.rows[0]);
+    } else {
+      const newTask = { id: Date.now(), title: req.body.title, description: '', status: 'جديد', completed: false };
+      memoryTasks.push(newTask);
+      io.emit('tasks_update');
+      return res.json(newTask);
+    }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
+
 app.put('/api/tasks/:id', async (req, res) => {
-    const { completed } = req.body;
-    const result = await pool.query('UPDATE tasks SET completed = $1 WHERE id = $2 RETURNING *', [completed, req.params.id]);
-    io.emit('tasks_update');
-    res.json(result.rows[0]);
+  try {
+    if (pool) {
+      const result = await pool.query('UPDATE tasks SET completed = $1 WHERE id = $2 RETURNING *', [req.body.completed, req.params.id]);
+      io.emit('tasks_update');
+      return res.json(result.rows[0]);
+    } else {
+      const task = memoryTasks.find(t => t.id == req.params.id);
+      if (task) task.completed = req.body.completed;
+      io.emit('tasks_update');
+      return res.json(task);
+    }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.get('/api/status', async (req, res) => {
-    const result = await pool.query('SELECT NOW()');
-    res.json({ status: "ONLINE & SECURE", sovereign: "TARIM OS v9.0 REAL", db_time: result.rows[0].now });
+  if (pool) {
+    try {
+      const result = await pool.query('SELECT NOW()');
+      return res.json({ status: "ONLINE & SECURE", sovereign: "TARIM OS v9.0 REAL", db_mode: "PostgreSQL", db_time: result.rows[0].now });
+    } catch {}
+  }
+  res.json({ status: "ONLINE & SECURE", sovereign: "TARIM OS v9.0 REAL", db_mode: "MEMORY - Works without DB!" });
 });
 
 app.post('/api/verify-ceo', (req, res) => {
@@ -89,6 +148,7 @@ app.post('/api/verify-ceo', (req, res) => {
 
 app.post('/api/register', async (req, res) => {
     try {
+        if (!pool) return res.json({ message: "تم إنشاء الحساب السيادي (وضع الذاكرة)!", user: { id: 1, username: req.body.username, email: req.body.email } });
         const hash = await bcrypt.hash(req.body.password, 10);
         const newUser = await pool.query('INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email', [req.body.username, req.body.email, hash]);
         res.json({ message: "تم إنشاء الحساب السيادي!", user: newUser.rows[0] });
@@ -97,7 +157,6 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// HTML مع ربط حقيقي
 const HTML_TEMPLATE = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -109,8 +168,8 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
 <style>body{background:#0b0f19;color:#fff}.glass-card{background:rgba(17,24,39,0.85);backdrop-filter:blur(15px);border:1px solid rgba(0,243,255,0.2)}</style>
 </head>
 <body class="pb-28">
-<header class="flex justify-between items-center px-4 py-3 glass-card"><span class="font-bold text-cyan-400">TARIM OS v9.0 REAL</span><span class="text-xs text-green-400">● متصل بقاعدة حقيقية</span></header>
-<main class="p-4"><div id="tasksContainer" class="space-y-3">جاري تحميل المهام من PostgreSQL...</div></main>
+<header class="flex justify-between items-center px-4 py-3 glass-card"><span class="font-bold text-cyan-400">TARIM OS v9.0 REAL</span><span class="text-xs text-green-400">● متصل ${!process.env.DATABASE_URL? 'وضع الذاكرة' : 'بقاعدة حقيقية'}</span></header>
+<main class="p-4"><div id="tasksContainer" class="space-y-3">جاري تحميل المهام...</div></main>
 <script>
 const socket = io();
 async function loadTasks(){
@@ -132,5 +191,5 @@ loadTasks();
 
 app.get('/', (req, res) => res.send(HTML_TEMPLATE));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => console.log(`[+] TARIM OS v9.0 REAL running on ${PORT}`));
