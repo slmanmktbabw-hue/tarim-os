@@ -1,164 +1,92 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TARIM OS v12.1 - نظام العمليات والسيطرة السيادية</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TARIM OS v12.1 - نظام العمليات السيادية</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*{font-family:'Tajawal',sans-serif}
+.glass-card{background:linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02));backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1)}
+body.stealth{filter:grayscale(1) contrast(1.2)!important}
+@keyframes ping{75%,100%{transform:scale(2);opacity:0}}
+</style>
 </head>
-<body id="appBody" class="bg-[#06080e] text-white min-h-screen pb-28 font-sans transition-all duration-300">
+<body id="appBody" class="bg-[#06080e] text-white min-h-screen pb-24 transition-all duration-300">
 
-    <!-- قفل الأمان البيومتري وكلمة سر الـ CEO -->
-    <div id="authModal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
-        <div class="glass-card p-6 rounded-3xl w-full max-w-sm text-center border border-cyan-500/40 shadow-2xl">
-            <div class="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/40">
-                <span class="text-2xl animate-pulse">🛡️</span>
-            </div>
-            <h2 class="text-lg font-bold text-cyan-400 mb-1">بصمة الأمان السيادية للـ CEO</h2>
-            <p class="text-xs text-gray-400 mb-4">أدخل رقم الجوال / البريد ورمز الـ PIN للفتح</p>
-            
-            <input type="text" id="loginIdentifier" placeholder="رقم الجوال أو البريد الإلكتروني" class="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-2.5 text-center text-white mb-3 text-xs outline-none focus:border-cyan-500">
-            <input type="password" id="ceoPinInput" placeholder="رمز الـ PIN السيادي (مثال: 2026)" class="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-2.5 text-center text-white mb-4 text-xs outline-none focus:border-cyan-500">
-            
-            <button onclick="verifySovereignAccess()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 font-bold py-2.5 rounded-xl text-xs shadow-lg shadow-cyan-500/30 text-black">فتح القلعة السيادية</button>
-            <button onclick="triggerSOS()" class="w-full mt-2 bg-red-600/20 border border-red-500/30 text-red-400 py-2 rounded-xl text-xs">⚠️ طوارئ SOS</button>
-        </div>
+<!-- قفل -->
+<div id="authModal" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
+  <div class="glass-card p-6 rounded-3xl w-full max-w-sm text-center border border-cyan-500/40 shadow-2xl">
+    <div class="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/40"><span class="text-2xl animate-pulse">🛡️</span></div>
+    <h2 class="text-lg font-black text-cyan-400 mb-1">بصمة الأمان السيادية للـ CEO</h2>
+    <p class="text-xs text-gray-400 mb-4">أدخل رمز الـ PIN لفتح القلعة</p>
+    <input id="loginIdentifier" placeholder="رقم الجوال أو البريد" class="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-2.5 text-center mb-3 text-xs outline-none focus:border-cyan-500">
+    <input id="ceoPinInput" type="password" placeholder="PIN: 2026" class="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-2.5 text-center mb-4 text-xs outline-none focus:border-cyan-500">
+    <button onclick="verifySovereignAccess()" class="w-full bg-gradient-to-r from-cyan-400 to-blue-500 font-black py-2.5 rounded-xl text-xs text-black shadow-lg shadow-cyan-500/30 active:scale-95">فتح القلعة وتفعيل السيرفرات</button>
+    <p id="authErr" class="text-[10px] text-red-400 mt-2 hidden">رمز خاطئ</p>
+  </div>
+</div>
+
+<header class="flex justify-between items-center px-4 py-3 border-b border-white/10 bg-black/60 backdrop-blur-md sticky top-0 z-40">
+  <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500" style="animation:ping 1s cubic-bezier(0,0,0.2,1) infinite"></span><h1 class="font-black text-xs tracking-wider text-cyan-400">TARIM OS v12.1</h1></div>
+  <div class="flex gap-2">
+    <button onclick="toggleStealthMode()" class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-[10px] px-2.5 py-1 rounded-full font-bold">🕶️ تمويه</button>
+    <button onclick="triggerSOS()" class="bg-red-500/20 border border-red-500/40 text-red-400 text-[10px] px-2.5 py-1 rounded-full font-bold animate-pulse">⚠️ SOS</button>
+  </div>
+</header>
+
+<main id="tab-home" class="p-4 space-y-4">
+  <div class="relative rounded-2xl overflow-hidden border border-cyan-500/30 shadow-2xl">
+    <div class="h-44 bg-cover bg-center flex flex-col justify-between p-4" style="background-image:linear-gradient(180deg,rgba(0,0,0,0.2),rgba(6,8,14,0.95)),url('https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=1000')">
+      <div class="flex justify-between"><div class="flex items-center gap-1 bg-black/60 px-2 py-1 rounded-full border border-white/10"><span class="text-xs">⭐</span><span class="text-[11px] font-bold text-yellow-400">24.3K</span></div><span class="bg-red-600 text-white text-[10px] px-2.5 py-0.5 rounded-full font-bold animate-pulse">مباشر 8 دقائق</span></div>
+      <div class="absolute left-3 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+        <button onclick="sendBroadcastGift()" class="bg-black/70 w-8 h-8 rounded-full flex items-center justify-center border border-cyan-500/40 text-xs">🎁</button>
+        <button onclick="receiveBroadcastGift()" class="bg-black/70 w-8 h-8 rounded-full flex items-center justify-center border border-emerald-500/40 text-xs">📥</button>
+      </div>
+      <div><h2 class="font-black text-sm">بث مباشر سيادي ومشفر</h2><p class="text-[11px] text-gray-300">سيرفرات أسطورية • هدايا حقيقية</p></div>
     </div>
+  <div class="flex justify-between text-[11px] text-gray-400"><span>قائمة المهام السيادية</span><span class="text-cyan-400">🗄️ SQLite نشط</span></div>
+  <div id="tasksList" class="space-y-2.5"></div>
+  <button onclick="runAIEyeScan()" class="w-full bg-cyan-500/10 border border-cyan-500/40 py-3 rounded-xl text-cyan-300 text-xs font-black">⚡ تنفيذ أمر سيادي فوري</button>
+</main>
 
-    <!-- رأس التطبيق العلوي -->
-    <header class="flex justify-between items-center px-4 py-3 border-b border-gray-800 bg-black/60 backdrop-blur-md sticky top-0 z-40">
-        <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-            <h1 class="font-bold text-xs tracking-wider text-cyan-400">TARIM OS v12.1</h1>
-        </div>
-        <div class="flex items-center gap-2">
-            <span class="bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[10px] px-3 py-1 rounded-full font-bold">فريق الدعم (AI)</span>
-            <button onclick="toggleStealthMode()" class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-[10px] px-2.5 py-1 rounded-full">🕶️ تمويه</button>
-        </div>
-    </header>
+<main id="tab-ai" class="p-4 space-y-4 hidden">
+  <div class="glass-card p-5 rounded-2xl text-center"><h2 class="font-black text-sm text-cyan-400 mb-2">عين الذكاء الاصطناعي (Tesseract)</h2><input type="file" id="ocrFileInput" class="w-full bg-black/50 border border-white/10 rounded-xl p-2 text-xs mb-3"><button onclick="runAIEyeScan()" class="bg-cyan-400 text-black font-black text-xs px-4 py-2.5 rounded-xl">بدء الفحص</button><div id="aiScanResults" class="mt-4 text-xs bg-black/40 p-3 rounded-xl border border-white/10 text-right min-h-[60px]">جاهز...</div></div>
+  <div class="glass-card p-4 rounded-2xl text-center"><h3 class="font-black text-xs text-cyan-400 mb-2">الختم الميداني + QR</h3><button onclick="generateSecureQR()" class="bg-blue-600 text-white text-xs px-4 py-2 rounded-xl font-bold">توليد الختم</button><div class="mt-3 flex justify-center"><canvas id="qrCanvas" width="160" height="160" class="rounded-xl bg-white hidden"></canvas></div></div>
+</main>
 
-    <!-- المحتوى الرئيسي -->
-    <main class="p-4 space-y-4 max-w-2xl mx-auto">
+<main id="tab-chat" class="p-4 hidden"><div class="glass-card p-4 rounded-2xl flex flex-col h-[75vh]"><h2 class="font-black text-xs text-cyan-400 pb-2 border-b border-white/10 mb-3">💬 غرفة العمليات (الملك & CEO)</h2><div id="warRoomLogs" class="flex-1 overflow-y-auto space-y-2 text-xs mb-3"></div><div class="flex gap-2"><input id="warRoomInput" placeholder="اكتب الأمر..." class="flex-1 bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs outline-none"><button onclick="sendWarRoomMessage()" class="bg-cyan-400 text-black font-black px-4 py-2 rounded-xl text-xs">إرسال</button></div></div></main>
 
-        <!-- تبويب الرئيسية -->
-        <section id="tab-home" class="space-y-4">
-            <div class="relative rounded-2xl overflow-hidden border border-cyan-500/30 shadow-2xl">
-                <div class="h-44 bg-cover bg-center flex flex-col justify-between p-4 relative" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.1), rgba(6,8,14,0.95)), url('https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=1000&auto=format&fit=crop');">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-1 bg-black/60 px-2.5 py-1 rounded-full border border-gray-700">
-                            <span class="text-xs">⭐</span>
-                            <span class="text-[11px] font-bold text-yellow-400">24.3K</span>
-                        </div>
-                        <span class="bg-red-600 text-white text-[10px] px-2.5 py-0.5 rounded-full font-bold animate-pulse">مباشر</span>
-                    </div>
+<main id="tab-profile" class="p-4 hidden"><div class="glass-card p-5 rounded-2xl text-center"><div class="w-20 h-20 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 font-black text-2xl text-black">AL</div><h2 class="font-black text-sm">الإمبراطور AL</h2><p class="text-[11px] text-cyan-400">المهندس الأعلى</p><div class="mt-4 space-y-2 text-xs text-right"><div class="flex justify-between bg-black/30 p-2.5 rounded-xl border border-white/5"><span>الحالة</span><span class="text-emerald-400 font-black">موثق 🛡️</span></div><div class="flex justify-between bg-black/30 p-2.5 rounded-xl border border-white/5"><span>التشفير</span><span class="text-cyan-400 font-black">AES-256</span></div></div></div></main>
 
-                    <div class="absolute left-3 top-1/2 -translate-y-1/2 flex flex-col gap-2">
-                        <div class="bg-black/70 backdrop-blur-md w-9 h-9 rounded-full flex flex-col items-center justify-center border border-gray-700 text-white shadow-lg cursor-pointer" onclick="sendBroadcastGift('هدية سيادية')">
-                            <span class="text-[10px]">🎁</span>
-                            <span class="text-[8px] text-gray-300">إرسال</span>
-                        </div>
-                        <div class="bg-black/70 backdrop-blur-md w-9 h-9 rounded-full flex flex-col items-center justify-center border border-gray-700 text-white shadow-lg cursor-pointer" onclick="receiveBroadcastGift()">
-                            <span class="text-[10px]">📥</span>
-                            <span class="text-[8px] text-gray-300">استقبال</span>
-                        </div>
-                    </div>
+<nav class="fixed bottom-0 left-0 right-0 bg-[#06080e]/90 backdrop-blur-lg border-t border-white/10 py-2.5 px-6 flex justify-around items-center z-40">
+  <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center text-cyan-400"><span>🏠</span><span class="text-[10px] font-bold">الرئيسية</span></button>
+  <button onclick="switchTab('ai')" id="nav-ai" class="flex flex-col items-center text-white/40"><span>👁️</span><span class="text-[10px]">الذكاء</span></button>
+  <button onclick="runAIEyeScan()" class="w-11 h-11 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black font-black -mt-5 border-2 border-[#06080e]">+</button>
+  <button onclick="switchTab('chat')" id="nav-chat" class="flex flex-col items-center text-white/40"><span>💬</span><span class="text-[10px]">العمليات</span></button>
+  <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center text-white/40"><span>👑</span><span class="text-[10px]">الملف</span></button>
+</nav>
 
-                    <div>
-                        <h2 class="font-bold text-sm text-white">بث مباشر سيادي ومشفر (فلتر بصري وهدايا)</h2>
-                        <p class="text-[11px] text-gray-300">سيرفرات أسطورية • إرسال واستقبال هدايا • فلاتر بصرية</p>
-                    </div>
-                </div>
-            </div>
+<div id="toastBox" class="fixed top-[60px] left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-[360px] space-y-2 pointer-events-none"></div>
+<div id="sosOverlay" class="fixed inset-0 z-[90] bg-red-600/20 backdrop-blur-sm hidden flex-col items-center justify-center"><h1 class="text-3xl font-black text-red-500 animate-pulse">🚨 SOS ACTIVE</h1><button onclick="document.getElementById('sosOverlay').classList.add('hidden')" class="mt-4 bg-white text-black px-6 py-2 rounded-full font-black text-xs">إلغاء</button></div>
 
-            <div class="flex justify-between items-center text-[11px] text-gray-400 px-1">
-                <span>قائمة المهام والعمليات السيادية</span>
-                <span class="text-cyan-400">🗄️ قاعدة بيانات SQLite نشطة</span>
-            </div>
-
-            <div class="flex gap-2">
-                <span class="bg-red-500/20 border border-red-500/40 text-red-400 text-[10px] px-3 py-1 rounded-full font-bold">🔴 عالية</span>
-                <span class="bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 text-[10px] px-3 py-1 rounded-full font-bold">🟡 متوسطة</span>
-                <span class="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[10px] px-3 py-1 rounded-full font-bold">🟢 منخفضة</span>
-            </div>
-
-            <div id="tasksContainer" class="space-y-2.5">
-                <div class="glass-card p-3 rounded-xl border border-cyan-500/30 flex justify-between items-center bg-black/40">
-                    <div>
-                        <span class="bg-cyan-500/20 text-cyan-300 text-[9px] px-2 py-0.5 rounded font-bold">بث نشط</span>
-                        <h3 class="font-bold text-xs text-white">بث مباشر سيادي ومشفر (8 دقائق)</h3>
-                        <p class="text-[10px] text-gray-400">سيرفرات أسطورية • إرسال واستقبال هدايا</p>
-                    </div>
-                    <input type="checkbox" checked class="w-4 h-4 accent-cyan-500 rounded">
-                </div>
-            </div>
-
-            <div>
-                <button onclick="runAIEyeScan()" class="w-full bg-gradient-to-r from-cyan-400/20 via-blue-500/20 to-teal-400/20 border border-cyan-400/40 py-3 rounded-xl text-cyan-300 text-xs font-bold shadow-lg flex items-center justify-center gap-2">
-                    <span>⚡</span> تنفيذ أمر سيادي فوري وتوليد بيان
-                </button>
-            </div>
-        </section>
-
-        <!-- تبويب عين الذكاء -->
-        <section id="tab-ai" class="space-y-4 hidden">
-            <div class="glass-card p-5 rounded-2xl border border-gray-800 text-center">
-                <h2 class="font-bold text-sm text-cyan-400 mb-2">عين الذكاء الاصطناعي الحقيقية (Tesseract OCR)</h2>
-                <input type="file" id="ocrInput" class="w-full bg-black/50 border border-gray-700 rounded-xl p-2 text-xs text-gray-300 mb-3">
-                <button onclick="runAIEyeScan()" class="bg-cyan-500 text-black font-bold text-xs px-4 py-2.5 rounded-xl shadow">بدء الفحص الضوئي</button>
-                <div id="aiScanResults" class="mt-4 text-xs text-gray-300 bg-black/40 p-3 rounded-xl border border-gray-800 text-right min-h-[60px]">جاهز لفحص الوثائق...</div>
-            </div>
-        </section>
-
-        <!-- تبويب العمليات -->
-        <section id="tab-chat" class="space-y-4 hidden">
-            <div class="glass-card p-4 rounded-2xl border border-gray-800 flex flex-col h-[75vh]">
-                <h2 class="font-bold text-xs text-cyan-400 pb-2 border-b border-gray-800 mb-3">💬 غرفة العمليات المشتركة وفريق الدعم</h2>
-                <div id="warRoomLogs" class="flex-1 overflow-y-auto space-y-2 text-xs text-gray-300 pr-1 mb-3">
-                    <div class="bg-cyan-950/40 p-2.5 rounded-xl border border-cyan-500/20">
-                        <strong>فريق الدعم (الذكاء الاصطناعي):</strong> أهلاً بك يا سيادة الإمبراطور.
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <input type="text" id="warRoomInput" placeholder="اكتب الأمر السيادي..." class="flex-1 bg-black/50 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white outline-none">
-                    <button onclick="sendWarRoomMessage()" class="bg-cyan-500 text-black font-bold px-4 py-2 rounded-xl text-xs">إرسال</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- تبويب الملف الشخصي -->
-        <section id="tab-profile" class="space-y-4 hidden">
-            <div class="glass-card p-5 rounded-2xl border border-gray-800 text-center">
-                <div class="w-20 h-20 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 font-black text-2xl text-black">AL</div>
-                <h2 class="font-bold text-sm text-white">الإمبراطور AL</h2>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- شريط تحكم التطبيق السفلي -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-[#06080e]/95 backdrop-blur-lg border-t border-gray-800 py-2.5 px-6 flex justify-around items-center z-40">
-        <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center text-cyan-400">
-            <span class="text-base">🏠</span>
-            <span class="text-[10px] mt-0.5 font-bold">الرئيسية</span>
-        </button>
-        <button onclick="switchTab('ai')" id="nav-ai" class="flex flex-col items-center text-gray-400">
-            <span class="text-base">👁️</span>
-            <span class="text-[10px] mt-0.5">عين الذكاء</span>
-        </button>
-        <button onclick="runAIEyeScan()" class="w-11 h-11 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black font-bold shadow-lg -mt-5 border-2 border-[#06080e]">
-            <span class="text-xl">+</span>
-        </button>
-        <button onclick="switchTab('chat')" id="nav-chat" class="flex flex-col items-center text-gray-400">
-            <span class="text-base">💬</span>
-            <span class="text-[10px] mt-0.5">العمليات</span>
-        </button>
-        <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center text-gray-400">
-            <span class="text-base">👑</span>
-            <span class="text-[10px] mt-0.5">الملف</span>
-        </button>
-    </nav>
-
-    <script src="script.js"></script>
+<script>
+let tasks=[{id:1,badge:"بث نشط",color:"cyan",title:"بث مباشر سيادي ومشفر (8 دقائق)",desc:"سيرفرات أسطورية • فلاتر بصرية",checked:true},{id:2,badge:"محمي",color:"blue",title:"المراسلة الآمنة بين الحسابات",desc:"دعم AI • حسابات موثقة",checked:true},{id:3,badge:"ميداني",color:"emerald",title:"خريطة حضرموت بدون نت",desc:"تسجيل AES • مهام 5 دقائق",checked:true},{id:4,badge:"جاهز",color:"amber",title:"الختم الميداني + QR",desc:"10 منشورات • Tesseract",checked:false}];
+function renderTasks(){document.getElementById('tasksList').innerHTML=tasks.map(t=>`<div class="glass-card p-3 rounded-xl flex justify-between items-center"><div><span class="bg-${t.color}-500/20 text-${t.color}-300 text-[9px] px-2 py-0.5 rounded font-bold border border-${t.color}-500/20">${t.badge}</span><h3 class="font-bold text-xs mt-1">${t.title}</h3><p class="text-[10px] text-gray-400">${t.desc}</p></div><input type="checkbox" ${t.checked?'checked':''} onchange="tasks[${tasks.indexOf(t)}].checked=!tasks[${tasks.indexOf(t)}].checked" class="w-4 h-4 accent-cyan-500"></div>`).join('')}
+renderTasks();
+function toast(txt,icon='⚡'){const b=document.getElementById('toastBox');const id=Date.now();b.insertAdjacentHTML('beforeend',`<div id="t${id}" class="bg-[#0f172a]/90 backdrop-blur border border-white/15 rounded-xl px-4 py-2.5 flex gap-2 text-[11px] font-bold"><span>${icon}</span><span>${txt}</span></div>`);setTimeout(()=>document.getElementById('t'+id)?.remove(),3000)}
+function verifySovereignAccess(){const pin=document.getElementById('ceoPinInput').value;if(pin==='2026'||pin==='AL2026'){document.getElementById('authModal').style.display='none';toast('تم فتح القلعة - السيرفرات نشطة','🛡️');}else{document.getElementById('authErr').classList.remove('hidden');toast('رمز خاطئ','⛔')}}
+function toggleStealthMode(){document.getElementById('appBody').classList.toggle('stealth');toast(document.getElementById('appBody').classList.contains('stealth')?'تم تفعيل التمويه':'تم إلغاء التمويه','🕶️')}
+function triggerSOS(){document.getElementById('sosOverlay').classList.remove('hidden');document.getElementById('sosOverlay').classList.add('flex');toast('تم تفعيل SOS','🚨');if(navigator.vibrate)navigator.vibrate([200,100,200])}
+function sendBroadcastGift(){toast('تم إرسال هدية سيادية فاخرة 🎁','🎁')}
+function receiveBroadcastGift(){toast('تم استلام هدية ميدانية 📥','📥')}
+function switchTab(t){document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));document.getElementById('tab-'+t).classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('text-cyan-400'));document.getElementById('nav-'+t)?.classList.add('text-cyan-400')}
+function runAIEyeScan(){switchTab('ai');const r=document.getElementById('aiScanResults');r.innerHTML='جاري المسح... 0%';let p=0;const iv=setInterval(()=>{p+=15;r.innerHTML=`جاري المسح... ${p}% <div class="h-1 bg-cyan-500/20 rounded mt-2"><div style="width:${p}%" class="h-1 bg-cyan-400 rounded"></div></div>`;if(p>=100){clearInterval(iv);r.innerHTML=`✓ تم التحليل<br>• النص: وثيقة ميدانية - تريم<br>• الثقة: 98.7%<br>• الوقت: ${new Date().toLocaleTimeString('ar-SA')}`;toast('اكتمل الفحص','👁️')}},200)}
+function generateSecureQR(){const c=document.getElementById('qrCanvas');c.classList.remove('hidden');const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,160,160);ctx.fillStyle='#000';for(let i=0;i<200;i++){if(Math.random()>0.5)ctx.fillRect((i%16)*10,Math.floor(i/16)*10,8,8)}ctx.fillStyle='#00E5FF';ctx.fillRect(60,60,40,40);toast('تم توليد الختم المشفر','🔏')}
+function sendWarRoomMessage(){const inp=document.getElementById('warRoomInput');if(!inp.value)return;const logs=document.getElementById('warRoomLogs');logs.insertAdjacentHTML('beforeend',`<div class="bg-white/5 p-2.5 rounded-xl border border-white/10"><b>CEO:</b> ${inp.value}</div>`);const txt=inp.value;inp.value='';setTimeout(()=>{logs.insertAdjacentHTML('beforeend',`<div class="bg-cyan-950/40 p-2.5 rounded-xl border border-cyan-500/20"><b>الذكاء:</b> تم استلام "${txt}" - جاري التنفيذ على 12 عقدة</div>`);logs.scrollTop=logs.scrollHeight},800)}
+document.getElementById('warRoomLogs').innerHTML='<div class="bg-cyan-950/40 p-2.5 rounded-xl border border-cyan-500/20"><b>الذكاء:</b> أهلاً بك يا سيادة الإمبراطور. القناة مشفرة وآمنة.</div>';
+document.getElementById('ceoPinInput').addEventListener('keydown',e=>{if(e.key==='Enter')verifySovereignAccess()});
+</script>
 </body>
 </html>
