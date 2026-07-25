@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
 const { Pool } = require('pg');
@@ -13,16 +14,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// اتصال قاعدة بيانات PostgreSQL السيادية
+// 🔥 السطر السيادي الذي يخدم الواجهة - يخلي Render يعرض موقعك
+app.use(express.static(path.join(__dirname, 'public')));
+
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 });
 
-// كلمة سر الـ CEO الآن في خزنة Render وليس في الكود
 const CEO_PASSWORD = process.env.CEO_PASSWORD || 'Tarim2026!Sovereign';
 
-// إنشاء الجداول تلقائياً
 async function initDB() {
     try {
         await pool.query(`
@@ -46,8 +47,7 @@ async function initDB() {
 }
 initDB();
 
-const HTML_TEMPLATE = `
-<!DOCTYPE html>
+const HTML_TEMPLATE = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -57,9 +57,9 @@ const HTML_TEMPLATE = `
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0b0f19; color: #fff; font-family: system-ui, sans-serif; }
-       .glass-card { background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(15px); border: 1px solid rgba(0, 243, 255, 0.2); }
-       .neon-glow { box-shadow: 0 0 25px rgba(0, 243, 255, 0.35); }
-       .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #00f3ff; color: #000; padding: 12px 26px; border-radius: 9999px; font-weight: bold; z-index: 1000; display: none; }
+      .glass-card { background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(15px); border: 1px solid rgba(0, 243, 255, 0.2); }
+      .neon-glow { box-shadow: 0 0 25px rgba(0, 243, 255, 0.35); }
+      .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #00f3ff; color: #000; padding: 12px 26px; border-radius: 9999px; font-weight: bold; z-index: 1000; display: none; }
     </style>
 </head>
 <body class="pb-28">
@@ -80,6 +80,7 @@ const HTML_TEMPLATE = `
             </div>
             <button onclick="triggerSOS()" class="w-full bg-red-600/20 text-red-400 border border-red-500/50 py-2 rounded-xl text-xs font-bold mt-2"><i class="fa-solid fa-triangle-exclamation ml-1"></i> زر الطوارئ SOS</button>
         </div>
+    </div>
     <header class="flex justify-between items-center px-4 py-3 glass-card border-b border-gray-800">
         <div class="flex items-center space-x-3 space-x-reverse">
             <button onclick="showToast('🔔 التنبيهات السيادية مفعلة')" class="text-yellow-400 text-xl"><i class="fa-solid fa-bell"></i></button>
@@ -103,6 +104,7 @@ const HTML_TEMPLATE = `
                     <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
                     <span>24.3K</span>
                 </div>
+            </div>
             <div class="absolute top-3 right-3 flex space-x-2 space-x-reverse">
                 <span class="bg-gray-800/80 text-xs px-3 py-1 rounded-full text-gray-200 backdrop-blur-md">بث مباشر سيادي مفعل</span>
                 <span class="bg-red-600 text-xs px-3 py-1 rounded-full font-bold">مباشر</span>
@@ -113,7 +115,6 @@ const HTML_TEMPLATE = `
                 <button onclick="showToast('💬 المحادثات المشفرة')" class="flex flex-col items-center text-white"><div class="bg-black/40 p-3 rounded-full backdrop-blur-md"><i class="fa-solid fa-comment-dots text-xl"></i></div><span class="text-xs text-white font-bold">892</span></button>
                 <button onclick="showToast('↗️ تم نسخ رابط البث')" class="flex flex-col items-center text-white"><div class="bg-black/40 p-3 rounded-full backdrop-blur-md"><i class="fa-solid fa-share text-xl"></i></div><span class="text-xs text-white font-bold">412</span></button>
             </div>
-        </div>
         <section class="mt-4">
             <div class="flex justify-between items-center mb-3">
                 <span class="text-xs text-cyan-400 font-bold"><i class="fa-solid fa-database ml-1"></i> PostgreSQL دائمة ومشفرة</span>
@@ -147,32 +148,20 @@ const HTML_TEMPLATE = `
         }
         async function verifyCEO() {
             const pass = document.getElementById('ceoPassword').value;
-            const res = await fetch(API_URL + '/api/verify-ceo', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: pass })
-            });
+            const res = await fetch(API_URL + '/api/verify-ceo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pass }) });
             const data = await res.json();
-            if(res.ok) {
-                document.getElementById('authModal').style.display = 'none';
-                showToast('🛡️ أهلاً بك أيها الإمبراطور CEO');
-            } else showToast('❌ ' + data.error);
+            if(res.ok) { document.getElementById('authModal').style.display = 'none'; showToast('🛡️ أهلاً بك أيها الإمبراطور CEO'); }
+            else showToast('❌ ' + data.error);
         }
         async function registerUser() {
             const username = document.getElementById('regUsername').value;
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPassword').value;
             if(!username ||!email ||!password) { showToast('⚠️ أدخل كافة البيانات!'); return; }
-            const response = await fetch(API_URL + '/api/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password })
-            });
+            const response = await fetch(API_URL + '/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
             const data = await response.json();
-            if(response.ok) {
-                showToast('✅ ' + data.message);
-                document.getElementById('authModal').style.display = 'none';
-            } else showToast('❌ ' + data.error);
+            if(response.ok) { showToast('✅ ' + data.message); document.getElementById('authModal').style.display = 'none'; }
+            else showToast('❌ ' + data.error);
         }
         function triggerSOS() {
             if(confirm('⚠️ هل أنت متأكد من تفعيل بروتوكول SOS؟')) {
@@ -184,7 +173,9 @@ const HTML_TEMPLATE = `
 </html>
 `;
 
-app.get('/', (req, res) => res.send(HTML_TEMPLATE));
+app.get('/', (req, res) => {
+    res.send(HTML_TEMPLATE);
+});
 
 app.get('/api/status', async (req, res) => {
     try {
@@ -197,11 +188,8 @@ app.get('/api/status', async (req, res) => {
 
 app.post('/api/verify-ceo', async (req, res) => {
     const { password } = req.body;
-    if (password === CEO_PASSWORD) {
-        res.json({ success: true, message: "CEO Verified" });
-    } else {
-        res.status(401).json({ error: "كلمة السر السيادية غير صحيحة!" });
-    }
+    if (password === CEO_PASSWORD) res.json({ success: true });
+    else res.status(401).json({ error: "كلمة السر السيادية غير صحيحة!" });
 });
 
 app.post('/api/register', async (req, res) => {
