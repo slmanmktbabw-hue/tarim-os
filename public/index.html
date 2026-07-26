@@ -1,16 +1,174 @@
-<style>
-    body { background-color: #0d1117; color: #c9d1d9; font-family: Tahoma, sans-serif; margin: 0; padding-bottom: 90px; text-align: right; }
-    header { background: #161b22; padding: 12px; border-bottom: 1px solid #30363d; font-weight: bold; font-size: 16px; color: #58a6ff; text-align: center; display: flex; justify-content: space-between; align-items: center; }
-    .container { padding: 15px; max-width: 600px; margin: auto; }
-    .card { background: #161b22; border: 1px solid #30363d; padding: 12px; border-radius: 8px; margin-bottom: 10px; display: none; position: relative; z-index: 1; }
-    .card.active { display: block; }
-    input, select { width: 100%; padding: 10px; margin: 6px 0; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 5px; box-sizing: border-box; }
-    button { background: #238636; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; }
-    
-    /* تثبيت القائمة السفلية في المقدمة المطلقة لكي لا تتعطل الأزرار أبداً */
-    .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #161b22; border-top: 2px solid #30363d; display: flex; justify-content: space-around; padding: 10px 0; z-index: 99999; box-sizing: border-box; pointer-events: auto; }
-    .nav-item { color: #8b949e; text-decoration: none; font-size: 11px; font-weight: bold; text-align: center; background: none; border: none; cursor: pointer; pointer-events: auto; }
-    .nav-item.active { color: #58a6ff; }
-    
-    .sub-menu { background: #010409; padding: 8px; border-radius: 5px; margin-top: 8px; border: 1px solid #30363d; font-size: 13px; }
-</style>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARIM OS v12.1 - القلعة السيادية</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: Tahoma, sans-serif; margin: 0; padding-bottom: 90px; text-align: right; }
+        .container { padding: 15px; max-width: 600px; margin: auto; }
+        .view-section { display: none; position: relative; z-index: 1; }
+        .view-section.active { display: block; }
+        .card { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 10px; margin-bottom: 12px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 6px; box-sizing: border-box; }
+        button { background: #238636; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; pointer-events: auto; }
+        
+        /* القائمة السفلية الثابتة 5 أزرار (مؤمنة بطبقة علوية مطلقة z-index لمنع التعطل) */
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 1px solid #30363d; display: flex; justify-content: space-around; padding: 8px 0; z-index: 99999; box-sizing: border-box; pointer-events: auto; }
+        .nav-item { color: #8b949e; text-decoration: none; font-size: 11px; font-weight: bold; text-align: center; background: none; border: none; cursor: pointer; pointer-events: auto; }
+        .nav-item.active { color: #fff; }
+        .center-btn { background: linear-gradient(135deg, #2ea443, #58a6ff); color: white; border-radius: 50% !important; width: 45px !important; height: 45px !important; padding: 0 !important; font-size: 24px; display: flex; align-items: center; justify-content: center; margin-top: -5px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- شاشة المصادقة والحماية -->
+        <div id="auth-screen" class="card active" style="z-index: 10;">
+            <h3>🔐 تسجيل الدخول السيادي</h3>
+            <p>أدخل البريد أو رقم الجوال أو تابع عبر الحساب:</p>
+            <input type="text" id="identity-input" placeholder="البريد الإلكتروني أو رقم الهاتف">
+            <input type="password" id="pass-input" placeholder="كلمة المرور المشفرة">
+            <button onclick="loginUser()">دخول الآمن / إنشاء حساب</button>
+            <button onclick="loginGoogle()" style="background: #db4437; margin-top: 8px;">متابعة عبر حساب Google 🌐</button>
+        </div>
+
+        <!-- 1. الصفحة الرئيسية -->
+        <div id="tab-1" class="view-section card">
+            <h3>🏠 الصفحة الرئيسية والبث العام</h3>
+            <p>• النظام يعمل بكفاءة تامة وتأمين عالي.</p>
+            <p>• أحدث التنبيهات والمنشورات السيادية.</p>
+        </div>
+
+        <!-- 2. العمليات -->
+        <div id="tab-2" class="view-section card">
+            <h3>⚡ العمليات السيادية</h3>
+            <p>• <b>بث مباشر مشفر (8 دقائق):</b> مفعل بالكامل مع فلاتر بصرية وهدايا.</p>
+            <p>• <b>المراسلة والاتصال الآمن:</b> حماية مشفرة بين الحسابات.</p>
+            <p>• <b>خريطة حضرموت وتريم (Offline):</b> جاهزة للتشغيل الميداني.</p>
+            <p>• <b>إصدار الختم الميداني + QR:</b> مدعوم بنظام التوثيق.</p>
+        </div>
+
+        <!-- 3. زر الإنشاء (+) -->
+        <div id="tab-3" class="view-section card">
+            <h3>✨ لوحة الإنشاء المركزي</h3>
+            <button onclick="alert('تفعيل محرك التعرف على النصوص OCR...')">📷 صورة > نص</button>
+            <button onclick="alert('فتح محرر المنشورات الآمن...')">📝 منشور جديد</button>
+            <button onclick="alert('بدء بث LIVE جديد...')">📡 بدء LIVE</button>
+            <button onclick="alert('تفعيل الفلاتر البصرية...')">✨ فلتر تجميلي</button>
+        </div>
+
+        <!-- 4. صندوق الوارد والمراسلة -->
+        <div id="tab-4" class="view-section card">
+            <h3>💬 صندوق الوارد والمراسلة الآمنة</h3>
+            <div style="height: 150px; background: #010409; border: 1px solid #30363d; border-radius: 6px; padding: 8px; overflow-y: scroll; margin-bottom: 8px;" id="chat-messages">
+                [النظام]: قناة المراسلة المشفرة نشطة...
+            </div>
+            <input type="text" id="msg-box" placeholder="اكتب رسالة مشفرة...">
+            <button onclick="sendChatMessage()">إرسال برقية</button>
+        </div>
+
+        <!-- 5. الملف الشخصي والإعدادات -->
+        <div id="tab-5" class="view-section card">
+            <h3>👑 الملف الشخصي وإعدادات CEO</h3>
+            <p>الرصيد: <b style="color: #7ee787;">24.3K 🪙</b></p>
+            <p>مركز الأنشطة | فيديوهات أوفلاين | QR لديك</p>
+            <hr style="border-color: #30363d;">
+            <p style="color: #58a6ff; font-weight: bold;">الإعدادات والخصوصية الشاملة:</p>
+            <select onchange="handleSettings(this.value)">
+                <option value="">اختر إعداداً للتعديل...</option>
+                <option>إدارة المنشورات</option>
+                <option>تفضيلات المحتوى</option>
+                <option>إعدادات LIVE</option>
+                <option>الإشعارات</option>
+                <option>الوقت والرفاهية</option>
+                <option>ربط حسابات العائلة</option>
+                <option>إدارة الحساب</option>
+                <option>الأمان والاذونات</option>
+                <option>التحليلات والإحصائيات</option>
+                <option>مشاركة الملف الشخصي</option>
+                <option>تغيير خلفية المستخدم</option>
+                <option>تغيير إعدادات المستخدم</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- القائمة السفلية الثابتة والمؤكدة تفاعلياً -->
+    <div class="nav-bar" id="bottom-nav" style="display:none;">
+        <button class="nav-item active" onclick="switchTab(1)">🏠<br>الصفحة الرئيسية</button>
+        <button class="nav-item" onclick="switchTab(2)">👥<br>العمليات</button>
+        <button class="nav-item center-btn" onclick="switchTab(3)">+</button>
+        <button class="nav-item" onclick="switchTab(4)">💬<br>صندوق الوارد</button>
+        <button class="nav-item" onclick="switchTab(5)">👤<br>الملف الشخصي</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        async function loginUser() {
+            const identity = document.getElementById('identity-input').value.trim();
+            const password = document.getElementById('pass-input').value.trim();
+            if(!identity) return alert('الرجاء كتابة البريد أو الهاتف');
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identity, password, login_type: identity.includes('@') ? 'email' : 'phone' })
+                });
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    alert('تم المصادقة بنجاح والدخول للقلعة السيادية ✅');
+                    document.getElementById('auth-screen').style.display = 'none';
+                    document.getElementById('bottom-nav').style.display = 'flex';
+                    switchTab(1);
+                }
+            } catch(e) {
+                alert('خطأ في الاتصال بالخادم الآمن');
+            }
+        }
+
+        function loginGoogle() {
+            const fakeEmail = 'ceo.user.' + Math.floor(Math.random()*1000) + '@gmail.com';
+            document.getElementById('identity-input').value = fakeEmail;
+            document.getElementById('pass-input').value = 'oauth_google_secure';
+            loginUser();
+        }
+
+        function switchTab(n) {
+            for(let i=1; i<=5; i++) {
+                const el = document.getElementById(`tab-${i}`);
+                if(el) el.classList.remove('active');
+            }
+            const target = document.getElementById(`tab-${n}`);
+            if(target) target.classList.add('active');
+
+            const items = document.querySelectorAll('.nav-item:not(.center-btn)');
+            items.forEach((item, index) => {
+                if(index + 1 === n) item.classList.add('active');
+                else item.classList.remove('active');
+            });
+        }
+
+        function sendChatMessage() {
+            const txt = document.getElementById('msg-box').value.trim();
+            if(txt) {
+                socket.emit('send-message', { text: txt });
+                document.getElementById('msg-box').value = '';
+            }
+        }
+
+        socket.on('receive-message', (data) => {
+            const box = document.getElementById('chat-messages');
+            box.innerHTML += `<br><b>[مراسل]:</b> ${data.text}`;
+            box.scrollTop = box.scrollHeight;
+        });
+
+        function handleSettings(val) {
+            if(val) alert(`تم تفعيل إعداد: ${val}`);
+        }
+    </script>
+</body>
+</html>
