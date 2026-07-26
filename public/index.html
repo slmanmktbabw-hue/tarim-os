@@ -1,47 +1,39 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TARIM OS v13.4</title><script src="https://cdn.tailwindcss.com"></script><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet"><style>*{font-family:'Tajawal',sans-serif}body{background:#080c14}.glass{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.08)}</style></head><body class="text-white min-h-screen pb-28">
-<header class="sticky top-0 z-40 bg-black/90 backdrop-blur-xl border-b border-white/10 px-3 py-2.5 flex justify-between items-center"><div class="flex items-center gap-2"><div class="font-black text-cyan-400 text-[12px]">TARIM OS v12.1</div><span class="bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] px-3 py-1 rounded-full font-bold">فريق الدعم (AL)</span></div><div class="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-[10px] px-3 py-1.5 rounded-full font-bold">👓 تمويه</div></header>
+<html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TARIM OS v13.5</title><script src="https://cdn.tailwindcss.com"></script><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet"><style>*{font-family:'Tajawal',sans-serif}body{background:#080c14}.glass{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.08)}</style></head><body class="text-white min-h-screen pb-28">
+
+<!-- بوابة الحماية السيادية CEO - نفس الصورة -->
+<div id="authGate" class="fixed inset-0 z-[100] bg-[#080c14] flex items-center justify-center p-4">
+<div class="w-full max-w-[360px] bg-[#0e1524]/90 border border-cyan-500/20 rounded-[24px] p-6 backdrop-blur-xl shadow-2xl">
+<div class="w-20 h-20 mx-auto rounded-full bg-[#0f1f35] border border-cyan-500/20 flex items-center justify-center text-3xl">🛡️</div>
+<h2 class="text-center font-black text-cyan-400 text-[18px] mt-4">بصمة الأمان السيادية للـ CEO</h2>
+<p class="text-center text-gray-400 text-[12px] mt-1">إنشاء حساب / أدخل رقم الجوال / البريد الإلكتروني</p>
+<input id="userPhone" type="text" placeholder="رقم الجوال أو البريد الإلكتروني" class="w-full mt-6 bg-black/60 border border-white/10 rounded-2xl px-4 py-3.5 text-[13px] text-center focus:border-cyan-500/50 outline-none">
+<input id="userPass" type="password" placeholder="••••••••••••••••" class="w-full mt-3 bg-black/60 border border-white/10 rounded-2xl px-4 py-3.5 text-[13px] text-center focus:border-cyan-500/50 outline-none">
+<button onclick="loginCEO()" class="w-full mt-4 bg-gradient-to-r from-cyan-400 to-blue-600 text-black font-black py-3.5 rounded-2xl text-[13px]">فتح القلعة السيادية</button>
+<button class="w-full mt-3 bg-red-900/30 border border-red-500/20 text-red-400 py-3 rounded-2xl text-[13px] font-bold">⚠️ طوارئ SOS</button>
+</div>
+</div>
+
+<header class="sticky top-0 z-40 bg-black/90 backdrop-blur-xl border-b border-white/10 px-3 py-2.5 flex justify-between items-center"><div class="flex items-center gap-2"><div class="font-black text-cyan-400 text-[11px]">TARIM OS v12.1</div><span class="bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[9px] px-3 py-1 rounded-full font-bold">فريق الدعم (AL)</span></div><div class="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-[9px] px-3 py-1.5 rounded-full font-bold">👓 تمويه</div></header>
 
 <main id="tab-home" class="p-3 space-y-3">
-<div class="h-[265px] rounded-[22px] overflow-hidden border border-white/10 relative bg-cover bg-center" style="background-image:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.9)),url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200')"><div class="absolute top-3 left-3 right-3 flex justify-between"><span class="bg-red-600 text-[11px] px-3 py-1 rounded-full font-bold animate-pulse">مباشر</span><span class="bg-black/60 border border-white/10 text-yellow-400 text-[13px] px-3 py-1 rounded-full font-bold">24.3K ⭐</span></div><div class="absolute left-3 top-[65px] space-y-3"><div class="w-12 h-12 bg-black/60 border border-white/15 rounded-full flex flex-col items-center justify-center"><span>🎁</span><span class="text-[8px]">إرسال</span></div><div class="w-12 h-12 bg-black/60 border border-white/15 rounded-full flex flex-col items-center justify-center"><span>📥</span><span class="text-[8px]">استقبال</span></div></div><div class="absolute bottom-0 left-0 right-0 p-3 text-center"><div class="font-black text-[13px]">بث مباشر سيادي ومشفر (فلتر بصري وهدايا)</div><div class="text-[11px] text-gray-300">سيرفرات أسطورية • إرسال واستقبال هدايا • فلاتر بصرية</div></div></div>
+<div class="h-[265px] rounded-[22px] overflow-hidden border border-white/10 relative bg-cover bg-center" style="background-image:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.9)),url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200')"><div class="absolute top-3 left-3 right-3 flex justify-between"><span class="bg-red-600 text-[11px] px-3 py-1 rounded-full font-bold animate-pulse">مباشر</span><span class="bg-black/60 border border-white/10 text-yellow-400 text-[13px] px-3 py-1 rounded-full font-bold">24.3K ⭐</span></div><div class="absolute left-3 top-[65px] space-y-3"><div class="w-12 h-12 bg-black/60 border border-white/15 rounded-full flex flex-col items-center justify-center"><span>🎁</span><span class="text-[8px]">إرسال</span></div><div class="w-12 h-12 bg-black/60 border border-white/15 rounded-full flex flex-col items-center justify-center"><span>📥</span><span class="text-[8px]">استقبال</span></div></div><div class="absolute bottom-0 left-0 right-0 p-3 text-center"><div class="font-black text-[13px]">بث مباشر سيادي ومشفر (فلتر بصري وهدايا)</div><div class="text-[11px] text-gray-300">سيرفرات أسطورية • إرسال واستقبال هدايا</div></div></div>
 <div id="tasksContainer" class="space-y-2"></div>
-<button onclick="executeOrder()" class="w-full bg-gradient-to-r from-cyan-600/30 to-blue-600/30 border border-cyan-500/30 py-3.5 rounded-2xl text-cyan-300 text-[13px] font-black">⚡ تنفيذ أمر سيادي فوري</button>
 </main>
 
 <main id="tab-operations" class="p-3 space-y-3 hidden">
-<button class="w-full glass p-4 rounded-2xl text-right"><div class="font-bold text-[13px]">🔴 بث مباشر سيادي ومشفر (8 دقائق)</div><div class="text-[11px] text-gray-400">مشفر ومباشر</div></button>
-<button onclick="openTab('messages')" class="w-full glass p-4 rounded-2xl text-right"><div class="font-bold text-[13px]">🔒 المراسلة والاتصال الآمن بين الحسابات</div><div class="text-[11px] text-gray-400">اتصال آمن</div></button>
-<button class="w-full glass p-4 rounded-2xl text-right"><div class="font-bold text-[13px]">🗺️ خريطة حضرموت وتريم بدون نت (Offline)</div><div class="text-[11px] text-gray-400">Offline</div></button>
-<button onclick="openTab('ai')" class="w-full glass p-4 rounded-2xl text-right border border-cyan-500/20"><div class="font-bold text-[13px]">🔏 إصدار الختم الميداني المشفر + QR</div><div class="text-[11px] text-gray-400">ختم ميداني</div></button>
+<button class="w-full glass p-4 rounded-2xl text-right"><div class="font-bold text-[13px]">🔴 بث مباشر سيادي ومشفر (8 دقائق)</div></button>
+<button onclick="openTab('messages')" class="w-full glass p-4 rounded-2xl text-right"><div class="font-bold text-[13px]">🔒 المراسلة والاتصال الآمن</div></button>
+<button class="w-full glass p-4 rounded-2xl text-right"><div class="font-bold text-[13px]">🗺️ خريطة حضرموت وتريم Offline</div></button>
+<button onclick="openTab('ai')" class="w-full glass p-4 rounded-2xl text-right border border-cyan-500/20"><div class="font-bold text-[13px]">🔏 إصدار الختم الميداني + QR</div></button>
 </main>
-
-<main id="tab-messages" class="p-3 hidden"><div class="glass p-10 rounded-2xl text-center"><div class="text-4xl">💬</div><div class="font-black mt-3">المراسلة بين حسابات المستخدمين</div></div></main>
-
+<main id="tab-messages" class="p-3 hidden"><div class="glass p-10 rounded-2xl text-center"><div class="text-4xl">💬</div><div class="font-black mt-3">المراسلة بين الحسابات</div></div></main>
 <main id="tab-profile" class="p-3 space-y-2 hidden">
-<div class="glass p-4 rounded-2xl flex gap-3 items-center"><div class="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-black font-black">AL</div><div><div class="font-black">الإمبراطور AL</div><div class="text-xs text-gray-400">الملف الشخصي</div></div></div>
-<button class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between"><span>💰 رصيد</span><span>›</span></button>
-<button class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between"><span>📊 مركز الأنشطة</span><span>›</span></button>
-<button class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between"><span>📹 فيديوهات دون اتصال</span><span>›</span></button>
-<button onclick="openTab('ai')" class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between border border-cyan-500/20"><span>🔳 رمز QR لديك</span><span class="text-cyan-400">›</span></button>
-<button class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between"><span>🏪 المجموعة التجارية</span><span>›</span></button>
-<button class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between"><span>📢 الترويج</span><span>›</span></button>
-<div class="text-[11px] text-gray-500 font-bold pt-2">الإعدادات والخصوصية</div>
-<button class="w-full glass p-3 rounded-xl text-right text-[12px]">📝 إدارة المنشورات</button>
-<button class="w-full glass p-3 rounded-xl text-right text-[12px]">🎛️ تفضيلات المحتوى</button>
-<button class="w-full glass p-3 rounded-xl text-right text-[12px]">🔴 LIVE</button>
-<button class="w-full glass p-3 rounded-xl text-right text-[12px]">🔔 الإشعارات</button>
-<button class="w-full glass p-3 rounded-xl text-right text-[12px]">⏰ الوقت والرفاهية</button>
-<button class="w-full glass p-3 rounded-xl text-right text-[12px]">👨‍👩‍👧‍👦 ربط الحسابات للعائلة</button>
-<button class="w-full glass p-3 rounded-xl text-right text-[12px]">👤 الحساب</button>
-<button class="w-full glass p-3 rounded-xl text-right text-[12px]">🛡️ الأمان والأذونات</button>
-<button class="w-full glass p-3 rounded-xl text-right text-[12px]">📈 التحليلات</button>
-<button class="w-full glass p-3 rounded-xl text-right text-[12px]">🔗 مشاركة ملفك الشخصي</button>
+<div class="glass p-4 rounded-2xl flex gap-3 items-center"><div class="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-black font-black">AL</div><div><div class="font-black">الإمبراطور AL</div><div id="userDisplay" class="text-xs text-gray-400">الملف الشخصي</div></div></div>
+<button class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between"><span>💰 رصيد</span><span>›</span></button><button class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between"><span>📊 مركز الأنشطة</span><span>›</span></button><button class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between"><span>📹 فيديوهات دون اتصال</span><span>›</span></button><button onclick="openTab('ai')" class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between border border-cyan-500/20"><span>🔳 رمز QR لديك</span><span class="text-cyan-400">›</span></button><button class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between"><span>🏪 المجموعة التجارية</span><span>›</span></button><button class="w-full glass p-3.5 rounded-xl text-right text-[13px] flex justify-between"><span>📢 الترويج</span><span>›</span></button><div class="text-[11px] text-gray-500 font-bold pt-2">الإعدادات والخصوصية</div><button class="w-full glass p-3 rounded-xl text-right text-[12px]">📝 إدارة المنشورات</button><button class="w-full glass p-3 rounded-xl text-right text-[12px]">🎛️ تفضيلات المحتوى</button><button class="w-full glass p-3 rounded-xl text-right text-[12px]">🔴 LIVE</button><button class="w-full glass p-3 rounded-xl text-right text-[12px]">🔔 الإشعارات</button><button class="w-full glass p-3 rounded-xl text-right text-[12px]">⏰ الوقت والرفاهية</button><button class="w-full glass p-3 rounded-xl text-right text-[12px]">👨‍👩‍👧‍👦 ربط الحسابات للعائلة</button><button class="w-full glass p-3 rounded-xl text-right text-[12px]">👤 الحساب</button><button class="w-full glass p-3 rounded-xl text-right text-[12px]">🛡️ الأمان والأذونات</button><button class="w-full glass p-3 rounded-xl text-right text-[12px]">📈 التحليلات</button><button class="w-full glass p-3 rounded-xl text-right text-[12px]">🔗 مشاركة ملفك الشخصي</button>
 </main>
-
-<main id="tab-ai" class="p-3 hidden"><div class="glass p-4 rounded-2xl text-center"><h3 class="font-black text-cyan-400">فريق الدعم AL + الختم الميداني + QR</h3><canvas id="qr" width="160" height="160" class="bg-white rounded-xl hidden mx-auto mt-3"></canvas><div id="sealCode" class="mt-2 text-xs text-cyan-300"></div><button onclick="genQR()" class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-bold">توليد الختم</button><div id="aiRes" class="mt-3 text-xs bg-black/40 p-3 rounded-xl">فريق الدعم جاهز...</div></div></main>
-
+<main id="tab-ai" class="p-3 hidden"><div class="glass p-4 rounded-2xl text-center"><h3 class="font-black text-cyan-400">فريق الدعم AL + الختم الميداني</h3><canvas id="qr" width="160" height="160" class="bg-white rounded-xl hidden mx-auto mt-3"></canvas><div id="sealCode" class="mt-2 text-xs text-cyan-300"></div><button onclick="genQR()" class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-bold">توليد الختم</button><div id="aiRes" class="mt-3 text-xs bg-black/40 p-3 rounded-xl">جاهز...</div></div></main>
 <div id="createSheet" class="fixed inset-0 z-[90] hidden"><div onclick="closeCreate()" class="absolute inset-0 bg-black/70"></div><div class="absolute bottom-0 left-0 right-0 bg-[#10131f] border-t border-white/10 rounded-t-[28px] p-5"><h3 class="font-black text-center mb-4">إنشاء</h3><div class="grid grid-cols-2 gap-3"><button class="glass py-5 rounded-2xl font-bold">📝 نص</button><button class="glass py-5 rounded-2xl font-bold">📄 منشور</button><button class="glass py-5 rounded-2xl font-bold text-red-300">🔴 LIVE</button><button class="glass py-5 rounded-2xl font-bold">🎨 فلتر</button></div><button onclick="closeCreate()" class="w-full mt-4 text-gray-400 text-xs">إغلاق</button></div></div>
-
 <nav class="fixed bottom-0 left-0 right-0 bg-[#080c14] border-t border-white/10 py-2 px-1 flex justify-around z-50">
 <button onclick="openTab('home')" data-nav="home" class="flex flex-col items-center text-cyan-400"><span class="text-[22px]">🏠</span><span class="text-[9px] mt-1 font-bold">الرئيسية</span></button>
 <button onclick="openTab('operations')" data-nav="operations" class="flex flex-col items-center text-white/40"><span class="text-[22px]">👁️</span><span class="text-[9px] mt-1">العمليات</span></button>
@@ -49,4 +41,11 @@
 <button onclick="openTab('messages')" data-nav="messages" class="flex flex-col items-center text-white/40"><span class="text-[22px]">💬</span><span class="text-[9px] mt-1">المراسلة</span></button>
 <button onclick="openTab('profile')" data-nav="profile" class="flex flex-col items-center text-white/40"><span class="text-[22px]">👑</span><span class="text-[9px] mt-1">الملف</span></button>
 </nav>
-<script src="/socket.io/socket.io.js"></script><script src="script.js"></script></body></html>
+<script>
+function loginCEO(){const p=document.getElementById('userPhone').value;const pass=document.getElementById('userPass').value;if(!p||!pass){alert('أدخل رقم الجوال والبريد وكلمة السر');return;}localStorage.setItem('ceo_user',p);document.getElementById('userDisplay').innerText=p;document.getElementById('authGate').style.display='none';}
+if(localStorage.getItem('ceo_user')){document.getElementById('authGate').style.display='none';document.getElementById('userDisplay').innerText=localStorage.getItem('ceo_user');}
+function openTab(t){document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));document.getElementById('tab-'+t).classList.remove('hidden');document.querySelectorAll('[data-nav]').forEach(b=>b.classList.replace('text-cyan-400','text-white/40'));const b=document.querySelector('[data-nav='+t+']');if(b)b.classList.replace('text-white/40','text-cyan-400');}
+function openCreate(){document.getElementById('createSheet').classList.remove('hidden')}function closeCreate(){document.getElementById('createSheet').classList.add('hidden')}
+function genQR(){const c=document.getElementById('qr');c.classList.remove('hidden');const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,160,160);ctx.fillStyle='#000';for(let i=0;i<200;i++){ctx.fillRect(Math.random()*160,Math.random()*160,4,4)}document.getElementById('sealCode').innerText='TARIM-SEAL-'+Date.now();}
+</script>
+</body></html>
