@@ -1,7 +1,7 @@
 {
   "name": "tarim-os",
   "version": "14.3.0",
-  "description": "TARIM OS - العمليات السيادية - مع التحميل PWA",
+  "description": "TARIM OS - التطبيق السيادي الحقيقي المتكامل",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
