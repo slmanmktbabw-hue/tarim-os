@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TARIM OS v12.1 - القلعة السيادية</title>
-    <link rel="manifest" href="manifest.json">
     <style>
         body { background-color: #0d1117; color: #c9d1d9; font-family: Tahoma, sans-serif; margin: 0; padding-bottom: 90px; text-align: right; }
         .container { padding: 15px; max-width: 600px; margin: auto; }
@@ -14,17 +13,18 @@
         input, select { width: 100%; padding: 12px; margin: 8px 0; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 6px; box-sizing: border-box; }
         button { background: #238636; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; pointer-events: auto; }
         
-        /* القائمة السفلية الثابتة 5 أزرار (مؤمنة بطبقة علوية مطلقة z-index لمنع التعطل) */
+        /* القائمة السفلية الثابتة 5 أزرار */
         .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 1px solid #30363d; display: flex; justify-content: space-around; padding: 8px 0; z-index: 99999; box-sizing: border-box; pointer-events: auto; }
         .nav-item { color: #8b949e; text-decoration: none; font-size: 11px; font-weight: bold; text-align: center; background: none; border: none; cursor: pointer; pointer-events: auto; }
         .nav-item.active { color: #fff; }
         .center-btn { background: linear-gradient(135deg, #2ea443, #58a6ff); color: white; border-radius: 50% !important; width: 45px !important; height: 45px !important; padding: 0 !important; font-size: 24px; display: flex; align-items: center; justify-content: center; margin-top: -5px; }
+        .action-output { background: #010409; border: 1px solid #30363d; padding: 10px; border-radius: 6px; margin-top: 10px; color: #7ee787; font-size: 13px; display: none; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- شاشة المصادقة والحماية -->
+        <!-- شاشة المصادقة -->
         <div id="auth-screen" class="card active" style="z-index: 10;">
             <h3>🔐 تسجيل الدخول السيادي</h3>
             <p>أدخل البريد أو رقم الجوال أو تابع عبر الحساب:</p>
@@ -44,7 +44,7 @@
         <!-- 2. العمليات -->
         <div id="tab-2" class="view-section card">
             <h3>⚡ العمليات السيادية</h3>
-            <p>• <b>بث مباشر مشفر (8 دقائق):</b> مفعل بالكامل مع فلاتر بصرية وهدايا.</p>
+            <p>• <b>بث مباشر مشفر (8 دقائق):</b> مفعل بالكامل.</p>
             <p>• <b>المراسلة والاتصال الآمن:</b> حماية مشفرة بين الحسابات.</p>
             <p>• <b>خريطة حضرموت وتريم (Offline):</b> جاهزة للتشغيل الميداني.</p>
             <p>• <b>إصدار الختم الميداني + QR:</b> مدعوم بنظام التوثيق.</p>
@@ -53,10 +53,11 @@
         <!-- 3. زر الإنشاء (+) -->
         <div id="tab-3" class="view-section card">
             <h3>✨ لوحة الإنشاء المركزي</h3>
-            <button onclick="alert('تفعيل محرك التعرف على النصوص OCR...')">📷 صورة > نص</button>
-            <button onclick="alert('فتح محرر المنشورات الآمن...')">📝 منشور جديد</button>
-            <button onclick="alert('بدء بث LIVE جديد...')">📡 بدء LIVE</button>
-            <button onclick="alert('تفعيل الفلاتر البصرية...')">✨ فلتر تجميلي</button>
+            <button onclick="runAction('ocr', '📷 جاري تشغيل محرك التعرف على النصوص OCR واستخراج البيانات...')">صورة > نص</button>
+            <button onclick="runAction('post', '📝 تم فتح محرر المنشورات السيادية بنجاح.')">منشور جديد</button>
+            <button onclick="runAction('live', '📡 جاري تهيئة البث المباشر (LIVE)...')">بدء LIVE</button>
+            <button onclick="runAction('filter', '✨ تم تطبيق الفلاتر البصرية بنجاح.')">فلتر تجميلي</button>
+            <div id="action-box" class="action-output"></div>
         </div>
 
         <!-- 4. صندوق الوارد والمراسلة -->
@@ -94,7 +95,7 @@
         </div>
     </div>
 
-    <!-- القائمة السفلية الثابتة والمؤكدة تفاعلياً -->
+    <!-- القائمة السفلية الثابتة -->
     <div class="nav-bar" id="bottom-nav" style="display:none;">
         <button class="nav-item active" onclick="switchTab(1)">🏠<br>الصفحة الرئيسية</button>
         <button class="nav-item" onclick="switchTab(2)">👥<br>العمليات</button>
@@ -108,8 +109,12 @@
         const socket = io();
 
         async function loginUser() {
-            const identity = document.getElementById('identity-input').value.trim();
-            const password = document.getElementById('pass-input').value.trim();
+            const identityInput = document.getElementById('identity-input');
+            const passInput = document.getElementById('pass-input');
+            if(!identityInput || !passInput) return;
+            
+            const identity = identityInput.value.trim();
+            const password = passInput.value.trim();
             if(!identity) return alert('الرجاء كتابة البريد أو الهاتف');
 
             try {
@@ -120,21 +125,23 @@
                 });
                 const data = await res.json();
                 if(data.status === 'ok') {
-                    alert('تم المصادقة بنجاح والدخول للقلعة السيادية ✅');
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('bottom-nav').style.display = 'flex';
                     switchTab(1);
                 }
             } catch(e) {
-                alert('خطأ في الاتصال بالخادم الآمن');
+                console.log('خطأ في الاتصال');
             }
         }
 
         function loginGoogle() {
-            const fakeEmail = 'ceo.user.' + Math.floor(Math.random()*1000) + '@gmail.com';
-            document.getElementById('identity-input').value = fakeEmail;
-            document.getElementById('pass-input').value = 'oauth_google_secure';
-            loginUser();
+            const identityInput = document.getElementById('identity-input');
+            const passInput = document.getElementById('pass-input');
+            if(identityInput && passInput) {
+                identityInput.value = 'ceo.user.' + Math.floor(Math.random()*1000) + '@gmail.com';
+                passInput.value = 'oauth_google_secure';
+                loginUser();
+            }
         }
 
         function switchTab(n) {
@@ -152,22 +159,36 @@
             });
         }
 
+        function runAction(type, text) {
+            const box = document.getElementById('action-box');
+            box.style.display = 'block';
+            box.innerText = text;
+        }
+
         function sendChatMessage() {
-            const txt = document.getElementById('msg-box').value.trim();
+            const msgBox = document.getElementById('msg-box');
+            if(!msgBox) return;
+            const txt = msgBox.value.trim();
             if(txt) {
                 socket.emit('send-message', { text: txt });
-                document.getElementById('msg-box').value = '';
+                msgBox.value = '';
             }
         }
 
         socket.on('receive-message', (data) => {
             const box = document.getElementById('chat-messages');
-            box.innerHTML += `<br><b>[مراسل]:</b> ${data.text}`;
-            box.scrollTop = box.scrollHeight;
+            if(box && data && data.text) {
+                box.innerHTML += `<br><b>[مراسل]:</b> ${data.text}`;
+                box.scrollTop = box.scrollHeight;
+            }
         });
 
         function handleSettings(val) {
-            if(val) alert(`تم تفعيل إعداد: ${val}`);
+            if(val) {
+                const box = document.getElementById('action-box');
+                box.style.display = 'block';
+                box.innerText = `تم تفعيل إعداد: ${val}`;
+            }
         }
     </script>
 </body>
