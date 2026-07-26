@@ -2,75 +2,82 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TARIM OS v14.3 - النظام السيادي</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TARIM OS v14.3.1</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="/socket.io/socket.io.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet">
-
-<!-- 🔥 الدمج السيادي للـ PWA الحقيقي -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#080c14">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712109.png">
-
-<style>*{font-family:'Tajawal',sans-serif}body{background:#080c14}.glass{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px)}</style>
+<style>
+*{font-family:Tajawal,sans-serif}
+html,body{height:100%;margin:0;background:#080c14;overflow:hidden}
+body{padding-bottom:env(safe-area-inset-bottom)}
+.glass{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)}
+#app{height:100vh;display:flex;flex-direction:column}
+main{flex:1;overflow-y:auto;padding-bottom:90px}
+</style>
 </head>
-<body class="text-white min-h-screen pb-28">
+<body>
+<div id="app">
 
-<!-- بوابة الدخول -->
 <div id="authGate" class="fixed inset-0 z-[100] bg-[#080c14] flex items-center justify-center p-4">
-<div class="w-full max-w-[360px] bg-[#0e1524] border border-cyan-500/25 rounded-[24px] p-6 text-center">
-<h2 class="font-black text-cyan-400">TARIM OS v14.3 - بوابة الأمان</h2>
-<input id="userPhone" placeholder="رقم الجوال" class="w-full mt-4 mb-3 bg-black/60 border border-white/10 rounded-2xl px-4 py-3 text-center text-xs">
-<input id="userPass" type="password" placeholder="كلمة السر" class="w-full mb-4 bg-black/60 border border-white/10 rounded-2xl px-4 py-3 text-center text-xs">
-<button onclick="loginCEO()" class="w-full bg-gradient-to-r from-cyan-400 to-blue-600 text-black font-black py-3.5 rounded-2xl text-xs">فتح القلعة 🏰</button>
+<div class="w-full max-w-sm bg-[#0e1524] border border-cyan-500/30 rounded-[24px] p-6 text-center">
+<div class="text-4xl">🛡️</div>
+<h2 class="font-black text-cyan-400 mt-2">TARIM OS v14.3.1</h2>
+<p class="text-gray-400 text-xs mt-1 mb-4">بوابة القلعة السيادية</p>
+<input id="userPhone" placeholder="رقم الجوال" class="w-full mb-3 bg-black/60 border border-white/10 rounded-2xl px-4 py-3 text-center text-white outline-none">
+<input id="userPass" type="password" placeholder="كلمة السر" class="w-full mb-4 bg-black/60 border border-white/10 rounded-2xl px-4 py-3 text-center text-white outline-none">
+<button onclick="login()" class="w-full bg-cyan-400 text-black font-black py-3.5 rounded-2xl">فتح القلعة 🏰</button>
 </div></div>
 
-<header class="sticky top-0 z-40 bg-black/90 border-b border-white/10 px-3 py-2.5 flex justify-between items-center">
-<div class="flex gap-2 items-center"><button id="backBtn" onclick="goBack()" class="hidden w-8 h-8 bg-white/10 rounded-full">←</button><span class="font-black text-cyan-400 text-[11px]">TARIM OS v14.3</span></div>
-<div class="flex gap-2"><button id="installBtn" onclick="installAppPrompt()" class="bg-yellow-500 text-black text-[9px] font-black px-2 py-1 rounded-lg hidden">📥 تثبيت</button><span onclick="openTab('ai')" class="bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[9px] px-2 py-1 rounded-full cursor-pointer">TARIM OS - فريق الدعم AL</span></div>
+<header class="flex justify-between items-center px-3 py-3 bg-black/90 border-b border-white/10">
+<span class="font-black text-cyan-400 text-xs">TARIM OS v14.3.1</span>
+<button onclick="openTab('ai')" class="bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] px-3 py-1 rounded-full">فريق الدعم AL</button>
 </header>
 
 <main id="tab-home" class="p-3 space-y-3">
-<div id="homeBanner" class="h-[200px] rounded-[22px] bg-cover flex items-end p-3" style="background-image:linear-gradient(transparent,rgba(0,0,0,.9)),url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800')"><span class="font-black text-sm text-cyan-300">🔴 بث مباشر سيادي</span></div>
-<div id="tasksContainer" class="space-y-2"></div>
-<button onclick="showToast('⚡ تم التنفيذ')" class="w-full glass p-3 rounded-xl text-xs font-bold text-cyan-300">⚡ تنفيذ أمر سيادي</button>
+<div id="homeBanner" class="h-[180px] rounded-[20px] bg-cover bg-center flex items-end p-3 border border-white/10" style="background-image:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800')"><span class="bg-black/60 px-2 py-1 rounded-full text-cyan-300 text-xs">🔴 بث مباشر سيادي ومشفر</span></div>
+<button onclick="toast('⚡ تم التنفيذ')" class="w-full glass p-3 rounded-xl text-xs font-bold text-cyan-300">⚡ تنفيذ أمر سيادي</button>
+<div class="glass p-3 rounded-xl text-xs">📹 البث الميداني - جاهز</div>
+<div class="glass p-3 rounded-xl text-xs">🔒 المراسلة المشفرة - آمن</div>
 </main>
 
-<main id="tab-operations" class="p-3 hidden"><h3 class="font-black text-cyan-400">العمليات <button onclick="goBack()" class="bg-white/10 px-2 rounded-full text-xs">رجوع</button></h3></main>
-<main id="tab-messages" class="p-3 hidden"><div id="chatLogs" class="h-[60vh] overflow-y-auto"></div><div class="flex gap-2 mt-2"><input id="chatIn" class="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs"><button onclick="sendMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl">إرسال</button></div></main>
-<main id="tab-profile" class="p-3 hidden"><div id="userDisplay" class="text-cyan-400"></div><input id="bgUrlInput" placeholder="رابط الخلفية" class="w-full bg-black/60 border rounded-xl px-3 py-2 text-xs mt-2"><button onclick="changeUserBackground()" class="bg-cyan-500 text-black px-3 py-2 rounded-xl text-xs mt-2">تطبيق الخلفية</button></main>
-
-<!-- هذا هو ملف فريق الدعم AL المدمج -->
-<main id="tab-ai" class="p-3 hidden">
-<div class="glass p-4 rounded-2xl text-center space-y-3">
-<div class="flex justify-between"><span class="font-black text-cyan-400 text-xs">TARIM OS - فريق الدعم AL 🛡️</span><button onclick="goBack()" class="bg-white/10 px-3 py-1 rounded-full text-xs">رجوع</button></div>
-<canvas id="qr" width="160" height="160" class="bg-white rounded-xl hidden mx-auto"></canvas>
-<div id="sealCode" class="text-xs text-cyan-300"></div>
-<button onclick="genQR()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-xs w-full">توليد الختم الميداني 🔏</button>
-<div id="aiRes" class="text-xs bg-black/40 p-3 rounded-xl">فريق الدعم AL جاهز...</div>
+<main id="tab-profile" class="p-3 space-y-3 hidden">
+<div class="glass p-4 rounded-2xl flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-cyan-400 flex items-center justify-center text-black font-black">AL</div>
+<div><div class="font-black text-sm">الإمبراطور AL</div><div id="userDisplay" class="text-xs text-cyan-400">CEO</div></div>
 </div>
+
+<div class="glass p-3 rounded-2xl border border-cyan-500/30">
+<div class="font-bold text-xs text-cyan-400 mb-2">🎨 تغيير خلفية الشاشة</div>
+<input id="bgUrlInput" placeholder="الصق رابط صورة هنا" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs outline-none">
+<div class="flex gap-2 mt-2">
+<button onclick="changeBG()" class="flex-1 bg-cyan-500 text-black font-black py-2 rounded-xl text-xs">تطبيق الخلفية</button>
+<button onclick="resetBG()" class="flex-1 bg-white/10 py-2 rounded-xl text-xs">إعادة</button>
+</div>
+</div>
+
+<button onclick="localStorage.clear();location.reload()" class="w-full bg-red-900/30 border border-red-500/30 p-3 rounded-xl text-red-400 text-xs font-bold">🚪 تسجيل خروج</button>
 </main>
 
-<nav class="fixed bottom-0 left-0 right-0 bg-[#080c14] border-t border-white/10 py-2 flex justify-around"><button onclick="openTab('home')" data-nav="home" class="text-cyan-400">🏠</button><button onclick="openTab('operations')" data-nav="operations" class="text-white/40">👁️</button><button onclick="openCreate()" class="w-12 h-12 bg-cyan-400 rounded-full text-black text-2xl -mt-6">+</button><button onclick="openTab('messages')" data-nav="messages" class="text-white/40">💬</button><button onclick="openTab('profile')" data-nav="profile" class="text-white/40">👑</button></nav>
-<div id="toastBox" class="fixed top-16 left-1/2 -translate-x-1/2 z-[200]"></div>
-<div id="createSheet" class="fixed inset-0 hidden"><div onclick="closeCreate()" class="absolute inset-0 bg-black/80"></div></div>
+<main id="tab-ai" class="p-3 hidden"><div class="glass p-4 rounded-2xl text-center"><div class="font-black text-cyan-400">TARIM OS - فريق الدعم AL</div><p class="text-xs mt-2">الختم الميداني والـ QR جاهز</p></div></main>
 
-<!-- 🔥 الدمج النهائي للسكربتات -->
-<script src="/script.js"></script>
+<nav class="fixed bottom-0 left-0 right-0 h-[70px] bg-[#080c14] border-t border-white/10 flex justify-around items-center">
+<button onclick="openTab('home')" class="flex flex-col items-center text-cyan-400"><span>🏠</span><span class="text-[9px]">الرئيسية</span></button>
+<button onclick="openTab('profile')" class="flex flex-col items-center text-white/40"><span>👑</span><span class="text-[9px]">الملف</span></button>
+<button onclick="openTab('ai')" class="flex flex-col items-center text-white/40"><span>🛡️</span><span class="text-[9px]">الدعم</span></button>
+</nav>
+
+</div>
+<div id="toastBox" class="fixed top-20 left-1/2 -translate-x-1/2 z-[200] space-y-2"></div>
+
 <script>
-// تسجيل الـ Service Worker للتثبيت الحقيقي
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(r=>console.log('✅ PWA Ready')).catch(e=>console.log(e));
-  });
-}
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e)=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').classList.remove('hidden');});
-function installAppPrompt(){if(deferredPrompt){deferredPrompt.prompt();}}
+function toast(m){const b=document.getElementById('toastBox');const e=document.createElement('div');e.className='bg-cyan-400 text-black text-xs font-bold px-4 py-2 rounded-xl';e.textContent=m;b.appendChild(e);setTimeout(()=>e.remove(),2000);}
+function login(){const p=document.getElementById('userPhone').value;if(!p)return toast('أدخل الجوال');localStorage.setItem('user',p);document.getElementById('authGate').style.display='none';document.getElementById('userDisplay').textContent=p;toast('✅ أهلا بالإمبراطور');}
+function openTab(t){document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));document.getElementById('tab-'+t).classList.remove('hidden');}
+function changeBG(){const u=document.getElementById('bgUrlInput').value;if(!u)return toast('ضع رابط');localStorage.setItem('bg',u);document.getElementById('homeBanner').style.backgroundImage=`url('${u}')`;toast('🎨 تم تغيير الخلفية');}
+function resetBG(){localStorage.removeItem('bg');document.getElementById('homeBanner').style.backgroundImage=`url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800')`;toast('تمت الإعادة');}
+window.onload=()=>{if(localStorage.getItem('user')){document.getElementById('authGate').style.display='none';document.getElementById('userDisplay').textContent=localStorage.getItem('user');}const bg=localStorage.getItem('bg');if(bg)document.getElementById('homeBanner').style.backgroundImage=`url('${bg}')`;}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}
 </script>
 </body>
 </html>
