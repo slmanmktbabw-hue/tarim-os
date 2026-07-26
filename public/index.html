@@ -3,53 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TARIM OS v14.3.1 - القلعة السيادية</title>
+    <title>TARIM OS v14.3 - التطبيق السيادي الحقيقي</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TARIM OS">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#080c14">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#080c14">
-    <meta name="mobile-web-app-capable" content="yes">
+
     <style>
-        *{font-family:'Tajawal',sans-serif;-webkit-tap-highlight-color:transparent}
-        body{background:#080c14;overflow-x:hidden}
-       .glass{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px)}
+        *{font-family:'Tajawal',sans-serif; -webkit-tap-highlight-color: transparent;}
+        body{background:#080c14; overflow-x:hidden;}
+        .glass{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); backdrop-filter:blur(12px)}
     </style>
 </head>
 <body class="text-white min-h-screen pb-28">
 
 <div id="authGate" class="fixed inset-0 z-[100] bg-[#080c14] flex items-center justify-center p-4">
-    <div class="w-full max-w-[360px] bg-[#0e1524] border border-cyan-500/25 rounded-[24px] p-6 text-center shadow-2xl">
-        <div class="text-3xl">🛡️</div>
-        <h2 class="font-black text-cyan-400 mt-2 text-base">TARIM OS v14.3.1 - بوابة الأمان</h2>
-        <p class="text-gray-400 text-[11px] mt-1 mb-4">أدخل رقم الجوال وكلمة السر لفتح القلعة</p>
-        <input id="userPhone" placeholder="رقم الجوال أو البريد" class="w-full mb-3 bg-black/60 border border-white/10 rounded-2xl px-4 py-3 text-center outline-none text-xs text-white focus:border-cyan-500">
-        <input id="userPass" type="password" placeholder="كلمة السر السيادية" class="w-full mb-4 bg-black/60 border border-white/10 rounded-2xl px-4 py-3 text-center outline-none text-xs text-white focus:border-cyan-500">
-        <button onclick="loginCEO()" class="w-full bg-gradient-to-r from-cyan-400 to-blue-600 text-black font-black py-3.5 rounded-2xl text-xs">فتح القلعة السيادية</button>
+    <div class="w-full max-w-[360px] bg-[#0e1524] border border-cyan-500/30 rounded-[28px] p-6 text-center shadow-2xl">
+        <div class="text-4xl mb-3">🛡️</div>
+        <h2 class="font-black text-cyan-400 text-base">TARIM OS v14.3 - بوابة الأمان</h2>
+        <p class="text-gray-400 text-[11px] mt-1 mb-4">أنشئ حسابك أو أدخل بياناتك لفتح القلعة</p>
+        
+        <input id="userPhone" type="text" placeholder="رقم الجوال أو المعرف" class="w-full mb-3 bg-black/60 border border-white/10 rounded-2xl px-4 py-3 text-center outline-none text-xs text-white focus:border-cyan-500">
+        <input id="userPass" type="password" placeholder="كلمة السر (8+ خانات وحروف وأرقام)" class="w-full mb-4 bg-black/60 border border-white/10 rounded-2xl px-4 py-3 text-center outline-none text-xs text-white focus:border-cyan-500">
+        
+        <button onclick="loginCEO()" class="w-full bg-gradient-to-r from-cyan-400 to-blue-600 text-black font-black py-3.5 rounded-2xl text-xs shadow-lg shadow-cyan-500/30 active:scale-95 transition">فتح القلعة السيادية</button>
     </div>
 </div>
 
 <header class="sticky top-0 z-40 bg-black/90 border-b border-white/10 px-3 py-2.5 flex justify-between items-center backdrop-blur-xl">
     <div class="flex items-center gap-2">
         <button id="backBtn" onclick="goBack()" class="hidden w-8 h-8 bg-white/10 rounded-full items-center justify-center text-xs">←</button>
-        <span class="font-black text-cyan-400 text-[11px]">TARIM OS v14.3.1</span>
+        <span class="font-black text-cyan-400 text-[11px]">TARIM OS v14.3</span>
     </div>
     <div class="flex items-center gap-2">
-        <button id="installBtn" onclick="installAppPrompt()" class="bg-yellow-500 text-black text-[9px] font-black px-2.5 py-1 rounded-lg hidden">📥 تثبيت</button>
+        <button onclick="installAppPrompt()" id="installBtn" class="bg-gradient-to-r from-yellow-500 to-amber-600 text-black text-[9px] font-black px-3 py-1.5 rounded-xl hidden shadow-md animate-pulse">📥 تثبيت التطبيق</button>
         <span onclick="openTab('ai')" class="bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[9px] px-2.5 py-1 rounded-full cursor-pointer font-bold">فريق الدعم (AL)</span>
     </div>
 </header>
 
 <main id="tab-home" class="p-3 space-y-3">
-    <div id="homeBanner" onclick="openTab('operations')" class="h-[200px] rounded-[22px] bg-cover bg-center border border-white/10 flex items-end p-3 cursor-pointer shadow-xl relative overflow-hidden" style="background-image:linear-gradient(transparent,rgba(0,0,0,0.9)),url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800')">
+    <div id="homeBanner" onclick="openTab('operations')" class="h-[200px] rounded-[22px] bg-cover border border-white/10 flex items-end p-3 cursor-pointer shadow-xl relative overflow-hidden bg-center" style="background-image:linear-gradient(transparent,rgba(0,0,0,0.9)),url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800')">
         <span class="font-black text-sm text-cyan-300">🔴 بث مباشر سيادي ومشفر</span>
     </div>
     <div id="tasksContainer" class="space-y-2"></div>
-    <button onclick="showToast('⚡ تم التنفيذ - رسمي')" class="w-full glass p-3 rounded-xl text-xs font-bold text-cyan-300">⚡ تنفيذ أمر سيادي</button>
+    <button onclick="showToast('⚡ تم التنفيذ بنجاح')" class="w-full glass p-3 rounded-xl text-xs font-bold text-cyan-300 shadow-lg">⚡ تنفيذ أمر سيادي</button>
 </main>
 
 <main id="tab-operations" class="p-3 space-y-2 hidden">
-    <h3 class="font-black mb-2 text-cyan-400 text-sm">العمليات السيادية <button onclick="goBack()" class="mr-2 bg-white/10 px-2 py-0.5 rounded-full text-[10px]">رجوع</button></h3>
+    <h3 class="font-black mb-2 text-cyan-400 text-sm">العمليات السيادية</h3>
     <button onclick="openTab('home')" class="w-full glass p-4 rounded-2xl text-right flex justify-between font-bold text-xs"><span>🔴 بث مباشر سيادي</span><span>›</span></button>
     <button onclick="openTab('messages')" class="w-full glass p-4 rounded-2xl text-right flex justify-between font-bold text-xs"><span>🔒 المراسلة الآمنة</span><span>›</span></button>
     <button onclick="openMap()" class="w-full glass p-4 rounded-2xl text-right flex justify-between font-bold text-xs"><span>🗺️ خريطة حضرموت Offline</span><span>›</span></button>
@@ -64,7 +72,7 @@
         </div>
         <div id="chatLogs" class="space-y-2 h-[60vh] overflow-y-auto text-xs"></div>
         <div class="flex gap-2">
-            <input id="chatIn" placeholder="رسالة سيادية..." class="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs outline-none">
+            <input id="chatIn" placeholder="رسالة سيادية..." class="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500 text-white">
             <button onclick="sendMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-black">إرسال</button>
         </div>
     </div>
@@ -74,47 +82,55 @@
     <div class="glass p-4 rounded-2xl flex gap-3 items-center">
         <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-black font-black">AL</div>
         <div><div class="font-black text-sm">الإمبراطور AL</div><div id="userDisplay" class="text-xs text-cyan-400">CEO</div></div>
-        <button onclick="goBack()" class="mr-auto bg-white/10 px-3 py-1 rounded-full text-xs">رجوع</button>
+        <button onclick="goBack()" class="mr-auto bg-white/10 px-3 py-1 rounded-full text-xs font-bold">رجوع ←</button>
     </div>
-    <div class="glass p-3.5 rounded-2xl space-y-2 border border-cyan-500/20">
-        <div class="font-bold text-[11px] text-cyan-400">🎨 تخصيص خلفية التطبيق</div>
+    
+    <div class="glass p-3.5 rounded-2xl space-y-2 border border-cyan-500/30">
+        <div class="font-bold text-[11px] text-cyan-400">🎨 تخصيص خلفية التطبيق الحية</div>
+        <p class="text-[10px] text-gray-400">ضع رابط صورة (URL) لتغيير الخلفية الرئيسية:</p>
         <div class="flex gap-2">
-            <input id="bgUrlInput" type="text" placeholder="https:// رابط الصورة" class="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs outline-none">
-            <button onclick="changeUserBackground()" class="bg-cyan-500 text-black font-black px-3 py-2 rounded-xl text-xs">تطبيق</button>
+            <input id="bgUrlInput" type="text" placeholder="https://example.com/image.jpg" class="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none">
+            <button onclick="changeUserBackground()" class="bg-cyan-500 text-black font-black px-3 py-2 rounded-xl text-xs">حفظ</button>
         </div>
     </div>
+
     <button onclick="handleInner('رصيد')" class="w-full glass p-3.5 rounded-xl text-right flex justify-between text-xs font-bold"><span>💰 رصيد</span><span>›</span></button>
     <button onclick="handleInner('مركز الأنشطة')" class="w-full glass p-3.5 rounded-xl text-right flex justify-between text-xs font-bold"><span>📊 مركز الأنشطة</span><span>›</span></button>
-    <button onclick="openTab('ai')" class="w-full glass p-3.5 rounded-xl text-right flex justify-between text-xs font-bold border border-cyan-500/20"><span>🔳 رمز QR</span><span>›</span></button>
-    <button onclick="localStorage.clear();location.reload()" class="w-full bg-red-900/30 border border-red-500/30 p-3 rounded-xl text-red-400 text-xs font-bold mt-2">🚪 خروج</button>
+    <button onclick="handleInner('فيديوهات دون اتصال')" class="w-full glass p-3.5 rounded-xl text-right flex justify-between text-xs font-bold"><span>📹 فيديوهات دون اتصال</span><span>›</span></button>
+    <button onclick="openTab('ai')" class="w-full glass p-3.5 rounded-xl text-right flex justify-between text-xs font-bold border border-cyan-500/20"><span>🔳 رمز QR لديك</span><span>›</span></button>
+    
+    <div class="text-[11px] text-gray-500 font-bold mt-2">الإعدادات والخصوصية</div>
+    <button onclick="localStorage.clear();location.reload()" class="w-full bg-red-900/30 border border-red-500/30 p-3 rounded-xl text-red-400 text-xs font-bold mt-2">🚪 تسجيل خروج</button>
 </main>
 
 <main id="tab-ai" class="p-3 hidden">
     <div class="glass p-4 rounded-2xl text-center space-y-3">
-        <div class="flex justify-between"><span class="font-black text-cyan-400 text-xs">الختم الميداني</span><button onclick="goBack()" class="bg-white/10 px-3 py-1 rounded-full text-xs">رجوع</button></div>
-        <canvas id="qr" width="160" height="160" class="bg-white rounded-xl hidden mx-auto"></canvas>
+        <div class="flex justify-between items-center"><span class="font-black text-cyan-400 text-xs">فريق الدعم AL + QR</span><button onclick="goBack()" class="bg-white/10 px-3 py-1 rounded-full text-xs font-bold">رجوع ←</button></div>
+        <canvas id="qr" width="160" height="160" class="bg-white rounded-xl hidden mx-auto shadow-lg"></canvas>
         <div id="sealCode" class="text-xs text-cyan-300 font-mono"></div>
-        <button onclick="genQR()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold w-full">توليد الختم</button>
-        <div id="aiRes" class="text-xs bg-black/40 p-3 rounded-xl">جاهز...</div>
+        <button onclick="genQR()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold w-full shadow-lg">توليد الختم الميداني</button>
+        <div id="aiRes" class="text-xs bg-black/40 p-3 rounded-xl text-gray-300">جاهز للتفعيل...</div>
     </div>
 </main>
 
 <div id="createSheet" class="fixed inset-0 z-[90] hidden">
-    <div onclick="closeCreate()" class="absolute inset-0 bg-black/80"></div>
-    <div class="absolute bottom-0 left-0 right-0 bg-[#0e1524] border-t border-white/10 rounded-t-[28px] p-5">
+    <div onclick="closeCreate()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+    <div class="absolute bottom-0 left-0 right-0 bg-[#0e1524] border-t border-white/10 rounded-t-[28px] p-5 shadow-2xl">
         <h3 class="font-black text-center mb-4 text-cyan-400 text-sm">إنشاء محتوى سيادي</h3>
         <div class="grid grid-cols-2 gap-3">
             <button onclick="createPost('منشور')" class="glass py-5 rounded-2xl font-bold text-xs">📄 منشور</button>
+            <button onclick="createPost('نص')" class="glass py-5 rounded-2xl font-bold text-xs">📝 نص</button>
             <button onclick="createPost('LIVE')" class="glass py-5 rounded-2xl font-bold text-xs text-red-400">🔴 LIVE</button>
+            <button onclick="createPost('فلتر')" class="glass py-5 rounded-2xl font-bold text-xs">🎨 فلتر بصري</button>
         </div>
-        <button onclick="closeCreate()" class="w-full mt-4 text-gray-400 text-xs">إغلاق</button>
+        <button onclick="closeCreate()" class="w-full mt-4 text-gray-400 text-xs py-2">إغلاق</button>
     </div>
 </div>
 
 <nav class="fixed bottom-0 left-0 right-0 bg-[#080c14]/95 border-t border-white/10 py-2 px-1 flex justify-around z-50 backdrop-blur-xl">
     <button onclick="openTab('home')" data-nav="home" class="flex flex-col items-center text-cyan-400"><span class="text-[20px]">🏠</span><span class="text-[9px] mt-1 font-bold">الرئيسية</span></button>
     <button onclick="openTab('operations')" data-nav="operations" class="flex flex-col items-center text-white/40"><span class="text-[20px]">👁️</span><span class="text-[9px] mt-1">العمليات</span></button>
-    <button onclick="openCreate()" class="w-13 h-13 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black text-2xl -mt-6 border-4 border-[#080c14]">+</button>
+    <button onclick="openCreate()" class="w-13 h-13 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black text-2xl -mt-6 shadow-lg shadow-cyan-500/30 border-4 border-[#080c14]">+</button>
     <button onclick="openTab('messages')" data-nav="messages" class="flex flex-col items-center text-white/40"><span class="text-[20px]">💬</span><span class="text-[9px] mt-1">المراسلة</span></button>
     <button onclick="openTab('profile')" data-nav="profile" class="flex flex-col items-center text-white/40"><span class="text-[20px]">👑</span><span class="text-[9px] mt-1">الملف</span></button>
 </nav>
@@ -124,15 +140,31 @@
 <script src="/script.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW error', err));
+    });
   }
+
   let deferredPrompt;
   window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); deferredPrompt = e;
-    document.getElementById('installBtn').classList.remove('hidden');
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('installBtn');
+    if(btn) btn.classList.remove('hidden');
   });
-  function installAppPrompt(){
-    if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt=null; }
+
+  function installAppPrompt() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('App installed successfully');
+        }
+        deferredPrompt = null;
+      });
+    } else {
+      alert('لتثبيت التطبيق كبرنامج مستقل: اضغط على خيارات المتصفح (⋮) ثم اختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية".');
+    }
   }
 </script>
 </body>
