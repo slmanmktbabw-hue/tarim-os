@@ -1,21 +1,20 @@
-const CACHE_NAME = 'tarim-os-v12.1-secure';
+const CACHE_NAME = 'tarim-os-v12.3-final';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
-    '/manifest.json'
+    '/manifest.json',
+    '/script.js'
 ];
 
-// تثبيت الخدمة وتأمين الملفات الأساسية
 self.addEventListener('install', (event) => {
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
-    self.skipWaiting();
 });
 
-// تفعيل الخدمة وتنظيف التخزين القديم لمنع الثغرات والتداخل
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) => {
@@ -26,18 +25,14 @@ self.addEventListener('activate', (event) => {
                     }
                 })
             );
-        })
+        }).then(() => self.clients.claim())
     );
-    self.clients.claim();
 });
 
-// اعتراض الطلبات لضمان استقرار التشغيل والعمل بدون إنترنت (Offline)
 self.addEventListener('fetch', (event) => {
-    // استثناء طلبات قاعدة البيانات والاتصال المباشر لضمان سلامة البيانات
     if (event.request.url.includes('/api/') || event.request.url.includes('/socket.io/')) {
         return;
     }
-
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             return cachedResponse || fetch(event.request).catch(() => {
