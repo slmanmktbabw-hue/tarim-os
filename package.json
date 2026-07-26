@@ -1,18 +1,13 @@
 {
   "name": "tarim-os",
-  "version": "13.1.0",
-  "description": "TARIM OS - الامبراطورية السيادية",
+  "version": "13.6.0",
+  "description": "TARIM OS - العمليات السيادية",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "engines": {
-    "node": "18.x"
-  },
   "dependencies": {
     "express": "^4.18.2",
-    "pg": "^8.11.3",
-    "socket.io": "^4.7.2",
-    "cors": "^2.8.5"
+    "socket.io": "^4.7.2"
   }
 }
