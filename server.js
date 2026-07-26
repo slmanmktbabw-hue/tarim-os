@@ -3,6 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const http = require('http');
 const { Server } = require("socket.io");
+const bcrypt = require('bcrypt');
 
 const app = express();
 const server = http.createServer(app);
@@ -12,52 +13,52 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// قاعدة بيانات SQLite الحقيقية
+// قاعدة بيانات SQLite الحقيقية والثابتة
 const db = new sqlite3.Database('./tarim_core.db', (err) => {
-    if (err) console.error('خطأ في الاتصال بقاعدة البيانات', err.message);
-    else console.log('🛡️ متصل بقاعدة بيانات SQLite السيادية بنجاح.');
+    if (err) console.error('خطأ في الاتصال بقاعدة البيانات:', err.message);
+    else console.log('🛡️ قاعدة بيانات SQLite متصلة بنجاح.');
 });
 
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        phone TEXT,
-        balance REAL DEFAULT 0,
-        settings TEXT
-    )`);
-    db.run(`CREATE TABLE IF NOT EXISTS logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        action TEXT,
-        time DATETIME DEFAULT CURRENT_TIMESTAMP
+        identity TEXT UNIQUE,
+        password_hash TEXT,
+        login_type TEXT,
+        balance REAL DEFAULT 24300,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 });
 
-// تسجيل دخول أو إنشاء حساب افتراضي
-app.post('/api/auth', (req, res) => {
-    const { username, phone } = req.body;
-    db.run(`INSERT OR IGNORE INTO users (username, phone) VALUES (?, ?)`, [username, phone], function(err) {
-        db.get(`SELECT * FROM users WHERE username = ?`, [username], (err, row) => {
-            res.json({ status: 'ok', user: row });
+// مسار تسجيل الدخول أو إنشاء حساب (هاتف، بريد، أو جوجل)
+app.post('/api/auth/register', async (req, res) => {
+    const { identity, password, login_type } = req.body;
+    if(!identity) return res.status(400).json({ error: 'الرجاء إدخال البريد أو الجوال' });
+    
+    const hash = password ? await bcrypt.hash(password, 10) : 'oauth_google';
+    
+    db.run(`INSERT OR IGNORE INTO users (identity, password_hash, login_type) VALUES (?, ?, ?)`, 
+    [identity, hash, login_type || 'phone'], function(err) {
+        db.get(`SELECT * FROM users WHERE identity = ?`, [identity], (err, user) => {
+            if(err) return res.status(500).json({ error: 'خطأ في الخادم' });
+            res.json({ status: 'ok', user });
         });
     });
 });
 
-// جلب بيانات الملف الشخصي والتحليلات
-app.get('/api/user/:id', (req, res) => {
-    db.get(`SELECT * FROM users WHERE id = ?`, [req.params.id], (err, row) => {
-        res.json(row || { username: 'CEO', balance: 24300 });
-    });
-});
-
-// تشغيل السوكت للمراسلة الفورية والبث
+// إدارة الاتصال اللحظي والمراسلة الفورية بين الحسابات
 io.on('connection', (socket) => {
-    console.log('🔗 مستصل متصل بقناة البث والمراسلة الآمنة.');
-    socket.on('secure-message', (data) => {
+    console.log('🔗 عقدة جديدة متصلة بالمراسلة الآمنة.');
+    
+    socket.on('send-message', (data) => {
         io.emit('receive-message', data);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('⚡ انقطع اتصال عقدة من الميدان.');
     });
 });
 
 server.listen(PORT, () => {
-    console.log(`🔥 TARIM OS Server running on port ${PORT}`);
+    console.log(`🔥 TARIM OS Production Server running on port ${PORT}`);
 });
