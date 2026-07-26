@@ -1,29 +1,36 @@
 let socket = null;
 try {
-  if (typeof io!== 'undefined') {
+  if (typeof io !== 'undefined') {
     socket = io();
   }
 } catch(e) {
   console.log("Offline mode active");
 }
 
+// دالة تسجيل دخول أو إنشاء حساب المستخدم الجديد
 function loginCEO(){
   const phone = document.getElementById('userPhone').value.trim();
   const pass = document.getElementById('userPass').value.trim();
-  if(!phone ||!pass){
+  if(!phone || !pass){
     showToast('الرجاء إدخال رقم الجوال وكلمة السر');
     return;
   }
+  
+  // حفظ بيانات المستخدم الجديد محلياً
   localStorage.setItem('ceo_user', phone);
   localStorage.setItem('ceo_pass', pass);
+  
   const disp = document.getElementById('userDisplay');
   if(disp) disp.innerText = phone;
+  
   const gate = document.getElementById('authGate');
   if(gate) gate.style.display = 'none';
-  showToast('🏰 تم فتح القلعة وتفعيل الحساب بنجاح');
+  
+  showToast('🏰 تم فتح القلعة وتفعيل حساب المستخدم الجديد بنجاح');
   loadTasks();
 }
 
+// الفحص التلقائي لحالة المستخدم والخلفية المحفوظة عند فتح التطبيق
 (function(){
   const saved = localStorage.getItem('ceo_user');
   if(saved){
@@ -32,36 +39,49 @@ function loginCEO(){
     const disp = document.getElementById('userDisplay');
     if(disp) disp.innerText = saved;
   }
+  
+  // تطبيق الخلفية الخاصة بالمستخدم إن كانت محفوظة مسبقاً
   const savedBg = localStorage.getItem('ceo_bg');
   if(savedBg){
-    const banner = document.getElementById('homeBanner');
-    if(banner) banner.style.backgroundImage = `linear-gradient(transparent,rgba(0,0,0,0.9)),url('${savedBg}')`;
+    applyBackground(savedBg);
   }
 })();
 
-function changeUserBackground(){
-  const url = document.getElementById('bgUrlInput').value.trim();
-  if(!url){
-    showToast('الرجاء إدخال رابط الصورة (URL) أولاً');
-    return;
-  }
-  localStorage.setItem('ceo_bg', url);
+// دالة تطبيق الخلفية على بانر التطبيق الرئيسي
+function applyBackground(url){
   const banner = document.getElementById('homeBanner');
   if(banner){
     banner.style.backgroundImage = `linear-gradient(transparent,rgba(0,0,0,0.9)),url('${url}')`;
   }
-  showToast('🎨 تم تحديث وتثبيت خلفية التطبيق الحية بنجاح');
+}
+
+// إعدادات وتغيير خلفية التطبيق للمستخدم من قسم الملف الشخصي
+function changeUserBackground(){
+  const input = document.getElementById('bgUrlInput');
+  if(!input) return;
+  const url = input.value.trim();
+  if(!url){
+    showToast('الرجاء إدخال رابط الصورة (URL) أولاً');
+    return;
+  }
+  
+  // حفظ الخلفية الخاصة بهذا المستخدم في الذاكرة المحلية
+  localStorage.setItem('ceo_bg', url);
+  applyBackground(url);
+  input.value = '';
+  showToast('🎨 تم تحديث خلفية التطبيق الخاصة بك بنجاح');
 }
 
 let tabHistory = ['home'];
 
 function openTab(tab){
-  if(tabHistory[tabHistory.length - 1]!== tab){
+  if(tabHistory[tabHistory.length - 1] !== tab){
     tabHistory.push(tab);
   }
   document.querySelectorAll('main').forEach(m => m.classList.add('hidden'));
   const target = document.getElementById('tab-' + tab);
   if(target) target.classList.remove('hidden');
+  
   document.querySelectorAll('[data-nav]').forEach(b => {
     b.classList.remove('text-cyan-400');
     b.classList.add('text-white/40');
@@ -71,9 +91,10 @@ function openTab(tab){
     active.classList.remove('text-white/40');
     active.classList.add('text-cyan-400');
   }
+  
   const backBtn = document.getElementById('backBtn');
   if(backBtn){
-    if(tab!== 'home'){
+    if(tab !== 'home'){
       backBtn.classList.remove('hidden');
       backBtn.classList.add('flex');
     } else {
@@ -91,6 +112,7 @@ function goBack(){
     document.querySelectorAll('main').forEach(m => m.classList.add('hidden'));
     const target = document.getElementById('tab-' + prevTab);
     if(target) target.classList.remove('hidden');
+    
     document.querySelectorAll('[data-nav]').forEach(b => {
       b.classList.remove('text-cyan-400');
       b.classList.add('text-white/40');
@@ -100,9 +122,10 @@ function goBack(){
       active.classList.remove('text-white/40');
       active.classList.add('text-cyan-400');
     }
+    
     const backBtn = document.getElementById('backBtn');
     if(backBtn){
-      if(prevTab!== 'home'){
+      if(prevTab !== 'home'){
         backBtn.classList.remove('hidden');
         backBtn.classList.add('flex');
       } else {
@@ -117,17 +140,21 @@ function openCreate(){
   const sheet = document.getElementById('createSheet');
   if(sheet) sheet.classList.remove('hidden');
 }
+
 function closeCreate(){
   const sheet = document.getElementById('createSheet');
   if(sheet) sheet.classList.add('hidden');
 }
+
 function createPost(type){
   closeCreate();
   showToast('✅ تم إنشاء ' + type + ' السيادي بنجاح');
 }
+
 function handleInner(actionName){
   showToast('📁 جاري فتح قسم: ' + actionName);
 }
+
 async function loadTasks(){
   const container = document.getElementById('tasksContainer');
   if(container){
@@ -143,9 +170,10 @@ async function loadTasks(){
     `;
   }
 }
+
 function sendMsg(){
   const input = document.getElementById('chatIn');
-  if(!input ||!input.value.trim()) return;
+  if(!input || !input.value.trim()) return;
   const text = input.value.trim();
   const logs = document.getElementById('chatLogs');
   if(logs){
@@ -160,6 +188,7 @@ function sendMsg(){
   }
   input.value = '';
 }
+
 function genQR(){
   const canvas = document.getElementById('qr');
   if(!canvas) return;
@@ -176,9 +205,11 @@ function genQR(){
   if(sealCodeElem) sealCodeElem.innerText = code;
   showToast('🔏 تم إصدار الختم الميداني بنجاح');
 }
+
 function openMap(){
   showToast('🗺️ جارِ تشغيل خريطة حضرموت وتريم دون اتصال (Offline)');
 }
+
 function showToast(msg){
   let box = document.getElementById('toastBox');
   if(!box){
@@ -193,6 +224,7 @@ function showToast(msg){
   box.appendChild(t);
   setTimeout(() => t.remove(), 3000);
 }
+
 if(socket){
   socket.on('message', (data) => {
     const logs = document.getElementById('chatLogs');
@@ -205,4 +237,4 @@ if(socket){
     logs.appendChild(div);
     logs.scrollTop = logs.scrollHeight;
   });
-}
+    }
