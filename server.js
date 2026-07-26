@@ -13,9 +13,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// قاعدة بيانات SQLite الحقيقية والثابتة
 const db = new sqlite3.Database('./tarim_core.db', (err) => {
-    if (err) console.error('خطأ في الاتصال بقاعدة البيانات:', err.message);
+    if (err) console.error('خطأ في قاعدة البيانات:', err.message);
     else console.log('🛡️ قاعدة بيانات SQLite متصلة بنجاح.');
 });
 
@@ -30,7 +29,6 @@ db.serialize(() => {
     )`);
 });
 
-// مسار تسجيل الدخول أو إنشاء حساب (هاتف، بريد، أو جوجل)
 app.post('/api/auth/register', async (req, res) => {
     const { identity, password, login_type } = req.body;
     if(!identity) return res.status(400).json({ error: 'الرجاء إدخال البريد أو الجوال' });
@@ -46,16 +44,9 @@ app.post('/api/auth/register', async (req, res) => {
     });
 });
 
-// إدارة الاتصال اللحظي والمراسلة الفورية بين الحسابات
 io.on('connection', (socket) => {
-    console.log('🔗 عقدة جديدة متصلة بالمراسلة الآمنة.');
-    
     socket.on('send-message', (data) => {
         io.emit('receive-message', data);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('⚡ انقطع اتصال عقدة من الميدان.');
     });
 });
 
