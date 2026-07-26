@@ -7,15 +7,12 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// خدمة الملفات الثابتة من مجلد public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// مسار رئيسي للتأكد من عمل السيرفر السيادي
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// تشغيل نظام المراسلة الحية Socket.IO
 io.on('connection', (socket) => {
   console.log('🔗 مستخدم سيادي متصل:', socket.id);
   
