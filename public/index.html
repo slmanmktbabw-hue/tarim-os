@@ -3,34 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TARIM OS v12.1 - المنصة السيادية</title>
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- كود التنظيف الفوري للنسخ القديمة وحذف الـ Service Worker العالق -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    registration.unregister().then(function(boolean) {
-                        console.log('تم إلغاء تفعيل النسخة والخدمة القديمة بنجاح:', boolean);
-                    });
-                }
-            });
-        }
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                for (let name of names) {
-                    caches.delete(name);
-                }
-            });
-        }
-    </script>
-
+    <title>TARIM OS v12.3 - المنصة السيادية</title>
+    <link rel="manifest" href="/manifest.json">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: #000; color: #fff; font-family: Tahoma, sans-serif; overflow-x: hidden; padding-bottom: 70px; }
         
-        /* شاشة تسجيل الدخول الأولية */
         #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0d1117; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #161b22; border: 1px solid #30363d; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; text-align: right; }
         .auth-card h3 { color: #58a6ff; margin-bottom: 15px; text-align: center; }
@@ -38,11 +16,9 @@
         .auth-card button { width: 100%; padding: 12px; background: #238636; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .auth-card .google-btn { background: #db4437; }
 
-        /* الأقسام الرئيسية */
         .app-view { display: none; width: 100%; height: 100vh; position: relative; }
         .app-view.active { display: block; }
 
-        /* 1. الصفحة الرئيسية (شروق الشمس والتفاعل) */
         #tab-1 { background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200"><rect width="800" height="1200" fill="%23221205"/><circle cx="400" cy="600" r="180" fill="%23ff7b00" opacity="0.8"/></svg>') no-repeat center center/cover; height: 100vh; position: relative; }
         .top-bar { position: absolute; top: 10px; left: 0; width: 100%; display: flex; justify-content: space-around; align-items: center; padding: 10px; font-size: 13px; font-weight: bold; z-index: 10; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
         .top-bar span { cursor: pointer; }
@@ -52,15 +28,12 @@
         .action-icon { background: rgba(0,0,0,0.4); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
         .action-text { font-size: 11px; text-align: center; margin-top: 2px; text-shadow: 0 1px 2px #000; }
 
-        /* باقي الأقسام */
         .content-section { padding: 20px; background: #0d1117; min-height: 100vh; }
         .card-box { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 8px; margin-bottom: 12px; }
         .card-box h3 { color: #58a6ff; margin-bottom: 10px; }
         
-        /* صندوق عرض النتائج الداخلي */
         .status-display { background: #010409; border: 1px solid #30363d; padding: 12px; border-radius: 6px; margin-top: 10px; color: #7ee787; font-size: 13px; display: none; }
 
-        /* القائمة الرئيسية الثابتة (5 أزرار) */
         .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; padding: 8px 0; z-index: 99999; }
         .nav-item { color: #8b949e; text-decoration: none; font-size: 11px; font-weight: bold; text-align: center; background: none; border: none; cursor: pointer; }
         .nav-item.active { color: #fff; }
@@ -71,7 +44,6 @@
 </head>
 <body>
 
-    <!-- نافذة تسجيل الدخول الأساسية -->
     <div id="auth-overlay">
         <div class="auth-card">
             <h3>🛡️ تسجيل الدخول السيادي</h3>
@@ -83,7 +55,7 @@
         </div>
     </div>
 
-    <!-- 1. الزر الأول: الصفحة الرئيسية -->
+    <!-- 1. الرئيسية -->
     <div id="tab-1" class="app-view active">
         <div class="top-bar">
             <span style="font-size: 16px;">🔍</span>
@@ -92,7 +64,6 @@
             <span>عين الذكاء الاصطناعي</span>
             <span class="live-badge">LIVE 🔴</span>
         </div>
-
         <div class="side-actions">
             <div><div class="action-icon">❤️</div><div class="action-text">258.2 ألف</div></div>
             <div><div class="action-icon">💬</div><div class="action-text">2495</div></div>
@@ -101,21 +72,21 @@
         </div>
     </div>
 
-    <!-- 2. الزر الثاني: العمليات -->
+    <!-- 2. العمليات -->
     <div id="tab-2" class="app-view content-section">
         <div class="card-box">
             <h3>⚡ العمليات السيادية الميدانية</h3>
-            <p>• <b>بث مباشر مشفر (8 دقائق):</b> مفعل بالكامل مع فلاتر بصرية وهدايا أسطورية.</p>
+            <p>• <b>بث مباشر مشفر (8 دقائق):</b> مفعل بالكامل.</p>
             <hr style="border-color: #30363d; margin: 10px 0;">
-            <p>• <b>المراسلة والاتصال الآمن:</b> حماية مشفرة AES بين الحسابات.</p>
+            <p>• <b>المراسلة والاتصال الآمن:</b> حماية مشفرة AES.</p>
             <hr style="border-color: #30363d; margin: 10px 0;">
-            <p>• <b>خريطة حضرموت وتريم (Offline):</b> جاهزة للتشغيل الميداني بدون إنترنت.</p>
+            <p>• <b>خريطة حضرموت وتريم (Offline):</b> جاهزة ميدانياً.</p>
             <hr style="border-color: #30363d; margin: 10px 0;">
-            <p>• <b>إصدار الختم الميداني المشفر + QR:</b> مدعوم بنظام Tesseract OCR.</p>
+            <p>• <b>إصدار الختم الميداني + QR:</b> مدعوم بنظام OCR.</p>
         </div>
     </div>
 
-    <!-- 3. الزر الثالث: الإنشاء (+) -->
+    <!-- 3. الإنشاء (+) -->
     <div id="tab-3" class="app-view content-section">
         <div class="card-box">
             <h3>✨ لوحة الإنشاء المركزي</h3>
@@ -127,7 +98,7 @@
         </div>
     </div>
 
-    <!-- 4. الزر الرابع: صندوق الوارد والمراسلة -->
+    <!-- 4. صندوق الوارد -->
     <div id="tab-4" class="app-view content-section">
         <div class="card-box">
             <h3>💬 صندوق الوارد والمراسلة بين الحسابات</h3>
@@ -139,12 +110,12 @@
         </div>
     </div>
 
-    <!-- 5. الزر الخامس: الملف الشخصي والإعدادات الشاملة -->
+    <!-- 5. الملف الشخصي -->
     <div id="tab-5" class="app-view content-section">
         <div class="card-box">
             <h3>👑 الملف الشخصي وإعدادات CEO</h3>
             <p>الرصيد السيادي: <b style="color: #7ee787;">24.3K 🪙</b></p>
-            <p style="margin-top: 5px; font-size: 13px; color: #8b949e;">مركز الأنشطة | فيديوهات أوفلاين | رمز QR لديك | المجموعة التجارية | الترويج</p>
+            <p style="margin-top: 5px; font-size: 13px; color: #8b949e;">مركز الأنشطة | فيديوهات أوفلاين | رمز QR لديك</p>
             <hr style="border-color: #30363d; margin: 12px 0;">
             <p style="color: #58a6ff; font-weight: bold;">الإعدادات والخصوصية الشاملة:</p>
             <select class="sub-settings" onchange="showSettingStatus(this.value)">
@@ -166,7 +137,7 @@
         </div>
     </div>
 
-    <!-- القائمة الرئيسية الثابتة (5 أزرار) -->
+    <!-- القائمة السفلية -->
     <div class="nav-bar" id="bottom-nav" style="display:none;">
         <button class="nav-item active" onclick="switchTab(1)">🏠<br>الصفحة الرئيسية</button>
         <button class="nav-item" onclick="switchTab(2)">👥<br>العمليات</button>
@@ -176,77 +147,6 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-
-        async function performLogin() {
-            const identity = document.getElementById('identity-input').value.trim();
-            const password = document.getElementById('pass-input').value.trim();
-            if(!identity) return;
-
-            try {
-                const res = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ identity, password, login_type: identity.includes('@') ? 'email' : 'phone' })
-                });
-                const data = await res.json();
-                if(data.status === 'ok') {
-                    document.getElementById('auth-overlay').style.display = 'none';
-                    document.getElementById('bottom-nav').style.display = 'flex';
-                    switchTab(1);
-                }
-            } catch(e) {
-                document.getElementById('auth-overlay').style.display = 'none';
-                document.getElementById('bottom-nav').style.display = 'flex';
-                switchTab(1);
-            }
-        }
-
-        function googleLogin() {
-            document.getElementById('identity-input').value = 'ceo.user@gmail.com';
-            document.getElementById('pass-input').value = 'oauth_google';
-            performLogin();
-        }
-
-        function switchTab(n) {
-            document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${n}`).classList.add('active');
-
-            const navItems = document.querySelectorAll('.nav-item:not(.center-plus-btn)');
-            navItems.forEach((item, idx) => {
-                if(idx + 1 === n) item.classList.add('active');
-                else item.classList.remove('active');
-            });
-        }
-
-        function showStatus(text) {
-            const box = document.getElementById('status-box');
-            box.style.display = 'block';
-            box.innerText = text;
-        }
-
-        function showSettingStatus(val) {
-            if(val) {
-                const box = document.getElementById('setting-status-box');
-                box.style.display = 'block';
-                box.innerText = `تم تفعيل إعداد: ${val}`;
-            }
-        }
-
-        function sendMsg() {
-            const input = document.getElementById('msg-input');
-            if(input.value.trim()) {
-                socket.emit('send-message', { text: input.value });
-                input.value = '';
-            }
-        }
-
-        socket.on('receive-message', (data) => {
-            const box = document.getElementById('chat-box');
-            box.innerHTML += `<br><b>[مراسل]:</b> ${data.text}`;
-            box.scrollTop = box.scrollHeight;
-        });
-    </script>
+    <script src="/script.js"></script>
 </body>
 </html>
