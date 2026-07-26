@@ -1,25 +1,9 @@
 {
-  "name": "TARIM OS v12.1 - القلعة السيادية",
-  "short_name": "TARIM OS",
-  "description": "نظام سيادي - تريم حضرموت - بث مباشر مشفر وخريطة Offline",
+  "name": "TARIM OS",
+  "short_name": "TarimOS",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#080c14",
-  "theme_color": "#080c14",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/4712/4712109.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/4712/4712109.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+  "background_color": "#0d1117",
+  "theme_color": "#161b22",
+  "icons": []
 }
