@@ -1,100 +1,163 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>TARIM OS v6.2 - القلعة السيادية</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { background: #0d1117; color: #c9d1d9; font-family: Tahoma, sans-serif; margin: 0; padding: 10px; padding-bottom: 80px; text-align: right; }
-    h1 { text-align: center; color: #58a6ff; font-size: 20px; }
-    .card { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 10px; margin-bottom: 12px; }
-    .card h3 { margin-top: 0; color: #58a6ff; font-size: 16px; border-bottom: 1px solid #30363d; padding-bottom: 5px; }
-    input, button { padding: 10px; margin: 6px 0; width: 100%; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #fff; box-sizing: border-box; font-size: 14px; }
-    button { background: #238636; color: white; font-weight: bold; cursor: pointer; }
-    button.sos { background: #da3633; border: none; }
-    .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #161b22; border-top: 1px solid #30363d; display: flex; justify-content: space-around; padding: 8px 0; z-index: 1000; box-sizing: border-box; }
-    .nav-item { color: #8b949e; text-decoration: none; font-size: 11px; font-weight: bold; text-align: center; background: none; border: none; cursor: pointer; }
-    .nav-item.active { color: #58a6ff; }
-    .log-box { background: #010409; padding: 8px; border-radius: 5px; font-size: 11px; height: 70px; overflow-y: scroll; border: 1px solid #30363d; color: #7ee787; text-align: left; direction: ltr; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARIM OS v14.3 - الخدمات الحقيقية</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: Tahoma, sans-serif; margin: 0; padding-bottom: 70px; text-align: center; }
+        header { background: #161b22; padding: 15px; border-bottom: 1px solid #30363d; font-weight: bold; font-size: 18px; color: #58a6ff; }
+        .container { padding: 20px; max-width: 500px; margin: auto; }
+        .card { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: right; display: none; }
+        .card.active { display: block; }
+        input { width: 100%; padding: 10px; margin: 8px 0; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 5px; box-sizing: border-box; }
+        button { background: #238636; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; }
+        button.sos { background: #da3633; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #161b22; border-top: 1px solid #30363d; display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
+        .nav-item { color: #8b949e; text-decoration: none; font-size: 12px; font-weight: bold; cursor: pointer; background: none; border: none; }
+        .nav-item.active { color: #58a6ff; }
+        .log-box { text-align: left; background: #010409; padding: 10px; border-radius: 5px; font-size: 11px; height: 90px; overflow-y: scroll; border: 1px solid #30363d; color: #7ee787; margin-top: 10px; }
+    </style>
 </head>
 <body>
-  <h1>🛡️ TARIM OS v6.2</h1>
-  
-  <div id="login-section" class="card">
-    <h3>تسجيل الدخول CEO</h3>
-    <input type="text" id="phone" placeholder="رقم الجوال">
-    <input type="password" id="password" placeholder="كلمة السر">
-    <input type="password" id="pin" placeholder="رمز PIN">
-    <button onclick="login()">فتح بالبصمة / دخول</button>
-  </div>
-
-  <div id="operations-section" class="card" style="display:none;">
-    <h3>⚡ العمليات السيادية</h3>
-    <p>• البث المباشر المشفر (8 دقائق): <b>جاهز</b></p>
-    <p>• خريطة تريم وحضرموت (Offline): <b>متصلة</b></p>
-    <p>• إصدار الختم الميداني + QR: <b>مفعل</b></p>
-    <button class="sos" onclick="sos()">🚨 زر الطوارئ (SOS)</button>
-  </div>
-
-  <div class="card">
-    <h3>📋 سجل العمليات (LOG)</h3>
-    <div class="log-box" id="log-content">
-      [النظام]: جاهز للتشغيل...
-    </div>
-  </div>
-
-  <!-- القائمة السفلية للتحكم -->
-  <div class="nav-bar">
-    <button class="nav-item active" onclick="switchTab('home')">🏠<br>الرئيسية</button>
-    <button class="nav-item" onclick="switchTab('ops')">⚡<br>العمليات</button>
-    <button class="nav-item" onclick="switchTab('create')">✨<br>الإنشاء</button>
-    <button class="nav-item" onclick="switchTab('chat')">💬<br>المراسلة</button>
-    <button class="nav-item" onclick="switchTab('profile')">👑<br>الملف</button>
-  </div>
-
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script>
-    const socket = io();
+    <header>🛡️ TARIM OS - المركز الإمبراطوري</header>
     
-    async function login(){
-      const res = await fetch('/api/login',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          phone: document.getElementById('phone').value,
-          password: document.getElementById('password').value,
-          pin: document.getElementById('pin').value
-        })
-      });
-      const data = await res.json();
-      if(data.status === 'ok') {
-        alert('تم الدخول للقلعة بنجاح ✅');
-        document.getElementById('login-section').style.display = 'none';
-        document.getElementById('operations-section').style.display = 'block';
-        addLog("تم تسجيل دخول المعرف السيادي بنجاح.");
-      } else {
-        alert(data.error);
-      }
-    }
+    <div class="container">
+        <!-- شاشة القفل البيومتري -->
+        <div id="auth-screen" class="card active">
+            <h3>🔐 الاعتماد الأمني CEO</h3>
+            <p>أدخل رمز PIN (الافتراضي: 9999)</p>
+            <input type="password" id="pin-input" placeholder="رمز PIN">
+            <button onclick="verifyPin()">فتح القلعة</button>
+        </div>
 
-    function sos(){
-      if(confirm('هل انت متأكد؟ سيتم مسح كافة البيانات.')){
-        fetch('/api/sos',{method:'POST'});
-        alert('تم تفعيل الطوارئ ومسح السجلات.');
-        location.reload();
-      }
-    }
+        <!-- التبويب 1: الرئيسية -->
+        <div id="tab-1" class="card">
+            <h3>🏠 الخلاصة والبث الحقيقي</h3>
+            <p>حالة الاتصال: <b style="color: #7ee787;">متصل بالسيرفر الحي 📡</b></p>
+            <button onclick="fetchStatus()">تحديث حالة العقد</button>
+        </div>
 
-    function switchTab(tab) {
-      addLog(`الانتقال إلى تبويب: ${tab}`);
-    }
+        <!-- التبويب 2: العمليات الحقيقية -->
+        <div id="tab-2" class="card">
+            <h3>⚡ العمليات والختم الميداني</h3>
+            <p>• بث مباشر مشفر (8 دقائق): <b>نشط</b></p>
+            <p>• خريطة تريم وحضرموت (Offline): <b>جاهزة</b></p>
+            <button onclick="generateSeal()">إصدار الختم الميداني الحقيقي + QR</button>
+            <p id="seal-result" style="color: #7ee787; margin-top: 5px;"></p>
+        </div>
 
-    function addLog(text) {
-      const box = document.getElementById('log-content');
-      box.innerHTML += `<br>[${new Date().toLocaleTimeString()}] ${text}`;
-      box.scrollTop = box.scrollHeight;
-    }
-  </script>
+        <!-- التبويب 3: الإنشاء والذكاء -->
+        <div id="tab-3" class="card">
+            <h3>✨ الإنشاء وعين الذكاء</h3>
+            <p>• استخراج النصوص (OCR): <b>جاهز للتحليل</b></p>
+            <button onclick="triggerAction('تحليل صورة بعين الذكاء')">تشغيل الفحص المحلي</button>
+        </div>
+
+        <!-- التبويب 4: المراسلة -->
+        <div id="tab-4" class="card">
+            <h3>💬 المراسلة الآمنة</h3>
+            <p>• القناة المشفرة (Socket.io): <b>متصلة لحظياً</b></p>
+            <button onclick="triggerAction('إرسال برقية مراسلة آمنة')">إرسال إشارة اختبار</button>
+        </div>
+
+        <!-- التبويب 5: الملف الشخصي -->
+        <div id="tab-5" class="card">
+            <h3>👑 الملف الشخصي وإعدادات CEO</h3>
+            <p>المعرف: <b>CEO (الإمبراطور)</b></p>
+            <button onclick="triggerSOS()" class="sos">🚨 زر الطوارئ (SOS - مسح فوري)</button>
+            <button onclick="location.reload()" style="background: #30363d; margin-top: 10px;">قفل الجلسة</button>
+        </div>
+
+        <div class="card active" id="logs-card" style="display:none;">
+            <b>سجل العمليات الميدانية (LOG):</b>
+            <div class="log-box" id="log-content">
+                [النظام]: بانتظار الاتصال الفعلي...<br>
+            </div>
+        </div>
+    </div>
+
+    <!-- القائمة الرئيسية السفلية (5 أزرار) -->
+    <div class="nav-bar" id="bottom-nav" style="display:none;">
+        <button class="nav-item active" onclick="switchTab(1)">🏠<br>الرئيسية</button>
+        <button class="nav-item" onclick="switchTab(2)">⚡<br>العمليات</button>
+        <button class="nav-item" onclick="switchTab(3)">✨<br>الإنشاء</button>
+        <button class="nav-item" onclick="switchTab(4)">💬<br>المراسلة</button>
+        <button class="nav-item" onclick="switchTab(5)">👑<br>البروفايل</button>
+    </div>
+
+    <script>
+        const socket = io();
+
+        socket.on('server-log', (data) => {
+            addLog(`[السيرفر]: ${data.event}`);
+        });
+
+        function verifyPin() {
+            const pin = document.getElementById('pin-input').value;
+            if (pin === '9999') {
+                document.getElementById('auth-screen').classList.remove('active');
+                document.getElementById('tab-1').classList.add('active');
+                document.getElementById('logs-card').style.display = 'block';
+                document.getElementById('bottom-nav').style.display = 'flex';
+                fetchStatus();
+                addLog("تم اعتماد دخول المعرف السيادي CEO بنجاح.");
+            } else {
+                alert("رمز PIN خطأ!");
+            }
+        }
+
+        function switchTab(tabNum) {
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`tab-${i}`).classList.remove('active');
+            }
+            document.getElementById(`tab-${tabNum}`).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach((btn, index) => {
+                if (index + 1 === tabNum) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+        }
+
+        function fetchStatus() {
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(data => {
+                    const logBox = document.getElementById('log-content');
+                    logBox.innerHTML = "";
+                    data.logs.forEach(l => {
+                        logBox.innerHTML += `[${l.time}] ${l.event}<br>`;
+                    });
+                });
+        }
+
+        function generateSeal() {
+            fetch('/api/generate-seal', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('seal-result').innerText = `الختم المولد: ${data.seal}`;
+                    fetchStatus();
+                });
+        }
+
+        function triggerAction(actionName) {
+            socket.emit('client-action', { action: actionName });
+        }
+
+        function triggerSOS() {
+            localStorage.clear();
+            alert("🚨 تم تفعيل الطوارئ ومسح ذاكرة التخزين!");
+            location.reload();
+        }
+
+        function addLog(text) {
+            const logBox = document.getElementById('log-content');
+            const time = new Date().toLocaleTimeString();
+            logBox.innerHTML += `[${time}] ${text}<br>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+    </script>
 </body>
 </html>
