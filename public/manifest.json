@@ -1,10 +1,10 @@
 {
-  "name": "TARIM OS v12.1 - القلعة السيادية",
+  "name": "TARIM OS v12.3 - القلعة السيادية",
   "short_name": "TarimOS",
-  "description": "نظام تشغيل وإدارة سيادي متكامل مع دعم العمليات والمراسلة الآمنة",
+  "description": "نظام تشغيل وإدارة سيادي متكامل",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0d1117",
+  "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait",
   "icons": []
