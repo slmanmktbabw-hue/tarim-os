@@ -1,44 +1,18 @@
 {
-  "name": "tarim-os-v12",
-  "private": true,
-  "version": "12.1.0",
-  "type": "module",
-  "description": "TARIM OS v12.1 - نظام العمليات والسيطرة السيادية - القلعة السيادية للإمبراطور AL",
-  "author": "الإمبراطور AL (Abu Salman)",
-  "license": "SOVEREIGN",
+  "name": "tarim-os",
+  "version": "13.1.0",
+  "description": "TARIM OS - الامبراطورية السيادية",
+  "main": "server.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "18.x"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "tesseract.js": "^5.1.0",
-    "qrcode": "^1.5.4",
-    "localforage": "^1.10.0"
-  },
-  "devDependencies": {
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.1",
-    "@types/qrcode": "^1.5.5",
-    "@vitejs/plugin-react": "^4.3.3",
-    "typescript": "^5.6.3",
-    "vite": "^5.4.11",
-    "tailwindcss": "^4.0.0",
-    "@tailwindcss/browser": "^4.0.0"
-  },
-  "keywords": [
-    "tarim",
-    "sovereign-os",
-    "hadramout",
-    "military-grade",
-    "aes-256",
-    "tesseract",
-    "offline-first"
-  ],
-  "engines": {
-    "node": ">=18.0.0"
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "socket.io": "^4.7.2",
+    "cors": "^2.8.5"
   }
 }
