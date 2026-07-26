@@ -3,116 +3,75 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TARIM OS v12.1</title>
+<title>TARIM OS v13.0</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="/socket.io/socket.io.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet">
 <style>*{font-family:'Tajawal',sans-serif}.glass{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1)}</style>
 </head>
 <body class="bg-[#06080e] text-white min-h-screen pb-24">
 
-<!-- قفل -->
 <div id="auth" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
 <div class="glass p-6 rounded-3xl w-full max-w-sm text-center border border-cyan-500/30">
-<div class="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-cyan-500/30 text-xl">🛡️</div>
-<h2 class="font-black text-cyan-400">بصمة الأمان السيادية للـ CEO</h2>
-<p class="text-[11px] text-gray-400 mb-4">أدخل رقم الجوال والـ PIN للفتح</p>
-<input id="userIn" placeholder="رقم الجوال أو البريد" class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-center text-xs mb-2 outline-none">
-<input id="pinIn" type="password" placeholder="رمز PIN (2026)" class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-center text-xs mb-3 outline-none">
-<button onclick="if(document.getElementById('pinIn').value==='2026'||document.getElementById('pinIn').value==='AL2026'){document.getElementById('auth').style.display='none'}else{alert('PIN خاطئ')}" class="w-full bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-black py-2.5 rounded-xl text-xs">فتح القلعة السيادية</button>
-<button onclick="triggerSOS()" class="w-full mt-2 bg-red-500/20 border border-red-500/30 text-red-400 py-2 rounded-xl text-xs font-bold">⚠️ طوارئ SOS</button>
+<h2 class="font-black text-cyan-400">بصمة الأمان السيادية</h2>
+<p class="text-[11px] text-gray-400 mb-4">PIN: 2026</p>
+<input id="pinIn" type="password" placeholder="رمز PIN" class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-center text-xs mb-3 outline-none">
+<button onclick="if(document.getElementById('pinIn').value==='2026'||document.getElementById('pinIn').value==='AL2026'){document.getElementById('auth').style.display='none'}else{alert('PIN خاطئ')}" class="w-full bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-black py-2.5 rounded-xl text-xs">فتح القلعة</button>
 </div>
 </div>
 
-<!-- هيدر علوي -->
 <header class="sticky top-0 z-40 bg-black/70 backdrop-blur-xl border-b border-white/10 px-3 py-2.5 flex justify-between items-center">
-<div class="font-black text-cyan-400 text-xs">TARIM OS v12.1</div>
+<div class="font-black text-cyan-400 text-xs">TARIM OS v13.0</div>
 <div class="flex gap-1.5">
 <button onclick="openTab('ai')" class="bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] px-3 py-1.5 rounded-full font-bold">👁️ عين الذكاء</button>
 <button onclick="toggleStealth()" class="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-[10px] px-2.5 py-1.5 rounded-full font-bold">🕶️ تمويه</button>
 </div>
 </header>
 
-<!-- الرئيسية -->
 <main id="tab-home" class="p-3 space-y-3">
 <div class="relative rounded-2xl overflow-hidden border border-cyan-500/20">
 <div class="h-48 bg-cover bg-center flex flex-col justify-between p-3" style="background-image:linear-gradient(180deg,rgba(0,0,0,.1),rgba(6,8,14,.95)),url('https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=800')">
 <div class="flex justify-between"><span class="bg-red-600 text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse">مباشر</span><span class="bg-black/60 border border-white/10 text-yellow-400 text-[11px] px-2 py-1 rounded-full font-bold">⭐ 24.3K</span></div>
-<div class="absolute left-3 top-1/2 -translate-y-1/2 flex flex-col gap-2">
-<button onclick="toast('تم الإرسال 🎁')" class="bg-black/70 w-9 h-9 rounded-full border border-white/10 text-xs">🎁<div class="text-[8px]">إرسال</div></button>
-<button onclick="toast('تم الاستقبال 📥')" class="bg-black/70 w-9 h-9 rounded-full border border-white/10 text-xs">📥<div class="text-[8px]">استقبال</div></button>
-</div>
-<div><h2 class="font-black text-sm">بث مباشر سيادي ومشفر (فلتر بصري وهدايا)</h2><p class="text-[10px] text-gray-300">سيرفرات أسطورية • إرسال واستقبال هدايا • فلاتر بصرية</p></div>
+<div><h2 class="font-black text-sm">بث مباشر سيادي ومشفر</h2><p class="text-[10px] text-gray-300">سيرفرات أسطورية • هدايا</p></div>
 </div>
 </div>
-<div class="flex justify-between text-[11px]"><span class="text-gray-400">قائمة المهام والعمليات السيادية</span><span class="text-cyan-400">🗄️ SQLite نشطة</span></div>
-<div class="flex gap-2"><span class="text-[10px] px-2.5 py-1 rounded-full bg-red-500/20 border border-red-500/30 text-red-400">🔴 عالية</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 text-yellow-400">🟡 متوسطة</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400">🟢 منخفضة</span></div>
-<div id="tasks" class="space-y-2"></div>
-<button onclick="openCreate()" class="w-full glass py-3 rounded-xl text-cyan-300 text-xs font-black border border-cyan-500/20">⚡ تنفيذ أمر سيادي فوري وتوليد بيان</button>
+<div class="flex justify-between text-[11px]"><span class="text-gray-400">قائمة المهام السيادية</span><span class="text-cyan-400">🗄️ PostgreSQL</span></div>
+<div id="tasksContainer" class="space-y-2"></div>
+<button onclick="openCreate()" class="w-full glass py-3 rounded-xl text-cyan-300 text-xs font-black border border-cyan-500/20">⚡ تنفيذ أمر سيادي</button>
 </main>
 
-<!-- العمليات = دردشة العملاء -->
 <main id="tab-operations" class="p-3 space-y-3 hidden">
-<div class="glass p-3 rounded-2xl flex justify-between items-center"><h2 class="font-black text-xs">💬 دردشة العملاء المتواجدين</h2><span class="bg-emerald-500/20 text-emerald-300 text-[10px] px-2 py-1 rounded-full border border-emerald-500/20">12 متصل 🟢</span></div>
-<input placeholder="بحث عن عميل..." class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs outline-none">
-<div id="clients" class="space-y-2"></div>
-<div class="glass p-3 rounded-2xl h-[40vh] flex flex-col"><div id="chatLogs" class="flex-1 overflow-y-auto space-y-2 text-xs mb-2"><div class="bg-cyan-950/40 p-2 rounded-xl border border-cyan-500/10"><b>النظام:</b> القناة مشفرة وآمنة بين العملاء</div></div><div class="flex gap-2"><input id="chatIn" placeholder="اكتب رسالة لعميل..." class="flex-1 bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs outline-none"><button onclick="sendMsg()" class="bg-cyan-400 text-black font-black px-4 py-2 rounded-xl text-xs">إرسال</button></div></div>
+<div class="glass p-3 rounded-2xl"><h2 class="font-black text-xs">💬 غرفة العمليات</h2></div>
+<div class="glass p-3 rounded-2xl h-[50vh] flex flex-col"><div id="chatLogs" class="flex-1 overflow-y-auto space-y-2 text-xs"><div class="bg-cyan-950/40 p-2 rounded-xl">النظام: مشفر وآمن</div></div><div class="flex gap-2 mt-2"><input id="chatIn" placeholder="رسالة..." class="flex-1 bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs outline-none"><button onclick="sendMsg()" class="bg-cyan-400 text-black font-black px-4 py-2 rounded-xl text-xs">إرسال</button></div></div>
 </main>
 
-<!-- عين الذكاء - فوق -->
 <main id="tab-ai" class="p-3 space-y-3 hidden">
-<div class="glass p-4 rounded-2xl text-center"><h2 class="font-black text-sm text-cyan-400">👁️ عين الذكاء الاصطناعي Tesseract</h2><p class="text-[11px] text-gray-400 mb-2">فحص المستندات والصور الميدانية</p><input type="file" id="ocrFile" class="w-full bg-black/50 border border-white/10 rounded-xl p-2 text-[11px] mb-2"><button onclick="scanAI()" class="bg-cyan-400 text-black font-black px-4 py-2 rounded-xl text-xs">بدء الفحص الضوئي</button><div id="aiRes" class="mt-3 text-xs bg-black/40 p-3 rounded-xl border border-white/5 text-right min-h-[50px]">جاهز للاستقبال...</div></div>
-<div class="glass p-4 rounded-2xl text-center"><h3 class="font-black text-xs text-cyan-400">إصدار الختم الميداني + QR</h3><button onclick="genQR()" class="mt-2 bg-blue-600 text-white text-xs px-4 py-2 rounded-xl font-bold">توليد الختم</button><div class="flex justify-center mt-3"><canvas id="qr" width="150" height="150" class="bg-white rounded-xl hidden"></canvas></div></div>
+<div class="glass p-4 rounded-2xl text-center"><h2 class="font-black text-sm text-cyan-400">👁️ عين الذكاء Tesseract</h2><input type="file" class="w-full bg-black/50 border border-white/10 rounded-xl p-2 text-[11px] mb-2 mt-2"><button onclick="scanAI()" class="bg-cyan-400 text-black font-black px-4 py-2 rounded-xl text-xs">فحص</button><div id="aiRes" class="mt-3 text-xs bg-black/40 p-3 rounded-xl border border-white/5 min-h-[50px]">جاهز...</div></div>
+<div class="glass p-4 rounded-2xl text-center"><h3 class="font-black text-xs text-cyan-400">الختم الميداني + QR</h3><button onclick="genQR()" class="mt-2 bg-blue-600 text-white text-xs px-4 py-2 rounded-xl font-bold">توليد الختم</button><div class="flex justify-center mt-3"><canvas id="qr" width="150" height="150" class="bg-white rounded-xl hidden"></canvas></div></div>
 </main>
 
-<!-- الملف = إعدادات المستخدم -->
 <main id="tab-profile" class="p-3 space-y-3 hidden">
-<div class="glass p-5 rounded-2xl text-center"><div class="w-16 h-16 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-full mx-auto flex items-center justify-center font-black text-black text-xl">AL</div><h2 class="font-black text-sm mt-2">الإمبراطور AL</h2><p class="text-[11px] text-cyan-400">المهندس الأعلى</p></div>
-<div class="glass p-4 rounded-2xl space-y-3">
-<h3 class="font-black text-xs">⚙️ إعدادات المستخدم</h3>
-<input id="editName" placeholder="تعديل الاسم" value="الإمبراطور AL" class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs outline-none">
-<input id="oldPass" type="password" placeholder="كلمة المرور القديمة" class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs outline-none">
-<input id="newPass" type="password" placeholder="كلمة المرور الجديدة" class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs outline-none">
-<textarea placeholder="إضافة مميزات للملف / البايو..." class="w-full bg-black/50 border border-white/10 rounded-xl p-2.5 text-xs h-20 outline-none"></textarea>
-<div class="flex justify-between items-center bg-black/30 p-2.5 rounded-xl border border-white/5 text-xs"><span>التوثيق 🛡️</span><span class="text-emerald-400 font-bold">موثق</span></div>
-<div class="flex justify-between items-center bg-black/30 p-2.5 rounded-xl border border-white/5 text-xs"><span>التشفير AES-256</span><span class="text-cyan-400 font-bold">نشط</span></div>
-<button onclick="toast('تم حفظ الإعدادات ✅','✅')" class="w-full bg-cyan-400 text-black font-black py-2.5 rounded-xl text-xs">حفظ التعديلات</button>
-</div>
+<div class="glass p-5 rounded-2xl text-center"><div class="w-16 h-16 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-full mx-auto flex items-center justify-center font-black text-black text-xl">AL</div><h2 class="font-black text-sm mt-2">الإمبراطور AL</h2></div>
+<div class="glass p-4 rounded-2xl space-y-2 text-xs"><div class="flex justify-between bg-black/30 p-2.5 rounded-xl"><span>التوثيق</span><span class="text-emerald-400 font-bold">موثق</span></div><div class="flex justify-between bg-black/30 p-2.5 rounded-xl"><span>التشفير AES-256</span><span class="text-cyan-400 font-bold">نشط</span></div></div>
 </main>
 
-<!-- زر + - نافذة البث -->
 <div id="createSheet" class="fixed inset-0 z-[90] hidden"><div onclick="closeCreate()" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 <div class="absolute bottom-0 left-0 right-0 bg-[#10131f] border-t border-white/10 rounded-t-3xl p-5 space-y-3">
-<div class="w-10 h-1 bg-white/20 rounded-full mx-auto"></div>
 <h3 class="font-black text-sm text-center">ماذا تريد أن تنشئ؟</h3>
-<button onclick="toast('فتح كاميرا البث المباشر 📡');closeCreate()" class="w-full glass p-4 rounded-2xl flex items-center gap-3 text-right"><div class="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">📡</div><div><div class="font-bold text-xs">فتح بث مباشر سيادي</div><div class="text-[10px] text-gray-400">بث مشفر مع فلاتر وهدايا</div></div></button>
-<button onclick="toast('فتح معرض الفيديو 🎥');closeCreate()" class="w-full glass p-4 rounded-2xl flex items-center gap-3 text-right"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">🎥</div><div><div class="font-bold text-xs">إرسال فيديو</div><div class="text-[10px] text-gray-400">رفع فيديو من الاستوديو</div></div></button>
-<button onclick="toast('فتح كاميرا الفلتر ✨');closeCreate()" class="w-full glass p-4 rounded-2xl flex items-center gap-3 text-right"><div class="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">✨</div><div><div class="font-bold text-xs">تصوير بفلتر بصري</div><div class="text-[10px] text-gray-400">فلتر سيادي مشفر</div></div></button>
+<button onclick="toast('فتح البث 📡');closeCreate()" class="w-full glass p-4 rounded-2xl text-right text-xs font-bold">📡 فتح بث مباشر سيادي</button>
+<button onclick="toast('إرسال فيديو 🎥');closeCreate()" class="w-full glass p-4 rounded-2xl text-right text-xs font-bold">🎥 إرسال فيديو</button>
+<button onclick="toast('فلتر ✨');closeCreate()" class="w-full glass p-4 rounded-2xl text-right text-xs font-bold">✨ تصوير بفلتر</button>
 </div>
 </div>
 
-<!-- تنقل سفلي -->
 <nav class="fixed bottom-0 left-0 right-0 bg-[#06080e]/90 backdrop-blur-xl border-t border-white/10 py-2 px-4 flex justify-around items-center z-40">
-<button onclick="openTab('home')" id="nav-home" class="flex flex-col items-center text-cyan-400"><span>🏠</span><span class="text-[10px] font-bold">الرئيسية</span></button>
-<button onclick="openTab('operations')" id="nav-operations" class="flex flex-col items-center text-white/40"><span>💬</span><span class="text-[10px]">العمليات</span></button>
-<button onclick="openCreate()" class="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black font-black text-xl -mt-6 border-2 border-[#06080e] shadow-lg shadow-cyan-500/30">+</button>
-<button onclick="openTab('profile')" id="nav-profile" class="flex flex-col items-center text-white/40"><span>👑</span><span class="text-[10px]">الملف</span></button>
+<button onclick="openTab('home')" id="nav-home" data-nav class="flex flex-col items-center text-cyan-400"><span>🏠</span><span class="text-[10px] font-bold">الرئيسية</span></button>
+<button onclick="openTab('operations')" id="nav-operations" data-nav class="flex flex-col items-center text-white/40"><span>💬</span><span class="text-[10px]">العمليات</span></button>
+<button onclick="openCreate()" class="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black font-black text-xl -mt-6 border-2 border-[#06080e]">+</button>
+<button onclick="openTab('profile')" id="nav-profile" data-nav class="flex flex-col items-center text-white/40"><span>👑</span><span class="text-[10px]">الملف</span></button>
 </nav>
 
 <div id="toastBox" class="fixed top-16 left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-sm space-y-2 pointer-events-none"></div>
-
-<script>
-let clientsData=[{name:"العميل 1 - تريم",last:"تم استلام الهدية ✅",online:true},{name:"العميل 2 - المكلا",last:"جاهز للمهمة",online:true},{name:"العميل 3 - سيئون",last:"البث نشط الآن 🔴",online:false}];
-function renderTasks(){document.getElementById('tasks').innerHTML=[{b:"بث نشط",t:"بث مباشر سيادي ومشفر (8 دقائق)",d:"سيرفرات أسطورية • إرسال واستقبال هدايا",c:true},{b:"محمي",t:"المراسلة والاتصال الآمن بين الحسابات",d:"دعم بالذكاء الاصطناعي • حسابات موثقة",c:true},{b:"ميداني",t:"خريطة حضرموت وتريم بدون نت (Offline)",d:"تسجيل صوتي AES • مشاركة سيادية",c:true},{b:"جاهز",t:"إصدار الختم الميداني المشفر + QR",d:"عين الذكاء Tesseract",c:false}].map(x=>`<div class="glass p-3 rounded-xl flex justify-between items-center"><div><span class="text-[9px] px-2 py-0.5 rounded bg-cyan-500/20 border border-cyan-500/20 text-cyan-300 font-bold">${x.b}</span><h3 class="font-bold text-xs mt-1">${x.t}</h3><p class="text-[10px] text-gray-400">${x.d}</p></div><input type="checkbox" ${x.c?'checked':''} class="w-4 h-4 accent-cyan-500"></div>`).join('')}
-function renderClients(){document.getElementById('clients').innerHTML=clientsData.map(c=>`<div onclick="document.getElementById('chatLogs').innerHTML+='<div class=\\'bg-white/5 p-2 rounded-xl border border-white/5\\'><b>${c.name}:</b> ${c.last}</div>'" class="glass p-3 rounded-xl flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-8 h-8 bg-gradient-to-tr from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black font-bold text-[10px]">${c.name[0]}</div><div><div class="font-bold text-xs">${c.name}</div><div class="text-[10px] text-gray-400">${c.last}</div></div></div><div class="w-2 h-2 rounded-full ${c.online?'bg-emerald-500':'bg-gray-500'}"></div></div>`).join('')}
-renderTasks();renderClients();
-function toast(t,i='⚡'){const b=document.getElementById('toastBox');const id=Date.now();b.insertAdjacentHTML('beforeend',`<div id="t${id}" class="bg-[#0f172a]/90 border border-white/15 rounded-xl px-4 py-2.5 flex gap-2 text-[11px] font-bold"><span>${i}</span><span>${t}</span></div>`);setTimeout(()=>document.getElementById('t'+id)?.remove(),2500)}
-function openTab(t){document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));document.getElementById('tab-'+t).classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('text-cyan-400'));document.getElementById('nav-'+t)?.classList.add('text-cyan-400');if(t==='home')document.getElementById('nav-home').classList.add('text-cyan-400')}
-function openCreate(){document.getElementById('createSheet').classList.remove('hidden')} function closeCreate(){document.getElementById('createSheet').classList.add('hidden')}
-function toggleStealth(){document.body.classList.toggle('grayscale');toast(document.body.classList.contains('grayscale')?'تم التمويه 🕶️':'تم الإلغاء')}
-function triggerSOS(){toast('تم تفعيل SOS 🚨','🚨')}
-function sendMsg(){const i=document.getElementById('chatIn');if(!i.value)return;document.getElementById('chatLogs').innerHTML+=`<div class="bg-cyan-500/10 p-2 rounded-xl border border-cyan-500/20 text-right"><b>أنت:</b> ${i.value}</div>`;i.value='';setTimeout(()=>{document.getElementById('chatLogs').innerHTML+=`<div class="bg-white/5 p-2 rounded-xl"><b>العميل:</b> تم الاستلام ✅</div>`},600)}
-function scanAI(){const r=document.getElementById('aiRes');r.innerHTML='جاري المسح...';let p=0;const iv=setInterval(()=>{p+=20;r.innerHTML=`فحص... ${p}%`;if(p>=100){clearInterval(iv);r.innerHTML=`✅ تم: "وثيقة ميدانية - تريم"<br>ثقة 98.7%<br>${new Date().toLocaleTimeString('ar-SA')}`;toast('تم الفحص 👁️')}},200)}
-function genQR(){const c=document.getElementById('qr');c.classList.remove('hidden');const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,150,150);x.fillStyle='#000';for(let i=0;i<150;i++)if(Math.random()>0.5)x.fillRect((i%15)*10,Math.floor(i/15)*10,8,8);x.fillStyle='#00E5FF';x.fillRect(55,55,40,40);toast('تم توليد الختم 🔏')}
-</script>
+<script src="script.js"></script>
 </body>
 </html>
