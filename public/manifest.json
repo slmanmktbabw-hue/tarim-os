@@ -1,8 +1,8 @@
 {
-  "name": "TARIM OS - القلعة السيادية",
+  "name": "TARIM OS v14.3 - القلعة السيادية",
   "short_name": "TARIM OS",
-  "description": "النظام السيادي الحقيقي المتكامل v14.3",
-  "start_url": "/index.html",
+  "description": "النظام السيادي الحقيقي المتكامل - بث مباشر، مراسلة آمنة، ختم ميداني",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#080c14",
   "theme_color": "#06b6d4",
@@ -10,14 +10,15 @@
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/4712/4712109.png",
-      "sizes": "512x512",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=192",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "https://cdn-icons-png.flaticon.com/512/4712/4712109.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
