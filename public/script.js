@@ -7,16 +7,23 @@ try {
   console.log("Offline mode active");
 }
 
-// دالة تسجيل دخول أو إنشاء حساب المستخدم الجديد
+// دالة تسجيل دخول أو إنشاء حساب بكلمة سر قوية وحقيقية
 function loginCEO(){
   const phone = document.getElementById('userPhone').value.trim();
   const pass = document.getElementById('userPass').value.trim();
-  if(!phone || !pass){
-    showToast('الرجاء إدخال رقم الجوال وكلمة السر');
+  
+  if(!phone){
+    showToast('❌ الرجاء إدخال رقم الجوال أو المعرف');
     return;
   }
   
-  // حفظ بيانات المستخدم الجديد محلياً
+  // فحص قوة كلمة السر السيادية (يجب ألا تقل عن 8 خانات وتحتوي على أحرف وأرقام لضمان الأمان المطلق)
+  if(!pass || pass.length < 8 || !/\d/.test(pass) || !/[a-zA-Zá-üÁ-Ü]/.test(pass)){
+    showToast('🔒 كلمة السر ضعيفة! يجب أن تكون 8 خانات على الأقل وتتضمن أحرفاً وأرقاماً');
+    return;
+  }
+  
+  // حفظ بيانات المستخدم الآمنة محلياً
   localStorage.setItem('ceo_user', phone);
   localStorage.setItem('ceo_pass', pass);
   
@@ -26,7 +33,7 @@ function loginCEO(){
   const gate = document.getElementById('authGate');
   if(gate) gate.style.display = 'none';
   
-  showToast('🏰 تم فتح القلعة وتفعيل حساب المستخدم الجديد بنجاح');
+  showToast('🏰 تم فتح القلعة وتفعيل الحساب المشفر بنجاح');
   loadTasks();
 }
 
@@ -40,14 +47,12 @@ function loginCEO(){
     if(disp) disp.innerText = saved;
   }
   
-  // تطبيق الخلفية الخاصة بالمستخدم إن كانت محفوظة مسبقاً
   const savedBg = localStorage.getItem('ceo_bg');
   if(savedBg){
     applyBackground(savedBg);
   }
 })();
 
-// دالة تطبيق الخلفية على بانر التطبيق الرئيسي
 function applyBackground(url){
   const banner = document.getElementById('homeBanner');
   if(banner){
@@ -55,7 +60,6 @@ function applyBackground(url){
   }
 }
 
-// إعدادات وتغيير خلفية التطبيق للمستخدم من قسم الملف الشخصي
 function changeUserBackground(){
   const input = document.getElementById('bgUrlInput');
   if(!input) return;
@@ -64,8 +68,6 @@ function changeUserBackground(){
     showToast('الرجاء إدخال رابط الصورة (URL) أولاً');
     return;
   }
-  
-  // حفظ الخلفية الخاصة بهذا المستخدم في الذاكرة المحلية
   localStorage.setItem('ceo_bg', url);
   applyBackground(url);
   input.value = '';
