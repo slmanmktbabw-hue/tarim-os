@@ -1,1 +1,44 @@
-const socket=typeof io!=='undefined'?io():null;let hist=['home'];function loginCEO(){const p=document.getElementById('userPhone').value.trim();const ps=document.getElementById('userPass').value.trim();if(!p||!ps){alert('أدخل البيانات');return;}localStorage.setItem('ceo_user',p);document.getElementById('userDisplay').innerText=p;document.getElementById('authGate').style.display='none';showToast('تم فتح القلعة 🏰 v14.3');}if(localStorage.getItem('ceo_user')){setTimeout(()=>{const g=document.getElementById('authGate');if(g)g.style.display='none';const d=document.getElementById('userDisplay');if(d)d.innerText=localStorage.getItem('ceo_user');},200);}function openTab(t){document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));const e=document.getElementById('tab-'+t);if(e)e.classList.remove('hidden');document.querySelectorAll('[data-nav]').forEach(b=>{b.classList.remove('text-cyan-400');b.classList.add('text-white/40');});const b=document.querySelector('[data-nav='+t+']');if(b){b.classList.remove('text-white/40');b.classList.add('text-cyan-400');}if(hist[hist.length-1]!==t)hist.push(t);const bk=document.getElementById('backBtn');if(bk){if(t==='home')bk.classList.add('hidden');else{bk.classList.remove('hidden');bk.style.display='flex';}}}function goBack(){if(hist.length>1){hist.pop();const pr=hist[hist.length-1];document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));document.getElementById('tab-'+pr).classList.remove('hidden');if(pr==='home')document.getElementById('backBtn').classList.add('hidden');}else openTab('home');}function handleInner(n){showToast('✅ دخلت '+n+' - شغال رسمي 100%');if(n==='إدارة المنشورات')openCreate();if(n==='رصيد')showToast('💰 رصيدك: 12,540 نقطة سيادية');if(n==='مركز الأنشطة')showToast('📊 34 نشاط - 12 مكتمل');if(n==='الحساب')showToast('👤 حساب: '+(localStorage.getItem('ceo_user')||''));if(n==='الإشعارات')showToast('🔔 3 إشعارات جديدة');}function openMap(){showToast('🗺️ خريطة حضرموت Offline - تم التحميل');openTab('ai');document.getElementById('aiRes').innerText='🗺️ تريم - 15 نقطة ميدانية Offline';}function openCreate(){document.getElementById('createSheet').classList.remove('hidden');}function closeCreate(){document.getElementById('createSheet').classList.add('hidden');}function createPost(t){closeCreate();showToast('✅ تم إنشاء '+t+' بنجاح - رسمي');}function genQR(){const c=document.getElementById('qr');c.classList.remove('hidden');c.style.display='block';const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,160,160);x.fillStyle='#000';for(let i=0;i<300;i++)x.fillRect(Math.random()*160,Math.random()*160,3,3);document.getElementById('sealCode').innerText='TARIM-SEAL-'+Date.now();showToast('تم توليد الختم 🔏');}function sendMsg(){const i=document.getElementById('chatIn');if(!i.value.trim())return;const l=document.getElementById('chatLogs');const d=document.createElement('div');d.className='bg-cyan-900/30 p-2 rounded-xl text-xs';d.innerText=i.value;l.appendChild(d);if(socket)socket.emit('message',{text:i.value});i.value='';}function showToast(m){let b=document.getElementById('toastBox');const t=document.createElement('div');t.className='bg-[#10131f] border border-cyan-500/20 text-cyan-300 text-xs px-4 py-2.5 rounded-xl text-center';t.innerText=m;b.appendChild(t);setTimeout(()=>t.remove(),3000);}
+const CACHE_NAME = 'tarim-v12.1';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+  'https://cdn.socket.io/4.7.2/socket.io.min.js',
+  'https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js'
+];
+
+self.addEventListener('install', event => {
+  console.log('🛡️ Tarim_Core تثبت...');
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        // يرجع من الكاش اذا موجود، وإلا من النت
+        return response || fetch(event.request).then(res=>{
+          // يحفظ خريطة حضرموت للـ Offline
+          if(event.request.url.includes('tile.openstreetmap')){
+            caches.open(CACHE_NAME).then(c=>c.put(event.request, res.clone()));
+          }
+          return res;
+        });
+      })
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(names => {
+      return Promise.all(
+        names.filter(n=>n!==CACHE_NAME).map(n=>caches.delete(n))
+      );
+    })
+  );
+});
