@@ -7,7 +7,6 @@ try {
   console.log("Offline mode active");
 }
 
-// دالة تسجيل دخول أو إنشاء حساب بكلمة سر قوية وحقيقية
 function loginCEO(){
   const phone = document.getElementById('userPhone').value.trim();
   const pass = document.getElementById('userPass').value.trim();
@@ -17,13 +16,11 @@ function loginCEO(){
     return;
   }
   
-  // فحص قوة كلمة السر السيادية (يجب ألا تقل عن 8 خانات وتحتوي على أحرف وأرقام لضمان الأمان المطلق)
   if(!pass || pass.length < 8 || !/\d/.test(pass) || !/[a-zA-Zá-üÁ-Ü]/.test(pass)){
-    showToast('🔒 كلمة السر ضعيفة! يجب أن تكون 8 خانات على الأقل وتتضمن أحرفاً وأرقاماً');
+    showToast('🔒 كلمة السر ضعيفة! يجب ألا تقل عن 8 خانات وتتضمن أحرفاً وأرقاماً');
     return;
   }
   
-  // حفظ بيانات المستخدم الآمنة محلياً
   localStorage.setItem('ceo_user', phone);
   localStorage.setItem('ceo_pass', pass);
   
@@ -37,7 +34,6 @@ function loginCEO(){
   loadTasks();
 }
 
-// الفحص التلقائي لحالة المستخدم والخلفية المحفوظة عند فتح التطبيق
 (function(){
   const saved = localStorage.getItem('ceo_user');
   if(saved){
@@ -239,4 +235,4 @@ if(socket){
     logs.appendChild(div);
     logs.scrollTop = logs.scrollHeight;
   });
-    }
+     }
