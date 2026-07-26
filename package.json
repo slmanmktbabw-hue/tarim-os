@@ -1,13 +1,17 @@
 {
   "name": "tarim-os",
-  "version": "14.3.1",
-  "description": "TARIM OS - القلعة السيادية الحقيقية",
+  "version": "12.1.0",
+  "description": "TARIM OS v12.1 - القلعة السيادية - حضرموت تريم",
   "main": "server.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5"
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "socket.io": "^4.7.2"
   }
 }
