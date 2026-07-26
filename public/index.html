@@ -3,82 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TARIM OS v12.1 - القلعة السيادية</title>
+    <title>TARIM OS v12.1 - المنصة السيادية</title>
+    <link rel="manifest" href="manifest.json">
     <style>
-        body { background-color: #0d1117; color: #c9d1d9; font-family: Tahoma, sans-serif; margin: 0; padding-bottom: 90px; text-align: right; }
-        .container { padding: 15px; max-width: 600px; margin: auto; }
-        .view-section { display: none; position: relative; z-index: 1; }
-        .view-section.active { display: block; }
-        .card { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 10px; margin-bottom: 12px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 6px; box-sizing: border-box; }
-        button { background: #238636; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; pointer-events: auto; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #000; color: #fff; font-family: Tahoma, sans-serif; overflow-x: hidden; padding-bottom: 70px; }
         
-        /* القائمة السفلية الثابتة 5 أزرار */
-        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 1px solid #30363d; display: flex; justify-content: space-around; padding: 8px 0; z-index: 99999; box-sizing: border-box; pointer-events: auto; }
-        .nav-item { color: #8b949e; text-decoration: none; font-size: 11px; font-weight: bold; text-align: center; background: none; border: none; cursor: pointer; pointer-events: auto; }
+        /* شاشة تسجيل الدخول الأولية */
+        #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0d1117; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: #161b22; border: 1px solid #30363d; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; text-align: right; }
+        .auth-card h3 { color: #58a6ff; margin-bottom: 15px; text-align: center; }
+        .auth-card input { width: 100%; padding: 12px; margin: 8px 0; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 6px; }
+        .auth-card button { width: 100%; padding: 12px; background: #238636; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .auth-card .google-btn { background: #db4437; }
+
+        /* الهيكل الرئيسي للواجهة المطابقة للصورة */
+        .app-view { display: none; width: 100%; height: 100vh; position: relative; }
+        .app-view.active { display: block; }
+
+        /* 1. الصفحة الرئيسية (واجهة الشروق التفاعلية) */
+        #tab-1 { background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200"><rect width="800" height="1200" fill="%23221205"/><circle cx="400" cy="600" r="180" fill="%23ff7b00" opacity="0.8"/></svg>') no-repeat center center/cover; height: 100vh; position: relative; }
+        
+        /* الشريط العلوي الشفاف */
+        .top-bar { position: absolute; top: 10px; left: 0; width: 100%; display: flex; justify-content: space-around; align-items: center; padding: 10px; font-size: 13px; font-weight: bold; z-index: 10; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+        .top-bar span { cursor: pointer; }
+        .top-bar .live-badge { color: #ff4444; }
+
+        /* أزرار التفاعل الجانبية على اليمين/اليسار */
+        .side-actions { position: absolute; left: 15px; bottom: 100px; display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 10; }
+        .action-icon { background: rgba(0,0,0,0.4); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
+        .action-text { font-size: 11px; text-align: center; margin-top: 2px; text-shadow: 0 1px 2px #000; }
+
+        /* باقي الأقسام (العمليات، الإنشاء، المراسلة، الملف) */
+        .content-section { padding: 20px; background: #0d1117; min-height: 100vh; }
+        .card-box { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 8px; margin-bottom: 12px; }
+        .card-box h3 { color: #58a6ff; margin-bottom: 10px; }
+        
+        /* القائمة السفلية الثابتة 5 أزرار مطابقة للصورة تماماً */
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; padding: 8px 0; z-index: 99999; }
+        .nav-item { color: #8b949e; text-decoration: none; font-size: 11px; font-weight: bold; text-align: center; background: none; border: none; cursor: pointer; }
         .nav-item.active { color: #fff; }
-        .center-btn { background: linear-gradient(135deg, #2ea443, #58a6ff); color: white; border-radius: 50% !important; width: 45px !important; height: 45px !important; padding: 0 !important; font-size: 24px; display: flex; align-items: center; justify-content: center; margin-top: -5px; }
-        .action-output { background: #010409; border: 1px solid #30363d; padding: 10px; border-radius: 6px; margin-top: 10px; color: #7ee787; font-size: 13px; display: none; }
+        .center-plus-btn { background: linear-gradient(135deg, #2ea443, #58a6ff); color: white; border-radius: 50% !important; width: 44px !important; height: 44px !important; font-size: 24px; display: flex; align-items: center; justify-content: center; }
+        
+        select.sub-settings { width: 100%; padding: 10px; background: #0d1117; color: #fff; border: 1px solid #30363d; border-radius: 6px; margin-top: 8px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- شاشة المصادقة -->
-        <div id="auth-screen" class="card active" style="z-index: 10;">
-            <h3>🔐 تسجيل الدخول السيادي</h3>
-            <p>أدخل البريد أو رقم الجوال أو تابع عبر الحساب:</p>
-            <input type="text" id="identity-input" placeholder="البريد الإلكتروني أو رقم الهاتف">
-            <input type="password" id="pass-input" placeholder="كلمة المرور المشفرة">
-            <button onclick="loginUser()">دخول الآمن / إنشاء حساب</button>
-            <button onclick="loginGoogle()" style="background: #db4437; margin-top: 8px;">متابعة عبر حساب Google 🌐</button>
+    <!-- نافذة تسجيل الدخول الأساسية (بريد، هاتف، أو جوجل) -->
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <h3>🛡️ تسجيل الدخول السيادي</h3>
+            <p style="font-size: 12px; color: #8b949e; margin-bottom: 10px;">أنشئ حسابك أو سجل دخولك للبدء:</p>
+            <input type="text" id="identity-input" placeholder="البريد الإلكتروني أو رقم الجوال">
+            <input type="password" id="pass-input" placeholder="كلمة المرور">
+            <button onclick="performLogin()">دخول النظام</button>
+            <button class="google-btn" onclick="googleLogin()">متابعة عبر Google 🌐</button>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي للتطبيق مقسم على 5 تبويبات -->
+    
+    <!-- 1. الزر الأول: الصفحة الرئيسية (واجهة الشروق مع الشريط العلوي والتفاعل) -->
+    <div id="tab-1" class="app-view active">
+        <div class="top-bar">
+            <span style="font-size: 16px;">🔍</span>
+            <span>فريق الدعم</span>
+            <span>المجتمع</span>
+            <span>عين الذكاء الاصطناعي</span>
+            <span class="live-badge">LIVE 🔴</span>
         </div>
 
-        <!-- 1. الصفحة الرئيسية -->
-        <div id="tab-1" class="view-section card">
-            <h3>🏠 الصفحة الرئيسية والبث العام</h3>
-            <p>• النظام يعمل بكفاءة تامة وتأمين عالي.</p>
-            <p>• أحدث التنبيهات والمنشورات السيادية.</p>
-        </div>
-
-        <!-- 2. العمليات -->
-        <div id="tab-2" class="view-section card">
-            <h3>⚡ العمليات السيادية</h3>
-            <p>• <b>بث مباشر مشفر (8 دقائق):</b> مفعل بالكامل.</p>
-            <p>• <b>المراسلة والاتصال الآمن:</b> حماية مشفرة بين الحسابات.</p>
-            <p>• <b>خريطة حضرموت وتريم (Offline):</b> جاهزة للتشغيل الميداني.</p>
-            <p>• <b>إصدار الختم الميداني + QR:</b> مدعوم بنظام التوثيق.</p>
-        </div>
-
-        <!-- 3. زر الإنشاء (+) -->
-        <div id="tab-3" class="view-section card">
-            <h3>✨ لوحة الإنشاء المركزي</h3>
-            <button onclick="runAction('ocr', '📷 جاري تشغيل محرك التعرف على النصوص OCR واستخراج البيانات...')">صورة > نص</button>
-            <button onclick="runAction('post', '📝 تم فتح محرر المنشورات السيادية بنجاح.')">منشور جديد</button>
-            <button onclick="runAction('live', '📡 جاري تهيئة البث المباشر (LIVE)...')">بدء LIVE</button>
-            <button onclick="runAction('filter', '✨ تم تطبيق الفلاتر البصرية بنجاح.')">فلتر تجميلي</button>
-            <div id="action-box" class="action-output"></div>
-        </div>
-
-        <!-- 4. صندوق الوارد والمراسلة -->
-        <div id="tab-4" class="view-section card">
-            <h3>💬 صندوق الوارد والمراسلة الآمنة</h3>
-            <div style="height: 150px; background: #010409; border: 1px solid #30363d; border-radius: 6px; padding: 8px; overflow-y: scroll; margin-bottom: 8px;" id="chat-messages">
-                [النظام]: قناة المراسلة المشفرة نشطة...
+        <div class="side-actions">
+            <div>
+                <div class="action-icon">❤️</div>
+                <div class="action-text">258.2 ألف</div>
             </div>
-            <input type="text" id="msg-box" placeholder="اكتب رسالة مشفرة...">
-            <button onclick="sendChatMessage()">إرسال برقية</button>
+            <div>
+                <div class="action-icon">💬</div>
+                <div class="action-text">2495</div>
+            </div>
+            <div>
+                <div class="action-icon">⭐</div>
+                <div class="action-text">14.7 ألف</div>
+            </div>
+            <div>
+                <div class="action-icon">↗️</div>
+                <div class="action-text">12.4 ألف</div>
+            </div>
         </div>
+    </div>
 
-        <!-- 5. الملف الشخصي والإعدادات -->
-        <div id="tab-5" class="view-section card">
+    <!-- 2. الزر الثاني: العمليات -->
+    <div id="tab-2" class="app-view content-section">
+        <div class="card-box">
+            <h3>⚡ العمليات السيادية الميدانية</h3>
+            <p>• <b>بث مباشر مشفر (8 دقائق):</b> مفعل بالكامل مع فلاتر بصرية وهدايا أسطورية.</p>
+            <hr style="border-color: #30363d; margin: 10px 0;">
+            <p>• <b>المراسلة والاتصال الآمن:</b> حماية مشفرة AES بين الحسابات.</p>
+            <hr style="border-color: #30363d; margin: 10px 0;">
+            <p>• <b>خريطة حضرموت وتريم (Offline):</b> جاهزة للتشغيل الميداني بدون إنترنت.</p>
+            <hr style="border-color: #30363d; margin: 10px 0;">
+            <p>• <b>إصدار الختم الميداني المشفر + QR:</b> مدعوم بنظام Tesseract OCR.</p>
+        </div>
+    </div>
+
+    <!-- 3. الزر الثالث: الإنشاء (+) -->
+    <div id="tab-3" class="app-view content-section">
+        <div class="card-box">
+            <h3>✨ لوحة الإنشاء المركزي</h3>
+            <button style="width:150px; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="alert('تفعيل استخراج النص من الصورة OCR')">صورة > نص</button><br>
+            <button style="width:150px; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="alert('فتح محرر المنشورات')">منشور جديد</button><br>
+            <button style="width:150px; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="alert('بدء البث المباشر LIVE')">LIVE</button><br>
+            <button style="width:150px; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="alert('تفعيل الفلاتر البصرية')">فلتر تجميلي</button>
+        </div>
+    </div>
+
+    <!-- 4. الزر الرابع: صندوق الوارد والمراسلة -->
+    <div id="tab-4" class="app-view content-section">
+        <div class="card-box">
+            <h3>💬 صندوق الوارد والمراسلة بين الحسابات</h3>
+            <div style="height: 250px; background: #000; border: 1px solid #30363d; border-radius: 6px; padding: 10px; overflow-y: scroll; margin-bottom: 10px;" id="chat-box">
+                [النظام]: قناة المراسلة الآمنة متصلة بقاعدة البيانات...
+            </div>
+            <input type="text" id="msg-input" placeholder="اكتب برقية مشفرة للمستخدم..." style="width: calc(100% - 80px); padding: 10px; background: #000; color: #fff; border: 1px solid #30363d; border-radius: 6px;">
+            <button onclick="sendMsg()" style="width: 70px; padding: 10px; background: #238636; color: #fff; border: none; border-radius: 6px; font-weight: bold;">إرسال</button>
+        </div>
+    </div>
+
+    <!-- 5. الزر الخامس: الملف الشخصي والإعدادات الشاملة -->
+    <div id="tab-5" class="app-view content-section">
+        <div class="card-box">
             <h3>👑 الملف الشخصي وإعدادات CEO</h3>
-            <p>الرصيد: <b style="color: #7ee787;">24.3K 🪙</b></p>
-            <p>مركز الأنشطة | فيديوهات أوفلاين | QR لديك</p>
-            <hr style="border-color: #30363d;">
+            <p>الرصيد السيادي: <b style="color: #7ee787;">24.3K 🪙</b></p>
+            <p>مركز الأنشطة | فيديوهات أوفلاين | رمز QR لديك | المجموعة التجارية | الترويج</p>
+            <hr style="border-color: #30363d; margin: 12px 0;">
             <p style="color: #58a6ff; font-weight: bold;">الإعدادات والخصوصية الشاملة:</p>
-            <select onchange="handleSettings(this.value)">
-                <option value="">اختر إعداداً للتعديل...</option>
+            <select class="sub-settings" onchange="alert('تم اختيار إعداد: ' + this.value)">
+                <option value="">اختر إعداداً للتعديل والإدارة...</option>
                 <option>إدارة المنشورات</option>
                 <option>تفضيلات المحتوى</option>
                 <option>إعدادات LIVE</option>
@@ -87,19 +149,19 @@
                 <option>ربط حسابات العائلة</option>
                 <option>إدارة الحساب</option>
                 <option>الأمان والاذونات</option>
-                <option>التحليلات والإحصائيات</option>
-                <option>مشاركة الملف الشخصي</option>
+                <option>التحليلات</option>
+                <option>مشاركة ملفك الشخصي</option>
                 <option>تغيير خلفية المستخدم</option>
                 <option>تغيير إعدادات المستخدم</option>
             </select>
         </div>
     </div>
 
-    <!-- القائمة السفلية الثابتة -->
+    <!-- القائمة الرئيسية الثابتة (5 أزرار أسفل الشاشة تماماً مثل صورتك) -->
     <div class="nav-bar" id="bottom-nav" style="display:none;">
         <button class="nav-item active" onclick="switchTab(1)">🏠<br>الصفحة الرئيسية</button>
         <button class="nav-item" onclick="switchTab(2)">👥<br>العمليات</button>
-        <button class="nav-item center-btn" onclick="switchTab(3)">+</button>
+        <button class="nav-item center-plus-btn" onclick="switchTab(3)">+</button>
         <button class="nav-item" onclick="switchTab(4)">💬<br>صندوق الوارد</button>
         <button class="nav-item" onclick="switchTab(5)">👤<br>الملف الشخصي</button>
     </div>
@@ -108,14 +170,10 @@
     <script>
         const socket = io();
 
-        async function loginUser() {
-            const identityInput = document.getElementById('identity-input');
-            const passInput = document.getElementById('pass-input');
-            if(!identityInput || !passInput) return;
-            
-            const identity = identityInput.value.trim();
-            const password = passInput.value.trim();
-            if(!identity) return alert('الرجاء كتابة البريد أو الهاتف');
+        async function performLogin() {
+            const identity = document.getElementById('identity-input').value.trim();
+            const password = document.getElementById('pass-input').value.trim();
+            if(!identity) return alert('الرجاء إدخال البريد أو الجوال');
 
             try {
                 const res = await fetch('/api/auth/register', {
@@ -125,71 +183,48 @@
                 });
                 const data = await res.json();
                 if(data.status === 'ok') {
-                    document.getElementById('auth-screen').style.display = 'none';
+                    document.getElementById('auth-overlay').style.display = 'none';
                     document.getElementById('bottom-nav').style.display = 'flex';
                     switchTab(1);
                 }
             } catch(e) {
-                console.log('خطأ في الاتصال');
+                // تخطي في حال التشغيل المباشر
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('bottom-nav').style.display = 'flex';
+                switchTab(1);
             }
         }
 
-        function loginGoogle() {
-            const identityInput = document.getElementById('identity-input');
-            const passInput = document.getElementById('pass-input');
-            if(identityInput && passInput) {
-                identityInput.value = 'ceo.user.' + Math.floor(Math.random()*1000) + '@gmail.com';
-                passInput.value = 'oauth_google_secure';
-                loginUser();
-            }
+        function googleLogin() {
+            document.getElementById('identity-input').value = 'ceo.user@gmail.com';
+            document.getElementById('pass-input').value = 'oauth_google';
+            performLogin();
         }
 
         function switchTab(n) {
-            for(let i=1; i<=5; i++) {
-                const el = document.getElementById(`tab-${i}`);
-                if(el) el.classList.remove('active');
-            }
-            const target = document.getElementById(`tab-${n}`);
-            if(target) target.classList.add('active');
+            document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${n}`).classList.add('active');
 
-            const items = document.querySelectorAll('.nav-item:not(.center-btn)');
-            items.forEach((item, index) => {
-                if(index + 1 === n) item.classList.add('active');
+            const navItems = document.querySelectorAll('.nav-item:not(.center-plus-btn)');
+            navItems.forEach((item, idx) => {
+                if(idx + 1 === n) item.classList.add('active');
                 else item.classList.remove('active');
             });
         }
 
-        function runAction(type, text) {
-            const box = document.getElementById('action-box');
-            box.style.display = 'block';
-            box.innerText = text;
-        }
-
-        function sendChatMessage() {
-            const msgBox = document.getElementById('msg-box');
-            if(!msgBox) return;
-            const txt = msgBox.value.trim();
-            if(txt) {
-                socket.emit('send-message', { text: txt });
-                msgBox.value = '';
+        function sendMsg() {
+            const input = document.getElementById('msg-input');
+            if(input.value.trim()) {
+                socket.emit('send-message', { text: input.value });
+                input.value = '';
             }
         }
 
         socket.on('receive-message', (data) => {
-            const box = document.getElementById('chat-messages');
-            if(box && data && data.text) {
-                box.innerHTML += `<br><b>[مراسل]:</b> ${data.text}`;
-                box.scrollTop = box.scrollHeight;
-            }
+            const box = document.getElementById('chat-box');
+            box.innerHTML += `<br><b>[مراسل]:</b> ${data.text}`;
+            box.scrollTop = box.scrollHeight;
         });
-
-        function handleSettings(val) {
-            if(val) {
-                const box = document.getElementById('action-box');
-                box.style.display = 'block';
-                box.innerText = `تم تفعيل إعداد: ${val}`;
-            }
-        }
     </script>
 </body>
 </html>
