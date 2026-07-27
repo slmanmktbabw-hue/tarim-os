@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tarim-os-v12.3-final';
+const CACHE_NAME = 'tarim-os-v12.8-global';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
