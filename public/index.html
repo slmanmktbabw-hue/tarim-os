@@ -18,13 +18,12 @@
     <style>
         *{font-family:'Tajawal',sans-serif; -webkit-tap-highlight-color: transparent;}
         body{background:#080c14; overflow-x:hidden;}
-        .glass{background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.15); backdrop-filter:blur(15px)}
+        .glass{background:rgba(0,0,0,0.55); border:1px solid rgba(255,255,255,0.15); backdrop-filter:blur(15px)}
     </style>
 </head>
 <body class="text-white min-h-screen pb-28 relative">
 
-<!-- بوابة تسجيل الدخول والأمان -->
-<div id="authGate" class="fixed inset-0 z-[100] bg-[#080c14] flex items-center justify-center p-4">
+<div id="authGate" class="fixed inset-0 z-[200] bg-[#080c14] flex items-center justify-center p-4">
     <div class="w-full max-w-[360px] bg-[#0e1524] border border-cyan-500/30 rounded-[28px] p-6 text-center shadow-2xl">
         <div class="text-4xl mb-3">👑</div>
         <h2 class="font-black text-cyan-400 text-sm">TARIM OS - بوابة الملك AL</h2>
@@ -33,59 +32,59 @@
         <input id="userPhone" type="text" placeholder="رقم الجوال أو البريد السيادي" class="w-full mb-3 bg-black/60 border border-white/10 rounded-2xl px-4 py-3 text-center outline-none text-xs text-white focus:border-cyan-500">
         <input id="userPass" type="password" placeholder="كلمة السر (8+ خانات وحروف وأرقام)" class="w-full mb-4 bg-black/60 border border-white/10 rounded-2xl px-4 py-3 text-center outline-none text-xs text-white focus:border-cyan-500">
         
-        <button onclick="loginCEO()" class="w-full bg-gradient-to-r from-cyan-400 to-blue-600 text-black font-black py-3.5 rounded-2xl text-xs shadow-lg shadow-cyan-500/30 active:scale-95 transition">دخول القلعة واكتساب الصلاحيات</button>
+        <button onclick="loginCEO()" class="w-full bg-gradient-to-r from-cyan-400 to-blue-600 text-black font-black py-3.5 rounded-2xl text-xs shadow-lg shadow-cyan-500/30 active:scale-95 transition cursor-pointer">دخول القلعة واكتساب الصلاحيات</button>
     </div>
 </div>
 
-<!-- الشريط العلوي المطابق للصورة (عين الذكاء على الشمال، فريق الدعم على اليمين) -->
-<header class="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-black/80 to-transparent px-3 py-3 flex justify-between items-center text-xs font-bold text-white/90">
+<header class="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-black/90 to-transparent px-3 py-3 flex justify-between items-center text-xs font-bold text-white/95">
     <div class="flex items-center gap-3">
-        <span onclick="openTab('ai')" class="cursor-pointer hover:text-cyan-400 transition">عين الذكاء الاصطناعي</span>
+        <span onclick="openTab('ai')" class="cursor-pointer hover:text-cyan-400 transition">عين الذكاء</span>
         <span onclick="openTab('community')" class="cursor-pointer hover:text-cyan-400 transition">المجتمع</span>
     </div>
-    <div class="flex items-center gap-3">
-        <span onclick="openTab('support')" class="cursor-pointer hover:text-cyan-400 transition">فريق الدعم</span>
+    <div class="flex items-center gap-2">
+        <button onclick="installAppPrompt()" class="bg-gradient-to-r from-yellow-500 to-amber-600 text-black px-2.5 py-1 rounded-xl font-black text-[10px] animate-pulse cursor-pointer">📥 تثبيت التطبيق</button>
         <span onclick="openTab('live')" class="cursor-pointer text-red-400 font-black animate-pulse">LIVE</span>
-        <span onclick="openTab('search')" class="cursor-pointer text-base">🔍</span>
     </div>
 </header>
 
-<!-- الواجهة الرئيسية (خلفية الشفق والغروب الأسطوري) -->
 <main id="tab-home" class="min-h-screen bg-cover bg-center flex flex-col justify-end p-4 relative" style="background-image:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1000')">
-    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none"></div>
-    <div class="relative z-10 space-y-3 pb-12">
+    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/40 pointer-events-none"></div>
+    <div class="relative z-10 space-y-3 pb-12 pt-16">
         <div class="glass p-3 rounded-2xl flex justify-between items-center">
             <div>
                 <div class="font-black text-sm text-cyan-300 userNameDisplay">الإمبراطور AL</div>
-                <div class="text-[10px] text-gray-300">محفظة الأرباح OKX مرتبطة بنجاح 🔗</div>
+                <div class="text-[10px] text-gray-300">OKX: 0x53ce...0af6 🔗</div>
             </div>
-            <span class="bg-cyan-500/20 text-cyan-300 text-[10px] px-2.5 py-1 rounded-xl font-bold" id="userPoints">⭐ 500</span>
+            <span class="bg-cyan-500/20 text-cyan-300 text-[10px] px-2.5 py-1 rounded-xl font-bold">⭐ 500</span>
         </div>
-        <div id="tasksContainer" class="space-y-2"></div>
+        
+        <div class="glass p-3 rounded-2xl space-y-2">
+            <div class="font-black text-cyan-400 text-xs">📰 الخلاصة والبث السيادي</div>
+            <div class="text-[11px] text-gray-200">القلعة متصلة بالشبكة العالمية بنجاح وثبات تام.</div>
+        </div>
+
+        <button onclick="installAppPrompt()" class="w-full bg-gradient-to-r from-cyan-400 to-blue-600 text-black font-black p-3.5 rounded-xl text-xs shadow-lg cursor-pointer">📥 تحميل وتثبيت التطبيق على الشاشة الرئيسية</button>
     </div>
 </main>
 
-<!-- 2. العمليات السيادية -->
 <main id="tab-operations" class="p-3 space-y-3 hidden min-h-screen pt-16">
     <div class="font-black text-cyan-400 text-sm mb-2">⚙️ قسم العمليات السيادية</div>
-    <button onclick="openTab('live')" class="w-full glass p-4 rounded-2xl text-right flex justify-between font-bold text-xs"><span>🔴 بث مباشر سيادي ومشفر (8 دقائق)</span><span>›</span></button>
-    <button onclick="openTab('messages')" class="w-full glass p-4 rounded-2xl text-right flex justify-between font-bold text-xs"><span>💬 المراسلة والاتصال الآمن بين الحسابات</span><span>›</span></button>
-    <button onclick="openMap()" class="w-full glass p-4 rounded-2xl text-right flex justify-between font-bold text-xs"><span>🗺️ خريطة حضرموت وتريم (Offline)</span><span>›</span></button>
-    <button onclick="openTab('ai')" class="w-full glass p-4 rounded-2xl text-right flex justify-between font-bold text-xs"><span>🔏 اصدار الختم الميداني ومشفر + QR</span><span>›</span></button>
+    <button onclick="openTab('live')" class="w-full glass p-4 rounded-2xl text-right flex justify-between font-bold text-xs cursor-pointer"><span>🔴 بث مباشر سيادي ومشفر (8 دقائق)</span><span>›</span></button>
+    <button onclick="openTab('messages')" class="w-full glass p-4 rounded-2xl text-right flex justify-between font-bold text-xs cursor-pointer"><span>💬 المراسلة والاتصال الآمن بين الحسابات</span><span>›</span></button>
+    <button onclick="openMap()" class="w-full glass p-4 rounded-2xl text-right flex justify-between font-bold text-xs cursor-pointer"><span>🗺️ خريطة حضرموت وتريم (Offline)</span><span>›</span></button>
+    <button onclick="genQR()" class="w-full glass p-4 rounded-2xl text-right flex justify-between font-bold text-xs cursor-pointer"><span>🔏 اصدار الختم الميداني ومشفر + QR</span><span>›</span></button>
 </main>
 
-<!-- 3. شاشة الإنشاء + (صورة/نص، منشور، LIVE، فلتر) -->
 <main id="tab-create-main" class="p-3 space-y-3 hidden min-h-screen pt-16">
     <div class="font-black text-cyan-400 text-sm mb-2">✨ مركز الإنشاء السيادي</div>
     <div class="grid grid-cols-2 gap-3">
-        <button onclick="createPost('صورة / نص')" class="glass py-8 rounded-2xl font-bold text-xs text-center">🖼️ صورة / نص</button>
-        <button onclick="createPost('منشور سيادي')" class="glass py-8 rounded-2xl font-bold text-xs text-center">📄 منشور</button>
-        <button onclick="createPost('LIVE أسطوري')" class="glass py-8 rounded-2xl font-bold text-xs text-center text-red-400">🔴 LIVE</button>
-        <button onclick="createPost('فلتر تجميل')" class="glass py-8 rounded-2xl font-bold text-xs text-center">🎨 فلتر</button>
+        <button onclick="createPost('صورة / نص')" class="glass py-8 rounded-2xl font-bold text-xs text-center cursor-pointer">🖼️ صورة / نص</button>
+        <button onclick="createPost('منشور سيادي')" class="glass py-8 rounded-2xl font-bold text-xs text-center cursor-pointer">📄 منشور</button>
+        <button onclick="createPost('LIVE أسطوري')" class="glass py-8 rounded-2xl font-bold text-xs text-center text-red-400 cursor-pointer">🔴 LIVE</button>
+        <button onclick="createPost('فلتر تجميل')" class="glass py-8 rounded-2xl font-bold text-xs text-center cursor-pointer">🎨 فلتر</button>
     </div>
 </main>
 
-<!-- 4. المراسلة بين الحسابات (صندوق الوارد) -->
 <main id="tab-messages" class="p-3 hidden min-h-screen pt-16">
     <div class="glass p-4 rounded-2xl space-y-3">
         <div class="flex justify-between items-center pb-2 border-b border-white/10">
@@ -94,12 +93,11 @@
         <div id="chatLogs" class="space-y-2 h-[55vh] overflow-y-auto text-xs"></div>
         <div class="flex gap-2">
             <input id="chatIn" placeholder="اكتب رسالتك السيادية..." class="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500 text-white">
-            <button onclick="sendMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-black">إرسال</button>
+            <button onclick="sendMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-black cursor-pointer">إرسال</button>
         </div>
     </div>
 </main>
 
-<!-- 5. الملف الشخصي والإعدادات الشاملة -->
 <main id="tab-profile" class="p-3 space-y-3 hidden min-h-screen pt-16 pb-20">
     <div class="glass p-4 rounded-2xl flex gap-3 items-center">
         <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-black font-black text-lg">AL</div>
@@ -109,77 +107,64 @@
         </div>
     </div>
     
-    <button onclick="handleInner('رصيد النقاط والأرباح')" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold"><span>💰 رصيد الأرباح</span><span>›</span></button>
-    <button onclick="handleInner('مركز الأنشطة')" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold"><span>📊 مركز الأنشطة</span><span>›</span></button>
-    <button onclick="handleInner('فيديوهات دون اتصال')" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold"><span>📹 فيديوهات دون اتصال بالإنترنت</span><span>›</span></button>
-    <button onclick="genQR()" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold"><span>🔏 رمز QR لديك</span><span>›</span></button>
-    <button onclick="handleInner('المجموعة التجارية')" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold"><span>🏷️ المجموعة التجارية</span><span>›</span></button>
-    <button onclick="handleInner('الترويج السيادي')" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold"><span>🚀 الترويج</span><span>›</span></button>
+    <button onclick="installAppPrompt()" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-black p-3.5 rounded-xl text-center font-black text-xs shadow-lg cursor-pointer">📥 تثبيت التطبيق على الشاشة الرئيسية للهاتف</button>
+    
+    <button onclick="handleInner('رصيد النقاط والأرباح')" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold cursor-pointer"><span>💰 رصيد الأرباح</span><span>›</span></button>
+    <button onclick="handleInner('مركز الأنشطة')" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold cursor-pointer"><span>📊 مركز الأنشطة</span><span>›</span></button>
+    <button onclick="handleInner('فيديوهات دون اتصال')" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold cursor-pointer"><span>📹 فيديوهات دون اتصال بالإنترنت</span><span>›</span></button>
+    <button onclick="genQR()" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold cursor-pointer"><span>🔏 رمز QR لديك</span><span>›</span></button>
+    <button onclick="handleInner('المجموعة التجارية')" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold cursor-pointer"><span>🏷️ المجموعة التجارية</span><span>›</span></button>
+    <button onclick="handleInner('الترويج السيادي')" class="w-full glass p-3 rounded-xl text-right flex justify-between text-xs font-bold cursor-pointer"><span>🚀 الترويج</span><span>›</span></button>
     
     <div class="font-bold text-cyan-400 text-xs mt-3">⚙️ الإعدادات والخصوصية</div>
-    <button onclick="handleInner('إدارة المنشورات')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs"><span>إدارة المنشورات</span><span>›</span></button>
-    <button onclick="handleInner('تفضيلات المحتوى')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs"><span>تفضيلات المحتوى</span><span>›</span></button>
-    <button onclick="handleInner('LIVE الإعدادات')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs"><span>LIVE</span><span>›</span></button>
-    <button onclick="handleInner('الاشعارات')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs"><span>الاشعارات</span><span>›</span></button>
-    <button onclick="handleInner('الوقت والرفاهيه')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs"><span>الوقت والرفاهيه</span><span>›</span></button>
-    <button onclick="handleInner('ربط الحسابات للعائلة')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs"><span>ربط الحسابات للعائلة</span><span>›</span></button>
-    <button onclick="handleInner('الحساب والأمان')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs"><span>الحساب والأمان والاذونات</span><span>›</span></button>
-    <button onclick="handleInner('التحليلات')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs"><span>التحليلات</span><span>›</span></button>
-    <button onclick="handleInner('مشاركة ملفك الشخصي')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs"><span>مشاركة ملفك الشخصي</span><span>›</span></button>
+    <button onclick="handleInner('إدارة المنشورات')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs cursor-pointer"><span>إدارة المنشورات</span><span>›</span></button>
+    <button onclick="handleInner('تفضيلات المحتوى')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs cursor-pointer"><span>تفضيلات المحتوى</span><span>›</span></button>
+    <button onclick="handleInner('LIVE الإعدادات')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs cursor-pointer"><span>LIVE</span><span>›</span></button>
+    <button onclick="handleInner('الاشعارات')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs cursor-pointer"><span>الاشعارات</span><span>›</span></button>
+    <button onclick="handleInner('الوقت والرفاهيه')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs cursor-pointer"><span>الوقت والرفاهيه</span><span>›</span></button>
+    <button onclick="handleInner('ربط الحسابات للعائلة')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs cursor-pointer"><span>ربط الحسابات للعائلة</span><span>›</span></button>
+    <button onclick="handleInner('الحساب والأمان')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs cursor-pointer"><span>الحساب والأمان والاذونات</span><span>›</span></button>
+    <button onclick="handleInner('التحليلات')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs cursor-pointer"><span>التحليلات</span><span>›</span></button>
+    <button onclick="handleInner('مشاركة ملفك الشخصي')" class="w-full glass p-2.5 rounded-xl text-right flex justify-between text-xs cursor-pointer"><span>مشاركة ملفك الشخصي</span><span>›</span></button>
     
-    <!-- تغيير الخلفية والاسم -->
-    <div class="glass p-3 rounded-xl space-y-2 border border-cyan-500/30">
+    <div class="glass p-3 rounded-xl space-y-2 border border-cyan-500/30 mt-2">
         <div class="text-[11px] text-cyan-400 font-bold">🎨 تغيير خلفية المستخدم</div>
         <div class="flex gap-2">
             <input id="bgUrlInput" placeholder="رابط صورة الخلفية..." class="flex-1 bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white outline-none">
-            <button onclick="changeUserBackground()" class="bg-cyan-500 text-black font-black px-3 py-1.5 rounded-lg text-xs">تطبيق</button>
+            <button onclick="changeUserBackground()" class="bg-cyan-500 text-black font-black px-3 py-1.5 rounded-lg text-xs cursor-pointer">تطبيق</button>
         </div>
     </div>
     
-    <button onclick="localStorage.clear();location.reload()" class="w-full bg-red-900/40 border border-red-500/30 p-3 rounded-xl text-red-400 text-xs font-bold mt-2">🚪 خروج وإعادة تهيئة الحساب</button>
+    <button onclick="localStorage.clear();location.reload()" class="w-full bg-red-900/40 border border-red-500/30 p-3 rounded-xl text-red-400 text-xs font-bold mt-2 cursor-pointer">🚪 خروج وإعادة تهيئة الحساب</button>
 </main>
 
-<!-- الشاشات الفرعية (AI, Live, Support, Community) -->
 <main id="tab-ai" class="p-4 hidden min-h-screen pt-16 text-center space-y-3">
     <div class="font-black text-cyan-400 text-sm">👁️ عين الذكاء الاصطناعي السيادية</div>
     <div class="glass p-4 rounded-2xl text-xs text-gray-300">الذكاء الاصطناعي متصل وجاهز لتحليل الصور ونصوص الردع العالمية وحماية القلعة 24/7.</div>
-    <button onclick="openTab('home')" class="bg-cyan-500 text-black font-black px-4 py-2 rounded-xl text-xs">رجوع للرئيسية</button>
-</main>
-
-<main id="tab-support" class="p-4 hidden min-h-screen pt-16 text-center space-y-3">
-    <div class="font-black text-cyan-400 text-sm">🛠️ فريق الدعم السيادي</div>
-    <div class="glass p-4 rounded-2xl text-xs text-gray-300">فريق الدعم الهندسي متواجد لخدمة الإمبراطور AL ومتابعة سيرفرات العالم بأسره.</div>
-    <button onclick="openTab('home')" class="bg-cyan-500 text-black font-black px-4 py-2 rounded-xl text-xs">رجوع للرئيسية</button>
+    <button onclick="openTab('home')" class="bg-cyan-500 text-black font-black px-4 py-2 rounded-xl text-xs cursor-pointer">رجوع للرئيسية</button>
 </main>
 
 <main id="tab-community" class="p-4 hidden min-h-screen pt-16 text-center space-y-3">
     <div class="font-black text-cyan-400 text-sm">🌐 المجتمع السيادي العالمي</div>
     <div class="glass p-4 rounded-2xl text-xs text-gray-300">شبكة القادة والمستخدمين حول العالم مرتبطة بسيرفرات تريم ونظام OKX.</div>
-    <button onclick="openTab('home')" class="bg-cyan-500 text-black font-black px-4 py-2 rounded-xl text-xs">رجوع للرئيسية</button>
+    <button onclick="openTab('home')" class="bg-cyan-500 text-black font-black px-4 py-2 rounded-xl text-xs cursor-pointer">رجوع للرئيسية</button>
 </main>
 
 <main id="tab-live" class="p-4 hidden min-h-screen pt-16 text-center space-y-3">
     <div class="font-black text-red-400 text-sm">🔴 بث مباشر سيادي مشفر (8 دقائق)</div>
     <div class="glass p-4 rounded-2xl text-xs text-gray-300">البث الميداني المشفر يعمل الآن بأعلى جودة سيرفرات عالمية.</div>
-    <button onclick="openTab('home')" class="bg-cyan-500 text-black font-black px-4 py-2 rounded-xl text-xs">رجوع للرئيسية</button>
+    <button onclick="openTab('home')" class="bg-cyan-500 text-black font-black px-4 py-2 rounded-xl text-xs cursor-pointer">رجوع للرئيسية</button>
 </main>
 
-<main id="tab-search" class="p-4 hidden min-h-screen pt-16 text-center space-y-3">
-    <div class="font-black text-cyan-400 text-sm">🔍 البحث الميداني الشامل</div>
-    <input placeholder="ابحث في التطبيق..." class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none">
-    <button onclick="openTab('home')" class="bg-cyan-500 text-black font-black px-4 py-2 rounded-xl text-xs">رجوع</button>
-</main>
-
-<!-- شريط التنقل السفلي الأسطوري (مطابق للصورة تماماً: 5 أزرار) -->
 <nav class="fixed bottom-0 left-0 right-0 bg-[#080c14]/95 border-t border-white/10 py-2 px-2 flex justify-around z-50 backdrop-blur-xl">
-    <button onclick="openTab('home')" data-nav="home" class="flex flex-col items-center text-cyan-400"><span class="text-xl">🏠</span><span class="text-[9px] mt-1 font-bold">الصفحة الرئيسية</span></button>
-    <button onclick="openTab('operations')" data-nav="operations" class="flex flex-col items-center text-white/40"><span class="text-xl">👥</span><span class="text-[9px] mt-1 font-bold">العمليات</span></button>
-    <button onclick="openTab('create-main')" data-nav="create-main" class="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black text-2xl -mt-5 shadow-lg shadow-cyan-500/30 border-4 border-[#080c14] font-black">+</button>
-    <button onclick="openTab('messages')" data-nav="messages" class="flex flex-col items-center text-white/40 relative"><span class="text-xl">💬</span><span class="text-[9px] mt-1 font-bold">صندوق الوارد</span><span class="absolute top-0 right-3 bg-red-500 text-white text-[8px] px-1 rounded-full">3</span></button>
-    <button onclick="openTab('profile')" data-nav="profile" class="flex flex-col items-center text-white/40"><span class="text-xl">👤</span><span class="text-[9px] mt-1 font-bold">الملف الشخصي</span></button>
+    <button onclick="openTab('home')" data-nav="home" class="flex flex-col items-center text-cyan-400 cursor-pointer"><span class="text-xl">🏠</span><span class="text-[9px] mt-1 font-bold">الرئيسية</span></button>
+    <button onclick="openTab('operations')" data-nav="operations" class="flex flex-col items-center text-white/40 cursor-pointer"><span class="text-xl">⚙️</span><span class="text-[9px] mt-1 font-bold">العمليات</span></button>
+    <button onclick="openTab('create-main')" data-nav="create-main" class="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-black text-2xl -mt-5 shadow-lg shadow-cyan-500/30 border-4 border-[#080c14] font-black cursor-pointer">+</button>
+    <button onclick="openTab('messages')" data-nav="messages" class="flex flex-col items-center text-white/40 relative cursor-pointer"><span class="text-xl">💬</span><span class="text-[9px] mt-1 font-bold">المراسلة</span><span class="absolute top-0 right-3 bg-red-500 text-white text-[8px] px-1 rounded-full">3</span></button>
+    <button onclick="openTab('profile')" data-nav="profile" class="flex flex-col items-center text-white/40 cursor-pointer"><span class="text-xl">👤</span><span class="text-[9px] mt-1 font-bold">الملف</span></button>
 </nav>
 
-<div id="toastBox" class="fixed top-16 left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-sm space-y-2 pointer-events-none"></div>
+<div id="toastBox" class="fixed top-16 left-1/2 -translate-x-1/2 z-[300] w-[90%] max-w-sm space-y-2 pointer-events-none"></div>
 
 <script src="/script.js"></script>
 <script>
@@ -188,6 +173,32 @@
       navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW error', err));
     });
   }
+
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  function installAppPrompt() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          showToast('✅ تم تثبيت التطبيق بنجاح على هاتفك');
+        }
+        deferredPrompt = null;
+      });
+    } else {
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      if (isIOS) {
+        showToast('📌 لأجهزة آيفون: اضغط زر المشاركة (Share) في سفاري ثم اختر "إضافة إلى الشاشة الرئيسية"');
+      } else {
+        showToast('📌 لتثبيت التطبيق: افتح قائمة المتصفح (⋮) من أعلى اليمين ثم اختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"');
+      }
+    }
+  }
 </script>
 </body>
-</html>
+        </html>
+        
