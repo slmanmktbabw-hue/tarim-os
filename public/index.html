@@ -1,5 +1,41 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarim OS - النظام السيادي</title>
+<link rel="manifest" href="/manifest.json">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,sans-serif}
+body{background:#000;color:#fff;height:100vh;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
+.top-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:linear-gradient(to bottom,rgba(0,0,0,0.8),transparent);position:absolute;width:100%;z-index:10;font-size:14px;font-weight:bold}
+.main-content{flex:1;position:relative;display:flex;justify-content:center;align-items:center;background:url('https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=1000&auto=format&fit=crop') center/cover no-repeat}
+.content-overlay{position:absolute;bottom:80px;right:15px;text-align:right;z-index:5;text-shadow:0 1px 3px rgba(0,0,0,0.9)}
+.bottom-nav{display:flex;justify-content:space-around;align-items:center;background:rgba(0,0,0,0.95);height:65px;border-top:1px solid #222;z-index:10}
+.nav-item{color:#888;font-size:11px;display:flex;flex-direction:column;align-items:center;cursor:pointer}.nav-item.active{color:#fff;font-weight:bold}
+.center-btn{background:#fff;color:#000;width:42px;height:42px;border-radius:12px;display:flex;justify-content:center;align-items:center;font-size:26px;font-weight:bold}
+.modal-panel{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.96);z-index:20;padding:20px;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid #333;padding-bottom:10px}
+.close-btn{color:#ff4444;font-size:18px;cursor:pointer;font-weight:bold}.menu-list{list-style:none}.menu-list li{padding:12px 0;border-bottom:1px solid #1a1a1a;cursor:pointer}
+</style>
+</head>
+<body>
+<header class="top-header"><div onclick="openAIEye()">👁️ عين الذكاء الاصطناعي</div><div onclick="openSupport()">🛡️ فريق الدعم</div></header>
+<main class="main-content"><div class="content-overlay"><h2>تريم أو إس - Tarim OS</h2><p>النظام السيادي المشفر</p></div></main>
+<nav class="bottom-nav">
+<div class="nav-item active" onclick="switchTab(1)"><span>🏠</span>الرئيسية</div>
+<div class="nav-item" onclick="switchTab(2)"><span>👥</span>العمليات</div>
+<div class="nav-item"><div class="center-btn" onclick="switchTab(3)">+</div></div>
+<div class="nav-item" onclick="switchTab(4)"><span>💬</span>الوارد</div>
+<div class="nav-item" onclick="switchTab(5)"><span>👤</span>الملف الشخصي</div>
+</nav>
+<div id="createModal" class="modal-panel"><div class="modal-header"><h3>إنشاء محتوى جديد</h3><span class="close-btn" onclick="closeModal()">✕</span></div><ul class="menu-list"><li>📸 صورة</li><li>📝 نص</li><li>🌐 منشور عام</li><li>🔴 بث LIVE</li><li>🎨 الفلتر السيادي</li></ul></div>
+<div id="operationsModal" class="modal-panel"><div class="modal-header"><h3>العمليات السيادية</h3><span class="close-btn" onclick="closeModal()">✕</span></div><ul class="menu-list"><li style="color:#ff3366">🔴 بث سيادي مشفر (8 دق)</li><li>🔒 مراسلة آمنة</li><li>🗺️ خريطة حضرموت Offline</li><li>🔏 الختم الميداني + QR</li></ul></div>
+<div id="profileModal" class="modal-panel"><div class="modal-header"><h3>الملف الشخصي</h3><span class="close-btn" onclick="closeModal()">✕</span></div><ul class="menu-list"><li>💰 الرصيد</li><li>📊 الأنشطة</li><li>📥 فيديوهات Offline</li><li>🏷️ رمز QR</li><li>🏢 المجموعة التجارية</li><li>🚀 الترويج</li><li>⚙️ الإعدادات والخصوصية</li></ul></div>
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
-}
+function switchTab(n){document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));closeModal();if(n==2)document.getElementById('operationsModal').style.display='block';else if(n==3)document.getElementById('createModal').style.display='block';else if(n==5)document.getElementById('profileModal').style.display='block';}
+function closeModal(){document.getElementById('createModal').style.display='none';document.getElementById('operationsModal').style.display='none';document.getElementById('profileModal').style.display='none';}
+function openAIEye(){alert('عين الذكاء الاصطناعي السيادية')}function openSupport(){alert('فريق الدعم')}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
 </script>
+</body>
+  </html>
