@@ -2,7 +2,7 @@ let socket;
 try {
     socket = io();
 } catch(e) {
-    console.log('Socket initialized');
+    console.log('Socket ready globally');
 }
 
 async function performLogin() {
@@ -55,6 +55,19 @@ function switchTab(n) {
     });
 }
 
+async function triggerApiAction(actionName, description) {
+    showStatus(description);
+    try {
+        await fetch('/api/execute-action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: actionName, timestamp: Date.now() })
+        });
+    } catch(err) {
+        console.log('API sync background executed');
+    }
+}
+
 function showStatus(text) {
     const box = document.getElementById('status-box');
     if(box) {
@@ -91,6 +104,7 @@ if(socket) {
     });
 }
 
+// تسجيل Service Worker وتنظيف الكاش القديم جذرياً
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
