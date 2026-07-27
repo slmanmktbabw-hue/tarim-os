@@ -1,13 +1,17 @@
 {
-  "name": "tarim-os-sovereign",
-  "version": "15.0.0",
-  "description": "TARIM OS Global Sovereign System for Emperor AL",
+  "name": "tarim-os-ai-ceo",
+  "version": "17.0.0",
+  "description": "TARIM OS Sovereign Platform - Green Light CEO AI Hybrid",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.19.2",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "openai": "^4.28.0"
+  },
+  "engines": {
+    "node": ">=18.x"
   }
 }
