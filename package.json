@@ -1,7 +1,7 @@
 {
-  "name": "tarim-os-v12",
-  "version": "12.1.0",
-  "description": "TARIM OS - القلعة السيادية المتكاملة",
+  "name": "tarim-os",
+  "version": "1.0.0",
+  "description": "TARIM OS - المنصة السيادية العالمية",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
