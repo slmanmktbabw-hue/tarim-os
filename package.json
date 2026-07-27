@@ -1,17 +1,14 @@
 {
-  "name": "tarim-os-ai-ceo",
-  "version": "17.0.0",
-  "description": "TARIM OS Sovereign Platform - Green Light CEO AI Hybrid",
+  "name": "tarim-os-v20-gemini-full",
+  "version": "20.1.0",
+  "description": "TARIM OS - Qalaat AL - Gemini Core + OKX Wallet - tarimos.org",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
+  "scripts": { "start": "node server.js" },
   "dependencies": {
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
-    "openai": "^4.28.0"
+    "cors": "^2.8.5",
+    "@google/genai": "^0.1.1"
   },
-  "engines": {
-    "node": ">=18.x"
-  }
+  "engines": { "node": ">=18.x" }
 }
