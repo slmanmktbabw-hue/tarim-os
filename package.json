@@ -1,15 +1,11 @@
 {
   "name": "tarim-os",
   "version": "1.0.0",
-  "description": "TARIM OS - المنصة السيادية العالمية",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
+  "scripts": { "start": "node server.js" },
   "dependencies": {
-    "express": "^4.19.2",
-    "sqlite3": "^5.1.7",
-    "socket.io": "^4.7.5",
-    "bcrypt": "^5.1.1"
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "bcryptjs": "^2.4.3"
   }
 }
