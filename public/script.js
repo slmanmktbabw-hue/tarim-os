@@ -1,112 +1,58 @@
+function showToast(msg){
+  const box=document.getElementById('toastBox');
+  const div=document.createElement('div');
+  div.className='glass p-3 rounded-xl text-xs text-center font-bold bg-cyan-500/20 text-cyan-300';
+  div.innerText=msg; box.appendChild(div);
+  setTimeout(()=>div.remove(),3000);
+}
+function openTab(id){
+  document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));
+  const target=document.getElementById('tab-'+id);
+  if(target) target.classList.remove('hidden');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('text-cyan-400'));
+  const active=document.querySelector(`button[data-nav="${id}"]`);
+  if(active) active.classList.add('text-cyan-400');
+}
+function updateUserInterface(){
+  const name=localStorage.getItem('ceo_name')||'الإمبراطور AL';
+  document.querySelectorAll('.userNameDisplay').forEach(e=>e.innerText=name);
+}
+function loadTasks(){
+  const container=document.getElementById('tasksContainer');
+  if(!container) return;
+  container.innerHTML='<div class="glass p-3 rounded-2xl text-xs">✅ النظام جاهز - محفظة OKX مرتبطة</div>';
+}
+function loginCEO(){
+  const phone=document.getElementById('userPhone').value.trim();
+  const pass=document.getElementById('userPass').value.trim();
+  if(!phone){showToast('❌ أدخل الجوال');return}
+  if(pass.length<8){showToast('🔒 كلمة السر 8+ خانات');return}
+  localStorage.setItem('ceo_user',phone);
+  localStorage.setItem('ceo_name','الإمبراطور '+phone);
+  document.getElementById('authGate').style.display='none';
+  updateUserInterface(); loadTasks();
+  showToast('🏰 تم فتح القلعة - OKX مربوط');
+}
+function sendMsg(){
+  const input=document.getElementById('chatIn');
+  if(!input.value.trim()) return;
+  if(window.socket) socket.emit('message',{text:input.value, user:localStorage.getItem('ceo_name')});
+  const log=document.getElementById('chatLogs');
+  const div=document.createElement('div');
+  div.className='glass p-2 rounded-xl'; div.innerText=input.value; log.appendChild(div);
+  input.value='';
+}
+function handleInner(t){showToast('🚀 فتح: '+t)}
+function genQR(){showToast('🔏 QR الخاص بك: TARIM-'+(localStorage.getItem('ceo_user')||'AL'))}
+function changeUserBackground(){
+  const url=document.getElementById('bgUrlInput').value;
+  if(url) document.getElementById('tab-home').style.backgroundImage=`url('${url}')`;
+}
 let socket;
-try {
-    socket = io();
-} catch(e) {
-    console.log('Socket ready globally');
-}
-
-async function performLogin() {
-    const identityInput = document.getElementById('identity-input');
-    const passInput = document.getElementById('pass-input');
-    if(!identityInput) return;
-    
-    const identity = identityInput.value.trim();
-    const password = passInput ? passInput.value.trim() : '';
-    if(!identity) return;
-
-    try {
-        const res = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ identity, password, login_type: identity.includes('@') ? 'email' : 'phone' })
-        });
-        const data = await res.json();
-        if(data.status === 'ok') {
-            document.getElementById('auth-overlay').style.display = 'none';
-            document.getElementById('bottom-nav').style.display = 'flex';
-            switchTab(1);
-        }
-    } catch(e) {
-        document.getElementById('auth-overlay').style.display = 'none';
-        document.getElementById('bottom-nav').style.display = 'flex';
-        switchTab(1);
-    }
-}
-
-function googleLogin() {
-    const identityInput = document.getElementById('identity-input');
-    const passInput = document.getElementById('pass-input');
-    if(identityInput && passInput) {
-        identityInput.value = 'ceo.user.' + Math.floor(Math.random()*1000) + '@gmail.com';
-        passInput.value = 'oauth_google_secure';
-        performLogin();
-    }
-}
-
-function switchTab(n) {
-    document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
-    const target = document.getElementById(`tab-${n}`);
-    if(target) target.classList.add('active');
-
-    const navItems = document.querySelectorAll('.nav-item:not(.center-plus-btn)');
-    navItems.forEach((item, idx) => {
-        if(idx + 1 === n) item.classList.add('active');
-        else item.classList.remove('active');
-    });
-}
-
-async function triggerApiAction(actionName, description) {
-    showStatus(description);
-    try {
-        await fetch('/api/execute-action', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: actionName, timestamp: Date.now() })
-        });
-    } catch(err) {
-        console.log('API sync background executed');
-    }
-}
-
-function showStatus(text) {
-    const box = document.getElementById('status-box');
-    if(box) {
-        box.style.display = 'block';
-        box.innerText = text;
-    }
-}
-
-function showSettingStatus(val) {
-    if(val) {
-        const box = document.getElementById('setting-status-box');
-        if(box) {
-            box.style.display = 'block';
-            box.innerText = `تم تفعيل إعداد: ${val}`;
-        }
-    }
-}
-
-function sendMsg() {
-    const input = document.getElementById('msg-input');
-    if(input && input.value.trim() && socket) {
-        socket.emit('send-message', { text: input.value });
-        input.value = '';
-    }
-}
-
-if(socket) {
-    socket.on('receive-message', (data) => {
-        const box = document.getElementById('chat-box');
-        if(box && data && data.text) {
-            box.innerHTML += `<br><b>[مراسل]:</b> ${data.text}`;
-            box.scrollTop = box.scrollHeight;
-        }
-    });
-}
-
-// تسجيل Service Worker وتنظيف الكاش القديم جذرياً
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
-    });
-}
+try{socket=io()}catch(e){}
+window.addEventListener('load',()=>{
+  if(localStorage.getItem('ceo_user')){
+    document.getElementById('authGate').style.display='none';
+    updateUserInterface(); loadTasks();
+  }
+});
