@@ -3,8 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TARIM OS v12.3 - المنصة السيادية</title>
+    <title>TARIM OS - المنصة السيادية العالمية</title>
     <link rel="manifest" href="/manifest.json">
+    <script>
+        // تدمير الكاش والـ Service Worker القديم فوراً لمنع أي بقايا أو رسائل منبثقة
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+                for(let reg of regs) reg.unregister();
+            });
+        }
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for(let name of names) caches.delete(name);
+            });
+        }
+    </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: #000; color: #fff; font-family: Tahoma, sans-serif; overflow-x: hidden; padding-bottom: 70px; }
@@ -55,13 +68,13 @@
         </div>
     </div>
 
-    <!-- 1. الرئيسية -->
+    <!-- 1. الزر الأول: الصفحة الرئيسية -->
     <div id="tab-1" class="app-view active">
         <div class="top-bar">
-            <span style="font-size: 16px;">🔍</span>
-            <span>فريق الدعم</span>
-            <span>المجتمع</span>
-            <span>عين الذكاء الاصطناعي</span>
+            <span style="font-size: 16px;" onclick="triggerApiAction('search', '🔍 جارٍ البحث والاتصال بقاعدة البيانات العالمية...')">🔍</span>
+            <span onclick="triggerApiAction('support', '🛡️ جارٍ الاتصال بفريق الدعم السيادي...')">فريق الدعم</span>
+            <span onclick="triggerApiAction('community', '🌐 جارٍ مزامنة شبكة المجتمع الدولي...')">المجتمع</span>
+            <span onclick="triggerApiAction('ai', '👁️ جارٍ تشغيل عين الذكاء الاصطناعي...')">عين الذكاء الاصطناعي</span>
             <span class="live-badge">LIVE 🔴</span>
         </div>
         <div class="side-actions">
@@ -72,50 +85,48 @@
         </div>
     </div>
 
-    <!-- 2. العمليات -->
+    <!-- 2. الزر الثاني: العمليات -->
     <div id="tab-2" class="app-view content-section">
         <div class="card-box">
             <h3>⚡ العمليات السيادية الميدانية</h3>
-            <p>• <b>بث مباشر مشفر (8 دقائق):</b> مفعل بالكامل.</p>
+            <p>• <b>المراسلة والاتصال الآمن:</b> حماية مشفرة AES بين الحسابات.</p>
             <hr style="border-color: #30363d; margin: 10px 0;">
-            <p>• <b>المراسلة والاتصال الآمن:</b> حماية مشفرة AES.</p>
+            <p>• <b>خريطة حضرموت وتريم (Offline):</b> جاهزة بدون إنترنت.</p>
             <hr style="border-color: #30363d; margin: 10px 0;">
-            <p>• <b>خريطة حضرموت وتريم (Offline):</b> جاهزة ميدانياً.</p>
-            <hr style="border-color: #30363d; margin: 10px 0;">
-            <p>• <b>إصدار الختم الميداني + QR:</b> مدعوم بنظام OCR.</p>
+            <p>• <b>إصدار الختم الميداني المشفر + QR:</b> مدعوم بنظام OCR.</p>
         </div>
     </div>
 
-    <!-- 3. الإنشاء (+) -->
+    <!-- 3. الزر الثالث: الإنشاء (+) -->
     <div id="tab-3" class="app-view content-section">
         <div class="card-box">
             <h3>✨ لوحة الإنشاء المركزي</h3>
-            <button style="width:100%; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="showStatus('📷 جاري تشغيل محرك استخراج النص من الصورة (OCR)...')">صورة > نص</button>
-            <button style="width:100%; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="showStatus('📝 تم فتح محرر المنشورات الآمن بنجاح.')">منشور جديد</button>
-            <button style="width:100%; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="showStatus('📡 جاري تهيئة البث المباشر (LIVE)...')">LIVE</button>
-            <button style="width:100%; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="showStatus('✨ تم تفعيل الفلاتر البصرية بنجاح.')">فلتر تجميلي</button>
+            <button style="width:100%; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="triggerApiAction('ocr', '📷 جاري تشغيل محرك استخراج النص من الصورة (OCR)...')">صورة > نص</button>
+            <button style="width:100%; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="triggerApiAction('post', '📝 تم فتح محرر المنشورات الآمن وحفظه عبر API.')">منشور جديد</button>
+            <button style="width:100%; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="triggerApiAction('live', '📡 جاري تهيئة البث المباشر (LIVE) المستقر على 8 دقائق عبر السيرفر...')">LIVE (بث مباشر 8 دقائق)</button>
+            <button style="width:100%; padding:10px; background:#238636; color:#fff; border:none; border-radius:6px; margin:5px 0;" onclick="triggerApiAction('filter', '✨ تم تفعيل الفلاتر البصرية بنجاح.')">فلتر تجميلي</button>
             <div id="status-box" class="status-display"></div>
         </div>
     </div>
 
-    <!-- 4. صندوق الوارد -->
+    <!-- 4. الزر الرابع: صندوق الوارد والمراسلة -->
     <div id="tab-4" class="app-view content-section">
         <div class="card-box">
             <h3>💬 صندوق الوارد والمراسلة بين الحسابات</h3>
             <div style="height: 250px; background: #000; border: 1px solid #30363d; border-radius: 6px; padding: 10px; overflow-y: scroll; margin-bottom: 10px;" id="chat-box">
-                [النظام]: قناة المراسلة الآمنة متصلة بقاعدة البيانات...
+                [النظام]: قناة المراسلة الآمنة متصلة بقاعدة البيانات العالمية...
             </div>
             <input type="text" id="msg-input" placeholder="اكتب برقية مشفرة للمستخدم..." style="width: calc(100% - 80px); padding: 10px; background: #000; color: #fff; border: 1px solid #30363d; border-radius: 6px;">
             <button onclick="sendMsg()" style="width: 70px; padding: 10px; background: #238636; color: #fff; border: none; border-radius: 6px; font-weight: bold;">إرسال</button>
         </div>
     </div>
 
-    <!-- 5. الملف الشخصي -->
+    <!-- 5. الزر الخامس: الملف الشخصي والإعدادات -->
     <div id="tab-5" class="app-view content-section">
         <div class="card-box">
             <h3>👑 الملف الشخصي وإعدادات CEO</h3>
             <p>الرصيد السيادي: <b style="color: #7ee787;">24.3K 🪙</b></p>
-            <p style="margin-top: 5px; font-size: 13px; color: #8b949e;">مركز الأنشطة | فيديوهات أوفلاين | رمز QR لديك</p>
+            <p style="margin-top: 5px; font-size: 13px; color: #8b949e;">مركز الأنشطة | فيديوهات أوفلاين | رمز QR لديك | المجموعة التجارية | الترويج</p>
             <hr style="border-color: #30363d; margin: 12px 0;">
             <p style="color: #58a6ff; font-weight: bold;">الإعدادات والخصوصية الشاملة:</p>
             <select class="sub-settings" onchange="showSettingStatus(this.value)">
@@ -137,7 +148,7 @@
         </div>
     </div>
 
-    <!-- القائمة السفلية -->
+    <!-- القائمة الرئيسية السفلية (5 أزرار مطابقة للصورة تماماً) -->
     <div class="nav-bar" id="bottom-nav" style="display:none;">
         <button class="nav-item active" onclick="switchTab(1)">🏠<br>الصفحة الرئيسية</button>
         <button class="nav-item" onclick="switchTab(2)">👥<br>العمليات</button>
