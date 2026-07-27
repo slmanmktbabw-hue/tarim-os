@@ -1,58 +1,157 @@
-function showToast(msg){
-  const box=document.getElementById('toastBox');
-  const div=document.createElement('div');
-  div.className='glass p-3 rounded-xl text-xs text-center font-bold bg-cyan-500/20 text-cyan-300';
-  div.innerText=msg; box.appendChild(div);
-  setTimeout(()=>div.remove(),3000);
-}
-function openTab(id){
-  document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));
-  const target=document.getElementById('tab-'+id);
-  if(target) target.classList.remove('hidden');
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('text-cyan-400'));
-  const active=document.querySelector(`button[data-nav="${id}"]`);
-  if(active) active.classList.add('text-cyan-400');
-}
-function updateUserInterface(){
-  const name=localStorage.getItem('ceo_name')||'الإمبراطور AL';
-  document.querySelectorAll('.userNameDisplay').forEach(e=>e.innerText=name);
-}
-function loadTasks(){
-  const container=document.getElementById('tasksContainer');
-  if(!container) return;
-  container.innerHTML='<div class="glass p-3 rounded-2xl text-xs">✅ النظام جاهز - محفظة OKX مرتبطة</div>';
-}
-function loginCEO(){
-  const phone=document.getElementById('userPhone').value.trim();
-  const pass=document.getElementById('userPass').value.trim();
-  if(!phone){showToast('❌ أدخل الجوال');return}
-  if(pass.length<8){showToast('🔒 كلمة السر 8+ خانات');return}
-  localStorage.setItem('ceo_user',phone);
-  localStorage.setItem('ceo_name','الإمبراطور '+phone);
-  document.getElementById('authGate').style.display='none';
-  updateUserInterface(); loadTasks();
-  showToast('🏰 تم فتح القلعة - OKX مربوط');
-}
-function sendMsg(){
-  const input=document.getElementById('chatIn');
-  if(!input.value.trim()) return;
-  if(window.socket) socket.emit('message',{text:input.value, user:localStorage.getItem('ceo_name')});
-  const log=document.getElementById('chatLogs');
-  const div=document.createElement('div');
-  div.className='glass p-2 rounded-xl'; div.innerText=input.value; log.appendChild(div);
-  input.value='';
-}
-function handleInner(t){showToast('🚀 فتح: '+t)}
-function genQR(){showToast('🔏 QR الخاص بك: TARIM-'+(localStorage.getItem('ceo_user')||'AL'))}
-function changeUserBackground(){
-  const url=document.getElementById('bgUrlInput').value;
-  if(url) document.getElementById('tab-home').style.backgroundImage=`url('${url}')`;
-}
-let socket;
-try{socket=io()}catch(e){}
-window.addEventListener('load',()=>{
-  if(localStorage.getItem('ceo_user')){
-    document.getElementById('authGate').style.display='none';
-    updateUserInterface(); loadTasks();
+let socket = null;
+try {
+  if (typeof io !== 'undefined') {
+    socket = io();
   }
-});
+} catch(e) {
+  console.log("Offline mode active");
+}
+
+function loginCEO(){
+  const phone = document.getElementById('userPhone').value.trim();
+  const pass = document.getElementById('userPass').value.trim();
+  
+  if(!phone){
+    showToast('❌ الرجاء إدخال رقم الجوال أو المعرف');
+    return;
+  }
+  
+  if(!pass || pass.length < 8){
+    showToast('🔒 كلمة السر قصيرة! يجب ألا تقل عن 8 خانات');
+    return;
+  }
+  
+  localStorage.setItem('ceo_user', phone);
+  localStorage.setItem('ceo_pass', pass);
+  
+  if(!localStorage.getItem('ceo_name')){
+    localStorage.setItem('ceo_name', 'الإمبراطور ' + phone);
+  }
+  
+  updateUserInterface();
+  
+  const gate = document.getElementById('authGate');
+  if(gate) gate.style.display = 'none';
+  
+  showToast('🏰 تم فتح القلعة بنجاح وربط محفظة OKX للأرباح');
+}
+
+function updateUserInterface(){
+  const savedName = localStorage.getItem('ceo_name') || 'الإمبراطور AL';
+  document.querySelectorAll('.userNameDisplay').forEach(el => el.innerText = savedName);
+}
+
+(function(){
+  const saved = localStorage.getItem('ceo_user');
+  if(saved){
+    const gate = document.getElementById('authGate');
+    if(gate) gate.style.display = 'none';
+    updateUserInterface();
+  }
+  
+  const savedBg = localStorage.getItem('ceo_bg');
+  if(savedBg){
+    applyBackground(savedBg);
+  }
+})();
+
+function applyBackground(url){
+  const homeMain = document.getElementById('tab-home');
+  if(homeMain){
+    homeMain.style.backgroundImage = `linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.4)), url('${url}')`;
+  }
+}
+
+function changeUserBackground(){
+  const input = document.getElementById('bgUrlInput');
+  if(!input) return;
+  const url = input.value.trim();
+  if(!url){
+    showToast('الرجاء إدخال رابط الصورة (URL) أولاً');
+    return;
+  }
+  localStorage.setItem('ceo_bg', url);
+  applyBackground(url);
+  input.value = '';
+  showToast('🎨 تم تحديث خلفية التطبيق بنجاح');
+}
+
+function openTab(tab){
+  document.querySelectorAll('main').forEach(m => m.classList.add('hidden'));
+  const target = document.getElementById('tab-' + tab);
+  if(target) target.classList.remove('hidden');
+  
+  document.querySelectorAll('nav button[data-nav]').forEach(b => {
+    b.classList.remove('text-cyan-400');
+    b.classList.add('text-white/40');
+  });
+  const active = document.querySelector('nav button[data-nav="' + tab + '"]');
+  if(active){
+    active.classList.remove('text-white/40');
+    active.classList.add('text-cyan-400');
+  }
+  window.scrollTo(0, 0);
+}
+
+function createPost(type){
+  showToast('✅ تم إنشاء ' + type + ' بنجاح ونشره عالمياً');
+}
+
+function handleInner(actionName){
+  showToast('📁 تم الدخول إلى قسم: ' + actionName);
+}
+
+function sendMsg(){
+  const input = document.getElementById('chatIn');
+  if(!input || !input.value.trim()) return;
+  const text = input.value.trim();
+  const logs = document.getElementById('chatLogs');
+  if(logs){
+    const div = document.createElement('div');
+    div.className = 'bg-cyan-900/40 p-2.5 rounded-xl text-right text-xs border border-cyan-500/20';
+    div.innerText = 'أنت: ' + text;
+    logs.appendChild(div);
+    logs.scrollTop = logs.scrollHeight;
+  }
+  if(socket) {
+    socket.emit('message', { user: localStorage.getItem('ceo_user') || 'CEO', text: text });
+  }
+  input.value = '';
+}
+
+function genQR(){
+  showToast('🔏 تم توليد الختم الميداني المشفر + QR بنجاح');
+}
+
+function openMap(){
+  showToast('🗺️ خريطة حضرموت وتريم Offline تعمل الآن بدون انترنت');
+}
+
+function showToast(msg){
+  let box = document.getElementById('toastBox');
+  if(!box){
+    box = document.createElement('div');
+    box.id = 'toastBox';
+    box.className = 'fixed top-16 left-1/2 -translate-x-1/2 z-[300] w-[90%] max-w-sm space-y-2 pointer-events-none';
+    document.body.appendChild(box);
+  }
+  const t = document.createElement('div');
+  t.className = 'bg-[#10131f] border border-cyan-500/40 text-cyan-300 text-xs px-4 py-3 rounded-xl text-center shadow-2xl pointer-events-auto font-bold';
+  t.innerText = msg;
+  box.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+if(socket){
+  socket.on('message', (data) => {
+    const logs = document.getElementById('chatLogs');
+    if(!logs) return;
+    const currentUser = localStorage.getItem('ceo_user') || 'CEO';
+    if(data.user === currentUser) return;
+    const div = document.createElement('div');
+    div.className = 'bg-white/5 p-2.5 rounded-xl text-xs border border-white/10';
+    div.innerText = (data.user || 'مستخدم') + ': ' + data.text;
+    logs.appendChild(div);
+    logs.scrollTop = logs.scrollHeight;
+  });
+}
