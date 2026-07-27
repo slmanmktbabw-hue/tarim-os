@@ -1,11 +1,20 @@
 {
-  "name": "TARIM OS - المنصة السيادية العالمية",
-  "short_name": "TarimOS",
-  "description": "نظام تشغيل وإدارة سيادي متكامل يعمل في جميع دول العالم",
+  "name": "TARIM OS Sovereign",
+  "short_name": "TARIM OS",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "orientation": "portrait",
-  "icons": []
+  "background_color": "#080c14",
+  "theme_color": "#080c14",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=192",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=512",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
 }
