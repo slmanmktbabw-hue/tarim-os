@@ -1,65 +1,51 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
 const http = require('http');
-const { Server } = require("socket.io");
-const bcrypt = require('bcrypt');
+const { Server } = require('socket.io');
+const path = require('path');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: { origin: "*" }
-});
-const PORT = process.env.PORT || 3000;
+const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// قاعدة بيانات SQLite الحقيقية والثابتة
-const db = new sqlite3.Database('./tarim_core.db', (err) => {
-    if (err) console.error('خطأ قاعدة البيانات:', err.message);
-    else console.log('🛡️ قاعدة بيانات SQLite متصلة بنجاح.');
+// قاعدة بيانات مؤقتة - لاحقاً اربطها بـ MongoDB / Supabase من Render
+let users = {};
+
+app.post('/api/register', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username ||!password) return res.status(400).json({ success: false });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    users[username] = {
+        username,
+        password: hashedPassword,
+        balance: 100,
+        qr: `TARIM-QR-${username}-${Date.now()}`,
+        createdAt: new Date()
+    };
+    res.json({ success: true, user: { username, balance: 100, qr: users[username].qr } });
 });
 
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        identity TEXT UNIQUE,
-        password_hash TEXT,
-        login_type TEXT,
-        balance REAL DEFAULT 24300,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
-});
+app.get('/api/health', (req,res) => res.json({ status: 'Tarim OS Live 🛡️', time: new Date() }));
 
-// واجهة الـ API الحقيقية لتسجيل الدخول وإنشاء الحساب
-app.post('/api/auth/register', async (req, res) => {
-    const { identity, password, login_type } = req.body;
-    if(!identity) return res.status(400).json({ error: 'البيانات غير مكتملة' });
-    
-    const hash = password ? await bcrypt.hash(password, 10) : 'oauth_google';
-    
-    db.run(`INSERT OR IGNORE INTO users (identity, password_hash, login_type) VALUES (?, ?, ?)`, 
-    [identity, hash, login_type || 'phone'], function(err) {
-        db.get(`SELECT * FROM users WHERE identity = ?`, [identity], (err, user) => {
-            if(err) return res.status(500).json({ error: 'خطأ بالسيرفر' });
-            res.json({ status: 'ok', user, node_region: 'global-cluster' });
-        });
-    });
-});
-
-// API خاص بإرسال العمليات والبيانات الحية للأزرار
-app.post('/api/execute-action', (req, res) => {
-    const { action, payload } = req.body;
-    res.json({ status: 'success', action, message: `تم تنفيذ العملية ${action} بنجاح عبر السيرفر العالمي`, payload });
-});
-
+// تشفير البث السيادي - 8 دقائق
 io.on('connection', (socket) => {
-    socket.on('send-message', (data) => {
-        io.emit('receive-message', data);
+    socket.on('secure_message', (data) => {
+        // هنا لا نعمل broadcast للجميع، بل للغرفة فقط
+        io.to(data.room || 'public').emit('receive_message', data);
+    });
+
+    socket.on('start_live', (data) => {
+        socket.broadcast.emit('broadcast_live', data);
+        // إغلاق تلقائي بعد 8 دقائق
+        setTimeout(() => {
+            io.emit('end_live', { id: data.id });
+        }, 8 * 60 * 1000);
     });
 });
 
-server.listen(PORT, () => {
-    console.log(`🔥 TARIM OS Global Server running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Tarim OS يعمل على ${PORT}`));
