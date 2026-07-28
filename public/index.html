@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TARIM OS - الإمبراطور AL</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#00f0ff">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="bg-[#0b0e14] text-white font-sans min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+
+  <!-- بوابة تسجيل الدخول الحقيقية -->
+  <div id="authGate" class="fixed inset-0 z-[500] bg-[#0b0e14]/95 flex items-center justify-center p-4">
+    <div class="bg-[#131824] border border-cyan-500/30 p-6 rounded-2xl w-full max-w-sm text-center shadow-2xl space-y-4">
+      <div class="text-3xl font-black text-cyan-400">🏰 TARIM OS</div>
+      <p class="text-xs text-gray-400">بوابة الدخول الإمبراطورية السيادية - AL</p>
+      <input type="text" id="userPhone" placeholder="رقم الجوال أو البريد السيادي" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-cyan-400 outline-none text-right">
+      <input type="password" id="userPass" placeholder="كلمة السر (8 خانات على الأقل)" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-cyan-400 outline-none text-right">
+      <button onclick="loginCEO()" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 font-bold py-3 rounded-xl text-sm shadow-lg transition-all">فتح القلعة واكتساب الصلاحيات</button>
+    </div>
+  </div>
+
+  <!-- الهيدر العلوي: فريق الدعم على اليمين، عين الذكاء على الشمال -->
+  <header class="w-full bg-[#10141f]/90 border-b border-white/10 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md">
+    <button onclick="openSupportTeam()" class="flex items-center gap-1.5 bg-cyan-950/60 border border-cyan-500/30 px-3 py-1.5 rounded-full text-cyan-300 text-xs font-bold hover:bg-cyan-900/60 transition-all">
+      <span>💬 فريق الدعم</span>
+    </button>
+    <div class="text-sm font-black tracking-wider text-cyan-400">TARIM OS</div>
+    <button onclick="openTab('ai')" class="flex items-center gap-1.5 bg-blue-950/60 border border-blue-500/30 px-3 py-1.5 rounded-full text-blue-300 text-xs font-bold hover:bg-blue-900/60 transition-all">
+      <span>✨ عين الذكاء</span>
+    </button>
+  </header>
+
+  <!-- محتوى التبويبات -->
+  <div class="flex-1 pb-24 overflow-y-auto">
+    
+    <!-- 1. الرئيسية -->
+    <main id="tab-home" class="p-4 space-y-4 bg-cover bg-center min-h-full">
+      <div class="bg-[#131824]/90 backdrop-blur-md p-5 rounded-2xl border border-cyan-500/20 text-center space-y-3 shadow-xl">
+        <h1 class="text-lg font-black text-cyan-400">مرحباً بك يا إمبراطور <span class="userNameDisplay">AL</span></h1>
+        <p class="text-xs text-gray-300">منظومة سيادية عالمية تعمل بالذكاء الاصطناعي الحقيقي ومحفظة OKX للأرباح.</p>
+        <button onclick="installAppPrompt()" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs shadow-lg">📥 تثبيت التطبيق على الشاشة الرئيسية للهاتف</button>
+      </div>
+    </main>
+
+    <!-- 2. العمليات -->
+    <main id="tab-operations" class="hidden p-4 space-y-4">
+      <h2 class="text-base font-bold text-cyan-400">⚙️ العمليات السيادية</h2>
+      <div class="grid grid-cols-1 gap-3">
+        <div onclick="openLiveStream()" class="bg-[#131824] border border-red-500/30 p-4 rounded-xl cursor-pointer hover:border-red-500 transition-all">
+          <div class="text-sm font-bold text-red-400">🔴 بث مباشر سيادي ومشفر (8 دقائق)</div>
+          <div class="text-[11px] text-gray-400 mt-1">بث آمن ومشفر بالكامل داخل القلعة.</div>
+        </div>
+        <div onclick="openTab('chat')" class="bg-[#131824] border border-white/10 p-4 rounded-xl cursor-pointer hover:border-cyan-500 transition-all">
+          <div class="text-sm font-bold text-cyan-400">🔒 المراسلة والاتصال الآمن بين الحسابات</div>
+          <div class="text-[11px] text-gray-400 mt-1">تواصل فوري ومحمي بين كافة أعضاء الشبكة.</div>
+        </div>
+        <div onclick="showRealAlert('🗺️ خريطة حضرموت وتريم Offline تعمل بذكاء مستقل');" class="bg-[#131824] border border-white/10 p-4 rounded-xl cursor-pointer hover:border-cyan-500 transition-all">
+          <div class="text-sm font-bold text-cyan-400">🗺️ خريطة حضرموت وتريم (Offline)</div>
+          <div class="text-[11px] text-gray-400 mt-1">خرائط تفاعلية ذكية تعمل بدون إنترنت.</div>
+        </div>
+        <div onclick="showRealAlert('🔏 تم توليد الختم الميداني المشفر + QR عبر السيرفر');" class="bg-[#131824] border border-white/10 p-4 rounded-xl cursor-pointer hover:border-cyan-500 transition-all">
+          <div class="text-sm font-bold text-cyan-400">🔏 إصدار الختم الميداني المشفر + QR</div>
+          <div class="text-[11px] text-gray-400 mt-1">توليد أختام رقمية مشفرة بـ QR السيادي.</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 3. الإنشاء (+) -->
+    <main id="tab-create-main" class="hidden p-4 space-y-4">
+      <h2 class="text-base font-bold text-cyan-400">✨ مركز الإنشاء الذكي</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="createPost('صورة / نص')" class="bg-[#131824] border border-white/10 p-4 rounded-xl text-center hover:border-cyan-400 transition-all">
+          <div class="text-xl mb-1">🖼️</div>
+          <div class="text-xs font-bold">صورة / نص</div>
+        </button>
+        <button onclick="createPost('منشور')" class="bg-[#131824] border border-white/10 p-4 rounded-xl text-center hover:border-cyan-400 transition-all">
+          <div class="text-xl mb-1">📝</div>
+          <div class="text-xs font-bold">منشور</div>
+        </button>
+        <button onclick="createPost('LIVE')" class="bg-[#131824] border border-red-500/30 p-4 rounded-xl text-center hover:border-red-500 transition-all">
+          <div class="text-xl mb-1">🔴</div>
+          <div class="text-xs font-bold text-red-400">LIVE</div>
+        </button>
+        <button onclick="createPost('فلتر')" class="bg-[#131824] border border-white/10 p-4 rounded-xl text-center hover:border-cyan-400 transition-all">
+          <div class="text-xl mb-1">🎨</div>
+          <div class="text-xs font-bold">فلتر</div>
+        </button>
+      </div>
+    </main>
+
+    <!-- 4. المراسلة بين الحسابات -->
+    <main id="tab-chat" class="hidden p-4 flex flex-col h-[calc(100vh-130px)]">
+      <h2 class="text-base font-bold text-cyan-400 mb-2">💬 المراسلة والاتصال الآمن</h2>
+      <div id="chatLogs" class="flex-1 bg-[#131824] border border-white/10 rounded-2xl p-3 overflow-y-auto space-y-2 mb-3 text-xs"></div>
+      <div class="flex gap-2">
+        <input type="text" id="chatIn" placeholder="اكتب رسالتك الآمنة..." class="flex-1 bg-black/50 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-cyan-400">
+        <button onclick="sendMsg()" class="bg-cyan-500 text-black font-bold px-4 py-2.5 rounded-xl text-xs">إرسال</button>
+      </div>
+    </main>
+
+    <!-- 5. الملفات والإعدادات الشاملة -->
+    <main id="tab-files" class="hidden p-4 space-y-3">
+      <h2 class="text-base font-bold text-cyan-400">📁 الملفات والإعدادات السيادية</h2>
+      <div class="bg-[#131824] p-4 rounded-2xl border border-cyan-500/30 flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-base text-black">AL</div>
+        <div>
+          <div class="text-xs font-bold text-cyan-400 userNameDisplay">الإمبراطور AL</div>
+          <div class="text-[10px] text-gray-400">OKX: 0x53ce...0af6</div>
+        </div>
+      </div>
+      <div class="space-y-2 text-xs">
+        <div onclick="handleSub('رصيد الأرباح')" class="bg-[#131824] p-3 rounded-xl border border-white/10 cursor-pointer flex justify-between items-center">
+          <span>💰 رصيد الأرباح (OKX السيادية)</span>
+          <span id="walletBalanceDisplay" class="text-cyan-400 text-[10px]">جاري الجلب...</span>
+        </div>
+        <div onclick="handleSub('مركز الأنشطة')" class="bg-[#131824] p-3 rounded-xl border border-white/10 cursor-pointer">📈 مركز الأنشطة</div>
+        <div onclick="handleSub('فيديوهات دون إنترنت')" class="bg-[#131824] p-3 rounded-xl border border-white/10 cursor-pointer">🎬 فيديوهات دون اتصال بالإنترنت</div>
+        <div onclick="handleSub('رمز QR لديك')" class="bg-[#131824] p-3 rounded-xl border border-white/10 cursor-pointer">🔲 رمز QR لديك</div>
+        <div onclick="handleSub('المجموعة التجارية')" class="bg-[#131824] p-3 rounded-xl border border-white/10 cursor-pointer">🛒 المجموعة التجارية</div>
+        <div onclick="handleSub('الترويج')" class="bg-[#131824] p-3 rounded-xl border border-white/10 cursor-pointer">🚀 الترويج</div>
+        <div onclick="handleSub('إدارة المنشورات')" class="bg-[#131824] p-3 rounded-xl border border-white/10 cursor-pointer">📌 إعدادات الخصوصية: إدارة المنشورات</div>
+        <div onclick="handleSub('تفضيلات المحتوى')" class="bg-[#131824] p-3 rounded-xl border border-white/10 cursor-pointer">⚙️ تفضيلات المحتوى</div>
+        <div onclick="handleSub('الإشعارات والوقت')" class="bg-[#131824] p-3 rounded-xl border border-white/10 cursor-pointer">🔔 الإشعارات والوقت والرفاهية</div>
+        <div onclick="handleSub('ربط العائلة')" class="bg-[#131824] p-3 rounded-xl border border-white/10 cursor-pointer">👨‍👩‍👦 ربط الحسابات للعائلة</div>
+        <div onclick="handleSub('الأمان والتحليلات')" class="bg-[#131824] p-3 rounded-xl border border-white/10 cursor-pointer">🛡️ الأمان، الإذونات والتحليلات</div>
+      </div>
+    </main>
+
+    <!-- شاشة عين الذكاء الاصطناعي (Gemini) -->
+    <main id="tab-ai" class="hidden p-4 flex flex-col h-[calc(100vh-130px)]">
+      <h2 class="text-base font-bold text-blue-400 mb-2">✨ عين الذكاء الاصطناعي (Gemini Core)</h2>
+      <div id="aiLogs" class="flex-1 bg-[#131824] border border-blue-500/30 rounded-2xl p-3 overflow-y-auto space-y-2 mb-3 text-xs">
+        <div class="bg-blue-950/40 p-2.5 rounded-xl border border-blue-500/20">أهلاً بك يا إمبراطور AL. أنا عقل Gemini الحقيقي مدمج في خدمتك بالسيرفر.</div>
+      </div>
+      <div class="flex gap-2">
+        <input type="text" id="aiIn" placeholder="اطرح أمرك السيادي على Gemini..." class="flex-1 bg-black/50 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-blue-400">
+        <button onclick="sendAIPrompt()" class="bg-blue-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs">معالجة</button>
+      </div>
+    </main>
+
+    <!-- شاشة البث المباشر -->
+    <main id="tab-live" class="hidden p-4 space-y-4 text-center">
+      <h2 class="text-base font-bold text-red-500">🔴 البث المباشر السيادي (8 دقائق)</h2>
+      <div class="bg-[#131824] border border-red-500/40 p-6 rounded-2xl space-y-3">
+        <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto text-2xl animate-pulse">📡</div>
+        <p class="text-xs text-gray-300">البث مشفر وآمن وموجه لدومين tarimos.org العالمي.</p>
+        <button onclick="showRealAlert('🔴 تم بدء البث المشفر الحقيقي بنجاح')" class="bg-red-600 text-white font-bold px-6 py-2.5 rounded-xl text-xs">بدء البث الآن</button>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- شريط التنقل السفلي (5 أزرار رئيسية) -->
+  <nav class="w-full bg-[#10141f]/95 border-t border-white/10 py-2.5 px-3 flex justify-around items-center fixed bottom-0 z-40 backdrop-blur-md">
+    <button onclick="openTab('home')" data-nav="home" class="flex flex-col items-center text-cyan-400 text-[10px] gap-1 transition-all">
+      <span class="text-lg">🏠</span> الرئيسية
+    </button>
+    <button onclick="openTab('operations')" data-nav="operations" class="flex flex-col items-center text-white/40 text-[10px] gap-1 transition-all">
+      <span class="text-lg">⚙️</span> العمليات
+    </button>
+    <button onclick="openTab('create-main')" data-nav="create-main" class="flex flex-col items-center text-white/40 text-[10px] gap-1 transition-all">
+      <span class="text-lg text-cyan-400">➕</span> إنشاء
+    </button>
+    <button onclick="openTab('chat')" data-nav="chat" class="flex flex-col items-center text-white/40 text-[10px] gap-1 transition-all">
+      <span class="text-lg">💬</span> المراسلة
+    </button>
+    <button onclick="openTab('files')" data-nav="files" class="flex flex-col items-center text-white/40 text-[10px] gap-1 transition-all">
+      <span class="text-lg">📁</span> الملفات
+    </button>
+  </nav>
+
+  <script src="/script.js"></script>
+</body>
+</html>
+
