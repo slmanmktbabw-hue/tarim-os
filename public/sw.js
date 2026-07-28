@@ -1,5 +1,39 @@
-const CACHE='tarim-v20.1-gemini-full';
-const CORE=['/','/index.html','/script.js','/manifest.json'];
-self.addEventListener('install',e=>{ self.skipWaiting(); e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))); });
-self.addEventListener('activate',e=>{ e.waitUntil(caches.keys().then(k=>Promise.all(k.map(x=> x!==CACHE? caches.delete(x):null))).then(()=>self.clients.claim())); });
-self.addEventListener('fetch',e=>{ e.respondWith(caches.match(e.request).then(r=> r || fetch(e.request).then(f=>{ if(f.ok) caches.open(CACHE).then(c=>c.put(e.request,f.clone())); return f; }).catch(()=>caches.match('/index.html')))); });
+const CACHE_NAME = 'tarim-os-v25-live';
+const assets = [
+  '/',
+  '/index.html',
+  '/script.js',
+  '/manifest.json'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(assets);
+    })
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    })
+  );
+  self.clientsClaim();
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
+    })
+  );
+});
