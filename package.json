@@ -1,14 +1,15 @@
 {
-  "name": "tarim-os-v20-gemini-full",
-  "version": "20.1.0",
-  "description": "TARIM OS - Qalaat AL - Gemini Core + OKX Wallet - tarimos.org",
-  "main": "server.js",
-  "scripts": { "start": "node server.js" },
-  "dependencies": {
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5",
-    "cors": "^2.8.5",
-    "@google/genai": "^0.1.1"
-  },
-  "engines": { "node": ">=18.x" }
+  "name": "TARIM OS - AL",
+  "short_name": "TARIM OS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0e14",
+  "theme_color": "#00f0ff",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1055/1055685.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
