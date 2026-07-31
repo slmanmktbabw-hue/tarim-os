@@ -1,18 +1,12 @@
 {
-  "name": "TARIM OS Global Sovereign",
-  "short_name": "TARIM OS",
+  "name": "TARIM OS",
+  "short_name": "TARIM",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
   "background_color": "#0b0e14",
   "theme_color": "#00f0ff",
+  "description": "نظام تشغيل الإمبراطور AL",
   "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
       "sizes": "512x512",
