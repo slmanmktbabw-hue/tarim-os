@@ -20,7 +20,7 @@ function registerAndLogin(){
   if(p.length<3) return toast('كلمة المرور قصيرة');
   localStorage.setItem('tarim_user',u); currentUser=u;
   document.getElementById('authGate').style.display='none';
-  toast('أهلاً '+u+' - النظام العالمي جاهز 🌍'); loadPosts();
+  toast('أهلاً '+u+' - النظام العالمي جاهز 🌍'); loadPosts(); updateWalletUI();
 }
 async function loadPosts(){
   try{
@@ -29,7 +29,7 @@ async function loadPosts(){
     feed.innerHTML='';
     posts.forEach(p=>{
       const d=document.createElement('div'); d.className='glass p-3 rounded-2xl text-xs';
-      d.innerHTML=`<b>${p.user||'AL'}</b><p class="mt-1">${p.text||''}</p>${p.media? (p.type==='video'?`<video src="${p.media}" controls class="w-full rounded-xl mt-2"></video>`:`<img src="${p.media}" class="w-full rounded-xl mt-2">`):''}<div class="mt-2 flex gap-3"><span>❤️ ${p.likes||0}</span><span onclick="openWallet()">🎁 هدية</span></div>`;
+      d.innerHTML=`<b>${p.user||'AL'}</b><p class="mt-1">${p.text||''}</p>${p.media? (p.type==='video'?`<video src="${p.media}" controls class="w-full rounded-xl mt-2"></video>`:`<img src="${p.media}" class="w-full rounded-xl mt-2">`):''}<div class="mt-2 flex gap-3"><span>❤️ ${p.likes||0}</span><span onclick="sendGift()">🎁 هدية</span></div>`;
       feed.appendChild(d);
     });
   }catch(e){}
@@ -112,7 +112,7 @@ function sendLiveComment(){
 function repostLive(){ toast('🔁 تمت إعادة النشر عالمياً'); }
 function shareLive(){ navigator.share? navigator.share({title:'LIVE tarimos.org',url:'https://tarimos.org'}): toast('🔗 تم نسخ رابط البث'); }
 
-function applyFilter(){ toast('✨ فلتر تجميل مفعل'); document.getElementById('camPreview').style.filter='brightness(1.2) contrast(1.1)'; document.getElementById('fullCamVideo').style.filter='brightness(1.2) contrast(1.1)'; }
+function applyFilter(){ toast('✨ فلتر تجميل مفعل'); document.getElementById('camPreview').style.filter='brightness(1.2)'; document.getElementById('fullCamVideo').style.filter='brightness(1.2)'; }
 function createPost(t){ openTab('create'); toast('اخترت: '+t); }
 function loadAI(){ document.getElementById('aiLogs').innerHTML=`<div class="glass p-2 rounded-xl text-xs">👁️ عين الذكاء: أهلاً ${currentUser} - نظام TARIM يراقب 24/7</div>`; }
 function sendAI(){
@@ -132,7 +132,7 @@ async function sendSupport(){
     const data=await res.json();
     logs.innerHTML+=`<div class="glass p-2 rounded-xl text-xs mt-1 bg-yellow-500/10">🛡️ الدعم: ${data.reply}</div>`;
   }catch(e){
-    logs.innerHTML+=`<div class="glass p-2 rounded-xl text-xs mt-1 bg-yellow-500/10">🛡️ الدعم: تم فتح تذكرة - سيرد الفريق على slmanmktbabw@gmail.com</div>`;
+    logs.innerHTML+=`<div class="glass p-2 rounded-xl text-xs mt-1 bg-yellow-500/10">🛡️ الدعم: تم فتح تذكرة - slmanmktbabw@gmail.com</div>`;
   }
   inp.value=''; logs.scrollTop=logs.scrollHeight;
 }
@@ -145,14 +145,11 @@ function toast(m){ const b=document.getElementById('toastBox'); const t=document
 
 function openWallet(){
   fetch('/api/wallet/'+currentUser).then(r=>r.json()).then(d=>{
-    toast(`💰 محفظتك: ${d.balance} - أرباح ${d.earned} - OKX: 0x53ce...0af6`);
+    toast(`💰 رصيد ${d.balance} - أرباح ${d.earned} - سحب OKX: 0x53ce...0af6`);
   });
 }
 function openActivities(){ toast('📊 عندك '+posts.length+' منشور'); }
-function openOffline(){
-  const off=JSON.parse(localStorage.getItem('offline_videos')||'[]');
-  toast('📥 عندك '+off.length+' فيديو Offline');
-}
+function openOffline(){ const off=JSON.parse(localStorage.getItem('offline_videos')||'[]'); toast('📥 عندك '+off.length+' فيديو Offline'); }
 
 async function sendPaidGift(gift){
   const res=await fetch('/api/wallet/gift',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({from:currentUser,to:'AL',gift})});
@@ -167,7 +164,7 @@ function updateWalletUI(){
     const b=document.getElementById('myBalance'); if(b) b.innerText=d.balance;
     const e=document.getElementById('myEarn'); if(e) e.innerText=d.earned;
     const bs=document.getElementById('balanceShow'); if(bs) bs.innerText=d.balance;
-  });
+  }).catch(()=>{});
 }
 socket.on('broadcast_post',p=>{ posts.unshift(p); loadPosts(); });
 socket.on('live_like',d=>{ const el=document.getElementById('liveLikes'); if(el) el.innerText=d.count; });
@@ -179,3 +176,4 @@ socket.on('gift_received',d=>{
 });
 if(localStorage.getItem('tarim_user')) document.getElementById('authGate').style.display='none';
 loadPosts(); setInterval(updateWalletUI,3000); updateWalletUI();
+        
