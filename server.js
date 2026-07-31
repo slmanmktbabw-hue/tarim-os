@@ -21,18 +21,12 @@ const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, {recursive:true});
 app.use('/uploads', express.static(uploadDir));
 
-// بياناتك السيادية
-const S = { 
-  KING:'AL', 
-  WALLET:'0x53ce5e429ac48f355b775e418ded0b13931c0af6', 
-  DOMAIN:'tarimos.org' 
-};
+// بيانات سيادية
+const S = { KING:'AL', WALLET:'0x53ce5e429ac48f355b775e418ded0b13931c0af6', DOMAIN:'tarimos.org' };
+let posts = [{id:'1', user:'الإمبراطور AL', text:'أهلاً بكم في منظومة tarimos.org العالمية - انطلاق البث المباشر والتفاعل.', likes:1250, time: Date.now()}];
+let balances = {'AL':10000};
 
-let posts = [
-  {id:'1', user:'الإمبراطور AL', text:'أهلاً بكم في منظومة tarimos.org العالمية - انطلاق البث المباشر والتفاعل.', likes:1250, time: Date.now()}
-];
-
-// API - لازم قبل الـ *
+// ========= API - لازم قبل الـ * =========
 app.get('/api/posts', (req,res)=>res.json(posts));
 app.post('/api/posts', (req,res)=>{
   const p={id:Date.now().toString(), likes:0, time:Date.now(), ...req.body};
@@ -42,7 +36,6 @@ app.post('/api/posts', (req,res)=>{
 });
 app.get('/api/wallet', (req,res)=>res.json(S));
 
-// رفع الفيديو TikTok - base64 - لازم قبل الـ *
 app.post('/api/upload', (req,res)=>{
   try{
     const {videoBase64, name} = req.body;
@@ -56,15 +49,39 @@ app.post('/api/upload', (req,res)=>{
   }catch(e){ res.status(500).json({error:e.message}); }
 });
 
-// هذه لازم تكون آخر شي
-app.get('*', (req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
+// تجاري: رصيد وهدايا - لازم قبل *
+app.post('/api/gift', (req,res)=>{
+  const {from,to,amount} = req.body;
+  const amt = parseInt(amount)||10;
+  if(!balances[from]) balances[from]=1000;
+  if(balances[from]>=amt){ 
+    balances[from]-=amt; 
+    if(!balances[to]) balances[to]=0;
+    balances[to]+=amt;
+    io.emit('gift', req.body); 
+    res.json({ok:1, balance:balances[from]});
+  } else res.json({error:'رصيد ناقص'});
+});
+app.get('/api/balance/:user', (req,res)=>res.json({balance:balances[req.params.user]||0}));
 
-// Socket - البث الحي TikTok Style
+// ========= أمني: حماية ميدانية + تشفير - لازم قبل io.on =========
+io.use((socket,next)=>{
+  const ip = socket.handshake.address;
+  console.log('اتصال ميداني:', ip);
+  next();
+});
+
+// Socket - البث الحي TikTok + تفاعل
 io.on('connection', (socket)=>{
   console.log('مستخدم متصل:', socket.id);
   socket.on('new_post', (data)=>io.emit('broadcast_post', data));
+  socket.on('live_like', (data)=>io.emit('live_like', data));
+  socket.on('live_comment', (data)=>io.emit('live_comment', data));
   socket.on('disconnect', ()=>console.log('غادر:', socket.id));
 });
+
+// هذه لازم تكون آخر شي
+app.get('*', (req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, ()=>console.log(`TARIM OS TikTok Global on ${PORT}`));
