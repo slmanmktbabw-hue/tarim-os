@@ -1,17 +1,20 @@
 {
-  "name": "TARIM OS",
-  "short_name": "TARIM",
+  "name": "TARIM OS السيادي",
+  "short_name": "TARIM OS",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0b0e14",
+  "background_color": "#050b14",
   "theme_color": "#00f0ff",
-  "description": "نظام تشغيل الإمبراطور AL",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+      "src": "https://img.icons8.com/color/192/domain.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://img.icons8.com/color/512/domain.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
