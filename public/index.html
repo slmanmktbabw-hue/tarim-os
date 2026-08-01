@@ -64,12 +64,79 @@
 <div id="chatLogs" class="p-3 space-y-2"></div>
 <div class="fixed bottom-16 left-0 right-0 p-2 bg-white border-t flex gap-2"><input id="chatIn" placeholder="رسالة..." class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-xs outline-none"><button onclick="sendMsg()" class="bg-black text-white px-5 rounded-full text-xs">إرسال</button></div>
 </main>
+
+<!-- ===== V23.3 بروفايل الملك بخلفية سيادية ===== -->
 <main id="tab-profile" class="hidden min-h-screen pt-16 bg-[#f5f5f5] text-black">
-<div class="bg-white p-6 flex flex-col items-center border-b"><div class="w-20 h-20 bg-cyan-500/20 rounded-full flex items-center justify-center text-2xl font-black text-cyan-600" id="profileAvatar">AL</div><div class="font-black mt-2" id="profileName">...</div><div class="text-[10px] text-gray-400" id="profileRole">مستخدم</div></div>
-<div class="p-3 space-y-3 pb-24">
-<div class="bg-white rounded-xl overflow-hidden"><button onclick="openWallet()" class="w-full flex justify-between items-center p-4 text-[14px]"><span>💼 رصيد - <b id="balanceShow">0</b></span><span class="text-gray-400"><</span></button></div>
-<div class="bg-white rounded-xl overflow-hidden"><button onclick="logout()" class="w-full flex justify-between p-4 text-[14px] text-red-500"><span>🚪 تسجيل خروج</span><span><</span></button></div>
-</div>
+  <!-- للملك: خلفية الصورة الملكية -->
+  <div id="kingHeader" class="hidden relative min-h-[360px] flex flex-col justify-end overflow-hidden" style="background-image:url('/king-bg.webp');background-size:cover;background-position:center top">
+    <div class="absolute inset-0 bg-black/30"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+    <div class="absolute top-3 left-3 bg-yellow-400 text-black text-[9px] font-black px-2 py-1 rounded-full">👑 الملك السيادي</div>
+    <div class="relative z-10 p-5 flex items-end gap-4">
+      <div class="w-20 h-20 rounded-full border-4 border-yellow-400 shadow-[0_0_25px_rgba(255,215,0,0.8)] overflow-hidden bg-black shrink-0">
+        <img src="/king-bg.webp" class="w-full h-full object-cover object-top scale-110">
+      </div>
+      <div>
+        <div class="font-black text-white text-[20px] drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]" id="profileNameKing">Gooaz@$&-#</div>
+        <div class="text-[11px] bg-yellow-400 text-black px-2 py-0.5 rounded-full font-black inline-block mt-1">الملك 👑 - حساب القلعة السيادي</div>
+        <div class="text-[10px] text-cyan-300 mt-1 drop-shadow">TARIM OS • tarimos.org</div>
+      </div>
+    </div>
+  </div>
+  <!-- للمستخدم العادي: خلفية بيضاء -->
+  <div id="normalHeader" class="bg-white p-6 flex flex-col items-center border-b">
+    <div class="w-20 h-20 bg-cyan-500/20 rounded-full flex items-center justify-center text-2xl font-black text-cyan-600" id="profileAvatar">GO</div>
+    <div class="font-black mt-2" id="profileName">...</div>
+    <div class="text-[10px] text-gray-400" id="profileRole">مستخدم</div>
+  </div>
+
+  <div class="p-3 space-y-5 pb-24">
+    <div id="kingPanel" class="hidden">
+      <div class="text-[12px] text-yellow-600 font-black mb-2 mr-2">👑 لوحة الملك السيادية</div>
+      <div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl p-4 text-black text-xs space-y-2">
+        <div class="flex justify-between"><span>👥 إجمالي المستخدمين:</span><b id="totalUsers">0</b></div>
+        <div class="flex justify-between"><span>📄 المنشورات:</span><b id="totalPosts">0</b></div>
+        <div class="flex justify-between"><span>💰 إجمالي المحافظ:</span><b id="totalWallets">0</b></div>
+        <button onclick="fetch('/api/ping').then(r=>r.json()).then(d=>alert(JSON.stringify(d)))" class="w-full bg-black text-yellow-400 py-2 rounded-lg font-bold mt-2">🔍 فحص النظام</button>
+      </div>
+    </div>
+    <div>
+      <div class="text-[12px] text-gray-500 mb-2 mr-2">الأصول</div>
+      <div class="bg-white rounded-xl overflow-hidden">
+        <button onclick="openWallet()" class="w-full flex justify-between items-center p-4 text-[14px]"><span>💼 رصيد - <b id="balanceShow">0</b> 💰</span><span class="text-gray-400"><</span></button>
+      </div>
+    </div>
+    <div>
+      <div class="text-[12px] text-gray-500 mb-2 mr-2">الأدوات الشخصية</div>
+      <div class="bg-white rounded-xl overflow-hidden text-[14px]">
+        <button onclick="openTab('messages')" class="w-full flex justify-between p-4 border-b"><span>🕒 مركز الأنشطة</span><span class="text-gray-400"><</span></button>
+        <button onclick="openOffline()" class="w-full flex justify-between p-4 border-b"><span>📥 فيديوهات دون اتصال بالإنترنت</span><span class="text-gray-400"><</span></button>
+        <button onclick="genQR()" class="w-full flex justify-between p-4"><span>🔳 رمز QR لديك</span><span class="text-gray-400"><</span></button>
+      </div>
+    <div>
+      <div class="text-[12px] text-gray-500 mb-2 mr-2">أدوات الإبداع والأعمال</div>
+      <div class="bg-white rounded-xl overflow-hidden text-[14px]">
+        <button class="w-full flex justify-between p-4 border-b"><span>🏪 المجموعة التجارية</span><span class="text-gray-400"><</span></button>
+        <button class="w-full flex justify-between p-4 border-b"><span>✨ TikTok Studio</span><span class="text-gray-400"><</span></button>
+        <button class="w-full flex justify-between p-4"><span>🔥 الترويج</span><span class="text-gray-400"><</span></button>
+      </div>
+    </div>
+    <div>
+      <div class="bg-white rounded-xl overflow-hidden">
+        <button onclick="openTab('privacy')" class="w-full flex justify-between p-4 text-[14px]"><span>⚙️ الإعدادات والخصوصية</span><span class="text-gray-400"><</span></button>
+      </div>
+    </div>
+    <div>
+      <div class="bg-white rounded-xl overflow-hidden">
+        <button onclick="logout()" class="w-full flex justify-between p-4 text-[14px] text-red-500"><span>🚪 تسجيل خروج</span><span><</span></button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<main id="tab-privacy" class="hidden min-h-screen pt-10 bg-[#f5f5f5] text-black">
+  <div class="bg-white p-4 flex items-center justify-between sticky top-0 border-b"><button onclick="openTab('profile')" class="text-xl">→</button><div class="font-black">الإعدادات والخصوصية</div><div class="w-6"></div></div>
+  <div class="p-3 text-[12px] text-gray-500">إعدادات سيادية محمية</div>
 </main>
 <main id="tab-ai" class="hidden min-h-screen pt-16 p-3 flex flex-col"><div class="font-black text-cyan-400 text-sm">👁️ عين الذكاء</div><div id="aiLogs" class="flex-1 my-3 space-y-2"></div><div class="flex gap-2 p-2 glass rounded-2xl"><input id="aiIn" placeholder="اسأل..." class="flex-1 bg-transparent text-xs p-2 outline-none"><button onclick="sendAI()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-black">إرسال</button></div></main>
 <main id="tab-support" class="hidden min-h-screen pt-16 p-3 flex flex-col"><div class="font-black text-yellow-400 text-sm">🛡️ فريق الدعم</div><div id="supportLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div><div class="flex gap-2 p-2 glass rounded-2xl"><input id="supportIn" placeholder="راسل الدعم..." class="flex-1 bg-transparent text-xs p-2 outline-none"><button onclick="sendSupport()" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-xs font-black">إرسال</button></div></main>
@@ -116,9 +183,22 @@ currentUser=user; currentRole=role||'user';
 document.getElementById('authGate').style.display='none';
 document.getElementById('helloUser').innerText=user;
 document.getElementById('profileName').innerText=user;
+if(document.getElementById('profileNameKing')) document.getElementById('profileNameKing').innerText=user;
 document.getElementById('profileAvatar').innerText=user.slice(0,2).toUpperCase();
 document.getElementById('profileRole').innerText=role==='KING'?'الملك 👑 - حساب القلعة السيادي':'مستخدم';
-if(role==='KING') document.getElementById('kingBadge').classList.remove('hidden');
+if(role==='KING'){
+  document.getElementById('kingBadge').classList.remove('hidden');
+  document.getElementById('kingPanel').classList.remove('hidden');
+  document.getElementById('kingHeader').classList.remove('hidden');
+  document.getElementById('normalHeader').classList.add('hidden');
+  fetch('/api/ping').then(r=>r.json()).then(d=>{
+    document.getElementById('totalUsers').innerText=d.users||0;
+    document.getElementById('totalPosts').innerText=d.posts||'0';
+  });
+} else {
+  document.getElementById('kingHeader').classList.add('hidden');
+  document.getElementById('normalHeader').classList.remove('hidden');
+}
 loadWallet(); openTab('home');
 }
 function logout(){ localStorage.clear(); location.reload(); }
@@ -144,15 +224,4 @@ function sendMsg(){const txt=document.getElementById('chatIn').value; if(!txt) r
 async function startLive(){openTab('live'); document.getElementById('tab-live').classList.remove('hidden'); try{if(stream) stream.getTracks().forEach(t=>t.stop()); stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing}, audio:true}); document.getElementById('liveVideo').srcObject=stream;}catch(e){alert('اسمح للكاميرا من Chrome');}}
 async function toggleFlash(){try{const track=stream.getVideoTracks()[0]; const caps=track.getCapabilities(); if(!caps.torch) return alert('لا يدعم فلاش'); torch=!torch; await track.applyConstraints({advanced:[{torch:torch}]});}catch(e){alert('شغل البث اولا');}}
 function toggleCameraFacing(){facing=facing=="environment"?"user":"environment"; startLive();}
-function exitFullScreen(){if(stream) stream.getTracks().forEach(t=>t.stop()); document.getElementById('tab-live').classList.add('hidden'); openTab('home');}
-function openOffline(){const box=document.getElementById('feed'); box.innerHTML=`<div class="glass p-4 rounded-2xl text-xs space-y-2"><div class="font-bold">📹 بدون نت</div><video controls id="offlinePlayer" class="w-full rounded-xl bg-black aspect-video"></video><input type="file" accept="video/*" onchange="playFile(this)" class="w-full text-[10px] bg-black/50 p-2 rounded-xl"></div>`; openTab('home');}
-function playFile(input){const file=input.files[0]; if(!file) return; document.getElementById('offlinePlayer').src=URL.createObjectURL(file);}
-function genQR(){const c=document.getElementById('qrcode'); c.innerHTML=''; new QRCode(c, {text:"https://tarimos.org/user="+currentUser, width:140, height:140}); openTab('operations');}
-function openWallet(){fetch('/api/wallet/'+currentUser).then(r=>r.json()).then(d=>{document.getElementById('balanceShow').innerText=d.balance; document.getElementById('balanceTop').innerText=d.balance+' 💰';});}
-function loadWallet(){openWallet();}
-function openCamera(f){facing=f; openTab('create'); const v=document.getElementById('camPreview'); v.classList.remove('hidden'); navigator.mediaDevices.getUserMedia({video:{facingMode:f}}).then(s=>{v.srcObject=s; stream=s;});}
-function sendSupport(){const q=document.getElementById('supportIn').value; if(!q) return; document.getElementById('supportLogs').innerHTML+=`<div class="glass p-2 rounded-xl text-xs"><b>أنت:</b> ${cleanFront(q)}</div>`; fetch('/api/support',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user:currentUser, text:q})}).then(r=>r.json()).then(d=>{document.getElementById('supportLogs').innerHTML+=`<div class="glass p-2 rounded-xl text-xs text-yellow-300"><b>الدعم:</b> ${cleanFront(d.reply)}</div>`;}); document.getElementById('supportIn').value='';}
-function sendAI(){const q=document.getElementById('aiIn').value; if(!q) return; document.getElementById('aiLogs').innerHTML+=`<div class="glass p-2 rounded-xl text-xs"><b>أنت:</b> ${cleanFront(q)}</div><div class="glass p-2 rounded-xl text-xs text-cyan-300">تم التحليل ✅</div>`; document.getElementById('aiIn').value='';}
-</script>
-</body>
-  </html>
+function exitFull
