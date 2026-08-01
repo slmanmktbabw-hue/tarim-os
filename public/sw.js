@@ -1,3 +1,4 @@
+ 
 self.addEventListener('install', (e) => {
     e.waitUntil(
         caches.open('tarim-os-v2.1').then((cache) => {
