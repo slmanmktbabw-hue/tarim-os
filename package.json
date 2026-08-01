@@ -1,15 +1,32 @@
 {
   "name": "tarim-os-sovereign",
-  "version": "11.1.0",
-  "description": "TARIM OS V11.1 REAL AUDIENCE - tarimos.org - OKX 0x53ce5e429ac48f355b775e418ded0b13931c0af6",
+  "version": "11.2.0",
+  "description": "TARIM OS V11.2 Sovereign - tarimos.org - JWT + bcrypt + Real Audience - OKX 0x53ce5e429ac48f355b775e418ded0b13931c0af6",
   "main": "server.js",
-  "scripts": { "start": "node server.js" },
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
     "cors": "^2.8.5",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^16.4.5",
     "helmet": "^7.1.0",
     "express-rate-limit": "^7.1.5"
   },
-  "engines": { "node": ">=18.0.0" }
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "tarim",
+    "hadramout",
+    "sovereign",
+    "pwa",
+    "realtime",
+    "tarimos.org"
+  ],
+  "author": "AL - tarimos.org",
+  "license": "MIT"
 }
