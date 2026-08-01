@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
@@ -12,14 +13,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 let users = [{ user: 'Gooaz@$&-#', pass: bcrypt.hashSync('KING123', 8), role: 'KING' }];
 let posts = [];
-let channels = [
-  { id: 'general', name: 'عام', icon: '📺', desc: 'القناة العامة', followers: 1250, owner: 'KING' },
-  { id: 'quran', name: 'قرآن', icon: '📖', desc: 'تلاوات', followers: 800, owner: 'KING' },
-  { id: 'hadramout', name: 'حضرموت', icon: '🏜️', desc: 'أخبار حضرموت', followers: 650, owner: 'KING' },
-  { id: 'king', name: 'الملك', icon: '👑', desc: 'قناة الملك السيادية', followers: 5000, owner: 'KING' }
-];
+let channels = [];
 
-app.get('/api/ping', (req,res)=> res.json({ users: users.length, posts: posts.length, channels: channels.length }));
+app.get('/api/ping', (req,res)=> res.json({ users: users.length, posts: posts.length }));
 app.get('/api/posts', (req,res)=> res.json(posts));
 app.get('/api/channels', (req,res)=> res.json(channels));
 app.get('/api/wallet/:user', (req,res)=> res.json({ balance: 10000 }));
@@ -42,28 +38,12 @@ app.post('/api/auth/login', (req,res)=>{
 });
 
 app.post('/api/posts', (req,res)=>{
-  const { user, text, channel } = req.body;
-  posts.push({ user, text, channel: channel||'عام', id: Date.now() });
+  posts.push({ user: req.body.user, text: req.body.text, id: Date.now() });
   io.emit('broadcast_post', posts);
-  res.json({ ok: true });
-});
-
-app.post('/api/channels', (req,res)=>{
-  const { name, icon, desc, user } = req.body;
-  const newCh = { id: Date.now().toString(), name, icon: icon||'📺', desc: desc||'', followers: 0, owner: user };
-  channels.push(newCh);
-  io.emit('channels_update', channels);
-  res.json(newCh);
-});
-
-app.post('/api/channels/:id/follow', (req,res)=>{
-  const ch = channels.find(c=>c.id===req.params.id);
-  if(ch) ch.followers++;
-  io.emit('channels_update', channels);
   res.json({ ok: true });
 });
 
 app.get('*', (req,res)=> res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 const PORT = process.env.PORT || 10000;
-server.listen(PORT, ()=> console.log(`TARIM OS V24 KING SECURE on ${PORT} 👑 حساب الملك منظر وجاهز`));
+server.listen(PORT, ()=> console.log(`TARIM OS V24 KING SECURE on ${PORT}`));
