@@ -1,65 +1,15 @@
+ 
 {
   "name": "tarim-os-sovereign",
   "version": "20.1.0",
-  "description": "TARIM OS - tarimos.org - النظام السيادي العالمي - Gemini AI + OKX + بث 8 دقائق + خريطة Offline + QR - الملك AL 0x53ce5e429ac48f355b775e418ded0b13931c0af6",
+  "description": "TARIM OS - tarimos.org - Gemini + OKX - FIXED",
   "main": "server.js",
-  "type": "commonjs",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "init-data": "mkdir -p data public && echo '[]' > data/posts.json && echo '{}' > data/wallet.json && echo '{}' > data/users.json"
-  },
+  "scripts": { "start": "node server.js" },
   "dependencies": {
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
     "cors": "^2.8.5",
-    "helmet": "^7.1.0",
-    "express-rate-limit": "^7.1.5",
-    "bcryptjs": "^2.4.3",
     "@google/genai": "^1.7.0"
   },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
-  },
-  "keywords": [
-    "tarim-os",
-    "tarimos.org",
-    "sovereign",
-    "pwa",
-    "gemini-ai",
-    "okx",
-    "live-streaming",
-    "offline-map",
-    "hadhramaut",
-    "tarim"
-  ],
-  "author": "الملك AL - slmanmktbabw@gmail.com",
-  "license": "PRIVATE",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/AL/tarim-os.git"
-  },
-  "homepage": "https://tarimos.org",
-  "bugs": {
-    "url": "mailto:slmanmktbabw@gmail.com"
-  },
-  "pwa": {
-    "install": "التطبيق ينزل من المتصفح - Add to Home Screen",
-    "domain": "https://tarimos.org",
-    "storage": "data/ خارج public + Cache API + IndexedDB + localStorage"
-  },
-  "database": {
-    "schema": "users.json - wallet.json - posts.json",
-    "wallet_table": "{ userId, balance, diamonds, earned, transactions[] }",
-    "gifts_ui": "🎁10, ❤️5, 👑50, 🚀100, 💎20, 🌹15, 🏰200",
-    "logic": "خصم من المرسل + إضافة 70% للمستقبل + سجل مالي + cooldown 2s"
-  },
-  "features": {
-    "header": "يمين: فريق الدعم | شمال: عين Gemini AI",
-    "auth": "اعتماد بيانات المستخدم - إنشاء حساب - User ID + bcrypt",
-    "menu_5": "1-الرئيسية, 2-العمليات (بث 8د + مراسلة آمنة + خريطة تريم Offline + ختم QR), 3- + إنشاء (صورة نص + منشور + LIVE + كاميرا أمامية خلفية + فلاش torch + فلتر تجميل + هدايا لايكات تعليق), 4- الوارد مراسلة, 5- الملفات (رصيد + أنشطة + فيديوهات Offline + QR + تجارية + ترويج + خصوصية (إدارة منشورات + تفضيلات + LIVE + إشعارات + رفاهية + ربط عائلة + حساب + أمان + تحليلات) + مشاركة + خلفية + إعدادات)",
-    "security": "bcrypt + helmet + rate-limit + esc() + data/ خارج public",
-    "global": "tarimos.org - PWA - ينزل من المتصفح - يعمل عالمياً"
-  }
+  "engines": { "node": ">=18.0.0" }
 }
