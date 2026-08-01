@@ -12,14 +12,11 @@ function openTab(name) {
     if (tab) tab.classList.remove('hidden');
     else document.getElementById('tab-home')?.classList.remove('hidden');
     
-    document.querySelectorAll('nav button').forEach(b => {
-        b.classList.remove('text-cyan-400');
-        b.classList.add('text-gray-400');
-    });
-    
-    event?.currentTarget?.classList.remove('text-gray-400');
-    event?.currentTarget?.classList.add('text-cyan-400');
-
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('text-cyan-400'));
+    if (name === 'home') document.querySelectorAll('nav button')[0]?.classList.add('text-cyan-400');
+    if (name === 'operations') document.querySelectorAll('nav button')[1]?.classList.add('text-cyan-400');
+    if (name === 'messages') document.querySelectorAll('nav button')[3]?.classList.add('text-cyan-400');
+    if (name === 'profile') document.querySelectorAll('nav button')[4]?.classList.add('text-cyan-400');
     if (name === 'ai') loadAI();
     if (name === 'support') loadSupport();
     if (name === 'profile') genQR();
@@ -31,8 +28,7 @@ function registerAndLogin() {
     if (p.length < 3) return toast('كلمة المرور قصيرة');
     localStorage.setItem('tarim_user', u);
     currentUser = u;
-    const gate = document.getElementById('authGate');
-    if(gate) gate.style.display = 'none';
+    document.getElementById('authGate').style.display = 'none';
     toast('أهلاً ' + u + ' - النظام جاهز 🌍');
     loadPosts();
     updateWalletUI();
@@ -48,7 +44,7 @@ async function loadPosts() {
         posts.forEach(p => {
             const d = document.createElement('div');
             d.className = 'glass p-3 rounded-2xl text-xs';
-            d.innerHTML = `<b>${p.user || 'AL'}</b><p class="mt-1">${p.text || ''}</p>${p.media ? (p.type === 'video' ? `<video src="${p.media}" controls class="w-full rounded-xl mt-2"></video>` : `<img src="${p.media}" class="w-full rounded-xl mt-2">`) : ''}<div class="mt-2 flex gap-3"><span>❤️ ${p.likes || 0}</span><span onclick="sendGift()" class="cursor-pointer text-cyan-400">🎁 هدية</span></div>`;
+            d.innerHTML = `<b>${p.user || 'AL'}</b><p class="mt-1">${p.text || ''}</p>${p.media ? (p.type === 'video' ? `<video src="${p.media}" controls class="w-full rounded-xl mt-2"></video>` : `<img src="${p.media}" class="w-full rounded-xl mt-2">`) : ''}<div class="mt-2 flex gap-3"><span>❤️ ${p.likes || 0}</span><span onclick="sendGift()">🎁 هدية</span></div>`;
             feed.appendChild(d);
         });
     } catch (e) {}
@@ -252,7 +248,6 @@ function sendMsg() {
 
 function toast(m) {
     const b = document.getElementById('toastBox');
-    if(!b) return;
     const t = document.createElement('div');
     t.className = 'bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold mb-2 shadow-lg';
     t.innerText = m;
@@ -266,13 +261,13 @@ function openWallet() {
         box.className = 'fixed inset-0 z-[800] bg-black/80 flex items-center justify-center p-4';
         box.innerHTML = `<div class="glass rounded-3xl p-6 w-full max-w-sm text-center space-y-3 border-cyan-500/50"><div class="text-xl font-black text-cyan-400">💰 محفظة الجمهور</div><div class="text-xs">رصيدك: <b class="text-green-400">${d.balance}</b></div><div class="text-xs">أرباحك: <b class="text-yellow-400">${d.earned}</b></div><div class="text-[10px] font-mono break-all bg-black/50 p-2 rounded">OKX: مشفر ومحمي</div><button onclick="this.parentElement.parentElement.remove()" class="w-full bg-cyan-500 text-black font-black py-2 rounded-xl text-xs">إغلاق</button></div>`;
         document.body.appendChild(box);
-    }).catch(() => toast('خطأ في جلب المحفظة'));
+    });
 }
 
 function openActivities() {
     const box = document.createElement('div');
     box.className = 'fixed inset-0 z-[800] bg-black/80 flex items-center justify-center p-4';
-    box.innerHTML = `<div class="glass rounded-3xl p-6 w-full max-w-sm text-center space-y-3"><div class="font-black text-cyan-400">📊 مركز الأنشطة</div><div class="text-xs">منشوراتك: ${posts.length}</div><div class="text-xs">إعجابات LIVE: ${liveLikeCount}</div><div class="text-xs">المستخدم: ${currentUser}</div><button onclick="this.parentElement.parentElement.remove()" class="w-full bg-cyan-500 text-black font-black py-2 rounded-xl text-xs">إغلاق</button></div>`;
+    box.innerHTML = `<div class="glass rounded-3xl p-6 w-full max-w-sm text-center space-y-3"><div class="font-black text-cyan-400">📊 مركز الأنشطة</div><div class="text-xs">منشوراتك: ${posts.length}</div><div class="text-xs">إعجابات LIVE: ${liveLikeCount}</div><div class="text-xs">فيديوهات Offline: ${JSON.parse(localStorage.getItem('offline_videos') || '[]').length}</div><div class="text-xs">المستخدم: ${currentUser}</div><button onclick="this.parentElement.parentElement.remove()" class="w-full bg-cyan-500 text-black font-black py-2 rounded-xl text-xs">إغلاق</button></div>`;
     document.body.appendChild(box);
 }
 
@@ -284,10 +279,21 @@ function openOffline() {
     document.body.appendChild(box);
 }
 
-function openMarket() { toast('🏪 المجموعة التجارية قريباً - tarimos.org Mall'); }
-function openPromo() { toast('📢 الترويج: slmanmktbabw@gmail.com'); }
-function openSettings() { toast('⚙️ الإعدادات - OKX: مشفر'); }
-function shareProfile() { navigator.share ? navigator.share({ title: 'AL - TARIM OS', url: 'https://tarimos.org/u/' + currentUser }) : toast('🔗 تم نسخ رابط ملفك'); }
+function openMarket() {
+    toast('🏪 المجموعة التجارية قريباً - tarimos.org Mall');
+}
+
+function openPromo() {
+    toast('📢 الترويج: slmanmktbabw@gmail.com');
+}
+
+function openSettings() {
+    toast('⚙️ الإعدادات - OKX: مشفر');
+}
+
+function shareProfile() {
+    navigator.share ? navigator.share({ title: 'AL - TARIM OS', url: 'https://tarimos.org/u/' + currentUser }) : toast('🔗 تم نسخ رابط ملفك');
+}
 
 async function sendPaidGift(gift) {
     const res = await fetch('/api/wallet/gift', {
@@ -297,13 +303,15 @@ async function sendPaidGift(gift) {
     });
     const d = await res.json();
     if (d.error) return toast(d.error);
-    toast(`أرسلت ${gift} - ربحت ${d.earned}`);
-    updateWalletUI();
+    toast(`أرسلت ${gift} - ربحت ${d.earned} - رصيدك ${d.yourBalance}`);
+    const b = document.getElementById('myBalance');
+    if (b) b.innerText = d.yourBalance;
     likeLive();
 }
 
-function sendGift() { sendPaidGift('🎁'); }
-function shareLive() { toast('🔗 تم مشاركة البث'); }
+function sendGift() {
+    sendPaidGift('🎁');
+}
 
 function updateWalletUI() {
     fetch('/api/wallet/' + currentUser).then(r => r.json()).then(d => {
@@ -331,11 +339,8 @@ socket.on('live_comment', d => {
     if (box) box.innerHTML += `<div class="bg-black/40 rounded-full px-2 py-1"><b>${d.user}:</b> ${d.text}</div>`;
 });
 
-if (localStorage.getItem('tarim_user')) {
-    const gate = document.getElementById('authGate');
-    if(gate) gate.style.display = 'none';
-}
+if (localStorage.getItem('tarim_user')) document.getElementById('authGate').style.display = 'none';
 loadPosts();
 setInterval(updateWalletUI, 3000);
 updateWalletUI();
-        
+    
