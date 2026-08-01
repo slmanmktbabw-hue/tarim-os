@@ -1,7 +1,7 @@
 {
-  "name": "tarim-os",
-  "version": "23.3.0",
-  "description": "TARIM OS - tarimos.org Sovereign System",
+  "name": "tarim-os-live",
+  "version": "23.4.0",
+  "description": "TARIM OS V23 KING SECURE - tarimos.org",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js"
@@ -10,8 +10,15 @@
     "express": "^4.18.2",
     "socket.io": "^4.7.5",
     "bcryptjs": "^2.4.3",
+    "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "express-rate-limit": "^7.1.5",
+    "xss-clean": "^0.1.4",
+    "hpp": "^0.2.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
