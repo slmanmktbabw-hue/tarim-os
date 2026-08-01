@@ -3,36 +3,208 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TARIM OS - tarimos.org</title>
+<title>TARIM OS - tarimos.org - النظام السيادي</title>
+
+<!-- 1- تعريف الكود في التطبيق - PWA - التطبيق ينزل من المتصفح -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#00f0ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="icon" type="image/png" href="/icon-192.png">
+
+<!-- 2- تعريف الدومين في التطبيق -->
+<meta property="og:title" content="TARIM OS - tarimos.org">
+<meta property="og:url" content="https://tarimos.org">
+<meta property="og:image" content="https://tarimos.org/icon-512.png">
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<style>.glass{background:rgba(15,23,42,0.9);backdrop-filter:blur(14px);border:1px solid rgba(0,240,255,0.2)}body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+.glass{background:rgba(15,23,42,0.92);backdrop-filter:blur(14px);border:1px solid rgba(0,240,255,0.22)}
+body{background:#050b14;color:#fff;font-family:system-ui;overflow-x:hidden}
+#fullCamVideo{filter:brightness(1.8) contrast(1.25) saturate(1.2);transition:filter 0.3s}
+#camPreview{filter:brightness(1.8) contrast(1.25) saturate(1.2)}
+::-webkit-scrollbar{width:0}
+</style>
 </head>
 <body class="min-h-screen pb-24">
+
+<!-- الأساس: اعتماد بيانات المستخدم - إنشاء حساب - حماية حساب المستخدم -->
 <div id="authGate" class="fixed inset-0 z-[400] bg-[#050b14]/98 flex items-center justify-center p-4">
-<div class="w-full max-w-sm glass rounded-3xl p-6 text-center space-y-4 border-cyan-500/40">
+<div class="w-full max-w-sm glass rounded-3xl p-6 text-center space-y-4 border-cyan-500/40 shadow-2xl">
 <div class="text-3xl font-black text-cyan-400">TARIM OS 🏰</div>
-<div class="text-xs text-gray-300">tarimos.org - النظام السيادي</div>
-<input id="userPhone" type="text" placeholder="AL" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center text-cyan-300 font-bold outline-none">
-<input id="userPass" type="password" placeholder="كلمة المرور" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center text-cyan-300 font-bold outline-none">
-<button onclick="registerAndLogin()" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs">فتح النظام الحقيقي</button>
+<div class="text-[11px] text-gray-300 leading-5">tarimos.org - النظام السيادي<br>OKX: 0x53ce...af6</div>
+<input id="userPhone" type="text" maxlength="20" placeholder="اسمك السيادي AL" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center text-cyan-300 font-black outline-none focus:border-cyan-400">
+<input id="userPass" type="password" placeholder="كلمة المرور (مشفرة bcrypt)" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center text-cyan-300 font-bold outline-none">
+<button onclick="registerAndLogin()" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs hover:bg-cyan-400">فتح النظام الحقيقي 🌍</button>
+<div class="text-[9px] text-gray-500">السياسة والخصوصية - تخزين مشفر - بيانات آمنة</div>
 </div>
 </div>
-<header class="fixed top-0 left-0 right-0 z-50 glass px-4 py-3 flex justify-between items-center text-xs font-bold"><button onclick="openTab('support')" class="text-yellow-400">🛡️ فريق الدعم</button><div class="text-cyan-400">TARIM OS</div><button onclick="openTab('ai')" class="text-cyan-400">عين الذكاء 👁️</button></header>
-<main id="tab-home" class="min-h-screen pt-16 p-3 space-y-3"><div class="flex justify-between items-center glass p-3 rounded-2xl"><div><div class="text-xs text-gray-400">حساب الملك AL</div><div class="text-[10px] text-cyan-400 font-mono">OKX: 0x53ce5e429ac48f355b775e418ded0b13931c0af6</div></div><span class="bg-cyan-500/20 text-cyan-300 text-[10px] px-2.5 py-1 rounded-full">نشط عالمياً 🌍</span></div><div id="feed" class="space-y-3"></div></main>
-<main id="tab-operations" class="hidden min-h-screen pt-16 p-4 space-y-4"><div class="font-black text-cyan-400 text-sm">⚡ قسم العمليات السيادية</div><div class="grid grid-cols-1 gap-3"><button onclick="startLive()" class="glass p-4 rounded-2xl text-right font-bold text-xs flex justify-between border-red-500/30"><span class="text-red-400">🔴 بث مباشر سيادي (8 دقائق)</span><span>بدء ←</span></button><button onclick="openTab('messages')" class="glass p-4 rounded-2xl text-right font-bold text-xs flex justify-between"><span>💬 المراسلة الآمنة</span><span>فتح ←</span></button><button onclick="openMap()" class="glass p-4 rounded-2xl text-right font-bold text-xs flex justify-between"><span>🗺️ خريطة حضرموت Offline</span><span>عرض ←</span></button><button onclick="genQR()" class="glass p-4 rounded-2xl text-right font-bold text-xs flex justify-between"><span>🔏 الختم الميداني QR</span><span>إصدار ←</span></button></div><div id="qrcode" class="flex justify-center p-3 bg-black/40 rounded-2xl"></div></main>
-<main id="tab-create" class="hidden min-h-screen pt-16 p-4 space-y-3"><div class="font-black text-cyan-400 text-sm">✨ محطة الإنشاء السيادي</div><div class="grid grid-cols-2 gap-3"><button onclick="openCamera('user')" class="glass py-4 rounded-2xl font-bold text-xs">🤳 أمامية</button><button onclick="openCamera('environment')" class="glass py-4 rounded-2xl font-bold text-xs">📸 خلفية</button><button onclick="toggleCameraFacing()" class="glass py-4 rounded-2xl font-bold text-xs text-cyan-300 col-span-2">🔄 تبديل الكاميرا</button><button onclick="createPost('صورة')" class="glass py-5 rounded-2xl font-bold text-xs">🖼️ صورة نص</button><button onclick="createPost('منشور')" class="glass py-5 rounded-2xl font-bold text-xs">📄 منشور</button><button onclick="startLive()" class="glass py-5 rounded-2xl font-bold text-xs text-red-400">🔴 LIVE</button><button onclick="applyFilter()" class="glass py-5 rounded-2xl font-bold text-xs text-yellow-300">✨ فلتر</button></div><input id="postText" placeholder="اكتب محتوى منشورك..." class="w-full bg-black/60 border border-white/10 rounded-xl p-3 text-xs outline-none"><button onclick="publishPost()" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs">نشر فوري</button><video id="camPreview" autoplay muted playsinline class="w-full rounded-xl bg-black aspect-video hidden"></video></main>
-<main id="tab-messages" class="hidden min-h-screen pt-16 p-3 flex flex-col"><div class="font-black text-cyan-400 text-sm">💬 المراسلة الآمنة</div><div id="chatLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div><div class="flex gap-2 p-2 glass rounded-2xl"><input id="chatIn" placeholder="رسالتك..." class="flex-1 bg-transparent text-xs p-2 outline-none"><button onclick="sendMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-black">إرسال</button></div></main>
-<main id="tab-profile" class="hidden min-h-screen pt-16 p-4 space-y-3"><div class="glass p-4 rounded-2xl text-center"><div class="w-16 h-16 bg-cyan-500/25 rounded-full mx-auto flex items-center justify-center text-xl font-black text-cyan-300">AL</div><div class="font-black text-sm">الإمبراطور AL</div><div class="text-[10px] text-cyan-400 font-mono">OKX: 0x53ce5e429ac48f355b775e418ded0b13931c0af6</div><div class="text-[9px] text-gray-400">عالمي 🌍</div></div><div class="space-y-2 text-xs max-h-[70vh] overflow-y-auto"><button onclick="openWallet()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>💰 رصيد (OKX الملكي) - <b id="balanceShow">0</b></span><span>فتح ←</span></button><button onclick="openActivities()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>📊 مركز الانشطه</span><span>فتح ←</span></button><button onclick="openOffline()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>📹 فيديوهات دون اتصال</span><span>فتح ←</span></button><button onclick="genQR()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>🔏 رمز QR لديك</span><span>عرض ←</span></button><button onclick="openMarket()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>🏢 المجموعة التجارية</span><span>فتح ←</span></button><button onclick="openPromo()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>📢 الترويج والإعلانات</span><span>فتح ←</span></button><button onclick="openSettings()" class="w-full glass p-3 rounded-xl flex justify-between"><span>ادارة المنشورات</span><span>إدارة ←</span></button><button onclick="shareProfile()" class="w-full glass p-3 rounded-xl flex justify-between"><span>🔗 مشاركة ملفك الشخصي</span><span>مشاركة ←</span></button><button onclick="changeBg()" class="w-full glass p-3 rounded-xl flex justify-between"><span>🎨 تغير خلفية المستخدم</span><span>تغيير ←</span></button><button onclick="openTab('privacy')" class="w-full glass p-3 rounded-xl flex justify-between"><span>📜 السياسة والخصوصية</span><span>فتح ←</span></button></div></main>
-<main id="tab-ai" class="hidden min-h-screen pt-16 p-3 flex flex-col"><div class="font-black text-cyan-400 text-sm">👁️ عين الذكاء</div><div id="aiLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div><div class="flex gap-2 p-2 glass rounded-2xl"><input id="aiIn" placeholder="اسأل..." class="flex-1 bg-transparent text-xs p-2 outline-none"><button onclick="sendAI()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-black">إرسال</button></div></main>
-<main id="tab-support" class="hidden min-h-screen pt-16 p-3 flex flex-col"><div class="font-black text-yellow-400 text-sm">🛡️ فريق الدعم العالمي</div><div id="supportLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div><div class="flex gap-2 p-2 glass rounded-2xl"><input id="supportIn" placeholder="راسل الدعم..." class="flex-1 bg-transparent text-xs p-2 outline-none"><button onclick="sendSupport()" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-xs font-black">إرسال</button></div></main>
-<main id="tab-privacy" class="hidden min-h-screen pt-16 p-4 space-y-3"><div class="glass p-5 rounded-2xl text-xs space-y-3 leading-6"><h1 class="text-cyan-400 font-black text-sm">📜 سياسة الخصوصية - TARIM OS</h1><p>نظام الملك AL العالمي tarimos.org 🌍</p><p>1. محفظة OKX: 0x53ce5e429ac48f355b775e418ded0b13931c0af6 - آمنة ومشفرة</p><p>2. البث 8 دقائق محفوظ مشفر</p><p>3. الهدايا 🎁: 70% للمنشئ - السحب تلقائي</p><p>4. خريطة حضرموت Offline</p><p>5. الدعم: slmanmktbabw@gmail.com</p><p class="text-cyan-400 font-bold">V10 - النظام السيادي الحقيقي 🏰</p></div></main>
-<nav class="fixed bottom-0 left-0 right-0 glass h-16 border-t border-white/10 flex justify-around items-center z-50 text-[10px]"><button onclick="openTab('home')" class="flex flex-col items-center text-cyan-400"><span class="text-lg">🏠</span>الرئيسية</button><button onclick="openTab('operations')" class="flex flex-col items-center text-gray-400"><span class="text-lg">⚡</span>العمليات</button><button onclick="openTab('create')" class="flex flex-col items-center"><span class="w-10 h-10 bg-cyan-500 text-black rounded-full flex items-center justify-center text-xl font-black">+</span></button><button onclick="openTab('messages')" class="flex flex-col items-center text-gray-400"><span class="text-lg">💬</span>الوارد</button><button onclick="openTab('profile')" class="flex flex-col items-center text-gray-400"><span class="text-lg">👤</span>الملفات</button></nav>
-<div id="fullScreenCam" class="fixed inset-0 z-[600] bg-black hidden"><video id="fullCamVideo" autoplay muted playsinline class="w-full h-full object-cover"></video><div id="preLiveOverlay" class="absolute inset-0 bg-black/75 flex flex-col items-center justify-center z-20"><div class="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center text-4xl animate-pulse border-4 border-white">🔴</div><div class="mt-4 font-black text-white">البث السيادي جاهز</div><button onclick="confirmStartLive()" class="mt-5 bg-red-600 text-white font-black px-10 py-3 rounded-full text-sm">▶️ اضغط لبدء البث</button></div><div id="walletPanel" class="absolute top-16 left-3 bg-black/80 rounded-2xl p-2 text-[10px] border border-cyan-500/30 z-10"><div>💰 رصيدك: <span id="myBalance">0</span></div><div>💎 أرباحك: <span id="myEarn">0</span></div></div><div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center bg-gradient-to-b from-black/70 to-transparent z-10"><button onclick="exitFullScreen()" class="w-10 h-10 bg-black/50 rounded-full text-white text-xl">✕</button><div class="text-xs text-cyan-400 font-bold">🔴 LIVE - tarimos.org</div><button onclick="toggleCameraFacing()" class="w-10 h-10 bg-black/50 rounded-full">🔄</button></div><div class="absolute right-3 bottom-24 flex flex-col gap-4 items-center z-10"><button onclick="likeLive()" class="flex flex-col items-center"><span class="w-12 h-12 bg-black/40 rounded-full flex items-center justify-center text-xl">❤️</span><span id="liveLikes" class="text-[10px]">0</span></button><button onclick="focusLiveComment()" class="flex flex-col items-center"><span class="w-12 h-12 bg-black/40 rounded-full flex items-center justify-center text-xl">💬</span><span class="text-[10px]">تعليق</span></button><button onclick="sendGift()" class="flex flex-col items-center"><span class="w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-xl">🎁</span><span class="text-[10px]">هدايا</span></button><button onclick="shareLive()" class="flex flex-col items-center"><span class="w-12 h-12 bg-black/40 rounded-full flex items-center justify-center">↗️</span><span class="text-[10px]">مشاركة</span></button></div><div id="liveComments" class="absolute left-3 bottom-24 w-60 max-h-40 overflow-y-auto space-y-1 text-xs z-10"></div><div class="absolute bottom-3 left-3 right-20 flex gap-2 z-10"><input id="liveCommentIn" placeholder="اكتب تعليق..." class="flex-1 bg-black/50 border border-white/20 rounded-full px-4 py-2 text-xs outline-none"><button onclick="sendLiveComment()" class="bg-cyan-500 text-black px-4 rounded-full text-xs font-bold">إرسال</button></div></div>
-<div id="toastBox" class="fixed top-20 left-4 right-4 z-[700] flex flex-col items-center"></div>
+
+<!-- المميزات في رأس القائمة: يمين فريق الدعم - شمال عين Gemini -->
+<header class="fixed top-0 left-0 right-0 z-50 glass px-4 py-3 flex justify-between items-center text-xs font-black">
+<button onclick="openTab('support')" class="text-yellow-400 hover:text-yellow-300">🛡️ فريق الدعم</button>
+<div class="text-cyan-400 tracking-widest">TARIM OS - tarimos.org</div>
+<button onclick="openTab('ai')" class="text-cyan-400 hover:text-cyan-300">عين الذكاء 👁️ Gemini</button>
+</header>
+
+<!-- 1- أول زرار القائمة - الرئيسية -->
+<main id="tab-home" class="min-h-screen pt-16 p-3 space-y-3">
+<div class="flex justify-between items-center glass p-3 rounded-2xl">
+<div><div class="text-xs font-bold">حساب الملك <span id="homeUser">AL</span></div><div class="text-[10px] text-cyan-400 font-mono">OKX: 0x53ce5e429ac48f355b775e418ded0b13931c0af6</div></div>
+<span class="bg-cyan-500/20 text-cyan-300 text-[10px] px-2.5 py-1 rounded-full border border-cyan-500/20">نشط عالمياً 🌍</span>
+</div>
+<div id="feed" class="space-y-3 pb-10"></div>
+</main>
+
+<!-- 2- ثاني زرار - العمليات -->
+<main id="tab-operations" class="hidden min-h-screen pt-16 p-4 space-y-4">
+<div class="font-black text-cyan-400 text-sm">⚡ قسم العمليات السيادية</div>
+<div class="grid grid-cols-1 gap-3">
+<button onclick="startLive()" class="glass p-4 rounded-2xl text-right font-bold text-xs flex justify-between border-red-500/30 hover:bg-red-500/10"><span class="text-red-400">🔴 بث مباشر سيادي ومشفر (8 دقائق)</span><span>بدء ←</span></button>
+<button onclick="openTab('messages')" class="glass p-4 rounded-2xl text-right font-bold text-xs flex justify-between hover:bg-white/5"><span>💬 المراسلة والاتصال الآمن بين الحسابات</span><span>فتح ←</span></button>
+<button onclick="openMap()" class="glass p-4 rounded-2xl text-right font-bold text-xs flex justify-between"><span>🗺️ خريطة العالم وتريم بدون نت (Offline)</span><span>عرض ←</span></button>
+<button onclick="genQR()" class="glass p-4 rounded-2xl text-right font-bold text-xs flex justify-between"><span>🔏 إصدار الختم الميداني المشفر +QR</span><span>إصدار ←</span></button>
+</div>
+<div id="mapBox" class="hidden w-full h-64 rounded-2xl overflow-hidden border border-cyan-500/30"></div>
+<div id="qrcode" class="flex justify-center p-3 bg-white rounded-2xl"></div>
+</main>
+
+<!-- 3- الزر الثالث + - صورة نص - منشور - LIVE - كاميرا - فلاش - فلتر - هدايا لايكات تعليق -->
+<main id="tab-create" class="hidden min-h-screen pt-16 p-4 space-y-3">
+<div class="font-black text-cyan-400 text-sm">✨ محطة الإنشاء السيادي</div>
+<div class="grid grid-cols-2 gap-3">
+<button onclick="openCamera('user')" class="glass py-4 rounded-2xl font-bold text-xs">🤳 أمامية</button>
+<button onclick="openCamera('environment')" class="glass py-4 rounded-2xl font-bold text-xs">📸 خلفية</button>
+<button onclick="toggleCameraFacing()" class="glass py-3 rounded-2xl font-bold text-[11px] text-cyan-300 col-span-2">🔄 تبديل الكاميرا</button>
+<button onclick="toggleFlash()" class="glass py-3 rounded-2xl font-bold text-[11px] text-yellow-300">💡 فلاش Torch / ليلي</button>
+<button onclick="applyFilter()" class="glass py-3 rounded-2xl font-bold text-[11px] text-pink-300">✨ فلتر تجميل</button>
+</div>
+<video id="camPreview" autoplay muted playsinline class="w-full rounded-xl bg-black aspect-video hidden border border-cyan-500/20"></video>
+<input id="postText" placeholder="اكتب محتوى منشورك - صورة نص..." class="w-full bg-black/60 border border-white/10 rounded-xl p-3 text-xs outline-none focus:border-cyan-500/50">
+<div class="grid grid-cols-4 gap-2 text-[10px]">
+<button onclick="sendGift()" class="glass p-2 rounded-xl">🎁 هدية</button>
+<button onclick="toast('❤️ تم')" class="glass p-2 rounded-xl">❤️ لايك</button>
+<button onclick="toast('💬')" class="glass p-2 rounded-xl">💬 تعليق</button>
+<button onclick="capturePhoto()" class="glass p-2 rounded-xl bg-cyan-500/20">📸 التقاط</button>
+</div>
+<button onclick="publishPost()" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs">نشر فوري 🌍</button>
+</main>
+
+<!-- 4- الزر الرابع - المراسلة بين الحسابات -->
+<main id="tab-messages" class="hidden min-h-screen pt-16 p-3 flex flex-col h-screen">
+<div class="font-black text-cyan-400 text-sm">💬 المراسلة بين الحسابات - آمن ومشفر</div>
+<div id="chatLogs" class="flex-1 my-3 space-y-2 overflow-y-auto pb-20"></div>
+<div class="fixed bottom-16 left-3 right-3 flex gap-2 p-2 glass rounded-2xl">
+<input id="chatIn" placeholder="رسالة مشفرة..." class="flex-1 bg-transparent text-xs p-2 outline-none">
+<button onclick="sendMsg()" class="bg-cyan-500 text-black px-5 py-2 rounded-xl text-xs font-black">إرسال</button>
+</div>
+</main>
+
+<!-- 5- الزر الخامس - الملفات -->
+<main id="tab-profile" class="hidden min-h-screen pt-16 p-4 space-y-3">
+<div class="glass p-4 rounded-2xl text-center">
+<div class="w-16 h-16 bg-cyan-500/25 rounded-full mx-auto flex items-center justify-center text-xl font-black text-cyan-300 border border-cyan-500/30">AL</div>
+<div class="font-black text-sm mt-2">الإمبراطور AL</div>
+<div class="text-[10px] text-cyan-400 font-mono break-all">OKX: 0x53ce5e429ac48f355b775e418ded0b13931c0af6</div>
+<div class="text-[9px] text-gray-400">عالمي 🌍 - tarimos.org</div>
+</div>
+<div class="space-y-2 text-xs max-h-[70vh] overflow-y-auto pb-10">
+<button onclick="openAudienceWallet()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>💰 رصيد - <b id="balanceShow">0</b> - <b id="audPoints">0 نقطة</b></span><span>فتح ←</span></button>
+<button onclick="openActivities()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>📊 مركز الأنشطة</span><span>فتح ←</span></button>
+<button onclick="openOffline()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>📹 فيديوهات دون اتصال بالإنترنت</span><span>فتح ←</span></button>
+<button onclick="genQR()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>🔏 رمز QR لديك - <span id="audDiamonds">0 ألماسة</span></span><span>عرض ←</span></button>
+<button onclick="openMarket()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>🏢 المجموعة التجارية</span><span>فتح ←</span></button>
+<button onclick="openPromo()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>📢 الترويج والإعلانات</span><span>فتح ←</span></button>
+<div class="pt-2 text-[10px] text-gray-400 font-black">⚙️ الإعدادات والخصوصية</div>
+<button onclick="openSettings()" class="w-full glass p-3 rounded-xl flex justify-between"><span>📄 إدارة المنشورات</span><span>إدارة ←</span></button>
+<button onclick="toast('تفضيلات المحتوى')" class="w-full glass p-3 rounded-xl flex justify-between"><span>🎯 تفضيلات المحتوى</span><span>فتح ←</span></button>
+<button onclick="toast('LIVE Settings')" class="w-full glass p-3 rounded-xl flex justify-between"><span>🔴 LIVE</span><span>فتح ←</span></button>
+<button onclick="toast('الإشعارات')" class="w-full glass p-3 rounded-xl flex justify-between"><span>🔔 الإشعارات</span><span>فتح ←</span></button>
+<button onclick="toast('الوقت والرفاهية')" class="w-full glass p-3 rounded-xl flex justify-between"><span>⏰ الوقت والرفاهية</span><span>فتح ←</span></button>
+<button onclick="toast('ربط العائلة')" class="w-full glass p-3 rounded-xl flex justify-between"><span>👨‍👩‍👧 ربط الحسابات للعائلة</span><span>فتح ←</span></button>
+<button onclick="toast('الحساب')" class="w-full glass p-3 rounded-xl flex justify-between"><span>👤 الحساب</span><span>فتح ←</span></button>
+<button onclick="toast('الأمان')" class="w-full glass p-3 rounded-xl flex justify-between"><span>🔒 الأمان والأذونات</span><span>فتح ←</span></button>
+<button onclick="toast('التحليلات')" class="w-full glass p-3 rounded-xl flex justify-between"><span>📈 التحليلات</span><span>فتح ←</span></button>
+<button onclick="shareProfile()" class="w-full glass p-3 rounded-xl flex justify-between"><span>🔗 مشاركة ملفك الشخصي</span><span>مشاركة ←</span></button>
+<button onclick="changeBg()" class="w-full glass p-3 rounded-xl flex justify-between"><span>🎨 تغير خلفية المستخدم</span><span>تغيير ←</span></button>
+<button onclick="toast('تغيير الإعدادات')" class="w-full glass p-3 rounded-xl flex justify-between"><span>⚙️ تغير الإعدادات المستخدم</span><span>فتح ←</span></button>
+<button onclick="openTab('privacy')" class="w-full glass p-3 rounded-xl flex justify-between text-cyan-400"><span>📜 السياسة والخصوصية</span><span>فتح ←</span></button>
+</div>
+</main>
+
+<!-- عين الذكاء + الدعم -->
+<main id="tab-ai" class="hidden min-h-screen pt-16 p-3 flex flex-col h-screen"><div class="font-black text-cyan-400 text-sm">👁️ عين الذكاء Gemini - شمال القائمة</div><div id="aiLogs" class="flex-1 my-3 space-y-2 overflow-y-auto pb-20"></div><div class="fixed bottom-16 left-3 right-3 flex gap-2 p-2 glass rounded-2xl"><input id="aiIn" placeholder="اسأل عين الذكاء..." class="flex-1 bg-transparent text-xs p-2 outline-none"><button onclick="sendAI()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-black">إرسال</button></div></main>
+<main id="tab-support" class="hidden min-h-screen pt-16 p-3 flex flex-col h-screen"><div class="font-black text-yellow-400 text-sm">🛡️ فريق الدعم العالمي - يمين القائمة</div><div class="text-[10px] text-gray-400">slmanmktbabw@gmail.com</div><div id="supportLogs" class="flex-1 my-3 space-y-2 overflow-y-auto pb-20"></div><div class="fixed bottom-16 left-3 right-3 flex gap-2 p-2 glass rounded-2xl"><input id="supportIn" placeholder="راسل الدعم..." class="flex-1 bg-transparent text-xs p-2 outline-none"><button onclick="sendSupport()" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-xs font-black">إرسال</button></div></main>
+<main id="tab-privacy" class="hidden min-h-screen pt-16 p-4 space-y-3"><div class="glass p-5 rounded-2xl text-xs space-y-3 leading-6"><h1 class="text-cyan-400 font-black text-sm">📜 سياسة الخصوصية - TARIM OS</h1><p>نظام الملك AL العالمي tarimos.org 🌍</p><p>1- حماية حساب المستخدم: bcrypt 10 rounds</p><p>2- تخزين بيانات: data/ خارج public + esc() ضد XSS</p><p>3- فيديو: 700KB حد - 8 دقائق مشفر</p><p>4- قاعدة البيانات: UserID + نقاط + ألماس + سجل مالي</p><p>5- هدايا: 🎁10,❤️5,👑50,🚀100,💎20 - خصم 100% + إضافة 70% + cooldown</p><p>6- محفظة OKX: 0x53ce...af6 - آمنة</p><p>7- التطبيق ينزل من المتصفح PWA - tarimos.org</p><p class="text-cyan-400 font-bold">V11.1 - عالمي شغال بدون صراعات 🏰</p></div></main>
+
+<!-- قائمة 5 أزرار رئيسية -->
+<nav class="fixed bottom-0 left-0 right-0 glass h-16 border-t border-white/10 flex justify-around items-center z-50 text-[10px] font-bold">
+<button onclick="openTab('home')" class="flex flex-col items-center text-cyan-400"><span class="text-lg">🏠</span>الرئيسية</button>
+<button onclick="openTab('operations')" class="flex flex-col items-center text-gray-400"><span class="text-lg">⚡</span>العمليات</button>
+<button onclick="openTab('create')" class="flex flex-col items-center"><span class="w-10 h-10 bg-cyan-500 text-black rounded-full flex items-center justify-center text-xl font-black shadow-lg shadow-cyan-500/30">+</span></button>
+<button onclick="openTab('messages')" class="flex flex-col items-center text-gray-400"><span class="text-lg">💬</span>الوارد</button>
+<button onclick="openTab('profile')" class="flex flex-col items-center text-gray-400"><span class="text-lg">👤</span>الملفات</button>
+</nav>
+
+<!-- بث مباشر سيادي 8 دقائق - فلاش - فلتر - هدايا لايكات تعليق -->
+<div id="fullScreenCam" class="fixed inset-0 z-[600] bg-black hidden">
+<video id="fullCamVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
+<div id="preLiveOverlay" class="absolute inset-0 bg-black/75 flex flex-col items-center justify-center z-20 hidden">
+<div class="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center text-4xl animate-pulse border-4 border-white">🔴</div>
+<div class="mt-4 font-black text-white">البث السيادي جاهز - 8 دقائق</div>
+<button onclick="confirmStartLive()" class="mt-5 bg-red-600 text-white font-black px-10 py-3 rounded-full text-sm">▶️ اضغط لبدء البث</button>
+</div>
+<div id="walletPanel" class="absolute top-16 left-3 bg-black/80 rounded-2xl p-2 text-[10px] border border-cyan-500/30 z-10">
+<div>💰 رصيدك: <span id="myBalance">0</span></div><div>💎 أرباحك: <span id="myEarn">0</span></div>
+</div>
+<div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center bg-gradient-to-b from-black/70 to-transparent z-10">
+<button onclick="exitFullScreen()" class="w-10 h-10 bg-black/50 rounded-full text-white text-xl">✕</button>
+<div class="text-xs text-cyan-400 font-bold">🔴 LIVE - 8 دقائق - tarimos.org</div>
+<button onclick="toggleCameraFacing()" class="w-10 h-10 bg-black/50 rounded-full">🔄</button>
+</div>
+<div class="absolute right-3 bottom-28 flex flex-col gap-4 items-center z-10">
+<button onclick="likeLive()" class="flex flex-col items-center"><span class="w-12 h-12 bg-black/40 rounded-full flex items-center justify-center text-xl">❤️</span><span id="liveLikes" class="text-[10px] font-bold">0</span></button>
+<button onclick="focusLiveComment()" class="flex flex-col items-center"><span class="w-12 h-12 bg-black/40 rounded-full flex items-center justify-center text-xl">💬</span><span class="text-[10px]">تعليق</span></button>
+<button onclick="toggleFlash()" class="flex flex-col items-center"><span class="w-12 h-12 bg-black/40 rounded-full flex items-center justify-center text-xl">💡</span><span class="text-[10px]">فلاش</span></button>
+<button onclick="openAudienceWallet()" class="flex flex-col items-center"><span class="w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-xl shadow">🎁</span><span class="text-[10px]">هدايا</span></button>
+</div>
+<div id="liveComments" class="absolute left-3 bottom-28 w-60 max-h-40 overflow-y-auto space-y-1 text-xs z-10"></div>
+<div class="absolute bottom-3 left-3 right-20 flex gap-2 z-10">
+<input id="liveCommentIn" placeholder="اكتب تعليق..." class="flex-1 bg-black/50 border border-white/20 rounded-full px-4 py-2 text-xs outline-none">
+<button onclick="sendLiveComment()" class="bg-cyan-500 text-black px-4 rounded-full text-xs font-bold">إرسال</button>
+</div>
+</div>
+
+<!-- محفظة الجمهور + واجهة الهدايا -->
+<div id="audienceWalletModal" class="fixed inset-0 z-[500] bg-black/80 hidden flex items-center justify-center p-4">
+<div class="w-full max-w-sm glass rounded-3xl p-5 space-y-3 border-cyan-500/30">
+<div class="flex justify-between items-center"><span class="font-black text-cyan-400 text-sm">💎 محفظة الجمهور - الهدايا</span><button onclick="closeAudienceWallet()" class="w-8 h-8 bg-black/50 rounded-full">✕</button></div>
+<div class="grid grid-cols-2 gap-2 text-xs">
+<div class="glass p-3 rounded-xl text-center"><div class="text-gray-400">نقاطك</div><div id="audPointsReal" class="font-black text-cyan-400 text-sm">0</div></div>
+<div class="glass p-3 rounded-xl text-center"><div class="text-gray-400">ألماسك</div><div id="audDiamondsReal" class="font-black text-yellow-400 text-sm">0</div></div>
+</div>
+<div class="text-[11px] font-black">🎁 واجهة الهدايا - تكلفة بالنقاط:</div>
+<div class="grid grid-cols-4 gap-2 text-xs">
+<button onclick="sendGiftTo('🎁')" class="glass p-2 rounded-xl">🎁<br>10</button>
+<button onclick="sendGiftTo('❤️')" class="glass p-2 rounded-xl">❤️<br>5</button>
+<button onclick="sendGiftTo('👑')" class="glass p-2 rounded-xl">👑<br>50</button>
+<button onclick="sendGiftTo('🚀')" class="glass p-2 rounded-xl">🚀<br>100</button>
+<button onclick="sendGiftTo('💎')" class="glass p-2 rounded-xl">💎<br>20</button>
+<button onclick="sendGiftTo('🌹')" class="glass p-2 rounded-xl">🌹<br>15</button>
+<button onclick="sendGiftTo('🏰')" class="glass p-2 rounded-xl">🏰<br>200</button>
+</div>
+<button onclick="rechargeAudienceWallet()" class="w-full bg-cyan-500 text-black font-black py-2 rounded-xl text-xs">⚡ شحن عبر OKX</button>
+<div class="text-[9px] text-gray-500">منطق: خصم 100% منك + إضافة 70% للمنشئ + سجل مالي</div>
+</div>
+</div>
+
+<div id="toastBox" class="fixed top-20 left-4 right-4 z-[700] flex flex-col items-center pointer-events-none"></div>
 <script src="/script.js"></script>
 </body>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             </html>
+  </html>
