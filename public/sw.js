@@ -1,4 +1,19 @@
-const CACHE_NAME='tarim-os-v11.2-sovereign-2026';const PRECACHE_URLS=['/','/index.html','/script.js','/manifest.json','/privacy.html','/icon-192.png','/icon-512.png'];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(PRECACHE_URLS)).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE_NAME&&x!==CACHE_NAME+'-map').map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',e=>{const url=new URL(e.request.url);if(url.pathname.startsWith('/api/')||url.pathname.startsWith('/socket.io/')){e.respondWith(fetch(e.request).catch(()=>new Response(JSON.stringify({error:'Offline'}),{headers:{'Content-Type':'application/json'}})));return;}if(url.hostname.includes('tile.openstreetmap.org')||url.hostname.includes('unpkg.com')){e.respondWith(caches.open(CACHE_NAME+'-map').then(cache=>cache.match(e.request).then(r=>r||fetch(e.request).then(nr=>{cache.put(e.request,nr.clone());return nr}))));return;}e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{if(e.request.method==='GET'&&r.ok&&(url.pathname.match(/\.(png|jpg|jpeg|webp|js|css|html)$/)||PRECACHE_URLS.includes(url.pathname))){const cl=r.clone();caches.open(CACHE_NAME).then(ca=>ca.put(e.request,cl));}return r}).catch(()=>{if(e.request.mode==='navigate')return caches.match('/index.html')})));});
+self.addEventListener('install', (e) => {
+    e.waitUntil(
+        caches.open('tarim-os-v2.1').then((cache) => {
+            return cache.addAll(['/', '/index.html', '/script.js', '/manifest.json']);
+        })
+    );
+});
+
+self.addEventListener('fetch', (e) => {
+    e.respondWith(
+        caches.match(e.request).then((response) => {
+            return response || fetch(e.request);
+        }).catch(() => {
+            if(e.request.mode === 'navigate') {
+                return caches.match('/index.html');
+            }
+        })
+    );
+});
