@@ -1,20 +1,105 @@
 {
-  "name": "TARIM OS السيادي",
+  "name": "TARIM OS - النظام السيادي العالمي",
   "short_name": "TARIM OS",
-  "start_url": "/",
+  "description": "منصة تريم حضرموت العالمية - بث 8 دقائق + مراسلة آمنة + خريطة Offline + QR - OKX الملكي 0x53ce5e429ac48f355b775e418ded0b13931c0af6",
+  "id": "https://tarimos.org/",
+  "start_url": "https://tarimos.org/",
+  "scope": "https://tarimos.org/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "orientation": "portrait",
   "background_color": "#050b14",
   "theme_color": "#00f0ff",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["social", "communication", "entertainment", "business"],
   "icons": [
     {
-      "src": "https://img.icons8.com/color/192/domain.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://img.icons8.com/color/512/domain.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "TARIM OS - تريم حضرموت"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "⚡ العمليات السيادية",
+      "short_name": "العمليات",
+      "description": "بث 8 دقائق + مراسلة + خريطة Offline + ختم QR",
+      "url": "/?tab=operations",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "✨ إنشاء",
+      "short_name": "+",
+      "description": "صورة نص + منشور + LIVE + كاميرا أمامية خلفية + فلاش + فلتر + هدايا",
+      "url": "/?tab=create",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "💬 الوارد",
+      "short_name": "المراسلة",
+      "description": "المراسلة بين الحسابات",
+      "url": "/?tab=messages",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "👤 الملفات",
+      "short_name": "الملفات",
+      "description": "رصيد + أنشطة + فيديوهات Offline + QR + تجارية + ترويج + خصوصية + مشاركة + خلفية",
+      "url": "/?tab=profile",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "file_handlers": [
+    {
+      "action": "/?share=true",
+      "accept": {
+        "image/*": [".jpg", ".jpeg", ".png", ".webp"],
+        "video/*": [".mp4", ".webm"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "/?share=true",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "files": [{ "name": "media", "accept": ["image/*", "video/*"] }]
+    }
+  },
+  "pwa_definition": {
+    "install": "التطبيق ينزل من المتصفح - tarimos.org - Add to Home Screen",
+    "domain_binding": "https://tarimos.org",
+    "storage_binding": "data/ خارج public + Cache tarim-os-v11-secure + IndexedDB + localStorage tarim_user",
+    "hosting_binding": "npm start - Node >=18 - Render/Railway - PORT env",
+    "security": "bcrypt + helmet + esc() + rate-limit + 700KB limit",
+    "features_binding": "يمين فريق الدعم - شمال عين Gemini - 5 أزرار - أساس اعتماد بيانات المستخدم - عمليات (بث 8د + مراسلة + خريطة Offline + QR) - + (صورة نص + منشور + LIVE + كاميرا أمامية خلفية + فلاش torch + فلتر + هدايا لايكات تعليق) - الوارد - الملفات (رصيد + أنشطة + Offline + QR + تجارية + ترويج + إعدادات 13 بند + مشاركة + خلفية)",
+    "database": "users.json {hash} + wallet.json {userId,balance,diamonds,earned,transactions[]} + posts.json {user,text,media,type}",
+    "gifts_ui": "🎁10 ❤️5 👑50 🚀100 💎20 🌹15 🏰200 - خصم 100% + إضافة 70% + cooldown 2s"
+  }
 }
