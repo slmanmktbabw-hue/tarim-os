@@ -27,7 +27,7 @@
 <button onclick="openTab('ai')" class="text-cyan-400">عين الذكاء 👁️</button>
 </header>
 <main id="tab-home" class="min-h-screen pt-16 p-3 space-y-3">
-<div class="flex justify-between items-center glass p-3 rounded-2xl"><div><div class="text-xs text-gray-400">حساب الملك AL</div><div class="text-[10px] text-cyan-400 font-mono">OKX: 0x53ce5e429ac48f355b775e418ded0b13931c0af6</div></div><span id="balanceTop" class="bg-cyan-500/20 text-cyan-300 text-[10px] px-2.5 py-1 rounded-full">نشط عالمياً 🌍</span></div>
+<div class="flex justify-between items-center glass p-3 rounded-2xl"><div><div class="text-xs text-gray-400">حساب الملك AL</div><div class="text-[10px] text-cyan-400 font-mono">OKX: 0x53ce...0af6</div></div><span id="balanceTop" class="bg-cyan-500/20 text-cyan-300 text-[10px] px-2.5 py-1 rounded-full">نشط عالمياً 🌍</span></div>
 <div id="feed" class="space-y-3"></div>
 </main>
 <main id="tab-operations" class="hidden min-h-screen pt-16 p-4 space-y-4">
@@ -84,10 +84,40 @@
 <nav class="fixed bottom-0 left-0 right-0 glass h-16 border-t border-white/10 flex justify-around items-center z-50 text-[10px]"><button onclick="openTab('home')" class="flex flex-col items-center text-cyan-400"><span class="text-lg">🏠</span>الرئيسية</button><button onclick="openTab('operations')" class="flex flex-col items-center text-gray-400"><span class="text-lg">⚡</span>العمليات</button><button onclick="openTab('create')" class="flex flex-col items-center"><span class="w-10 h-10 bg-cyan-500 text-black rounded-full flex items-center justify-center text-xl font-black">+</span></button><button onclick="openTab('messages')" class="flex flex-col items-center text-gray-400"><span class="text-lg">💬</span>الوارد</button><button onclick="openTab('profile')" class="flex flex-col items-center text-gray-400"><span class="text-lg">👤</span>الملفات</button></nav>
 <script>
 const socket=io();let currentUser=localStorage.getItem('tarim_user')||'AL';let stream;let torch=false;let facing="environment";
-function cleanFront(t){return (t||"").toString().replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function openTab(name){['home','operations','create','messages','profile','ai','support','privacy','live'].forEach(t=>{const el=document.getElementById('tab-'+t); if(el) el.classList.add('hidden');}); const target=document.getElementById('tab-'+name); if(target) target.classList.remove('hidden'); if(name!=='live') document.getElementById('tab-live').classList.add('hidden');}
-function registerAndLogin(){const p=document.getElementById('userPhone').value; const pass=document.getElementById('userPass').value; if(p && pass.length>=4){currentUser=p; localStorage.setItem('tarim_user',p); document.getElementById('authGate').classList.add('hidden'); loadWallet();} else alert('اكتب اسم وكلمة مرور');}
-window.onload=()=>{if(localStorage.getItem('tarim_user')){document.getElementById('authGate').classList.add('hidden'); loadWallet();} fetch('/api/posts').then(r=>r.json()).then(renderFeed);};
+function cleanFront(t){return (t||"").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#x27;").replace(/`/g,"&#x60;");}
+function openTab(name){
+  ['home','operations','create','messages','profile','ai','support','privacy','live'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    if(el){el.classList.add('hidden'); el.style.display='none';}
+  });
+  const target=document.getElementById('tab-'+name);
+  if(target){target.classList.remove('hidden'); target.style.display=''; target.style.opacity='1';}
+  const live=document.getElementById('tab-live');
+  if(live && name!=='live') live.classList.add('hidden');
+  localStorage.setItem('tarim_last_tab', name);
+}
+function registerAndLogin(){
+  const p=document.getElementById('userPhone').value.trim();
+  const pass=document.getElementById('userPass').value.trim();
+  if(p.length>=2 && pass.length>=4){
+    currentUser=p.replace(/[^a-zA-Z0-9_]/g,'').substring(0,20);
+    localStorage.setItem('tarim_user',currentUser);
+    const gate=document.getElementById('authGate');
+    gate.style.display='none'; gate.classList.add('hidden');
+    loadWallet(); openTab('home');
+  } else alert('اكتب اسم وكلمة مرور 4 أحرف');
+}
+window.onload=()=>{
+  const saved=localStorage.getItem('tarim_user');
+  if(saved){
+    currentUser=saved;
+    const gate=document.getElementById('authGate');
+    if(gate){gate.style.display='none'; gate.classList.add('hidden');}
+    loadWallet();
+    openTab(localStorage.getItem('tarim_last_tab')||'home');
+  }
+  fetch('/api/posts').then(r=>r.json()).then(renderFeed);
+};
 function renderFeed(posts){const feed=document.getElementById('feed'); if(!feed) return; if(!posts ||!posts.length){feed.innerHTML='<div class="glass p-4 rounded-2xl text-xs text-center text-gray-400">لا يوجد منشورات - كن أول من ينشر</div>'; return;} feed.innerHTML=posts.map(p=>`<div class="glass p-3 rounded-2xl"><div class="text-[10px] text-cyan-400">${cleanFront(p.user||'AL')}</div><div class="text-xs mt-1">${cleanFront(p.text||'')}</div></div>`).join('');}
 function publishPost(){const text=document.getElementById('postText').value; if(!text) return; fetch('/api/posts',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user:currentUser, text:text})}).then(()=>{document.getElementById('postText').value=''; openTab('home');});}
 socket.on('broadcast_post',(posts)=>renderFeed(posts));
@@ -105,8 +135,4 @@ function openCamera(f){facing=f; openTab('create'); const v=document.getElementB
 function createPost(t){document.getElementById('postText').value=t+' '; openTab('create');}
 function applyFilter(){alert('✨ تم تطبيق الفلتر السيادي');}
 function shareProfile(){const url='https://tarimos.org/user='+currentUser; if(navigator.share){navigator.share({title:'TARIM OS', url});} else {navigator.clipboard.writeText(url); alert('تم نسخ الرابط: '+url);}}
-function sendSupport(){const q=document.getElementById('supportIn').value; if(!q) return; document.getElementById('supportLogs').innerHTML+=`<div class="glass p-2 rounded-xl text-xs"><b>أنت:</b> ${cleanFront(q)}</div>`; fetch('/api/support',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user:currentUser, text:q})}).then(r=>r.json()).then(d=>{document.getElementById('supportLogs').innerHTML+=`<div class="glass p-2 rounded-xl text-xs text-yellow-300"><b>الدعم:</b> ${cleanFront(d.reply)}</div>`;}); document.getElementById('supportIn').value='';}
-function sendAI(){const q=document.getElementById('aiIn').value; if(!q) return; document.getElementById('aiLogs').innerHTML+=`<div class="glass p-2 rounded-xl text-xs"><b>أنت:</b> ${cleanFront(q)}</div><div class="glass p-2 rounded-xl text-xs text-cyan-300">تم التحليل ✅</div>`; document.getElementById('aiIn').value='';}
-</script>
-</body>
-                                                                                                                                                                                                                                                                                                     </html>
+function sendSupport(){const q=document.getElementById('supportIn').value; if(!q) return; document.getElementById('supportLogs').innerHTML+=`<div class="glass p-2 rounded-xl text-xs"><b>أنت:</b> ${cleanFront(q)}</div>`; fetch('/api/support',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user:currentUser, text:q})}).then(r=>r.json()).then(d=>{document.getElementById('supportLogs').innerHTML+=`<div class="glass p-2 roun
