@@ -3,18 +3,12 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 const bcrypt = require('bcryptjs');
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(express.json());
-
-// يشتغل سواء كان server.js في src/ أو في الجذر
-const publicPath = require('fs').existsSync(path.join(__dirname, 'public')) 
-  ? path.join(__dirname, 'public') 
-  : path.join(__dirname, '../public');
-app.use(express.static(publicPath));
+app.use(express.static(path.join(__dirname, 'public')));
 
 let users = [{ user: 'Gooaz@$&-#', pass: bcrypt.hashSync('KING123', 8), role: 'KING' }];
 let posts = [];
@@ -25,15 +19,14 @@ let channels = [
   { id: 'king', name: 'الملك', icon: '👑', desc: 'قناة الملك السيادية', followers: 5000, owner: 'KING' }
 ];
 
-app.get('/api/ping', (req,res)=> res.json({ users: users.length, posts: posts.length, channels: channels.length, status: 'KING SECURE V24' }));
+app.get('/api/ping', (req,res)=> res.json({ users: users.length, posts: posts.length, channels: channels.length }));
 app.get('/api/posts', (req,res)=> res.json(posts));
 app.get('/api/channels', (req,res)=> res.json(channels));
 app.get('/api/wallet/:user', (req,res)=> res.json({ balance: 10000 }));
-app.post('/api/support', (req,res)=> res.json({ reply: 'تم استلام رسالتك يا ملك 👑 سيتم الرد قريبا' }));
+app.post('/api/support', (req,res)=> res.json({ reply: 'تم الاستلام يا ملك 👑' }));
 
 app.post('/api/auth/register', (req,res)=>{
   const { user, pass } = req.body;
-  if(!user || !pass) return res.json({ error: 'اكمل البيانات' });
   if(users.find(u=>u.user===user)) return res.json({ error: 'المستخدم موجود' });
   const role = user.includes('Gooaz') ? 'KING' : 'user';
   users.push({ user, pass: bcrypt.hashSync(pass,8), role });
@@ -70,8 +63,7 @@ app.post('/api/channels/:id/follow', (req,res)=>{
   res.json({ ok: true });
 });
 
-// هذا لازم يكون آخر شي
-app.get('*', (req,res)=> res.sendFile(path.join(publicPath, 'index.html')));
+app.get('*', (req,res)=> res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 const PORT = process.env.PORT || 10000;
-server.listen(PORT, ()=> console.log(`TARIM OS V23 KING SECURE on ${PORT} - حساب الملك منظر وجاهز 👑`));
+server.listen(PORT, ()=> console.log(`TARIM OS V24 KING SECURE on ${PORT} 👑 حساب الملك منظر وجاهز`));
