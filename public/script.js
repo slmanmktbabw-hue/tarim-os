@@ -5,6 +5,7 @@ let cameraFacing = 'environment';
 let videoData = [];
 let uploadFile = null; // للرفع
 let uploadType = null; // نوع الملف
+let mapInstance = null; // للخريطة عشان ما نعيد انشاءها
 
 function showToast(msg){
   const box = document.getElementById('toastBox');
@@ -43,10 +44,10 @@ function openTab(name, event){
   if(name==='support') loadSupport();
   if(name==='profile'){ 
     genQR();
-    backToProfile(); // يرجع للصفحة الرئيسية حق الملفات
+    backToProfile();
   }
   if(name==='inbox') document.getElementById('inboxBadge').classList.add('hidden');
-  if(name==='create'){ // ريسيت عند فتح الانشاء
+  if(name==='create'){ 
     uploadFile = null;
     uploadType = null;
     const vid = document.getElementById('camPreview');
@@ -75,7 +76,7 @@ function loadVideoFeed(){
   `).join('');
 }
 
-// 2. العمليات - البث المباشر
+// 2. العمليات - البث المباشر + الخريطة
 async function startLive(){ 
   document.getElementById('fullScreenCam').classList.remove('hidden'); 
   document.getElementById('preLiveOverlay').style.display='flex'; 
@@ -108,7 +109,30 @@ function exitFullScreen(){
   }
 }
 
-function openMap(){ showToast('خريطة حضرموت Offline جاري التحميل'); }
+// دالة الخريطة الجديدة - تشتغل اوفلاين
+function openMap(){ 
+  showToast('جار فتح خريطة حضرموت Offline');
+  const opsTab = document.getElementById('tab-operations');
+  
+  // لو الخريطة مش موجودة ننشئها
+  if(!document.getElementById('map')){
+    opsTab.innerHTML += `<div id="map" style="height:400px" class="glass rounded-2xl mt-3"></div>`;
+  }
+  
+  setTimeout(()=>{ 
+    if(!mapInstance){
+      mapInstance = L.map('map').setView([15.4397, 48.5164], 7); // احداثيات حضرموت
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© TARIM OS'
+      }).addTo(mapInstance);
+      L.marker([15.4397, 48.5164]).addTo(mapInstance).bindPopup("🏰 TARIM OS - حضرموت").openPopup();
+    } else {
+      mapInstance.invalidateSize(); // تحديث لو رجعت للتبويب
+    }
+  },100)
+}
+
 function genQR(){ 
   document.getElementById('qrcode').innerHTML='';
   new QRCode(document.getElementById('qrcode'), {text: "tarimos.org/"+currentUser, width:128, height:128});
@@ -251,3 +275,9 @@ function sendLiveComment(){
 }
 function sendGift(){ showToast('تم ارسال هدية 🎁'); }
 function shareLive(){ navigator.share? navigator.share({title:'TARIM OS', url:location.href}) : showToast('تم نسخ رابط البث'); }
+
+// Pre-load للخريطة مرة وحدة
+if(!localStorage.getItem('map_cached')){
+  fetch('https://a.tile.openstreetmap.org/7/76/48.png');
+  localStorage.setItem('map_cached','true');
+  }
