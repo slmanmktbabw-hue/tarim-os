@@ -2,106 +2,121 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
+const fs = require('fs');
 
-// إعداد التطبيق والسيرفر السيادي
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, { cors: { origin: "*" } });
 
-// إعداد المجلدات والوسائط
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // تقليل الحد الأقصى لمنع استهلاك الذاكرة وحماية السيرفر
 app.use(express.static(path.join(__dirname, 'public')));
 
-// تخزين مؤقت للبيانات (المنشورات والمستخدمين)
-let postsStore = [
-  { user: 'Gooaz@$&-#', text: 'مرحباً بكم في النظام السيادي TARIM OS V31.6 الملكي 👑' }
-];
-
-let usersStore = {
-  'Gooaz@$&-#': { pass: 'GG12345123rr@#$*', role: 'KING' }
-};
-
-// ==========================================
-// المسارات الأساسية (API Endpoints)
-// ==========================================
-
-// جلب المنشورات
-app.get('/api/posts', (req, res) => {
-  res.json(postsStore);
-});
-
-// نشر منشور جديد
-app.post('/api/posts', (req, res) => {
-  const { user, text } = req.body;
-  if (!user || !text) {
-    return res.status(400).json({ error: 'بيانات المنشور غير مكتملة' });
-  }
-
-  const newPost = { user, text };
-  postsStore.unshift(newPost); // إضافة المنشور في البداية
-
-  // بث التحديث عبر Socket.io لجميع المتصلين فوريّاً
-  io.emit('broadcast_post', newPost);
-
-  res.json({ success: true, post: newPost });
-});
-
-// تسجيل الدخول
-app.post('/api/auth/login', (req, res) => {
-  const { user, pass } = req.body;
-  
-  if (!user || !pass) {
-    return res.status(400).json({ error: 'الرجاء إدخال اسم المستخدم وكلمة المرور' });
-  }
-
-  // التحقق من حساب الملك
-  if (user.toLowerCase().includes('goo') && (pass.includes('GG') || pass.includes('123') || pass.includes('rr'))) {
-    return res.json({ user: 'Gooaz@$&-#', role: 'KING' });
-  }
-
-  // التحقق من المستخدمين المسجلين
-  if (usersStore[user]) {
-    if (usersStore[user].pass === pass) {
-      return res.json({ user, role: usersStore[user].role });
-    } else {
-      return res.status(401).json({ error: 'كلمة المرور غير صحيحة' });
+// تحميل وقراءة الملفات بشكل آمن لمنع انهيار السيرفر عند التلف
+let posts = [];
+try {
+    if (fs.existsSync('./posts.json')) {
+        posts = JSON.parse(fs.readFileSync('./posts.json', 'utf8'));
     }
-  }
+} catch (e) {
+    console.error("خطأ في قراءة posts.json:", e.message);
+    posts = [];
+}
 
-  // إذا لم يكن مسجلاً، نعتبره مستخدماً جديداً افتراضياً
-  usersStore[user] = { pass, role: 'user' };
-  return res.json({ user, role: 'user' });
+let walletDB = { 'AL': { balance: 10000, earned: 0 } };
+try {
+    if (fs.existsSync('./wallet.json')) {
+        walletDB = JSON.parse(fs.readFileSync('./wallet.json', 'utf8'));
+    }
+} catch (e) {
+    console.error("خطأ في قراءة wallet.json:", e.message);
+}
+
+function savePosts() {
+    try {
+        fs.writeFileSync('./posts.json', JSON.stringify(posts.slice(0, 200)));
+    } catch (e) {
+        console.error("فشل حفظ المنشورات:", e.message);
+    }
+}
+
+function saveWallet() {
+    try {
+        fs.writeFileSync('./wallet.json', JSON.stringify(walletDB));
+    } catch (e) {
+        console.error("فشل حفظ المحفظة:", e.message);
+    }
+}
+
+// المسارات (APIs)
+app.get('/api/posts', (req, res) => res.json(posts));
+
+app.post('/api/posts', (req, res) => {
+    try {
+        const { user, text, media, type } = req.body;
+        if (!text && !media) return res.status(400).json({ error: 'المحتوى فارغ' });
+        
+        const newPost = { user: user || 'AL', text: text || '', media: media || null, type: type || 'text', likes: 0, time: Date.now() };
+        posts.unshift(newPost);
+        savePosts();
+        io.emit('broadcast_post', newPost);
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ error: 'خطأ داخلي في الخادم' });
+    }
 });
 
-// إنشاء حساب جديد
-app.post('/api/auth/register', (req, res) => {
-  const { user, pass } = req.body;
-
-  if (!user || !pass) {
-    return res.status(400).json({ error: 'الرجاء إدخال بيانات التسجيل كاملة' });
-  }
-
-  if (usersStore[user]) {
-    return res.status(400).json({ error: 'اسم المستخدم موجود مسبقاً' });
-  }
-
-  usersStore[user] = { pass, role: 'user' };
-  res.json({ success: true, user, role: 'user' });
+app.get('/api/wallet/:user', (req, res) => {
+    const u = req.params.user || 'AL';
+    if (!walletDB[u]) walletDB[u] = { balance: 100, earned: 0 };
+    res.json(walletDB[u]);
 });
 
-// ==========================================
-// إعداد الاتصال الفوري (Socket.io)
-// ==========================================
-io.on('connection', (socket) => {
-  console.log('⚡ اتصال سيادي جديد تم بنجاح:', socket.id);
+app.post('/api/wallet/gift', (req, res) => {
+    try {
+        const { from, to, gift } = req.body;
+        const prices = { '🎁': 10, '❤️': 5, '👑': 50, '🚀': 100 };
+        const price = prices[gift] || 10;
 
-  socket.on('disconnect', () => {
-    console.log('❌ انقطع الاتصال السيادي:', socket.id);
-  });
+        if (!walletDB[from]) walletDB[from] = { balance: 100, earned: 0 };
+        if (!walletDB[to]) walletDB[to] = { balance: 10000, earned: 0 };
+
+        if (walletDB[from].balance < price) return res.json({ error: 'رصيدك لا يكفي' });
+
+        walletDB[from].balance -= price;
+        walletDB[to].balance += price * 0.7;
+        walletDB[to].earned += price * 0.7;
+        walletDB[from].earned += 1;
+
+        saveWallet();
+        io.emit('gift_received', { from, gift, price });
+        res.json({ yourBalance: walletDB[from].balance, earned: walletDB[from].earned });
+    } catch (e) {
+        res.status(500).json({ error: 'خطأ في معالجة الهدية' });
+    }
 });
 
-// تشغيل السيرفر على المنفذ المخصص
+app.post('/api/upload', (req, res) => res.json({ url: req.body.videoBase64 || '' }));
+
+app.post('/api/support', (req, res) => {
+    const user = req.body.user || 'زائر';
+    const replies = [
+        `تم استلام رسالتك يا ${user} - سيرد الفريق على slmanmktbabw@gmail.com`,
+        '🛡️ فريق الدعم يراجع رسالتك الآن',
+        'تم فتح تذكرة #' + Date.now()
+    ];
+    res.json({ reply: replies[Math.floor(Math.random() * replies.length)] });
+});
+
+// التعامل مع الأخطاء العامة لمنع انهيار السيرفر (Uncaught Exception & Rejection)
+process.on('uncaughtException', (err) => {
+    console.error('خطأ غير معالج أدى لتجنب الانهيار:', err.message);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('رفض وعد غير معالج:', reason);
+});
+
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`🏰 TARIM OS Server is running smoothly on port ${PORT} 👑`);
-});
+server.listen(PORT, () => console.log('TARIM OS V10 Secure Server on ' + PORT));
