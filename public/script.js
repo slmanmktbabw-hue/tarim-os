@@ -1,4 +1,4 @@
-// شلنا socket عشان يشتغل اوفلاين
+// TARIM OS V17 - اوفلاين 100% بدون socket
 let currentUser = localStorage.getItem('tarim_user') || null;
 let liveStream = null;
 let cameraFacing = 'environment';
@@ -8,6 +8,7 @@ let uploadType = null;
 
 function showToast(msg){
   const box = document.getElementById('toastBox');
+  if(!box) return;
   const el = document.createElement('div');
   el.className = 'bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold mb-2';
   el.innerText = msg;
@@ -15,29 +16,31 @@ function showToast(msg){
   setTimeout(()=>el.remove(),3000);
 }
 
-// تحميل البيانات عند فتح التطبيق
 function loadUserData(){
   if(currentUser){
     const name = localStorage.getItem('tarim_name') || currentUser;
-    document.getElementById('profileName').innerText = name;
-    document.getElementById('profileAvatar').innerText = name.charAt(0);
-    document.getElementById('editAvatar').innerText = name.charAt(0);
-
     const avatar = localStorage.getItem('tarim_avatar');
-    if(avatar){
+    const bg = localStorage.getItem('tarim_bg') || '#050b14';
+
+    document.getElementById('profileName') && (document.getElementById('profileName').innerText = name);
+    document.getElementById('profileAvatar') && (document.getElementById('profileAvatar').innerText = name.charAt(0));
+    document.getElementById('editAvatar') && (document.getElementById('editAvatar').innerText = name.charAt(0));
+    document.body.style.background = bg;
+
+    if(avatar && document.getElementById('profileAvatar')){
       document.getElementById('profileAvatar').style.backgroundImage = `url(${avatar})`;
       document.getElementById('profileAvatar').innerText = '';
       document.getElementById('profileAvatar').style.backgroundSize = 'cover';
+    }
+    if(avatar && document.getElementById('editAvatar')){
       document.getElementById('editAvatar').style.backgroundImage = `url(${avatar})`;
       document.getElementById('editAvatar').innerText = '';
       document.getElementById('editAvatar').style.backgroundSize = 'cover';
     }
-    document.getElementById('userPhone').value = currentUser;
-    document.body.style.background = localStorage.getItem('tarim_bg') || '#050b14';
   }
 }
 
-// بوابة الدخول - اوفلاين
+// بوابة الدخول
 function registerAndLogin(){
   const phone = document.getElementById('userPhone').value || 'AL';
   const pass = document.getElementById('userPass').value;
@@ -52,7 +55,7 @@ function registerAndLogin(){
 
   document.getElementById('authGate').classList.add('hidden');
   loadUserData();
-  openTab('home', {target: document.querySelectorAll('nav button')[4]});
+  openTab('home', {target: document.querySelectorAll('nav button')[0]});
   showToast('مرحبا بك ' + phone);
 }
 
@@ -72,19 +75,19 @@ function openTab(name, event){
   if(name==='ai') loadAI();
   if(name==='support') loadSupport();
   if(name==='profile'){ genQR(); backToProfile(); }
-  if(name==='inbox') document.getElementById('inboxBadge').classList.add('hidden');
+  if(name==='inbox') document.getElementById('inboxBadge')?.classList.add('hidden');
   if(name==='create'){
-    uploadFile = null;
-    uploadType = null;
+    uploadFile = null; uploadType = null;
     const vid = document.getElementById('camPreview');
-    if(vid.tagName === 'IMG') vid.outerHTML = `<video id="camPreview" autoplay muted playsinline class="w-full rounded-2xl bg-black aspect-[9/16] hidden"></video>`;
-    else vid.classList.add('hidden');
+    if(vid && vid.tagName === 'IMG') vid.outerHTML = `<video id="camPreview" autoplay muted playsinline class="w-full rounded-2xl bg-black aspect-[9/16] hidden"></video>`;
+    else vid?.classList.add('hidden');
   }
 }
 
 // الفيد
 function loadVideoFeed(){
   const feed = document.getElementById('videoFeed');
+  if(!feed) return;
   if(videoData.length === 0){
     videoData = [
       {user:'AL', text:'النظام السيادي TARIM OS', likes:120},
@@ -104,37 +107,38 @@ function loadVideoFeed(){
 
 // البث
 async function startLive(){
-  document.getElementById('fullScreenCam').classList.remove('hidden');
-  document.getElementById('preLiveOverlay').style.display='flex';
+  document.getElementById('fullScreenCam')?.classList.remove('hidden');
+  document.getElementById('preLiveOverlay') && (document.getElementById('preLiveOverlay').style.display='flex');
   try{
     liveStream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: cameraFacing, width: {ideal: 720}, height: {ideal: 1280} },
       audio: true
     });
     const videoEl = document.getElementById('fullCamVideo');
-    videoEl.srcObject = liveStream;
-    videoEl.play();
+    if(videoEl){ videoEl.srcObject = liveStream; videoEl.play(); }
   }catch(e){
-    showToast('فشل تشغيل الكاميرا: ' + e.name);
+    showToast('فشل تشغيل الكاميرا');
     exitFullScreen();
   }
 }
 
 function confirmStartLive(){
-  document.getElementById('preLiveOverlay').style.display='none';
+  document.getElementById('preLiveOverlay') && (document.getElementById('preLiveOverlay').style.display='none');
   showToast('🔴 تم بدء البث السيادي 8 دقائق');
 }
 function exitFullScreen(){
-  document.getElementById('fullScreenCam').classList.add('hidden');
+  document.getElementById('fullScreenCam')?.classList.add('hidden');
   if(liveStream){
     liveStream.getTracks().forEach(track => track.stop());
     liveStream = null;
   }
 }
-function openMap(){ showToast('خريطة حضرموت Offline جاري التحميل'); }
+function openMap(){ showToast('خريطة حضرموت Offline'); }
 function genQR(){
-  document.getElementById('qrcode').innerHTML='';
-  new QRCode(document.getElementById('qrcode'), {text: "tarimos.org/"+currentUser, width:128, height:128});
+  const qr = document.getElementById('qrcode');
+  if(!qr ||!currentUser) return;
+  qr.innerHTML='';
+  new QRCode(qr, {text: "tarimos.org/"+currentUser, width:128, height:128});
 }
 
 // الانشاء
@@ -143,56 +147,52 @@ async function openCamera(facing){
   if(liveStream) liveStream.getTracks().forEach(t=>t.stop());
   liveStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:facing}});
   const vid = document.getElementById('camPreview');
-  vid.srcObject = liveStream;
-  vid.classList.remove('hidden');
+  if(vid){ vid.srcObject = liveStream; vid.classList.remove('hidden'); }
 }
 async function toggleCameraFacing(){
   cameraFacing = cameraFacing === 'user'? 'environment' : 'user';
-  if(document.getElementById('fullScreenCam').classList.contains('hidden')){
+  if(document.getElementById('fullScreenCam')?.classList.contains('hidden')){
     openCamera(cameraFacing);
   } else {
     startLive();
   }
 }
-function createPost(type){ document.getElementById('postText').placeholder = 'اكتب ' + type + '...'; }
+function createPost(type){
+  const input = document.getElementById('postText');
+  if(input) input.placeholder = 'اكتب ' + type + '...';
+}
 
 function handleUpload(input, type){
   const file = input.files[0];
   if(!file) return;
-  uploadFile = file;
-  uploadType = type;
+  uploadFile = file; uploadType = type;
+  showToast('تم رفع: ' + file.name);
 
   if(type === 'video'){
     const url = URL.createObjectURL(file);
     const vid = document.getElementById('camPreview');
-    vid.src = url;
-    vid.classList.remove('hidden');
-    vid.controls = true;
-    showToast('تم رفع الفيديو: ' + file.name);
+    if(vid){ vid.src = url; vid.classList.remove('hidden'); vid.controls = true; }
   }
   if(type === 'image'){
     const url = URL.createObjectURL(file);
     document.getElementById('camPreview').outerHTML = `<img id="camPreview" src="${url}" class="w-full rounded-2xl bg-black aspect-[9/16]">`;
-    showToast('تم رفع الصورة: ' + file.name);
   }
 }
 
 function publishPost(){
   const txt = document.getElementById('postText').value;
   if(uploadFile){
-    videoData.unshift({user:currentUser, text:txt + ` [${uploadType}]`, likes:0, file: uploadFile.name});
-    showToast('تم نشر ' + uploadType + ' بنجاح');
-    uploadFile = null;
-    uploadType = null;
+    videoData.unshift({user:currentUser, text:txt + ` [${uploadType}]`, likes:0});
+    showToast('تم نشر ' + uploadType);
+    uploadFile = null; uploadType = null;
   } else if(txt) {
     videoData.unshift({user:currentUser, text:txt, likes:0});
-    showToast('تم النشر بنجاح');
+    showToast('تم النشر');
   } else {
-    showToast('اكتب نص او ارفع ملف');
-    return;
+    showToast('اكتب نص او ارفع ملف'); return;
   }
   document.getElementById('postText').value='';
-  document.getElementById('camPreview').classList.add('hidden');
+  document.getElementById('camPreview')?.classList.add('hidden');
 }
 
 // الوارد
@@ -203,42 +203,32 @@ function sendMsg(){
   document.getElementById('chatIn').value='';
 }
 
-// الملفات والاعدادات كاملة
+// الملفات والاعدادات
 function showSettingsPanel(id){
-  document.getElementById('profile-main').classList.add('hidden');
+  document.getElementById('profile-main')?.classList.add('hidden');
   document.querySelectorAll('#tab-profile > div[id^="settings-"]').forEach(el=>el.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
+  document.getElementById(id)?.classList.remove('hidden');
   if(id === 'settings-edit-profile'){
     document.getElementById('editUsername').value = localStorage.getItem('tarim_name') || currentUser;
   }
 }
 function backToProfile(){
-  document.getElementById('profile-main').classList.remove('hidden');
+  document.getElementById('profile-main')?.classList.remove('hidden');
   document.querySelectorAll('#tab-profile > div[id^="settings-"]').forEach(el=>el.classList.add('hidden'));
 }
 
 function openWallet(){ showSettingsPanel('settings-wallet'); }
 function openActivities(){ showSettingsPanel('settings-activities'); }
-function openOffline(){ showSettingsPanel('settings-offline'); }
-function openMarket(){ showSettingsPanel('settings-market'); }
-function openPromo(){ showSettingsPanel('settings-promo'); }
-function openSettings(){ showSettingsPanel('settings-posts'); }
 function openBgSettings(){ showSettingsPanel('settings-bg'); }
 function openAccountSettings(){ showSettingsPanel('settings-account'); }
 function openPrivacySettings(){ showSettingsPanel('settings-privacy'); }
 function openEditProfile(){ showSettingsPanel('settings-edit-profile'); }
 
-function shareProfile(){
-  navigator.clipboard.writeText('tarimos.org/'+currentUser);
-  showToast('تم نسخ الرابط: tarimos.org/'+currentUser);
-}
-
 function changeBg(color){
   document.body.style.background = color;
   localStorage.setItem('tarim_bg', color);
-  const toast = document.getElementById('toastProfile');
-  toast.classList.remove('hidden');
-  setTimeout(()=>toast.classList.add('hidden'), 2000);
+  document.getElementById('toastProfile')?.classList.remove('hidden');
+  setTimeout(()=>document.getElementById('toastProfile')?.classList.add('hidden'), 2000);
 }
 
 function changeAvatar(event){
@@ -246,14 +236,10 @@ function changeAvatar(event){
   if(!file) return;
   const reader = new FileReader();
   reader.onload = function(e){
-    document.getElementById('profileAvatar').style.backgroundImage = `url(${e.target.result})`;
-    document.getElementById('profileAvatar').innerText = '';
-    document.getElementById('profileAvatar').style.backgroundSize = 'cover';
-    document.getElementById('editAvatar').style.backgroundImage = `url(${e.target.result})`;
-    document.getElementById('editAvatar').innerText = '';
-    document.getElementById('editAvatar').style.backgroundSize = 'cover';
-    localStorage.setItem('tarim_avatar', e.target.result);
+    const avatar = e.target.result;
+    localStorage.setItem('tarim_avatar', avatar);
     showToast('تم تغير الصورة');
+    loadUserData();
   }
   reader.readAsDataURL(file);
 }
@@ -261,12 +247,9 @@ function changeAvatar(event){
 function saveProfile(){
   const newName = document.getElementById('editUsername').value;
   const newPass = document.getElementById('editPassword').value;
-
   if(newName){
     localStorage.setItem('tarim_name', newName);
     document.getElementById('profileName').innerText = newName;
-    document.getElementById('profileAvatar').innerText = newName.charAt(0);
-    document.getElementById('editAvatar').innerText = newName.charAt(0);
   }
   if(newPass){
     localStorage.setItem('tarim_pass_'+currentUser, newPass);
@@ -280,7 +263,7 @@ function logout(){
   location.reload();
 }
 
-// الذكاء
+// الذكاء والدعم
 function loadAI(){ document.getElementById('aiLogs').innerHTML = '<div class="text-xs">مرحبا انا عين الذكاء. اسألني</div>' }
 function sendAI(){
   const txt = document.getElementById('aiIn').value;
@@ -289,7 +272,6 @@ function sendAI(){
   document.getElementById('aiIn').value='';
 }
 
-// الدعم
 function loadSupport(){ document.getElementById('supportLogs').innerHTML = '<div class="text-xs text-yellow-400">فريق الدعم جاهز</div>' }
 function sendSupport(){
   const txt = document.getElementById('supportIn').value;
@@ -298,23 +280,11 @@ function sendSupport(){
   document.getElementById('supportIn').value='';
 }
 
-// البث
-function likeLive(){ document.getElementById('liveLikes').innerText = +document.getElementById('liveLikes').innerText + 1; }
-function focusLiveComment(){ document.getElementById('liveCommentIn').focus(); }
-function sendLiveComment(){
-  const txt = document.getElementById('liveCommentIn').value;
-  if(!txt) return;
-  document.getElementById('liveComments').innerHTML += `<div class="bg-black/50 p-1 rounded text-[10px]">${currentUser}: ${txt}</div>`;
-  document.getElementById('liveCommentIn').value='';
-}
-function sendGift(){ showToast('تم ارسال هدية 🎁'); }
-function shareLive(){ navigator.share? navigator.share({title:'TARIM OS', url:location.href}) : showToast('تم نسخ رابط البث'); }
-
-// تحميل تلقائي لو مسجل دخول
+// تحميل تلقائي
 window.onload = () => {
   if(currentUser){
-    document.getElementById('authGate').classList.add('hidden');
+    document.getElementById('authGate')?.classList.add('hidden');
     loadUserData();
-    openTab('home', {target: document.querySelectorAll('nav button')[4]});
+    openTab('home', {target: document.querySelectorAll('nav button')[0]});
   }
     }
