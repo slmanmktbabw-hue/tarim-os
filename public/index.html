@@ -25,12 +25,12 @@ body{background:#050b14;color:#fff;font-family:system-ui;overflow-x:hidden}
 <button id="btnLoginTab" onclick="switchAuth('login')" class="flex-1 py-2 rounded-lg bg-cyan-500 text-black font-black">دخول</button>
 <button id="btnRegTab" onclick="switchAuth('register')" class="flex-1 py-2 rounded-lg text-gray-400">إنشاء حساب</button>
 </div>
-<input id="userPhone" dir="ltr" value="Gooaz@$&-#" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center font-bold outline-none text-white">
+<input id="userPhone" dir="ltr" value="-#&$Gooaz" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center font-bold outline-none text-white">
 <input id="userPass" dir="ltr" value="GG12345123rr@#$*" type="password" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center font-bold outline-none text-white">
 <div id="authMsg" class="hidden text-[10px] text-red-400 bg-red-500/20 p-2 rounded-xl"></div>
 <button onclick="handleAuthAction()" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs">دخول القلعة 🔑 10000</button>
 <button onclick="loginWithGoogle()" class="w-full bg-white text-black font-bold py-3 rounded-xl text-xs">🌐 متابعة بجوجل</button>
-<div class="text-[9px] text-gray-500">الملك Gooaz@$&-# محمي 👑</div>
+<div class="text-[9px] text-gray-500">الملك -#&$Gooaz محمي 👑</div>
 </div>
 </div>
 <header class="fixed top-0 left-0 right-0 z-40 glass px-4 py-3 flex justify-between items-center text-xs font-bold">
@@ -133,7 +133,6 @@ let currentFilterIndex = 0;
 let filters = ['', 'sepia(0.8)', 'hue-rotate(90deg) saturate(2)'];
 let filterNames = ['عادي', 'سيبيا', 'سايبر'];
 let authMode = 'login';
-let okxInterval = null;
 let activities = JSON.parse(localStorage.getItem('tarim_activities') || '[]');
 let offlineVideos = JSON.parse(localStorage.getItem('tarim_offline') || '[]');
 let commercials = JSON.parse(localStorage.getItem('tarim_commercial') || '[]');
@@ -159,4 +158,7 @@ function clean(t) { return String(t || '').replace(/</g, '&lt;'); }
 function switchAuth(m) {
     authMode = m;
     document.getElementById('btnLoginTab').className = m === 'login' ? 'flex-1 py-2 rounded-lg bg-cyan-500 text-black font-black' : 'flex-1 py-2 rounded-lg text-gray-400';
-    document.getElementById('btnRegTab').className = m === 'register' ? 'flex-1 py-2 rounded-lg bg-cyan-500 text-black font-black' : 'flex-1 py-2 rounded-lg text-gray-4
+    document.getElementById('btnRegTab').className = m === 'register' ? 'flex-1 py-2 rounded-lg bg-cyan-500 text-black font-black' : 'flex-1 py-2 rounded-lg text-gray-400';
+}
+
+function showMsg(t
