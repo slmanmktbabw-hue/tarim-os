@@ -1,20 +1,28 @@
 {
-  "name": "TARIM OS السيادي",
-  "short_name": "TARIM OS",
-  "start_url": "/",
+  "name": "TARIM OS - النظام السيادي العالمي",
+  "short_name": "TARIM",
+  "description": "منصة الملك AL - فيديو عمودي، بث مباشر، مراسلة آمنة، ومحفظة OKX",
+  "start_url": "/?v=11",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#050b14",
   "theme_color": "#00f0ff",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["social", "video", "news"],
   "icons": [
     {
-      "src": "https://img.icons8.com/color/192/domain.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://img.icons8.com/color/512/domain.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
