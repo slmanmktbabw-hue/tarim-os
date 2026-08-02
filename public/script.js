@@ -1,8 +1,10 @@
 const socket = io();
 let currentUser = null;
-let liveStream = null; // غيرنا الاسم عشان ما يتعارض
+let liveStream = null; 
 let cameraFacing = 'environment';
 let videoData = [];
+let uploadFile = null; // للرفع
+let uploadType = null; // نوع الملف
 
 function showToast(msg){
   const box = document.getElementById('toastBox');
@@ -41,6 +43,13 @@ function openTab(name, event){
   if(name==='support') loadSupport();
   if(name==='profile') genQR();
   if(name==='inbox') document.getElementById('inboxBadge').classList.add('hidden');
+  if(name==='create'){ // ريسيت عند فتح الانشاء
+    uploadFile = null;
+    uploadType = null;
+    const vid = document.getElementById('camPreview');
+    if(vid.tagName === 'IMG') vid.outerHTML = `<video id="camPreview" autoplay muted playsinline class="w-full rounded-2xl bg-black aspect-[9/16] hidden"></video>`;
+    else vid.classList.add('hidden');
+  }
 }
 
 // 1. فيد الفيديو - الرئيسية
@@ -63,7 +72,7 @@ function loadVideoFeed(){
   `).join('');
 }
 
-// 2. العمليات - البث المباشر مصلح
+// 2. العمليات - البث المباشر
 async function startLive(){ 
   document.getElementById('fullScreenCam').classList.remove('hidden'); 
   document.getElementById('preLiveOverlay').style.display='flex'; 
@@ -102,7 +111,7 @@ function genQR(){
   new QRCode(document.getElementById('qrcode'), {text: "tarimos.org/"+currentUser, width:128, height:128});
 }
 
-// 3. الانشاء
+// 3. الانشاء + الرفع
 async function openCamera(facing){
   cameraFacing = facing;
   if(liveStream) liveStream.getTracks().forEach(t=>t.stop());
@@ -117,19 +126,55 @@ async function toggleCameraFacing(){
   if(document.getElementById('fullScreenCam').classList.contains('hidden')){
     openCamera(cameraFacing);
   } else {
-    // لو في البث المباشر نبدل الكاميرا
     startLive();
   }
 }
 
 function createPost(type){ document.getElementById('postText').placeholder = 'اكتب ' + type + '...'; }
+
+// دالة الرفع الجديدة
+function handleUpload(input, type){
+  const file = input.files[0];
+  if(!file) return;
+  uploadFile = file;
+  uploadType = type;
+
+  if(type === 'video'){
+    const url = URL.createObjectURL(file);
+    const vid = document.getElementById('camPreview');
+    vid.src = url;
+    vid.classList.remove('hidden');
+    vid.controls = true;
+    showToast('تم رفع الفيديو: ' + file.name);
+  }
+  if(type === 'image'){
+    const url = URL.createObjectURL(file);
+    document.getElementById('camPreview').outerHTML = `<img id="camPreview" src="${url}" class="w-full rounded-2xl bg-black aspect-[9/16]">`;
+    showToast('تم رفع الصورة: ' + file.name);
+  }
+}
+
+// نشر مع دعم الرفع
 function publishPost(){
   const txt = document.getElementById('postText').value;
-  if(!txt) return;
-  videoData.unshift({user:currentUser, text:txt, likes:0});
-  showToast('تم النشر بنجاح');
+
+  if(uploadFile){
+    videoData.unshift({user:currentUser, text:txt + ` [${uploadType}]`, likes:0, file: uploadFile.name});
+    showToast('تم نشر ' + uploadType + ' بنجاح');
+    uploadFile = null;
+    uploadType = null;
+  } else if(txt) {
+    videoData.unshift({user:currentUser, text:txt, likes:0});
+    showToast('تم النشر بنجاح');
+  } else {
+    showToast('اكتب نص او ارفع ملف');
+    return;
+  }
+
   document.getElementById('postText').value='';
+  document.getElementById('camPreview').classList.add('hidden');
 }
+
 function applyFilter(){ showToast('تم تطبيق الفلتر السيادي'); }
 
 // 4. الوارد
