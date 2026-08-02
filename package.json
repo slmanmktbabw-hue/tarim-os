@@ -1,17 +1,20 @@
 {
-  "name": "tarim-os-sovereign",
-  "version": "23.0.0",
-  "description": "TARIM OS - Secure King Account",
-  "main": "server.js",
-  "scripts": {"start": "node server.js"},
-  "dependencies": {
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5",
-    "cors": "^2.8.5",
-    "helmet": "^7.1.0",
-    "express-rate-limit": "^7.2.0",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2"
-  },
-  "engines": {"node": ">=18.0.0"}
+  "name": "TARIM OS السيادي",
+  "short_name": "TARIM OS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050b14",
+  "theme_color": "#00f0ff",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/color/192/domain.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://img.icons8.com/color/512/domain.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
