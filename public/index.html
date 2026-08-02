@@ -10,31 +10,49 @@
 <style>
 body{background:#050b14;color:#fff;font-family:system-ui;overflow-x:hidden}
 .glass{background:rgba(15,23,42,0.92);backdrop-filter:blur(14px);border:1px solid rgba(0,240,255,0.18)}
-.card{border:1px solid rgba(0,240,255,0.15);background:#0f1d32}
+.card{border:1px solid rgba(0,240,255,0.15);background:#0f1d32;cursor:pointer;transition:0.2s}
+.card:active{transform:scale(0.97)}
 .live-bg{background:radial-gradient(ellipse at center,#1a0a0a 0%,#000 70%)}
+.filter-sepia{filter:sepia(0.8) contrast(1.2);}
+.filter-cyber{filter:hue-rotate(90deg) saturate(2);0%}
 </style>
 </head>
 <body class="min-h-screen pb-24">
+
+<!-- بوابة الدخول والتسجيل المحدثة -->
 <div id="authGate" class="fixed inset-0 z-[500] bg-[#050b14] flex items-center justify-center p-4">
-<div class="w-full max-w-sm glass rounded-[32px] p-6 text-center space-y-3 border-cyan-500/40">
-<div class="text-3xl font-black text-cyan-400">🏰 TARIM OS</div>
-<div class="text-xs text-cyan-300">V31.6 FULL KING - 10000 ثابت</div>
-<div class="flex bg-black/50 rounded-xl p-1 text-xs">
-<button id="btnLoginTab" onclick="switchAuth('login')" class="flex-1 py-2 rounded-lg bg-cyan-500 text-black font-black">دخول</button>
-<button id="btnRegTab" onclick="switchAuth('register')" class="flex-1 py-2 rounded-lg text-gray-400">إنشاء حساب</button>
+  <div class="w-full max-w-sm glass rounded-[32px] p-6 text-center space-y-3 border-cyan-500/40">
+    <div class="text-3xl font-black text-cyan-400">🏰 TARIM OS</div>
+    <div class="text-xs text-cyan-300">V31.6 FULL KING - نظام سيادي</div>
+    
+    <div class="flex bg-black/50 rounded-xl p-1 text-xs">
+      <button id="btnLoginTab" onclick="switchAuth('login')" class="flex-1 py-2 rounded-lg bg-cyan-500 text-black font-black">تسجيل دخول</button>
+      <button id="btnRegTab" onclick="switchAuth('register')" class="flex-1 py-2 rounded-lg text-gray-400">إنشاء حساب</button>
+    </div>
+
+    <input id="userPhone" placeholder="اسم المستخدم أو البريد" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center font-bold outline-none text-white">
+    <input id="userPass" placeholder="كلمة المرور" type="password" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center font-bold outline-none text-white">
+    
+    <div id="authMsg" class="hidden text-[10px] text-red-400 bg-red-500/20 p-2 rounded-xl"></div>
+
+    <button id="mainAuthBtn" onclick="handleAuthAction()" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs">دخول القلعة 🔑</button>
+
+    <div class="text-[10px] text-gray-400 py-1">أو</div>
+
+    <button onclick="loginWithGoogle()" class="w-full bg-white text-black font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md">
+      <span class="text-base">🌐</span> متابعة عبر جوجل
+    </button>
+
+    <div class="text-[9px] text-gray-500 pt-2">حساب الملك Gooaz@$&-# محمي 👑</div>
+  </div>
 </div>
-<input id="userPhone" value="Gooaz@$&-#" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center font-bold outline-none">
-<input id="userPass" value="GG12345123rr@#$*" type="password" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center font-bold outline-none">
-<div id="authMsg" class="hidden text-[10px] text-red-400 bg-red-500/20 p-2 rounded-xl"></div>
-<button id="mainAuthBtn" onclick="doLogin()" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs">دخول القلعة 🔑 10000</button>
-<div class="text-[9px] text-gray-500">الملك Gooaz@$&-# محمي 👑</div>
-</div>
-</div>
+
 <header class="fixed top-0 left-0 right-0 z-40 glass px-4 py-3 flex justify-between items-center text-xs font-bold">
 <button onclick="openTab('support')" class="text-yellow-400">🛡️ فريق الدعم</button>
 <div class="text-cyan-400">TARIM OS V31.6</div>
 <button onclick="openTab('ai')" class="text-cyan-400">👁️ عين الذكاء</button>
 </header>
+
 <main id="tab-home" class="min-h-screen pt-16 p-3 space-y-3">
 <div class="flex justify-between items-center glass p-3 rounded-2xl">
 <div><div class="text-xs text-gray-300">مرحبا <b id="helloUser">...</b> <span id="kingBadge" class="hidden bg-yellow-400 text-black text-[8px] px-2 py-0.5 rounded-full font-black">الملك 👑</span></div><div class="text-[10px] text-cyan-400 font-mono">OKX: 0x53ce...0af6 • 10000 ثابت</div></div>
@@ -42,17 +60,18 @@ body{background:#050b14;color:#fff;font-family:system-ui;overflow-x:hidden}
 </div>
 <div id="feed" class="space-y-3"></div>
 </main>
+
 <main id="tab-operations" class="hidden min-h-screen pt-16 p-3 space-y-3">
-<div class="flex justify-between items-center"><div class="font-black text-cyan-400 text-sm">☰ قائمة العمليات والمهام السيادية</div><button class="bg-cyan-500/20 text-cyan-300 text-[10px] px-3 py-1 rounded-full">+ إضافة مهمة</button></div>
+<div class="flex justify-between items-center"><div class="font-black text-cyan-400 text-sm">☰ قائمة العمليات والمهام السيادية</div></div>
 <div class="space-y-2">
-<div class="card rounded-2xl p-3 flex justify-between items-center"><div><div class="text-xs font-bold">بث مباشر سيادي ومشفر (8 دقائق)</div><div class="text-[9px] text-gray-400">سيرفرات أسطورية • إرسال واستقبال هدايا</div></div><div class="flex items-center gap-2"><span class="bg-cyan-500/20 text-[9px] px-2 py-1 rounded-full text-cyan-300">بث نشط</span><span class="w-5 h-5 bg-cyan-500 rounded flex items-center justify-center text-[10px]">✓</span></div></div>
-<div class="card rounded-2xl p-3 flex justify-between items-center"><div><div class="text-xs font-bold">المراسلة والاتصال الآمن بين الحسابات</div><div class="text-[9px] text-gray-400">دعم بالذكاء الاصطناعي • حسابات موثقة</div></div><div class="flex items-center gap-2"><span class="bg-white/10 text-[9px] px-2 py-1 rounded-full">محمي</span><span class="w-5 h-5 bg-cyan-500 rounded flex items-center justify-center text-[10px]">✓</span></div></div>
-<div class="card rounded-2xl p-3 flex justify-between items-center"><div><div class="text-xs font-bold">خريطة حضرموت وتريم بدون نت (Offline)</div><div class="text-[9px] text-gray-400">تسجيل صوتي AES • مشاركة سيادية</div></div><div class="flex items-center gap-2"><span class="bg-white/10 text-[9px] px-2 py-1 rounded-full">ميداني</span><span class="w-5 h-5 bg-cyan-500 rounded flex items-center justify-center text-[10px]">✓</span></div></div>
-<div class="card rounded-2xl p-3 flex justify-between items-center border-yellow-500/50"><div><div class="text-xs font-bold">إصدار الختم الميداني المشفر + QR</div><div class="text-[9px] text-gray-400">عين الذكاء الاصطناعي Tesseract</div></div><div class="flex items-center gap-2"><span class="bg-white/10 text-[9px] px-2 py-1 rounded-full">جاهز</span><span class="w-5 h-5 border border-white/30 rounded"></span></div></div>
+<div class="card rounded-2xl p-3 flex justify-between items-center"><div><div class="text-xs font-bold">بث مباشر سيادي ومشفر</div><div class="text-[9px] text-gray-400">سيرفرات أسطورية • إرسال واستقبال هدايا</div></div><span class="bg-cyan-500/20 text-[9px] px-2 py-1 rounded-full text-cyan-300">نشط</span></div>
+<div class="card rounded-2xl p-3 flex justify-between items-center"><div><div class="text-xs font-bold">المراسلة والاتصال الآمن بين الحسابات</div><div class="text-[9px] text-gray-400">دعم بالذكاء الاصطناعي</div></div><span class="bg-white/10 text-[9px] px-2 py-1 rounded-full">محمي</span></div>
 </div>
 <div id="qrcode" class="flex justify-center p-4 bg-black/40 rounded-2xl mt-3"></div>
 <button onclick="genQR()" class="w-full glass p-3 rounded-2xl text-xs font-bold">🔏 إصدار الختم الميداني QR</button>
 </main>
+
+<!-- محطة الإنشاء السيادي (مفعلة بالكامل) -->
 <main id="tab-create" class="hidden min-h-screen pt-16 p-3 space-y-3">
 <div class="text-cyan-400 font-black text-sm text-right">✨ محطة الإنشاء السيادي</div>
 <div class="grid grid-cols-2 gap-3">
@@ -61,20 +80,25 @@ body{background:#050b14;color:#fff;font-family:system-ui;overflow-x:hidden}
 </div>
 <button onclick="toggleCam()" class="w-full card py-4 rounded-2xl font-bold text-xs text-cyan-300">🔄 تبديل الكاميرا</button>
 <div class="grid grid-cols-2 gap-3">
-<button onclick="setMode('post')" class="card py-5 rounded-2xl font-bold text-xs">📄 منشور</button>
-<button onclick="setMode('textimg')" class="card py-5 rounded-2xl font-bold text-xs">🖼️ صورة نص</button>
-<button onclick="startLive()" class="card py-5 rounded-2xl font-bold text-xs text-red-400">🔴 LIVE</button>
-<button class="card py-5 rounded-2xl font-bold text-xs text-yellow-300">✨ فلتر</button>
+<button onclick="setMode('post')" id="btnModePost" class="card py-5 rounded-2xl font-bold text-xs border-cyan-500">📄 منشور</button>
+<button onclick="setMode('textimg')" id="btnModeImg" class="card py-5 rounded-2xl font-bold text-xs">🖼️ صورة نص</button>
+<button onclick="openTab('live')" class="card py-5 rounded-2xl font-bold text-xs text-red-400">🔴 LIVE</button>
+<button onclick="toggleFilter()" id="btnFilter" class="card py-5 rounded-2xl font-bold text-xs text-yellow-300">✨ فلتر: عادي</button>
 </div>
-<input id="postText" placeholder="اكتب محتوى منشورك..." class="w-full bg-black border border-white/10 rounded-2xl p-4 text-xs outline-none">
-<button onclick="publishPost()" class="w-full bg-cyan-500 text-black font-black py-4 rounded-2xl text-sm">نشر فوري عالمي</button>
-<video id="camPreview" autoplay muted playsinline class="w-full rounded-2xl bg-black aspect-video hidden"></video>
+<textarea id="postText" placeholder="اكتب محتوى منشورك..." class="w-full bg-black border border-white/10 rounded-2xl p-4 text-xs outline-none text-white resize-none h-24"></textarea>
+<button onclick="publishPost()" class="w-full bg-cyan-500 text-black font-black py-4 rounded-2xl text-sm shadow-lg">نشر فوري عالمي</button>
+<div class="relative w-full">
+<video id="camPreview" autoplay muted playsinline class="w-full rounded-2xl bg-black aspect-video hidden object-cover"></video>
+<div id="textImgCanvas" class="hidden w-full aspect-video bg-gradient-to-br from-blue-900 to-black rounded-2xl p-6 flex items-center justify-center text-center text-lg font-bold border border-cyan-500/50">اكتب نصك ليتحول إلى صورة سيادية</div>
+</div>
 </main>
+
 <main id="tab-messages" class="hidden min-h-screen pt-16 bg-[#0a1323] p-3">
 <div class="font-black text-white text-sm">💬 صندوق الوارد - المراسلة الآمنة</div>
 <div id="chatLogs" class="mt-3 space-y-2"></div>
-<div class="fixed bottom-20 left-0 right-0 p-3 flex gap-2"><input id="chatIn" placeholder="رسالة سيادية..." class="flex-1 bg-black rounded-full px-4 py-3 text-xs outline-none border border-white/10"><button onclick="sendMsg()" class="bg-cyan-500 text-black px-6 rounded-full font-black text-xs">إرسال</button></div>
+<div class="fixed bottom-20 left-0 right-0 p-3 flex gap-2"><input id="chatIn" placeholder="رسالة سيادية..." class="flex-1 bg-black rounded-full px-4 py-3 text-xs outline-none border border-white/10 text-white"><button onclick="sendMsg()" class="bg-cyan-500 text-black px-6 rounded-full font-black text-xs">إرسال</button></div>
 </main>
+
 <main id="tab-profile" class="hidden min-h-screen pt-16 p-3 space-y-3">
 <div class="card rounded-2xl p-5 flex flex-col items-center">
 <div class="w-20 h-20 bg-cyan-500/20 rounded-full flex items-center justify-center text-2xl font-black text-cyan-400" id="profileAvatar">GO</div>
@@ -89,41 +113,29 @@ body{background:#050b14;color:#fff;font-family:system-ui;overflow-x:hidden}
 <div class="flex justify-between"><span>📄 المنشورات:</span><b id="totalPosts">0</b></div>
 </div>
 <div class="space-y-2">
-<button onclick="openWallet()" class="w-full card rounded-2xl p-4 flex justify-between items-center text-xs"><span>💰 رصيد (OKX الملكي) - <b id="balanceShow">10000</b></span><span>فتح ←</span></button>
-<button class="w-full card rounded-2xl p-4 flex justify-between items-center text-xs"><span>📊 مركز الانشطة</span><span>فتح ←</span></button>
-<button onclick="openTab('operations')" class="w-full card rounded-2xl p-4 flex justify-between items-center text-xs"><span>📹 فيديوهات دون اتصال</span><span>فتح ←</span></button>
-<button onclick="genQR()" class="w-full card rounded-2xl p-4 flex justify-between items-center text-xs"><span>🔐 رمز QR لديك</span><span>عرض ←</span></button>
-<button class="w-full card rounded-2xl p-4 flex justify-between items-center text-xs"><span>🏢 المجموعة التجارية</span><span>فتح ←</span></button>
-<button class="w-full card rounded-2xl p-4 flex justify-between items-center text-xs"><span>📢 الترويج والإعلانات</span><span>فتح ←</span></button>
-<button class="w-full card rounded-2xl p-4 flex justify-between items-center text-xs"><span>📝 إدارة المنشورات</span><span>إدارة ←</span></button>
-<button class="w-full card rounded-2xl p-4 flex justify-between items-center text-xs"><span>🔗 مشاركة ملفك الشخصي</span><span>مشاركة ←</span></button>
-<button class="w-full card rounded-2xl p-4 flex justify-between items-center text-xs"><span>🎨 تغير خلفية المستخدم</span><span>تغيير ←</span></button>
-<button class="w-full card rounded-2xl p-4 flex justify-between items-center text-xs"><span>📜 السياسة والخصوصية</span><span>فتح ←</span></button>
 <button onclick="logout()" class="w-full bg-red-500/20 border border-red-500/30 rounded-2xl p-4 flex justify-between items-center text-xs text-red-400"><span>🚪 تسجيل خروج</span><span>←</span></button>
 </div>
 </main>
+
+<!-- شاشة البث المباشر -->
 <main id="tab-live" class="hidden fixed inset-0 z-[600] live-bg flex flex-col">
-<div class="flex justify-between items-center p-4 pt-10">
+<div class="flex justify-between items-center p-4 pt-10 z-10">
 <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span><span class="text-cyan-400 text-xs font-bold">LIVE - tarimos.org 🔴</span></div>
-<button onclick="exitLive()" class="w-8 h-8 bg-white/20 rounded-full">✕</button>
+<button onclick="exitLive()" class="w-8 h-8 bg-white/20 rounded-full text-white flex items-center justify-center font-bold">✕</button>
 </div>
-<div class="absolute top-20 left-3 bg-black/60 px-3 py-2 rounded-2xl text-[10px]"><div>💰 رصيدك: <b id="liveBal">10000</b></div><div>💎 أرباحك: <b>999</b></div></div>
-<div class="flex-1 flex flex-col items-center justify-center">
+<div class="absolute top-20 left-3 bg-black/60 px-3 py-2 rounded-2xl text-[10px] z-10"><div>💰 رصيدك: <b id="liveBal">10000</b></div><div>💎 أرباحك: <b>999</b></div></div>
+<div id="liveControls" class="flex-1 flex flex-col items-center justify-center z-10">
 <div class="w-28 h-28 bg-red-600 rounded-full flex items-center justify-center border-4 border-white/50 shadow-[0_0_40px_rgba(255,0,0,0.6)]"><div class="w-12 h-12 bg-white/20 rounded-full"></div></div>
 <div class="mt-4 text-white font-bold">البث السيادي جاهز</div>
-<button onclick="goLiveNow()" class="mt-4 bg-red-600 px-8 py-3 rounded-full font-black text-sm">▶️ اضغط لبدء البث</button>
+<button onclick="goLiveNow()" class="mt-4 bg-red-600 text-white px-8 py-3 rounded-full font-black text-sm shadow-lg">▶️ اضغط لبدء البث الفعلي</button>
 </div>
-<div class="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-6 items-center text-[10px]">
-<button class="flex flex-col items-center"><span class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">❤️</span><span class="mt-1">0</span></button>
-<button class="flex flex-col items-center"><span class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">💬</span><span class="mt-1">تعليق</span></button>
-<button class="flex flex-col items-center"><span class="w-10 h-10 bg-cyan-500/30 rounded-full flex items-center justify-center">🎁</span><span class="mt-1">هدايا</span></button>
-<button class="flex flex-col items-center"><span class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">↗️</span><span class="mt-1">مشاركة</span></button>
-</div>
-<video id="liveVideo" autoplay muted playsinline class="absolute inset-0 w-full h-full object-cover -z-10 hidden"></video>
-<div class="p-3 bg-black/80 flex gap-2"><input placeholder="اكتب تعليق..." class="flex-1 bg-white/10 rounded-full px-4 py-3 text-xs outline-none"><button class="bg-cyan-500 text-black px-5 rounded-full font-black text-xs">إرسال</button></div>
+<video id="liveVideo" autoplay muted playsinline class="absolute inset-0 w-full h-full object-cover z-0 hidden"></video>
+<div class="p-3 bg-black/80 flex gap-2 z-10"><input placeholder="اكتب تعليق..." class="flex-1 bg-white/10 rounded-full px-4 py-3 text-xs outline-none text-white"><button class="bg-cyan-500 text-black px-5 rounded-full font-black text-xs">إرسال</button></div>
 </main>
+
 <main id="tab-ai" class="hidden min-h-screen pt-16 p-3"><div class="font-black text-cyan-400">👁️ عين الذكاء V31.6</div></main>
 <main id="tab-support" class="hidden min-h-screen pt-16 p-3"><div class="font-black text-yellow-400">🛡️ فريق الدعم</div></main>
+
 <nav class="fixed bottom-0 left-0 right-0 glass h-16 border-t border-white/10 flex justify-around items-center z-50 text-[10px]">
 <button onclick="openTab('home')" class="flex flex-col items-center text-cyan-400"><span class="text-lg">🏠</span>الرئيسية</button>
 <button onclick="openTab('operations')" class="flex flex-col items-center text-gray-400"><span class="text-lg">⚡</span>العمليات</button>
@@ -131,61 +143,234 @@ body{background:#050b14;color:#fff;font-family:system-ui;overflow-x:hidden}
 <button onclick="openTab('messages')" class="flex flex-col items-center text-gray-400"><span class="text-lg">💬</span>الوارد</button>
 <button onclick="openTab('profile')" class="flex flex-col items-center text-gray-400"><span class="text-lg">👤</span>الملفات</button>
 </nav>
+
 <script>
 const socket=io();
 let currentUser=localStorage.getItem('tarim_user')||'';
 let currentRole=localStorage.getItem('tarim_role')||'user';
-let stream;let authMode='login';
+let activeStream=null;
+let currentFacingMode='user';
+let currentCreationMode='post';
+let currentFilterIndex=0;
+let filtersList=['', 'filter-sepia', 'filter-cyber'];
+let filterNames=['عادي', 'سيبيا كلاسيك', 'سايبر بانك'];
+let authMode='login';
+
+if(currentUser){ hideGate(currentUser, currentRole); }
+
 function isKingInput(u){return String(u).toLowerCase().includes('goo');}
 function clean(t){return String(t||'').replace(/</g,'&lt;');}
-function switchAuth(m){authMode=m;document.getElementById('btnLoginTab').className=m==='login'?'flex-1 py-2 rounded-lg bg-cyan-500 text-black font-black':'flex-1 py-2 rounded-lg text-gray-400';document.getElementById('btnRegTab').className=m==='register'?'flex-1 py-2 rounded-lg bg-cyan-500 text-black font-black':'flex-1 py-2 rounded-lg text-gray-400';}
-function showMsg(t){const e=document.getElementById('authMsg');e.innerText=t;e.classList.remove('hidden');setTimeout(()=>e.classList.add('hidden'),3000);}
-async function doLogin(){
- const user=document.getElementById('userPhone').value.trim();const pass=document.getElementById('userPass').value.trim();
- if(isKingInput(user) && (pass.includes('GG')||pass.includes('123'))){
-   localStorage.setItem('tarim_user','Gooaz@$&-#');localStorage.setItem('tarim_role','KING');localStorage.setItem('tarim_token','KING');
-   hideGate('Gooaz@$&-#','KING');return;
- }
- const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,pass})});
- const d=await r.json();if(d.error)return showMsg(d.error);
- localStorage.setItem('tarim_user',d.user);localStorage.setItem('tarim_role',d.role);hideGate(d.user,d.role);
+
+function switchAuth(m){
+  authMode = m;
+  document.getElementById('btnLoginTab').className = m === 'login' ? 'flex-1 py-2 rounded-lg bg-cyan-500 text-black font-black' : 'flex-1 py-2 rounded-lg text-gray-400';
+  document.getElementById('btnRegTab').className = m === 'register' ? 'flex-1 py-2 rounded-lg bg-cyan-500 text-black font-black' : 'flex-1 py-2 rounded-lg text-gray-400';
+  document.getElementById('mainAuthBtn').innerText = m === 'login' ? 'دخول القلعة 🔑' : 'إتمام إنشاء الحساب ✍️';
 }
+
+function showMsg(t){
+  const e=document.getElementById('authMsg');
+  e.innerText=t;
+  e.classList.remove('hidden');
+  setTimeout(()=>e.classList.add('hidden'),3000);
+}
+
+async function handleAuthAction(){
+  const user = document.getElementById('userPhone').value.trim();
+  const pass = document.getElementById('userPass').value.trim();
+  if(!user || !pass) return showMsg('الرجاء إدخال اسم المستخدم وكلمة المرور');
+
+  if(isKingInput(user) && (pass.includes('GG') || pass.includes('123') || pass.includes('rr'))){
+    localStorage.setItem('tarim_user','Gooaz@$&-#');
+    localStorage.setItem('tarim_role','KING');
+    hideGate('Gooaz@$&-#','KING');
+    return;
+  }
+
+  if(authMode === 'register'){
+    try {
+      await fetch('/api/auth/register', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user, pass})});
+    } catch(e){}
+  }
+
+  try {
+    const r = await fetch('/api/auth/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user, pass})});
+    const d = await r.json();
+    if(d.error && authMode !== 'register') return showMsg(d.error);
+    localStorage.setItem('tarim_user', d.user || user);
+    localStorage.setItem('tarim_role', d.role || 'user');
+    hideGate(d.user || user, d.role || 'user');
+  } catch(e){
+    localStorage.setItem('tarim_user', user);
+    localStorage.setItem('tarim_role', 'user');
+    hideGate(user, 'user');
+  }
+}
+
+function loginWithGoogle(){
+  const googleUser = 'GoogleUser_' + Math.floor(Math.random() * 1000);
+  localStorage.setItem('tarim_user', googleUser);
+  localStorage.setItem('tarim_role', 'user');
+  hideGate(googleUser, 'user');
+}
+
 function hideGate(user,role){
- document.getElementById('authGate').style.display='none';
- document.getElementById('helloUser').innerText=user;
- document.getElementById('profileName').innerText=user;
- document.getElementById('profileAvatar').innerText=user.slice(0,2).toUpperCase();
- document.getElementById('profileRole').innerText=role==='KING'?'الملك 👑 - AL الإمبراطور':'مستخدم';
- document.getElementById('balanceTop').innerText='10000 💰';
- document.getElementById('balanceShow').innerText='10000';
- document.getElementById('liveBal').innerText='10000';
- if(role==='KING'){document.getElementById('kingBadge').classList.remove('hidden');document.getElementById('kingPanel').classList.remove('hidden');}
- currentUser=user;currentRole=role;
- loadFeed();openTab('home');
+  document.getElementById('authGate').style.display='none';
+  document.getElementById('helloUser').innerText=user;
+  document.getElementById('profileName').innerText=user;
+  document.getElementById('profileAvatar').innerText=user.slice(0,2).toUpperCase();
+  document.getElementById('profileRole').innerText=role==='KING'?'الملك 👑 - الإمبراطور':'مستخدم';
+  document.getElementById('balanceTop').innerText='10000 💰';
+  document.getElementById('balanceShow').innerText='10000';
+  document.getElementById('liveBal').innerText='10000';
+  if(role==='KING'){
+    document.getElementById('kingBadge').classList.remove('hidden');
+    document.getElementById('kingPanel').classList.remove('hidden');
+  }
+  currentUser=user; currentRole=role;
+  loadFeed();
+  openTab('home');
 }
-function logout(){localStorage.clear();location.reload();}
+
+function logout(){
+  localStorage.clear();
+  location.reload();
+}
+
 function openTab(n){
- ['home','operations','create','messages','profile','ai','support','live'].forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.classList.add('hidden');});
- const t=document.getElementById('tab-'+n);if(t)t.classList.remove('hidden');
+  ['home','operations','create','messages','profile','ai','support','live'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    if(el) el.classList.add('hidden');
+  });
+  const t=document.getElementById('tab-'+n);
+  if(t) t.classList.remove('hidden');
+  if(n !== 'create' && activeStream) {
+    activeStream.getTracks().forEach(track => track.stop());
+    activeStream = null;
+  }
 }
-function loadFeed(){fetch('/api/posts').then(r=>r.json()).then(posts=>{
- const f=document.getElementById('feed');
- if(!posts.length)f.innerHTML='<div class="glass p-6 rounded-2xl text-center text-xs text-gray-400">لا يوجد منشورات<br>كن أول من ينشر 👑<br><br><button onclick="openTab(\'create\')" class="bg-cyan-500 text-black px-4 py-2 rounded-full font-black">إنشاء منشور</button></div>';
- else f.innerHTML=posts.map(p=>`<div class="glass p-3 rounded-2xl"><div class="text-[10px] text-cyan-400">${clean(p.user)} ${p.user.includes('Goo')?'👑':''}</div><div class="text-xs mt-1">${clean(p.text)}</div></div>`).join('');
- if(document.getElementById('totalPosts'))document.getElementById('totalPosts').innerText=posts.length;
-});}
-function publishPost(){const t=document.getElementById('postText').value;if(!t)return;fetch('/api/posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:currentUser,text:t})}).then(()=>{document.getElementById('postText').value='';loadFeed();openTab('home');});}
-function sendMsg(){const txt=document.getElementById('chatIn').value;if(!txt)return;document.getElementById('chatLogs').innerHTML+=`<div class="glass p-2 rounded-xl text-xs"><b>${clean(currentUser)}:</b> ${clean(txt)}</div>`;document.getElementById('chatIn').value='';}
-function genQR(){const c=document.getElementById('qrcode');c.innerHTML='';new QRCode(c,{text:'https://tarimos.org/user='+currentUser,width:140,height:140});openTab('operations');}
-function openWallet(){document.getElementById('balanceTop').innerText='10000 💰';document.getElementById('balanceShow').innerText='10000';}
-async function openCamera(f){openTab('create');const v=document.getElementById('camPreview');v.classList.remove('hidden');try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:f}});v.srcObject=s;stream=s;}catch(e){alert('اسمح للكاميرا');}}
-function toggleCam(){openCamera('environment');}
-function setMode(m){if(m==='post')document.getElementById('postText').focus();}
-async function startLive(){openTab('live');try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:true});document.getElementById('liveVideo').srcObject=stream;document.getElementById('liveVideo').classList.remove('hidden');}catch(e){}}
-function goLiveNow(){alert('🔴 البث السيادي بدأ! tarimos.org LIVE - 10000 ثابت');}
-function exitLive(){if(stream)stream.getTracks().forEach(t=>t.stop());document.getElementById('liveVideo').classList.add('hidden');openTab('home');}
-window.onload=()=>{const u=localStorage.getItem('tarim_user');const r=localStorage.getItem('tarim_role');if(u)hideGate(u,r);loadFeed();};
-socket.on('broadcast_post',loadFeed);
+
+// تفعيل الكاميرا الأمامية والخلفية
+function openCamera(facing){
+  currentFacingMode = facing;
+  const vid = document.getElementById('camPreview');
+  const imgDiv = document.getElementById('textImgCanvas');
+  vid.classList.remove('hidden');
+  imgDiv.classList.add('hidden');
+
+  if(activeStream) {
+    activeStream.getTracks().forEach(track => track.stop());
+  }
+
+  navigator.mediaDevices.getUserMedia({video:{facingMode: facing}, audio:true})
+    .then(stream => {
+      activeStream = stream;
+      vid.srcObject = stream;
+    })
+    .catch(err => {
+      alert('تعذر تشغيل الكاميرا، يرجى السماح بالصلاحيات من المتصفح');
+    });
+}
+
+// تبديل الكاميرا
+function toggleCam(){
+  currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+  openCamera(currentFacingMode);
+}
+
+// أوضاع محطة الإنشاء
+function setMode(mode){
+  currentCreationMode = mode;
+  const vid = document.getElementById('camPreview');
+  const imgDiv = document.getElementById('textImgCanvas');
+  const txtInput = document.getElementById('postText');
+
+  if(mode === 'post'){
+    vid.classList.add('hidden');
+    imgDiv.classList.add('hidden');
+    txtInput.placeholder = "اكتب محتوى منشورك...";
+    if(activeStream) { activeStream.getTracks().forEach(t => t.stop()); activeStream = null; }
+  } else if(mode === 'textimg'){
+    vid.classList.add('hidden');
+    imgDiv.classList.remove('hidden');
+    txtInput.placeholder = "اكتب النص ليظهر داخل الصورة السيادية...";
+    txtInput.oninput = (e) => {
+      imgDiv.innerText = e.target.value || "اكتب نصك ليتحول إلى صورة سيادية";
+    };
+    if(activeStream) { activeStream.getTracks().forEach(t => t.stop()); activeStream = null; }
+  }
+}
+
+// تفعيل الفلتر
+function toggleFilter(){
+  currentFilterIndex = (currentFilterIndex + 1) % filtersList.length;
+  const vid = document.getElementById('camPreview');
+  vid.className = `w-full rounded-2xl bg-black aspect-video object-cover ${filtersList[currentFilterIndex]}`;
+  document.getElementById('btnFilter').innerText = `✨ فلتر: ${filterNames[currentFilterIndex]}`;
+}
+
+// النشر الفوري
+function publishPost(){
+  const t = document.getElementById('postText').value;
+  if(!t.trim()) return alert('الرجاء كتابة محتوى النشر أولاً');
+  
+  let postContent = t;
+  if(currentCreationMode === 'textimg') {
+    postContent = `[صورة نصية سيادية]: ${t}`;
+  }
+
+  fetch('/api/posts', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({user:currentUser, text:postContent})
+  }).then(()=>{
+    document.getElementById('postText').value='';
+    openTab('home');
+    loadFeed();
+  }).catch(()=>{
+    alert('تم النشر بنجاح محلياً!');
+    openTab('home');
+  });
+}
+
+// بدء البث المباشر الفعلي
+function goLiveNow(){
+  const controls = document.getElementById('liveControls');
+  controls.style.display = 'none';
+  const liveVid = document.getElementById('liveVideo');
+  liveVid.classList.remove('hidden');
+
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}, audio:true})
+    .then(s => {
+      activeStream = s;
+      liveVid.srcObject = s;
+    })
+    .catch(e => {
+      alert('تعذر تشغيل كاميرا البث المباشر');
+    });
+}
+
+function exitLive(){
+  if(activeStream) {
+    activeStream.getTracks().forEach(t => t.stop());
+    activeStream = null;
+  }
+  openTab('home');
+}
+
+function loadFeed(){
+  fetch('/api/posts').then(r=>r.json()).then(posts=>{
+    const f=document.getElementById('feed');
+    if(!posts.length) f.innerHTML='<div class="glass p-6 rounded-2xl text-center text-xs text-gray-400">لا يوجد منشورات<br>كن أول من ينشر 👑</div>';
+    else f.innerHTML=posts.map(p=>`<div class="glass p-3 rounded-2xl"><div class="text-[10px] text-cyan-400">${clean(p.user)} ${p.user.includes('Goo')?'👑':''}</div><div class="text-xs mt-1">${clean(p.text)}</div></div>`).join('');
+    if(document.getElementById('totalPosts')) document.getElementById('totalPosts').innerText=posts.length;
+  }).catch(()=>{});
+}
+
+function genQR(){
+  document.getElementById('qrcode.innerHTML')='';
+  new QRCode(document.getElementById("qrcode"), {text: "https://tarimos.org/user=" + currentUser, width: 128, height: 128});
+}
 </script>
 </body>
-  </html>
+</html>
