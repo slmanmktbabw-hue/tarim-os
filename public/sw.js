@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tarim-os-v12'; // غيرته من v11 الى v12
+const CACHE_NAME = 'tarim-os-v12.1'; // رفعنا الرقم عشان يمسح الكاش القديم
 const urlsToCache = [
   '/',
   '/index.html',
@@ -7,7 +7,10 @@ const urlsToCache = [
   '/privacy.html',
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
+  // مكتبة الخريطة
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
 
 // 1. التثبيت - خزن الاساسيات
@@ -20,7 +23,7 @@ self.addEventListener('install', (e) => {
   self.skipWaiting(); // فعل التحديث فوراً
 });
 
-// 2. التفعيل - احذف الكاش القديم v11
+// 2. التفعيل - احذف الكاش القديم
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -41,7 +44,20 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   
-  // API المنشورات والمحفظة = الشبكة اول ثم الكاش
+  // 1. خزن tiles الخريطة من OSM - اهم شي للـ Offline
+  if(req.url.includes('tile.openstreetmap.org')){
+    e.respondWith(
+      caches.open(CACHE_NAME).then(cache => 
+        cache.match(req).then(res => res || fetch(req).then(fetchRes => {
+          cache.put(req, fetchRes.clone());
+          return fetchRes;
+        }).catch(() => cache.match(req)))
+      )
+    );
+    return;
+  }
+  
+  // 2. API المنشورات والمحفظة = الشبكة اول ثم الكاش
   if(req.url.includes('/api/')){
     e.respondWith(
       fetch(req).then(res => {
@@ -53,7 +69,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // الفيديو والصور = الكاش اول ثم الشبكة
+  // 3. الفيديو والصور = الكاش اول ثم الشبكة
   if(req.destination === 'video' || req.destination === 'image'){
     e.respondWith(
       caches.match(req).then(res => res || fetch(req).then(fetchRes => {
@@ -64,7 +80,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // الباقي = الكاش اول
+  // 4. الباقي = الكاش اول
   e.respondWith(
     caches.match(req).then((response) => {
       return response || fetch(req).catch(() => {
