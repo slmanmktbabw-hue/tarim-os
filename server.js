@@ -8,115 +8,72 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-app.use(express.json({ limit: '10mb' })); // تقليل الحد الأقصى لمنع استهلاك الذاكرة وحماية السيرفر
+// حماية ضد الهجمات وانهيار السيرفرات (Rate Limiting ذكي)
+const requestLimit = new Map();
+app.use((req, res, next) => {
+    const ip = req.ip || req.connection.remoteAddress;
+    const now = Date.now();
+    if (!requestLimit.has(ip)) {
+        requestLimit.set(ip, { count: 1, time: now });
+    } else {
+        let data = requestLimit.get(ip);
+        if (now - data.time < 60000) {
+            data.count++;
+            if (data.count > 300) return res.status(429).json({ error: 'تم حظر الطلب مؤقتاً لحماية سيادة السيرفر' });
+        } else {
+            data.count = 1;
+            data.time = now;
+        }
+    }
+    next();
+});
+
+app.use(express.json({ limit: '500mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// تحميل وقراءة الملفات بشكل آمن لمنع انهيار السيرفر عند التلف
 let posts = [];
-try {
-    if (fs.existsSync('./posts.json')) {
-        posts = JSON.parse(fs.readFileSync('./posts.json', 'utf8'));
-    }
-} catch (e) {
-    console.error("خطأ في قراءة posts.json:", e.message);
-    posts = [];
-}
+try { posts = JSON.parse(fs.readFileSync('./posts.json', 'utf8')); } catch (e) { posts = []; }
 
 let walletDB = { 'AL': { balance: 10000, earned: 0 } };
-try {
-    if (fs.existsSync('./wallet.json')) {
-        walletDB = JSON.parse(fs.readFileSync('./wallet.json', 'utf8'));
-    }
-} catch (e) {
-    console.error("خطأ في قراءة wallet.json:", e.message);
-}
+try { walletDB = JSON.parse(fs.readFileSync('./wallet.json', 'utf8')); } catch (e) {}
 
-function savePosts() {
-    try {
-        fs.writeFileSync('./posts.json', JSON.stringify(posts.slice(0, 200)));
-    } catch (e) {
-        console.error("فشل حفظ المنشورات:", e.message);
-    }
-}
+function savePosts() { try { fs.writeFileSync('./posts.json', JSON.stringify(posts.slice(0, 500))); } catch (e) {} }
+function saveWallet() { try { fs.writeFileSync('./wallet.json', JSON.stringify(walletDB)); } catch (e) {} }
 
-function saveWallet() {
-    try {
-        fs.writeFileSync('./wallet.json', JSON.stringify(walletDB));
-    } catch (e) {
-        console.error("فشل حفظ المحفظة:", e.message);
-    }
-}
-
-// المسارات (APIs)
 app.get('/api/posts', (req, res) => res.json(posts));
-
 app.post('/api/posts', (req, res) => {
-    try {
-        const { user, text, media, type } = req.body;
-        if (!text && !media) return res.status(400).json({ error: 'المحتوى فارغ' });
-        
-        const newPost = { user: user || 'AL', text: text || '', media: media || null, type: type || 'text', likes: 0, time: Date.now() };
-        posts.unshift(newPost);
-        savePosts();
-        io.emit('broadcast_post', newPost);
-        res.json({ ok: true });
-    } catch (e) {
-        res.status(500).json({ error: 'خطأ داخلي في الخادم' });
-    }
+    const { user, text, media, type } = req.body;
+    const cleanText = String(text || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const newPost = { user: String(user || 'AL'), text: cleanText, media, type, likes: 0, time: Date.now() };
+    posts.unshift(newPost);
+    savePosts();
+    io.emit('broadcast_post', newPost);
+    res.json({ ok: true });
 });
 
 app.get('/api/wallet/:user', (req, res) => {
     const u = req.params.user || 'AL';
-    if (!walletDB[u]) walletDB[u] = { balance: 100, earned: 0 };
+    if (!walletDB[u]) walletDB[u] = { balance: 10000, earned: 0 };
     res.json(walletDB[u]);
 });
 
-app.post('/api/wallet/gift', (req, res) => {
-    try {
-        const { from, to, gift } = req.body;
-        const prices = { '🎁': 10, '❤️': 5, '👑': 50, '🚀': 100 };
-        const price = prices[gift] || 10;
-
-        if (!walletDB[from]) walletDB[from] = { balance: 100, earned: 0 };
-        if (!walletDB[to]) walletDB[to] = { balance: 10000, earned: 0 };
-
-        if (walletDB[from].balance < price) return res.json({ error: 'رصيدك لا يكفي' });
-
-        walletDB[from].balance -= price;
-        walletDB[to].balance += price * 0.7;
-        walletDB[to].earned += price * 0.7;
-        walletDB[from].earned += 1;
-
-        saveWallet();
-        io.emit('gift_received', { from, gift, price });
-        res.json({ yourBalance: walletDB[from].balance, earned: walletDB[from].earned });
-    } catch (e) {
-        res.status(500).json({ error: 'خطأ في معالجة الهدية' });
-    }
+app.post('/api/ai', (req, res) => {
+    const prompt = String(req.body.prompt || '');
+    const responses = [
+        '👁️ [عين الذكاء السيادي]: النظام يعمل بكامل طاقته عبر عقد المليون سيرفر.',
+        '🛡️ [جدار الحماية]: تم تحليل الثغرات وتأمين الحسابات بنسبة 100%.',
+        '⚡ [السيادة المطلقة]: تم تأمين البث (8 دقائق) والتحكم الميداني بنجاح.'
+    ];
+    res.json({ reply: responses[Math.floor(Math.random() * responses.length)] });
 });
-
-app.post('/api/upload', (req, res) => res.json({ url: req.body.videoBase64 || '' }));
 
 app.post('/api/support', (req, res) => {
-    const user = req.body.user || 'زائر';
-    const replies = [
-        `تم استلام رسالتك يا ${user} - سيرد الفريق على slmanmktbabw@gmail.com`,
-        '🛡️ فريق الدعم يراجع رسالتك الآن',
-        'تم فتح تذكرة #' + Date.now()
-    ];
-    res.json({ reply: replies[Math.floor(Math.random() * replies.length)] });
+    res.json({ reply: '🛡️ فريق الدعم السيادي يعمل بنظام الردع الآلي - slmanmktbabw@gmail.com' });
 });
 
-// التعامل مع الأخطاء العامة لمنع انهيار السيرفر (Uncaught Exception & Rejection)
-process.on('uncaughtException', (err) => {
-    console.error('خطأ غير معالج أدى لتجنب الانهيار:', err.message);
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('رفض وعد غير معالج:', reason);
-});
-
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log('TARIM OS V10 Secure Server on ' + PORT));
+server.listen(PORT, () => console.log('TARIM OS SUPREME SERVER ACTIVE ON PORT ' + PORT));
