@@ -1,6 +1,6 @@
 const socket = io();
 let currentUser = null;
-let stream = null;
+let liveStream = null; // غيرنا الاسم عشان ما يتعارض
 let cameraFacing = 'environment';
 let videoData = [];
 
@@ -63,10 +63,39 @@ function loadVideoFeed(){
   `).join('');
 }
 
-// 2. العمليات
-function startLive(){ document.getElementById('fullScreenCam').classList.remove('hidden'); document.getElementById('preLiveOverlay').style.display='flex'; }
-function exitFullScreen(){ document.getElementById('fullScreenCam').classList.add('hidden'); }
-function confirmStartLive(){ document.getElementById('preLiveOverlay').style.display='none'; showToast('تم بدء البث 8 دقائق'); }
+// 2. العمليات - البث المباشر مصلح
+async function startLive(){ 
+  document.getElementById('fullScreenCam').classList.remove('hidden'); 
+  document.getElementById('preLiveOverlay').style.display='flex'; 
+  
+  try{
+    liveStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: cameraFacing, width: {ideal: 720}, height: {ideal: 1280} },
+      audio: true
+    });
+    const videoEl = document.getElementById('fullCamVideo');
+    videoEl.srcObject = liveStream;
+    videoEl.play();
+  }catch(e){
+    showToast('فشل تشغيل الكاميرا: ' + e.name);
+    console.error(e);
+    exitFullScreen();
+  }
+}
+
+function confirmStartLive(){ 
+  document.getElementById('preLiveOverlay').style.display='none'; 
+  showToast('🔴 تم بدء البث السيادي 8 دقائق'); 
+}
+
+function exitFullScreen(){ 
+  document.getElementById('fullScreenCam').classList.add('hidden'); 
+  if(liveStream){
+    liveStream.getTracks().forEach(track => track.stop());
+    liveStream = null;
+  }
+}
+
 function openMap(){ showToast('خريطة حضرموت Offline جاري التحميل'); }
 function genQR(){ 
   document.getElementById('qrcode').innerHTML='';
@@ -76,18 +105,27 @@ function genQR(){
 // 3. الانشاء
 async function openCamera(facing){
   cameraFacing = facing;
-  stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:facing}});
+  if(liveStream) liveStream.getTracks().forEach(t=>t.stop());
+  liveStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:facing}});
   const vid = document.getElementById('camPreview');
-  vid.srcObject = stream;
+  vid.srcObject = liveStream;
   vid.classList.remove('hidden');
 }
-function toggleCameraFacing(){
+
+async function toggleCameraFacing(){
   cameraFacing = cameraFacing === 'user' ? 'environment' : 'user';
-  openCamera(cameraFacing);
+  if(document.getElementById('fullScreenCam').classList.contains('hidden')){
+    openCamera(cameraFacing);
+  } else {
+    // لو في البث المباشر نبدل الكاميرا
+    startLive();
+  }
 }
+
 function createPost(type){ document.getElementById('postText').placeholder = 'اكتب ' + type + '...'; }
 function publishPost(){
   const txt = document.getElementById('postText').value;
+  if(!txt) return;
   videoData.unshift({user:currentUser, text:txt, likes:0});
   showToast('تم النشر بنجاح');
   document.getElementById('postText').value='';
@@ -116,6 +154,7 @@ function changeBg(){ document.body.style.background='#001'; showToast('تم تغ
 function loadAI(){ document.getElementById('aiLogs').innerHTML = '<div class="text-xs">مرحبا انا عين الذكاء. اسألني</div>' }
 function sendAI(){
   const txt = document.getElementById('aiIn').value;
+  if(!txt) return;
   document.getElementById('aiLogs').innerHTML += `<div class="text-right bg-cyan-500/20 p-2 rounded-xl text-xs">${txt}</div>`;
   document.getElementById('aiIn').value='';
 }
@@ -124,6 +163,7 @@ function sendAI(){
 function loadSupport(){ document.getElementById('supportLogs').innerHTML = '<div class="text-xs text-yellow-400">فريق الدعم جاهز</div>' }
 function sendSupport(){
   const txt = document.getElementById('supportIn').value;
+  if(!txt) return;
   document.getElementById('supportLogs').innerHTML += `<div class="text-right bg-yellow-500/20 p-2 rounded-xl text-xs">${txt}</div>`;
   document.getElementById('supportIn').value='';
 }
@@ -133,6 +173,7 @@ function likeLive(){ document.getElementById('liveLikes').innerText = +document.
 function focusLiveComment(){ document.getElementById('liveCommentIn').focus(); }
 function sendLiveComment(){
   const txt = document.getElementById('liveCommentIn').value;
+  if(!txt) return;
   document.getElementById('liveComments').innerHTML += `<div class="bg-black/50 p-1 rounded text-[10px]">${currentUser}: ${txt}</div>`;
   document.getElementById('liveCommentIn').value='';
 }
