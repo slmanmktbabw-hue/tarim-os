@@ -41,7 +41,10 @@ function openTab(name, event){
   if(name==='home') loadVideoFeed();
   if(name==='ai') loadAI();
   if(name==='support') loadSupport();
-  if(name==='profile') genQR();
+  if(name==='profile'){ 
+    genQR();
+    backToProfile(); // يرجع للصفحة الرئيسية حق الملفات
+  }
   if(name==='inbox') document.getElementById('inboxBadge').classList.add('hidden');
   if(name==='create'){ // ريسيت عند فتح الانشاء
     uploadFile = null;
@@ -132,7 +135,7 @@ async function toggleCameraFacing(){
 
 function createPost(type){ document.getElementById('postText').placeholder = 'اكتب ' + type + '...'; }
 
-// دالة الرفع الجديدة
+// دالة الرفع
 function handleUpload(input, type){
   const file = input.files[0];
   if(!file) return;
@@ -185,15 +188,35 @@ function sendMsg(){
   document.getElementById('chatIn').value='';
 }
 
-// 5. الملفات
-function openWallet(){ showToast('رصيد OKX: 0x53...c0af6'); }
-function openActivities(){ showToast('مركز الانشطة'); }
-function openOffline(){ showToast('الفيديوهات المحفوظة'); }
-function openMarket(){ showToast('المجموعة التجارية'); }
-function openPromo(){ showToast('الترويج والإعلانات'); }
-function openSettings(){ showToast('ادارة المنشورات'); }
-function shareProfile(){ navigator.clipboard.writeText('tarimos.org/'+currentUser); showToast('تم نسخ الرابط'); }
-function changeBg(){ document.body.style.background='#001'; showToast('تم تغيير الخلفية'); }
+// 5. الملفات والاعدادات - مفعل بالكامل
+function showSettingsPanel(id){
+  document.getElementById('profile-main').classList.add('hidden');
+  document.querySelectorAll('#tab-profile > div[id^="settings-"]').forEach(el=>el.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function backToProfile(){
+  document.getElementById('profile-main').classList.remove('hidden');
+  document.querySelectorAll('#tab-profile > div[id^="settings-"]').forEach(el=>el.classList.add('hidden'));
+}
+
+function openWallet(){ showSettingsPanel('settings-wallet'); }
+function openActivities(){ showSettingsPanel('settings-activities'); }
+function openOffline(){ showSettingsPanel('settings-offline'); }
+function openMarket(){ showSettingsPanel('settings-market'); }
+function openPromo(){ showSettingsPanel('settings-promo'); }
+function openSettings(){ showSettingsPanel('settings-posts'); }
+function openBgSettings(){ showSettingsPanel('settings-bg'); }
+
+function shareProfile(){ 
+  navigator.clipboard.writeText('tarimos.org/'+currentUser); 
+  showToast('تم نسخ الرابط: tarimos.org/'+currentUser); 
+}
+
+function changeBg(color){
+  document.body.style.background = color;
+  showToast('تم تغيير الخلفية');
+}
 
 // الذكاء
 function loadAI(){ document.getElementById('aiLogs').innerHTML = '<div class="text-xs">مرحبا انا عين الذكاء. اسألني</div>' }
