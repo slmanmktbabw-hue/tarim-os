@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tarim-os-v11'; // غير الرقم مع كل تحديث
+const CACHE_NAME = 'tarim-os-v12'; // غيرته من v11 الى v12
 const urlsToCache = [
   '/',
   '/index.html',
@@ -20,13 +20,14 @@ self.addEventListener('install', (e) => {
   self.skipWaiting(); // فعل التحديث فوراً
 });
 
-// 2. التفعيل - احذف الكاش القديم
+// 2. التفعيل - احذف الكاش القديم v11
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((name) => {
           if (name !== CACHE_NAME) {
+            console.log('Deleting old cache:', name);
             return caches.delete(name);
           }
         })
