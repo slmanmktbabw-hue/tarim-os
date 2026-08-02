@@ -3,307 +3,357 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TARIM OS V31.6 - نظام سيادي</title>
+    <title>TARIM OS - لوحة التحكم السيادية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, sans-serif;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
+
         body {
-            background-color: #0b0f19;
+            background-color: var(--bg-color, #0b0f19);
             color: #ffffff;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            justify-content: space-between;
+            transition: background 0.3s ease;
         }
-        header {
+
+        .top-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 16px;
-            background: #0b0f19;
+            padding: 15px 20px;
+            background-color: #121824;
             border-bottom: 1px solid #1e293b;
-            font-size: 14px;
         }
-        .support-btn {
-            color: #94a3b8;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-        .app-title {
-            color: #38bdf8;
+
+        .header-title {
+            font-size: 18px;
             font-weight: bold;
+            color: #3b82f6;
         }
-        .ai-eye {
-            color: #cbd5e1;
-        }
+
         .main-container {
+            padding: 15px;
             flex: 1;
-            padding: 16px;
-            max-width: 500px;
-            width: 100%;
-            margin: 0 auto;
             padding-bottom: 80px;
         }
-        .card {
-            background: #111827;
-            border: 1px solid #1f2937;
+
+        .section-card {
+            background-color: #121824;
+            border: 1px solid #1e293b;
             border-radius: 12px;
-            padding: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .section-card h3 {
+            font-size: 16px;
             margin-bottom: 12px;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 12px 15px;
+            margin-top: 8px;
+            background-color: #1e293b;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: #2563eb;
+        }
+
+        .control-btn i {
+            color: #3b82f6;
+        }
+
+        .control-btn:hover i {
+            color: #ffffff;
+        }
+
+        /* نافذة منبثقة (Modal) لعرض التفاصيل والنتائج */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #121824;
+            border: 1px solid #1e293b;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .card:hover {
-            border-color: #38bdf8;
-        }
-        .btn-primary {
-            width: 100%;
-            padding: 12px;
-            background: #00e5ff;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
             font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
+            font-weight: bold;
+            color: #3b82f6;
         }
-        .input-field {
-            width: 100%;
-            padding: 12px;
-            background: #030712;
-            border: 1px solid #1f2937;
-            border-radius: 8px;
-            color: #fff;
-            margin-bottom: 10px;
-            text-align: right;
-        }
-        /* شريط التنقل السفلي */
-        nav.bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #0b0f19;
-            border-top: 1px solid #1f2937;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 65px;
-            z-index: 1000;
-        }
-        .nav-item {
+
+        .close-modal {
             background: none;
             border: none;
             color: #94a3b8;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 11px;
+            font-size: 20px;
             cursor: pointer;
-            flex: 1;
         }
-        .nav-item.active {
-            color: #38bdf8;
+
+        .modal-body {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.6;
         }
-        .nav-center-btn {
-            background: #00e5ff;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            color: #000;
-            font-size: 24px;
+
+        /* QR Code Container */
+        #qrcode {
             display: flex;
-            align-items: center;
             justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 229, 255, 0.3);
-        }
-        .view-section {
-            display: none;
-        }
-        .view-section.active {
-            display: block;
+            margin: 15px 0;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
 
-    <!-- الهيدر العلوي -->
-    <header>
-        <button class="support-btn">فريق الدعم 🛡️</button>
-        <span class="app-title">TARIM OS V31.6</span>
-        <span class="ai-eye">👁️ عين الذكاء</span>
+    <header class="top-header">
+        <div class="header-title"><i class="fa-solid fa-shield-halved"></i> TARIM OS - السيادية</div>
     </header>
 
-    <!-- المحتوى الرئيسي (Views) -->
     <div class="main-container">
+        
+        <div class="section-card">
+            <h3><i class="fa-solid fa-sliders"></i> لوحة التحكم السيادية</h3>
+            
+            <button class="control-btn" onclick="openOKXBalance()">
+                <span><i class="fa-solid fa-wallet"></i> رصيد OKX الملكي</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
 
-        <!-- 1. واجهة الرئيسية -->
-        <div id="view-home" class="view-section active">
-            <div style="background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 16px; margin-bottom: 15px; text-align: center;">
-                <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">🏰 TARIM OS</div>
-                <div style="color: #94a3b8; font-size: 13px;">tarimos.org - نظام سيادي</div>
-            </div>
+            <button class="control-btn" onclick="openActivityCenter()">
+                <span><i class="fa-solid fa-chart-line"></i> مركز الأنشطة</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
 
-            <div class="card" onclick="alert('جاري فتح رصيد الملكي...')">
-                <span>💰 رصيد (OKX الملكي) - 10000</span>
-                <span>فتح ←</span>
-            </div>
-            <div class="card" onclick="alert('جاري فتح مركز الأنشطة...')">
-                <span>📊 مركز الأنشطة</span>
-                <span>فتح ←</span>
-            </div>
-            <div class="card" onclick="alert('جاري فتح فيديوهات دون اتصال...')">
-                <span>📹 فيديوهات دون اتصال</span>
-                <span>فتح ←</span>
-            </div>
-            <div class="card" onclick="alert('عرض رمز QR...')">
-                <span>🔐 رمز QR لديك</span>
-                <span>عرض ←</span>
-            </div>
-            <div class="card" onclick="alert('جاري فتح المجموعة التجارية...')">
-                <span>🏢 المجموعة التجارية</span>
-                <span>فتح ←</span>
-            </div>
-            <div class="card" onclick="alert('جاري فتح الترويج والإعلانات...')">
-                <span>📢 الترويج والإعلانات</span>
-                <span>فتح ←</span>
-            </div>
-            <div class="card" onclick="alert('إدارة المنشورات...')">
-                <span>📝 إدارة المنشورات</span>
-                <span>إدارة ←</span>
-            </div>
-            <div class="card" onclick="alert('مشاركة ملفك الشخصي...')">
-                <span>🔗 مشاركة ملفك الشخصي</span>
-                <span>مشاركة ←</span>
-            </div>
-            <div class="card" onclick="alert('تغيير خلفية المستخدم...')">
-                <span>🎨 تغير خلفية المستخدم</span>
-                <span>تغيير ←</span>
-            </div>
-            <div class="card" onclick="alert('السياسة والخصوصية...')">
-                <span>📜 السياسة والخصوصية</span>
-                <span>فتح ←</span>
-            </div>
-            <div class="card" style="background: #2a1215; border-color: #ef4444;" onclick="if(confirm('هل تريد تسجيل الخروج؟')) alert('تم تسجيل الخروج بنجاح');">
-                <span style="color: #f87171;">🚪 تسجيل خروج</span>
-                <span style="color: #f87171;">←</span>
-            </div>
-        </div>
+            <button class="control-btn" onclick="openOfflineVideos()">
+                <span><i class="fa-solid fa-download"></i> فيديوهات دون اتصال (Offline)</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
 
-        <!-- 2. واجهة العمليات -->
-        <div id="view-operations" class="view-section">
-            <h3 style="margin-bottom: 15px; color: #38bdf8;">قائمة العمليات والمهام السيادية</h3>
-            <div class="card">
-                <span> بث مباشر سيادي ومشفر (8 دقائق)</span>
-                <span style="color: #38bdf8; font-size: 12px;">بث نشط ✓</span>
-            </div>
-            <div class="card">
-                <span> المراسلة والاتصال الآمن بين الحسابات</span>
-                <span style="color: #38bdf8; font-size: 12px;">محمي ✓</span>
-            </div>
-            <div class="card">
-                <span> خريطة حضرموت وترים بدون نت (Offline)</span>
-                <span style="color: #38bdf8; font-size: 12px;">ميداني ✓</span>
-            </div>
-            <div class="card">
-                <span> إصدار الختم الميداني المشفر + QR</span>
-                <span style="color: #94a3b8; font-size: 12px;">جاهز</span>
-            </div>
-        </div>
+            <button class="control-btn" onclick="showQRCode()">
+                <span><i class="fa-solid fa-qrcode"></i> رمز QR لديك</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
 
-        <!-- 3. واجهة الوارد / الرسائل -->
-        <div id="view-inbox" class="view-section">
-            <h3 style="margin-bottom: 15px; color: #38bdf8;">الوارد السيادي والاشعارات</h3>
-            <div class="card" style="display: block;">
-                <div style="font-weight: bold; margin-bottom: 5px;">تنبيه نظام سيادي 🛡️</div>
-                <div style="color: #94a3b8; font-size: 13px;">لا توجد رسائل جديدة في الوارد حالياً. الاتصال مشفر وآمن.</div>
-            </div>
-        </div>
+            <button class="control-btn" onclick="openCommercialGroup()">
+                <span><i class="fa-solid fa-store"></i> المجموعة التجارية والترويج</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
 
-        <!-- 4. واجهة الملفات / تسجيل الدخول -->
-        <div id="view-profile" class="view-section">
-            <div style="background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 20px; text-align: center;">
-                <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">🏰 TARIM OS</div>
-                <div style="color: #94a3b8; font-size: 12px; margin-bottom: 20px;">tarimos.org - نظام سيادي</div>
-                
-                <input type="text" class="input-field" id="username" placeholder="اسم المستخدم">
-                <input type="password" class="input-field" id="password" placeholder="كلمة المرور">
-                
-                <button class="btn-primary" onclick="handleLogin()">دخول القلعة 🔑</button>
-                <button style="width: 100%; padding: 12px; background: #ffffff; color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 10px;" onclick="alert('جاري الربط مع جوجل...')">
-                    متابعة بجوجل 🌐
-                </button>
-            </div>
-        </div>
+            <button class="control-btn" onclick="managePosts()">
+                <span><i class="fa-solid fa-file-pen"></i> إدارة المنشورات</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
 
-        <!-- 5. واجهة الإنشاء السريعة (تفتح عبر زر + المنتصف) -->
-        <div id="view-creator" class="view-section">
-            <h3 style="margin-bottom: 15px; color: #38bdf8;">✨ محطة الإنشاء السيادي</h3>
-            <textarea class="input-field" rows="4" placeholder="اكتب النص ليظهر داخل الصورة السيادية..."></textarea>
-            <button class="btn-primary" onclick="alert('تم النشر الفوري بنجاح!')">نشر فوري عالمي</button>
+            <button class="control-btn" onclick="shareProfile()">
+                <span><i class="fa-solid fa-share-nodes"></i> مشاركة ملفك الشخصي</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <button class="control-btn" onclick="changeBackground()">
+                <span><i class="fa-solid fa-palette"></i> تغيير خلفية المستخدم</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <button class="control-btn" onclick="openPrivacyPolicy()">
+                <span><i class="fa-solid fa-lock"></i> السياسة والخصوصية</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
         </div>
 
     </div>
 
-    <!-- شريط التنقل السفلي الثابت -->
-    <nav class="bottom-nav">
-        <button class="nav-item" onclick="switchView('profile', this)">
-            <span>👤</span>
-            <span>الملفات</span>
-        </button>
-        <button class="nav-item" onclick="switchView('inbox', this)">
-            <span>💬</span>
-            <span>الوارد</span>
-        </button>
-        <button class="nav-center-btn" onclick="switchView('creator', this)">+</button>
-        <button class="nav-item" onclick="switchView('operations', this)">
-            <span>⚡</span>
-            <span>العمليات</span>
-        </button>
-        <button class="nav-item active" onclick="switchView('home', this)">
-            <span>🏠</span>
-            <span>الرئيسية</span>
-        </button>
-    </nav>
+    <div class="modal" id="customModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="modalTitle">عنوان النافذة</span>
+                <button class="close-modal" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                </div>
+        </div>
+    </div>
 
     <script>
-        // دالة التنقل الفوري بين الأقسام دون إعادة تحميل الصفحة
-        function switchView(viewName, element) {
-            document.querySelectorAll('.view-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.getElementById('view-' + viewName).classList.add('active');
-
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            if(element && element.classList.contains('nav-item')) {
-                element.classList.add('active');
+        // استرجاع الخلفية المحفوظة عند فتح التطبيق
+        window.onload = function() {
+            const savedBg = localStorage.getItem('tarim_os_bg');
+            if (savedBg) {
+                document.documentElement.style.setProperty('--bg-color', savedBg);
             }
-            window.scrollTo(0, 0);
+        };
+
+        function showModal(title, contentHtml) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerHTML = contentHtml;
+            document.getElementById('customModal').classList.add('active');
         }
 
-        // دالة تسجيل الدخول
-        function handleLogin() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            if(!user || !pass) {
-                alert('الرجاء إدخال اسم المستخدم وكلمة المرور');
-                return;
+        function closeModal() {
+            document.getElementById('customModal').classList.remove('active');
+        }
+
+        // 1. رصيد OKX الملكي
+        function openOKXBalance() {
+            showModal('رصيد OKX الملكي', `
+                <p>جاري جلب الرصيد الحي من خوادم OKX...</p>
+                <div style="margin-top: 15px; padding: 12px; background: #0b0f19; border-radius: 8px; text-align: center;">
+                    <h2 style="color: #3b82f6;">10,000.00 USDT</h2>
+                    <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">الحالة: متصل وآمن (API Active)</p>
+                </div>
+            `);
+        }
+
+        // 2. مركز الأنشطة
+        function openActivityCenter() {
+            showModal('مركز الأنشطة', `
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
+                    <li style="padding: 10px; background: #0b0f19; border-radius: 6px;">🟢 تسجيل دخول ناجح - منذ 5 دقائق</li>
+                    <li style="padding: 10px; background: #0b0f19; border-radius: 6px;">🔵 مزامنة الأرصدة الميدانية - منذ ساعة</li>
+                    <li style="padding: 10px; background: #0b0f19; border-radius: 6px;">🔒 تحديث أمان الحساب E2EE - أمس</li>
+                </ul>
+            `);
+        }
+
+        // 3. فيديوهات دون اتصال
+        function openOfflineVideos() {
+            showModal('فيديوهات دون اتصال (Offline)', `
+                <p>الملفات المحفوظة مؤقتاً للتصفح بدون إنترنت:</p>
+                <div style="margin-top: 10px; padding: 10px; background: #0b0f19; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>تسجيل ميداني_01.mp4</span>
+                    <i class="fa-solid fa-check" style="color: #22c55e;"></i>
+                </div>
+            `);
+        }
+
+        // 4. رمز QR لديك
+        function showQRCode() {
+            showModal('رمز QR الخاص بك', `
+                <p style="text-align: center; margin-bottom: 10px;">مسح الرمز للوصول السريع للحساب:</p>
+                <div id="qrcode"></div>
+            `);
+            // توليد الرمز فوراً
+            setTimeout(() => {
+                document.getElementById("qrcode").innerHTML = "";
+                new QRCode(document.getElementById("qrcode"), {
+                    text: "https://tarim-os.local/user/secure_id_9921",
+                    width: 150,
+                    height: 150
+                });
+            }, 100);
+        }
+
+        // 5. المجموعة التجارية والترويج
+        function openCommercialGroup() {
+            showModal('المجموعة التجارية والترويج', `
+                <p>إدارة الحملات والترويج النشط:</p>
+                <button class="control-btn" style="margin-top: 10px;" onclick="alert('تم نشر الإعلان بنجاح!')">إطلاق حملة ترويجية جديدة</button>
+            `);
+        }
+
+        // 6. إدارة المنشورات
+        function managePosts() {
+            showModal('إدارة المنشورات (CRUD)', `
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="background: #0b0f19; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>منشور العمليات الميدانية رقم #1</span>
+                        <div>
+                            <button onclick="alert('تم التعديل')" style="background:#2563eb; color:#fff; border:none; padding:5px 8px; border-radius:4px; cursor:pointer;">تعديل</button>
+                            <button onclick="alert('تم الحذف')" style="background:#ef4444; color:#fff; border:none; padding:5px 8px; border-radius:4px; cursor:pointer;">حذف</button>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+
+        // 7. مشاركة ملفك الشخصي
+        function shareProfile() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'TARIM OS Profile',
+                    text: 'تفضل بزيارة حسابي السيادي على نظام TARIM OS',
+                    url: window.location.href,
+                }).catch(() => {});
+            } else {
+                alert('تم نسخ رابط الملف الشخصي إلى الحافظة!');
             }
-            alert('تم تسجيل الدخول بنجاح لـ: ' + user);
-            switchView('home', document.querySelector('.bottom-nav .nav-item:last-child'));
+        }
+
+        // 8. تغيير خلفية المستخدم
+        function changeBackground() {
+            showModal('تغيير خلفية المستخدم', `
+                <p>اختر مظهر الخلفية المفضل:</p>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button onclick="setTheme('#0b0f19')" style="flex:1; padding:15px; background:#0b0f19; border:2px solid #3b82f6; color:#fff; border-radius:8px; cursor:pointer;">داكن ملكي</button>
+                    <button onclick="setTheme('#0f172a')" style="flex:1; padding:15px; background:#0f172a; border:2px solid #1e293b; color:#fff; border-radius:8px; cursor:pointer;">أزرق داكن</button>
+                    <button onclick="setTheme('#18181b')" style="flex:1; padding:15px; background:#18181b; border:2px solid #27272a; color:#fff; border-radius:8px; cursor:pointer;">رمادي فاحم</button>
+                </div>
+            `);
+        }
+
+        function setTheme(color) {
+            document.documentElement.style.setProperty('--bg-color', color);
+            localStorage.setItem('tarim_os_bg', color);
+            closeModal();
+        }
+
+        // 9. السياسة والخصوصية
+        function openPrivacyPolicy() {
+            showModal('السياسة والخصوصية', `
+                <p>نظام TARIM OS يعتمد أعلى معايير التشفير والأمان لضمان حماية كاملة لبيانات الحسابات والاتصالات الميدانية ولا يتم مشاركة أي معلومات شخصية مع أطراف ثالثة.</p>
+            `);
         }
     </script>
 </body>
