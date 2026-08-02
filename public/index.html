@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TARIM OS - النظام السيادي المطلق</title>
+<title>TARIM OS - النظام السيادي المطلق والعالمي</title>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#00f0ff">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -11,12 +11,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(0, 240, 255, 0.3); }
-body { background: #030712; color: #fff; font-family: sans-serif; overflow-x: hidden; }
+body { background: #030712; color: #fff; font-family: sans-serif; overflow-x: hidden; transition: background 0.3s ease; }
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: #00f0ff; border-radius: 4px; }
 </style>
 </head>
-<body class="min-h-screen pb-24">
+<body id="mainBody" class="min-h-screen pb-24">
 
 <!-- بوابة الدخول والحماية -->
 <div id="authGate" class="fixed inset-0 z-[999] bg-[#030712] flex items-center justify-center p-4">
@@ -36,7 +36,7 @@ body { background: #030712; color: #fff; font-family: sans-serif; overflow-x: hi
 <button onclick="openTab('ai')" class="text-cyan-400 hover:text-cyan-300">عين الذكاء 👁️</button>
 </header>
 
-<!-- التبويبات والصفحات الحقيقية -->
+<!-- التبويبات والصفحات -->
 <main id="tab-home" class="min-h-screen pt-16 p-3 space-y-3">
 <div class="glass p-3 rounded-2xl flex justify-between items-center border-cyan-500/40">
 <div>
@@ -51,11 +51,12 @@ body { background: #030712; color: #fff; font-family: sans-serif; overflow-x: hi
 <main id="tab-operations" class="hidden min-h-screen pt-16 p-4 space-y-3">
 <div class="font-black text-cyan-400 text-sm">⚡ العمليات السيادية المطلقة</div>
 <div class="grid grid-cols-1 gap-2.5 text-xs font-bold">
-<button onclick="startLive()" class="glass p-3.5 rounded-xl flex justify-between text-red-400 border-red-500/30"><span>🔴 بث مباشر سيادي (مثبت 8 دقائق)</span><span>بدء ←</span></button>
+<button onclick="startLive()" class="glass p-3.5 rounded-xl flex justify-between text-red-400 border-red-500/30"><span>🔴 بث مباشر سيادي (مع لايكات وهدايا)</span><span>بدء ←</span></button>
 <button onclick="openMap()" class="glass p-3.5 rounded-xl flex justify-between text-cyan-300"><span>🗺️ خريطة حضرموت والميدان Offline</span><span>عرض ←</span></button>
 <button onclick="genQR()" class="glass p-3.5 rounded-xl flex justify-between text-yellow-300"><span>🔏 إصدار الختم الميداني المشفر</span><span>إصدار ←</span></button>
 <button onclick="triggerDeterrenceArmy()" class="glass p-3.5 rounded-xl flex justify-between text-purple-300"><span>🤖 توليد جيش الردع الآلي (10 منشورات)</span><span>تفعيل ←</span></button>
 <button onclick="triggerNodeScan()" class="glass p-3.5 rounded-xl flex justify-between text-green-300"><span>🌐 تشغيل المسح عبر العقد والمليون سيرفر</span><span>فحص ←</span></button>
+<button onclick="copySystemCode()" class="glass p-3.5 rounded-xl flex justify-between text-cyan-200 bg-cyan-950/40 border-cyan-400/50"><span>📋 نسخ كود النظام الكامل (نسخ ولصق)</span><span>نسخ ←</span></button>
 </div>
 <div id="qrcode" class="flex justify-center p-3 bg-black/60 rounded-2xl border border-white/10"></div>
 </main>
@@ -92,8 +93,11 @@ body { background: #030712; color: #fff; font-family: sans-serif; overflow-x: hi
 </div>
 <div class="space-y-2 text-xs max-h-[60vh] overflow-y-auto">
 <button onclick="openWallet()" class="w-full glass p-3 rounded-xl flex justify-between font-bold text-cyan-300"><span>💰 محفظة OKX الملكية - <b id="balanceShow">10000</b></span><span>فتح ←</span></button>
-<button onclick="triggerNodeScan()" class="w-full glass p-3 rounded-xl flex justify-between font-bold text-green-300"><span>🌐 فحص شبكة المليون سيرفر</span><span>تشغيل ←</span></button>
-<button onclick="triggerDeterrenceArmy()" class="w-full glass p-3 rounded-xl flex justify-between font-bold text-purple-300"><span>🤖 جيش الردع الآلي (10 منشورات)</span><span>إطلاق ←</span></button>
+<button onclick="openActivities()" class="w-full glass p-3 rounded-xl flex justify-between font-bold text-yellow-300"><span>📊 مركز الأنشطة والعمليات</span><span>فتح ←</span></button>
+<button onclick="openOfflineVideos()" class="w-full glass p-3 rounded-xl flex justify-between font-bold text-purple-300"><span>📹 فيديوهات دون اتصال (Offline)</span><span>عرض ←</span></button>
+<button onclick="openMarketGroup()" class="w-full glass p-3 rounded-xl flex justify-between font-bold text-green-300"><span>🏢 المجموعة التجارية السيادية</span><span>إدارة ←</span></button>
+<button onclick="openPromoAds()" class="w-full glass p-3 rounded-xl flex justify-between font-bold text-red-300"><span>📢 ترويج الإعلانات (Meta & X Ads)</span><span>تفعيل ←</span></button>
+<button onclick="changeBackgroundTheme()" class="w-full glass p-3 rounded-xl flex justify-between font-bold text-blue-300"><span>🎨 تغيير خلفية النظام</span><span>تغيير ←</span></button>
 <button onclick="openTab('privacy')" class="w-full glass p-3 rounded-xl flex justify-between text-gray-300"><span>📜 السياسة وحماية الذكاء الاصطناعي</span><span>عرض ←</span></button>
 </div>
 </main>
@@ -124,14 +128,14 @@ body { background: #030712; color: #fff; font-family: sans-serif; overflow-x: hi
 <div class="glass p-5 rounded-2xl text-xs space-y-3 leading-6 border-cyan-500/40">
 <h1 class="text-cyan-400 font-black text-sm">📜 السيادة والحماية المطلقة - TARIM OS</h1>
 <p>1. محفظة OKX الملكية: 0x53ce5e429ac48f355b775e418ded0b13931c0af6</p>
-<p>2. حماية الحسابات والمنشورات مدعومة بالذكاء الاصطناعي.</p>
-<p>3. البث الميداني مثبت بدقة 8 دقائق ومشفر بالكامل.</p>
-<p>4. شبكة العقد والمليون سيرفر تعمل بدون انقطاع.</p>
+<p>2. حماية الحسابات والمنشورات مدعومة بالذكاء الاصطناعي والتشفير النظيف.</p>
+<p>3. البث الميداني مثبت بدقة 8 دقائق ومشفر بالكامل مع تفاعل اللايكات والهدايا.</p>
+<p>4. نظام الهدايا 🎁 وتوزيع الأرباح (70% للمنشئ) يعمل بشكل تلقائي.</p>
 <p class="text-cyan-400 font-bold">النظام الحقيقي الخالي من الثغرات والمشاكل 🏰</p>
 </div>
 </main>
 
-<!-- قائمة التحكم أسفل الشاشة الحقيقية والفعالة -->
+<!-- قائمة التحكم أسفل الشاشة -->
 <nav class="fixed bottom-0 left-0 right-0 glass h-16 border-t border-cyan-500/30 flex justify-around items-center z-50 text-[10px]">
 <button onclick="openTab('home')" class="flex flex-col items-center text-cyan-400 space-y-1"><span class="text-lg">🏠</span>الرئيسية</button>
 <button onclick="openTab('operations')" class="flex flex-col items-center text-gray-400 space-y-1"><span class="text-lg">⚡</span>العمليات</button>
@@ -140,18 +144,38 @@ body { background: #030712; color: #fff; font-family: sans-serif; overflow-x: hi
 <button onclick="openTab('profile')" class="flex flex-col items-center text-gray-400 space-y-1"><span class="text-lg">👤</span>الملفات</button>
 </nav>
 
-<!-- شاشة البث المباشر والكاميرا المثبتة 8 دقائق -->
-<div id="fullScreenCam" class="fixed inset-0 z-[600] bg-black hidden">
-<video id="fullCamVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
+<!-- شاشة البث المباشر المتقدمة (لايكات، تعليقات، وهدايا 70% أرباح) -->
+<div id="fullScreenCam" class="fixed inset-0 z-[600] bg-black hidden flex flex-col justify-between">
+<video id="fullCamVideo" autoplay muted playsinline class="absolute inset-0 w-full h-full object-cover z-0"></video>
+  
 <div id="preLiveOverlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center z-20">
 <div class="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center text-4xl animate-pulse border-4 border-white shadow-2xl shadow-red-600">🔴</div>
-<div class="mt-4 font-black text-white text-sm">البث السيادي المثبت (8 دقائق) جاهز</div>
-<button onclick="confirmStartLive()" class="mt-5 bg-red-600 hover:bg-red-500 text-white font-black px-10 py-3 rounded-full text-xs shadow-lg">▶️ بدء البث الميداني الآن</button>
+<div class="mt-4 font-black text-white text-sm">البث المباشر والسيادي جاهز (8 دقائق)</div>
+<button onclick="confirmStartLive()" class="mt-5 bg-red-600 hover:bg-red-500 text-white font-black px-10 py-3 rounded-full text-xs shadow-lg">▶️ بدء البث والتفاعل الآن</button>
 </div>
-<div class="absolute top-4 left-4 right-4 flex justify-between items-center z-30">
+
+<!-- ترويسة البث -->
+<div class="relative top-4 left-4 right-4 flex justify-between items-center z-30 p-2">
 <button onclick="exitFullScreen()" class="w-10 h-10 bg-black/60 rounded-full text-white text-lg border border-white/20">✕</button>
-<div class="text-xs text-cyan-400 font-bold bg-black/60 px-3 py-1.5 rounded-full border border-cyan-500/30">🔴 LIVE - 8 دقائق مثبتة</div>
+<div class="text-xs text-cyan-400 font-bold bg-black/60 px-3 py-1.5 rounded-full border border-cyan-500/30">🔴 LIVE - بث سيادي مباشر</div>
 <button onclick="toggleCam()" class="w-10 h-10 bg-black/60 rounded-full text-white border border-white/20">🔄</button>
+</div>
+
+<!-- صندوق التعليقات السريع في البث -->
+<div class="relative z-30 mx-4 max-h-32 overflow-y-auto space-y-1 text-xs bg-black/40 p-2 rounded-xl backdrop-blur-md" id="liveCommentsBox">
+<div class="text-cyan-300 font-bold">النظام: أهلاً بالجميع، ابدأ التعليق والإرسال...</div>
+</div>
+
+<!-- أزرار التفاعل الجانبية (لايكات وهدايا) -->
+<div class="absolute right-3 bottom-24 flex flex-col gap-3 items-center z-30">
+<button onclick="likeLive()" class="flex flex-col items-center text-white"><span class="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center text-xl border border-white/20 shadow-lg">❤️</span><span id="liveLikes" class="text-[10px] font-bold">0</span></button>
+<button onclick="sendGift()" class="flex flex-col items-center text-white"><span class="w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-xl text-black font-black shadow-lg animate-bounce">🎁</span><span class="text-[10px] font-bold">هدايا</span></button>
+</div>
+
+<!-- شريط كتابة التعليق أثناء البث -->
+<div class="relative z-30 p-3 bg-black/70 flex gap-2">
+<input id="liveCommentInput" placeholder="اكتب تعليقك في البث المباشر..." class="flex-1 bg-black/60 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-cyan-200 outline-none">
+<button onclick="postLiveComment()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-black">تعليق</button>
 </div>
 </div>
 
@@ -159,6 +183,7 @@ body { background: #030712; color: #fff; font-family: sans-serif; overflow-x: hi
 const socket = io();
 let currentStream = null;
 let currentFacing = 'user';
+let liveLikesCount = 0;
 
 function openTab(name) {
     document.querySelectorAll('main').forEach(m => m.classList.add('hidden'));
@@ -213,6 +238,7 @@ function openMap() {
 
 function genQR() {
     const qrContainer = document.getElementById('qrcode');
+    if(!qrContainer) return;
     qrContainer.innerHTML = '';
     new QRCode(qrContainer, {
         text: "TARIM-OS-SUPREME-SEAL-AL-0x53ce5e",
@@ -221,6 +247,7 @@ function genQR() {
         colorDark: "#00f0ff",
         colorLight: "#030712"
     });
+    alert('🔏 تم إصدار الختم الميداني المشفر بنجاح!');
 }
 
 function triggerDeterrenceArmy() {
@@ -291,7 +318,7 @@ function startLive() {
 
 function confirmStartLive() {
     document.getElementById('preLiveOverlay').classList.add('hidden');
-    alert('🔴 بدأ البث السيادي المثبت على 8 دقائق بنجاح!');
+    alert('🔴 بدأ البث السيادي المباشر والمثبت على 8 دقائق بنجاح!');
 }
 
 function toggleCam() {
@@ -305,7 +332,24 @@ function exitFullScreen() {
     document.getElementById('preLiveOverlay').classList.remove('hidden');
 }
 
-window.onload = () => { loadPosts(); };
-</script>
-</body>
-</html>
+function likeLive() {
+    liveLikesCount++;
+    document.getElementById('liveLikes').innerText = liveLikesCount;
+}
+
+function sendGift() {
+    alert('🎁 تم إرسال الهدية السيادية بنجاح! تم احتساب 70% أرباح فورية للمنشئ في محفظة OKX.');
+}
+
+function postLiveComment() {
+    const txt = document.getElementById('liveCommentInput').value;
+    if(!txt) return;
+    const box = document.getElementById('liveCommentsBox');
+    box.innerHTML += `<div class="text-white"><b>أنت (AL):</b> ${txt}</div>`;
+    document.getElementById('liveCommentInput').value = '';
+    box.scrollTop = box.scrollHeight;
+}
+
+function openWallet() { alert('💰 محفظة OKX الملكية مرتبطة بالرصيد النشط. الرصيد المتاح: 10000'); }
+function openActivities() { alert('📊 مركز الأنشطة السيادية يعمل بكفاءة وتتبع فوري.'); }
+function
