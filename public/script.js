@@ -188,7 +188,7 @@ function sendMsg(){
   document.getElementById('chatIn').value='';
 }
 
-// 5. الملفات والاعدادات - مفعل بالكامل
+// 5. الملفات والاعدادات - مفعل بالكامل V14
 function showSettingsPanel(id){
   document.getElementById('profile-main').classList.add('hidden');
   document.querySelectorAll('#tab-profile > div[id^="settings-"]').forEach(el=>el.classList.add('hidden'));
@@ -207,6 +207,8 @@ function openMarket(){ showSettingsPanel('settings-market'); }
 function openPromo(){ showSettingsPanel('settings-promo'); }
 function openSettings(){ showSettingsPanel('settings-posts'); }
 function openBgSettings(){ showSettingsPanel('settings-bg'); }
+function openAccountSettings(){ showSettingsPanel('settings-account'); }
+function openPrivacySettings(){ showSettingsPanel('settings-privacy'); }
 
 function shareProfile(){ 
   navigator.clipboard.writeText('tarimos.org/'+currentUser); 
@@ -215,7 +217,9 @@ function shareProfile(){
 
 function changeBg(color){
   document.body.style.background = color;
-  showToast('تم تغيير الخلفية');
+  const toast = document.getElementById('toastProfile');
+  toast.classList.remove('hidden');
+  setTimeout(()=>toast.classList.add('hidden'), 2000);
 }
 
 // الذكاء
