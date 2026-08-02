@@ -1,4 +1,5 @@
-const socket = io();
+// شلنا socket لانه يعلق التطبيق
+// const socket = io();
 let currentUser = localStorage.getItem('tarim_user') || null;
 let liveStream = null;
 let cameraFacing = 'environment';
@@ -32,7 +33,7 @@ function loadUserData(){
   }
 }
 
-// بوابة الدخول
+// بوابة الدخول - اوفلاين
 function registerAndLogin(){
   const phone = document.getElementById('userPhone').value || 'AL';
   const pass = document.getElementById('userPass').value;
@@ -45,7 +46,9 @@ function registerAndLogin(){
   localStorage.setItem('tarim_user', phone);
   if(!savedPass) localStorage.setItem('tarim_pass_'+phone, pass);
 
-  socket.emit('register', {phone, pass});
+  // شلنا السطر هذا عشان يفتح بدون سيرفر
+  // socket.emit('register', {phone, pass});
+
   document.getElementById('authGate').classList.add('hidden');
   loadUserData();
   openTab('home', {target: document.querySelectorAll('nav button')[4]});
@@ -213,4 +216,4 @@ window.onload = () => {
     loadUserData();
     openTab('home', {target: document.querySelectorAll('nav button')[4]});
   }
-}
+                       }
