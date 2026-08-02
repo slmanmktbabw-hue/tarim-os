@@ -1,12 +1,11 @@
 {
-  "name": "tarim-os-live",
-  "version": "24.0.0",
+  "name": "tarim-os-sovereign",
+  "version": "23.1.0",
   "main": "server.js",
-  "scripts": { "start": "node server.js" },
+  "scripts": {"start": "node server.js"},
   "dependencies": {
-    "express": "^4.18.2",
+    "express": "^4.19.2",
     "socket.io": "^4.7.5",
-    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5"
   }
 }
