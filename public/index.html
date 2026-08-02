@@ -10,8 +10,6 @@
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
-<!-- شلنا socket.io عشان ما يعلق -->
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 .glass{background:rgba(15,23,42,0.9);backdrop-filter:blur(14px);border:1px solid rgba(0,240,255,0.2)}
@@ -85,7 +83,7 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 </div>
 </main>
 
-<!-- 5. الملفات -->
+<!-- 5. الملفات - نسخة تيك توك V16 -->
 <main id="tab-profile" class="hidden min-h-screen pt-16 p-4 space-y-3">
 <div id="profile-main">
 <div id="toastProfile" class="bg-cyan-500 text-black text-xs font-bold p-2 rounded-xl text-center hidden mb-2">تم تغيير الخلفية</div>
@@ -99,34 +97,34 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 </div>
 
 <div class="grid grid-cols-3 gap-2 text-center text-xs">
-  <div class="glass p-2 rounded-xl"><div class="font-black">0</div><div class="text-gray-400">اعجاب</div></div>
-  <div class="glass p-2 rounded-xl"><div class="font-black">0</div><div class="text-gray-400">يتابع</div></div>
   <div class="glass p-2 rounded-xl"><div class="font-black">0</div><div class="text-gray-400">متابع</div></div>
+  <div class="glass p-2 rounded-xl"><div class="font-black">0</div><div class="text-gray-400">يتابع</div></div>
+  <div class="glass p-2 rounded-xl"><div class="font-black">0</div><div class="text-gray-400">اعجاب</div></div>
 </div>
 
-<div class="space-y-2 text-xs mt-3">
-  <div class="font-black text-cyan-400 text-xs">ادوات الحساب</div>
-  <button onclick="openWallet()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>💰 رصيد (OKX الملكي) - 0</span><span>فتح ←</span></button>
-  <button onclick="openActivities()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>📊 مركز الانشطة</span><span>فتح ←</span></button>
-  <button onclick="openOffline()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>📹 فيديوهات دون اتصال</span><span>فتح ←</span></button>
-  <button onclick="genQR()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>🔏 رمز QR لديك</span><span>عرض ←</span></button>
+<div class="space-y-2 text-xs">
+  <div class="font-black text-cyan-400 text-xs mt-2">ادوات الحساب</div>
+  <button onclick="openWallet()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>💰 رصيد (OKX الملكي) - 0</span><span>فتح ←</span></button>
+  <button onclick="openActivities()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>📊 مركز الانشطة</span><span>فتح ←</span></button>
+  <button onclick="openOffline()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>📹 فيديوهات دون اتصال</span><span>فتح ←</span></button>
+  <button onclick="genQR()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>🔏 رمز QR لديك</span><span>عرض ←</span></button>
 </div>
 
 <div class="space-y-2 text-xs mt-3">
   <div class="font-black text-cyan-400 text-xs">ادوات الابداع والاعمال</div>
-  <button onclick="openMarket()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>🏢 المجموعة التجارية</span><span>فتح ←</span></button>
-  <button onclick="openPromo()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>📢 الترويج والاعلانات</span><span>فتح ←</span></button>
-  <button onclick="openSettings()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>📄 ادارة المنشورات</span><span>ادارة ←</span></button>
+  <button onclick="openMarket()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>🏢 المجموعة التجارية</span><span>فتح ←</span></button>
+  <button onclick="openPromo()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>📢 الترويج والاعلانات</span><span>فتح ←</span></button>
+  <button onclick="openSettings()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>📄 ادارة المنشورات</span><span>ادارة ←</span></button>
 </div>
 
 <div class="space-y-2 text-xs mt-3">
   <div class="font-black text-cyan-400 text-xs">الاعدادات والخصوصية</div>
-  <button onclick="openAccountSettings()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>👤 الحساب</span><span>←</span></button>
-  <button onclick="openPrivacySettings()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>🔒 الخصوصية والامان</span><span>←</span></button>
-  <button onclick="openBgSettings()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>🎨 تغير خلفية المستخدم</span><span>تغير ←</span></button>
-  <button onclick="shareProfile()" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>🔗 مشاركة ملفك الشخصي</span><span>مشاركة ←</span></button>
-  <button onclick="openTab('privacy', event)" class="w-full glass p-3 rounded-xl flex justify-between font-bold"><span>📜 السياسة والخصوصية</span><span>فتح ←</span></button>
-  <button onclick="logout()" class="w-full glass p-3 rounded-xl flex justify-between font-bold text-red-400"><span>🚪 تسجيل الخروج</span><span>←</span></button>
+  <button onclick="openAccountSettings()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>👤 الحساب</span><span>←</span></button>
+  <button onclick="openPrivacySettings()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>🔒 الخصوصية والامان</span><span>←</span></button>
+  <button onclick="openBgSettings()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>🎨 تغير خلفية المستخدم</span><span>تغير ←</span></button>
+  <button onclick="shareProfile()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>🔗 مشاركة ملفك الشخصي</span><span>مشاركة ←</span></button>
+  <button onclick="openTab('privacy', event)" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold"><span>📜 السياسة والخصوصية</span><span>فتح ←</span></button>
+  <button onclick="logout()" class="w-full glass p-3 rounded-xl flex justify-between items-center font-bold text-red-400"><span>🚪 تسجيل الخروج</span><span>←</span></button>
 </div>
 </div>
 
@@ -138,8 +136,8 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 <div id="settings-promo" class="hidden"><button onclick="backToProfile()" class="mb-2 text-xs text-cyan-400">← رجوع</button><div class="glass p-4 rounded-2xl"><div class="font-black text-cyan-400 mb-2">📢 الترويج</div><div class="text-xs">اختر هدفك: المزيد من المتابعين / المشاهدات / الاعجابات</div></div></div>
 <div id="settings-posts" class="hidden"><button onclick="backToProfile()" class="mb-2 text-xs text-cyan-400">← رجوع</button><div class="glass p-4 rounded-2xl"><div class="font-black text-cyan-400 mb-2">📄 ادارة المنشورات</div><div class="text-xs">عدد منشوراتك: 0</div></div></div>
 <div id="settings-bg" class="hidden"><button onclick="backToProfile()" class="mb-2 text-xs text-cyan-400">← رجوع</button><div class="glass p-4 rounded-2xl"><div class="font-black text-cyan-400 mb-2">🎨 تغير خلفية المستخدم</div><div class="grid grid-cols-3 gap-2"><button onclick="changeBg('#050b14')" class="h-12 bg-[#050b14] rounded-xl border-cyan-500"></button><button onclick="changeBg('#001122')" class="h-12 bg-[#001122] rounded-xl border-cyan-500"></button><button onclick="changeBg('#110011')" class="h-12 bg-[#110011] rounded-xl border-cyan-500"></button></div></div></div>
-<div id="settings-account" class="hidden"><button onclick="backToProfile()" class="mb-2 text-xs text-cyan-400">← رجوع</button><div class="glass p-4 rounded-2xl space-y-1 text-xs"><div class="font-black text-cyan-400 mb-2 flex items-center gap-2 justify-end">الحساب 👤</div><button onclick="showToast('قريبا')" class="w-full flex justify-between p-2 hover:bg-white/5 rounded"><span>←</span><span>معلومات الحساب</span></button><button onclick="showToast('قريبا')" class="w-full flex justify-between p-2 hover:bg-white/5 rounded"><span>←</span><span>كلمة السر</span></button><button onclick="showToast('قريبا')" class="w-full flex justify-between p-2 hover:bg-white/5 rounded"><span>←</span><span>التحقق بخطوتين</span></button><button onclick="showToast('قريبا')" class="w-full flex justify-between p-2 hover:bg-white/5 rounded"><span>←</span><span>تبديل الى حساب شخصي</span></button></div></div></div>
-<div id="settings-privacy" class="hidden"><button onclick="backToProfile()" class="mb-2 text-xs text-cyan-400">← رجوع</button><div class="glass p-4 rounded-2xl space-y-1 text-xs"><div class="font-black text-cyan-400 mb-2 flex items-center gap-2 justify-end">الخصوصية والامان 🔒</div><button onclick="showToast('قريبا')" class="w-full flex justify-between p-2 hover:bg-white/5 rounded"><span>🔒</span><span>حساب خاص</span></button><button onclick="showToast('قريبا')" class="w-full flex justify-between p-2 hover:bg-white/5 rounded"><span>🚫</span><span>الحسابات المحظورة</span></button><button onclick="showToast('قريبا')" class="w-full flex justify-between p-2 hover:bg-white/5 rounded"><span>💬</span><span>التعليقات</span></button><button onclick="showToast('قريبا')" class="w-full flex justify-between p-2 hover:bg-white/5 rounded"><span>📩</span><span>الرسائل الخاصة</span></button></div></div></div>
+<div id="settings-account" class="hidden"><button onclick="backToProfile()" class="mb-2 text-xs text-cyan-400">← رجوع</button><div class="glass p-4 rounded-2xl space-y-2 text-xs"><div class="font-black text-cyan-400 mb-2">👤 الحساب</div><div class="flex justify-between p-2"><span>معلومات الحساب</span><span>←</span></div><div class="flex justify-between p-2"><span>كلمة السر</span><span>←</span></div><div class="flex justify-between p-2"><span>التحقق بخطوتين</span><span>←</span></div><div class="flex justify-between p-2"><span>تبديل الى حساب شخصي</span><span>←</span></div></div></div></div>
+<div id="settings-privacy" class="hidden"><button onclick="backToProfile()" class="mb-2 text-xs text-cyan-400">← رجوع</button><div class="glass p-4 rounded-2xl space-y-2 text-xs"><div class="font-black text-cyan-400 mb-2">🔒 الخصوصية والامان</div><div class="flex justify-between p-2"><span>حساب خاص</span><span>🔒</span></div><div class="flex justify-between p-2"><span>الحسابات المحظورة</span><span>🚫</span></div><div class="flex justify-between p-2"><span>التعليقات</span><span>💬</span></div><div class="flex justify-between p-2"><span>الرسائل الخاصة</span><span>📩</span></div></div></div></div>
 <div id="settings-edit-profile" class="hidden"><button onclick="backToProfile()" class="mb-2 text-xs text-cyan-400">← رجوع</button><div class="glass p-4 rounded-2xl space-y-3 text-xs"><div class="font-black text-cyan-400 mb-2">👤 تعديل الملف الشخصي</div><div class="text-center"><div id="editAvatar" class="w-20 h-20 bg-cyan-500/25 rounded-full mx-auto flex items-center justify-center text-2xl font-black text-cyan-300 border-2 border-cyan-400">AL</div><button onclick="document.getElementById('uploadAvatar').click()" class="mt-2 text-[10px] bg-cyan-500/20 px-3 py-1 rounded-full">تغير الصورة</button><input type="file" id="uploadAvatar" accept="image/*" class="hidden" onchange="changeAvatar(event)"></div><input id="editUsername" placeholder="اسم المستخدم" class="w-full bg-black/60 border-cyan-500/30 rounded-xl p-3 text-xs outline-none"><input id="editPassword" type="password" placeholder="كلمة السر الجديدة" class="w-full bg-black/60 border-cyan-500/30 rounded-xl p-3 text-xs outline-none"><button onclick="saveProfile()" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs">حفظ التعديلات</button></div></div></div>
 
 </main>
@@ -152,8 +150,17 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 <div id="fullScreenCam" class="fixed inset-0 z-[600] bg-black hidden"><video id="fullCamVideo" autoplay muted playsinline class="w-full h-full object-cover"></video><div id="preLiveOverlay" class="absolute inset-0 bg-black/75 flex items-center justify-center flex-col z-20"><div class="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center text-4xl animate-pulse border-4 border-white">🔴</div><div class="mt-4 font-black text-white">البث السيادي جاهز</div><button onclick="confirmStartLive()" class="mt-5 bg-red-600 text-white font-black px-10 py-3 rounded-full text-sm">▶️ اضغط لبدء البث</button></div><div id="walletPanel" class="absolute top-16 left-3 bg-black/80 rounded-2xl p-2 text-[10px] border-cyan-500/30 z-10"><div>💰 رصيدك: <span id="myBalance">0</span></div><div>💎 أرباحك: <span id="myEarn">0</span></div></div><div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center bg-gradient-to-b from-black/70 to-transparent z-10"><button onclick="exitFullScreen()" class="w-10 h-10 bg-black/50 rounded-full text-white text-xl">✕</button><div class="text-xs text-cyan-400 font-bold">🔴 LIVE - tarimos.org</div><button onclick="toggleCameraFacing()" class="w-10 h-10 bg-black/50 rounded-full">🔄</button></div><div class="absolute right-3 bottom-24 flex-col gap-4 items-center z-10"><button onclick="likeLive()" class="flex flex-col items-center"><span class="w-12 h-12 bg-black/40 rounded-full flex items-center justify-center text-xl">❤️</span><span id="liveLikes" class="text-[10px]">0</span></button><button onclick="focusLiveComment()" class="flex flex-col items-center"><span class="w-12 h-12 bg-black/40 rounded-full flex items-center justify-center text-xl">💬</span><span class="text-[10px]">تعليق</span></button><button onclick="sendGift()" class="flex flex-col items-center"><span class="w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-xl">🎁</span><span class="text-[10px]">هدايا</span></button><button onclick="shareLive()" class="flex flex-col items-center"><span class="w-12 h-12 bg-black/40 rounded-full flex items-center justify-center">↗️</span><span class="text-[10px]">مشاركة</span></button></div><div id="liveComments" class="absolute left-3 bottom-24 w-60 max-h-40 overflow-y-auto space-y-1 text-xs z-10"></div><div class="absolute bottom-3 left-3 right-20 flex gap-2 z-10"><input id="liveCommentIn" placeholder="اكتب تعليق..." class="flex-1 bg-black/50 border-white/20 rounded-full px-4 py-2 text-xs outline-none"><button onclick="sendLiveComment()" class="bg-cyan-500 text-black px-4 rounded-full text-xs font-bold">إرسال</button></div></div>
 <div id="toastBox" class="fixed top-20 left-4 right-4 z-[700] flex-col items-center"></div>
 
-<!-- الشريط السفلي معكوس كامل -->
+<!-- الشريط السفلي معكوس -->
 <nav class="fixed bottom-0 left-0 right-0 glass flex justify-around items-center py-2 text-[10px] border-t border-cyan-500/20 z-50">
   <button onclick="openTab('profile', event)" class="flex flex-col items-center text-cyan-400"><span class="text-2xl">👤</span><span>الملفات</span></button>
   <button onclick="openTab('inbox', event)" class="flex flex-col items-center text-gray-400 relative"><span class="text-2xl">💬</span><span>الوارد</span><span id="inboxBadge" class="absolute -top-1 right-2 bg-red-500 text-[8px] rounded-full px-1 hidden">1</span></button>
-  <button onclick="openTab('create', event)" class="w-14 h-14 rounded-full bg-cyan-500 flex items-center justify-center
+  <button onclick="openTab('create', event)" class="w-14 h-14 rounded-full bg-cyan-500 flex items-center justify-center text-3xl font-bold -mt-4 shadow-lg shadow-cyan-500/50">+</button>
+  <button onclick="openTab('operations', event)" class="flex flex-col items-center text-gray-400"><span class="text-2xl">⚡</span><span>العمليات</span></button>
+  <button onclick="openTab('home', event)" class="flex flex-col items-center text-gray-400"><span class="text-2xl">🏠</span><span>الرئيسية</span></button>
+</nav>
+
+<script>
+// ========== الكود كامل هنا عشان يشتغل بملف واحد ==========
+let currentUser = localStorage.getItem('tarim_user') || null;
+let liveStream = null;
+let cameraFacing = 'en
