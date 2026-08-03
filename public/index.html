@@ -10,15 +10,15 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-      .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
+     .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
         body { font-family: 'Cairo', sans-serif; background: #030B1A; }
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
         #fullScreenCam { position: fixed; inset: 0; background: black; z-index: 60; }
         #liveFilter { position: absolute; inset: 0; mix-blend-mode: overlay; transition: 0.3s; }
-       .service-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(0, 240, 255, 0.15); padding: 12px 16px; border-radius: 12px; color: #E0F2FE; font-size: 14px; font-weight: 600; }
+      .service-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(0, 240, 255, 0.15); padding: 12px 16px; border-radius: 12px; color: #E0F2FE; font-size: 14px; font-weight: 600; }
     </style>
 </head>
-<body class="text-white min-h-screen flex flex-col justify-between select-none pb-24">
+<body class="text-white min-h-screen flex-col justify-between select-none pb-24">
 
     <!-- الاشعارات -->
     <div id="toastBox" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex-col items-center pointer-events-none"></div>
@@ -31,51 +31,54 @@
     </header>
 
     <!-- المحتوى -->
-    <div class="flex-1 w-full max-w-md mx-auto p-4 overflow-y-auto">
+    <div class="flex-1 w-full max-w-md mx-auto overflow-y-auto">
 
         <!-- الرئيسية -->
-        <main id="tab-home" class="space-y-4 text-right">
-            <div class="flex justify-end items-center gap-2 mt-4">
+        <main id="tab-home" class="space-y-4 text-right p-4">
+            <div class="flex justify-between items-start mt-2">
+                <!-- اليمين: الاسم -->
                 <div>
-                    <p class="font-bold">@AL</p>
-                    <p class="text-xs text-slate-400">النظام السيادي TARIM OS</p>
+                    <p id="homeUsername" class="font-bold text-lg">AL@</p>
+                    <p class="text-xs text-slate-400">TARIM OS النظام السيادي</p>
                 </div>
-                <div class="w-10 h-10 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center font-bold">AL</div>
+                <!-- اليسار: الصورة -->
+                <div id="profileAvatar" class="w-12 h-12 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center font-bold text-lg">AL</div>
             </div>
-            <div class="flex justify-end items-center gap-2 text-red-400">
-                <span>❤️</span> <span>120</span>
+            <!-- الاعجابات -->
+            <div class="flex justify-start items-center gap-2 text-red-400">
+                <span>❤️</span> <span id="homeLikes">120</span>
             </div>
         </main>
 
         <!-- العمليات -->
-        <main id="tab-operations" class="hidden space-y-4 text-right">
+        <main id="tab-operations" class="hidden space-y-4 text-right p-4">
             <h3 class="text-center text-cyan-400 font-bold">قسم العمليات السيادية ⚡</h3>
             <button onclick="startLive()" class="service-btn"><span>← بدء</span><span>بت مباشر سيادي (8 دقائق) 🔴</span></button>
             <button onclick="showToast('المراسلة الامنة قريباً')" class="service-btn"><span>← فتح</span><span>المراسلة الامنة 💬</span></button>
             <button onclick="openMap()" class="service-btn"><span>← عرض</span><span>خريطة حضرموت Offline 🗺️</span></button>
             <button onclick="generateQR()" class="service-btn"><span>← إصدار</span><span>الختم الميداني QR 🧾</span></button>
             <div id="qrcode" class="flex justify-center mt-4"></div>
-            <div id="mapContainer" class="hidden mt-4 h-48 rounded-xl overflow-hidden border border-cyan-500/30"><div id="map" class="w-full h-full"></div></div>
+            <div id="mapContainer" class="hidden mt-4 h-48 rounded-xl overflow-hidden border-cyan-500/30"><div id="map" class="w-full h-full"></div></div>
         </main>
 
         <!-- الإنشاء -->
-        <main id="tab-create" class="hidden space-y-4 text-right">
+        <main id="tab-create" class="hidden space-y-4 text-right p-4">
             <h3 class="text-center text-cyan-400 font-bold">محطة الانشاء السيادي ✨</h3>
             <div class="grid grid-cols-3 gap-2">
                 <button onclick="showToast('تبديل الكاميرا')" class="glass p-2 rounded-xl text-xs">تبديل 📷</button>
                 <button onclick="changeBackground()" class="glass p-2 rounded-xl text-xs">خلفية 🖼️</button>
-                <button onclick="switchCamera()" class="glass p-2 rounded-xl text-xs">امامية 🤳</button>
+                <button onclick="switchCamera()" class="glass p-2 rounded-xl text-xs">امية 🤳</button>
                 <button onclick="showToast('رفع صورة قريباً')" class="glass p-2 rounded-xl text-xs">رفع صورة 🖼️</button>
                 <button onclick="showToast('رفع فيديو قريباً')" class="glass p-2 rounded-xl text-xs">رفع فيديو 📹</button>
                 <button onclick="startLive()" class="glass p-2 rounded-xl text-xs text-red-400">LIVE 🔴</button>
             </div>
             <button onclick="publishPost()" class="w-full glass p-2 rounded-xl text-xs">منشور نص 📄</button>
-            <textarea id="postDescInput" placeholder="اكتب وصف للمنشور..." class="w-full bg-slate-900/80 border border-cyan-500/20 rounded-xl p-3 text-xs text-cyan-300 h-24"></textarea>
+            <textarea id="postDescInput" placeholder="اكتب وصف للمنشور..." class="w-full bg-slate-900/80 border-cyan-500/20 rounded-xl p-3 text-xs text-cyan-300 h-24"></textarea>
             <button onclick="publishPost()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl">نشر فوري</button>
         </main>
 
         <!-- الوارد -->
-        <main id="tab-inbox" class="hidden space-y-4 text-right">
+        <main id="tab-inbox" class="hidden space-y-4 text-right p-4">
             <h3 class="text-center text-cyan-400 font-bold">صندوق الوارد 💬</h3>
             <div class="glass p-2 rounded-xl flex gap-2">
                 <button onclick="sendInboxMsg()" class="bg-cyan-500 text-black px-4 rounded-xl font-bold">إرسال</button>
@@ -84,10 +87,10 @@
         </main>
 
         <!-- الملفات -->
-        <main id="tab-profile" class="hidden space-y-4 text-right">
-            <div class="glass p-4 rounded-2xl border border-cyan-500/30 flex flex-col items-center relative">
+        <main id="tab-profile" class="hidden space-y-4 text-right p-4">
+            <div class="glass p-4 rounded-2xl border border-cyan-500/30 flex-col items-center relative">
                 <button onclick="showToast('تعديل الملف')" class="absolute top-2 left-2 text-xs bg-slate-800 px-2 py-1 rounded">تعديل</button>
-                <div id="profileAvatar" class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-cyan-300 font-bold text-xl mb-2">AL</div>
+                <div id="profileAvatarBig" class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-cyan-300 font-bold text-xl mb-2">AL</div>
                 <h3 id="profileName" class="font-bold text-cyan-300">الامبراطور AL</h3>
                 <p class="text-xs text-cyan-500">OKX: 0x53...c0af6</p>
                 <p class="text-[10px] text-slate-400 flex items-center gap-1">ملكي 🌍</p>
@@ -143,13 +146,26 @@
         </div>
     </div>
 
-    <!-- شريط التنقل السفلي -->
+    <!-- شريط التنقل السفلي - مرتب من اليمين -->
     <nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 flex justify-around p-2 z-30">
-        <button onclick="openTab('profile', event)" class="flex flex-col items-center text-gray-400 text-[10px]"><span class="text-xl">👤</span>الملفات</button>
-        <button onclick="openTab('inbox', event)" class="flex flex-col items-center text-gray-400 text-[10px]"><span class="text-xl">💬</span>الوارد</button>
+        <!-- 1. الرئيسية - اليمين -->
+        <button onclick="openTab('home', event)" class="flex flex-col items-center text-cyan-400 text-[10px]">
+            <span class="text-2xl">🏠</span>الرئيسية
+        </button>
+        <!-- 2. العمليات -->
+        <button onclick="openTab('operations', event)" class="flex flex-col items-center text-gray-400 text-[10px]">
+            <span class="text-2xl">⚡</span>العمليات
+        </button>
+        <!-- 3. زر الانشاء في الوسط -->
         <button onclick="openTab('create', event)" class="w-14 h-14 bg-cyan-500 text-black rounded-full flex items-center justify-center font-bold text-3xl shadow-lg shadow-cyan-500/40 -mt-4">＋</button>
-        <button onclick="openTab('operations', event)" class="flex flex-col items-center text-gray-400 text-[10px]"><span class="text-xl">⚡</span>العمليات</button>
-        <button onclick="openTab('home', event)" class="flex flex-col items-center text-cyan-400 text-[10px]"><span class="text-xl">🏠</span>الرئيسية</button>
+        <!-- 4. الوارد -->
+        <button onclick="openTab('inbox', event)" class="flex flex-col items-center text-gray-400 text-[10px]">
+            <span class="text-2xl">💬</span>الوارد
+        </button>
+        <!-- 5. الملفات - اليسار -->
+        <button onclick="openTab('profile', event)" class="flex flex-col items-center text-gray-400 text-[10px]">
+            <span class="text-2xl">👤</span>الملفات
+        </button>
     </nav>
 
     <script src="/script.js"></script>
