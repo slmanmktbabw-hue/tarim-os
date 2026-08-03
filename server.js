@@ -1,116 +1,92 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const path = require('path');
-const fs = require('fs');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import fetch from 'node-fetch'; // npm i node-fetch
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const server = http.createServer(app);
-
-// 1. قفل CORS على موقعك فقط
-const io = new Server(server, {
-  cors: { origin: "https://tarimos.org", methods: ["GET", "POST"] }
-});
-
-// 2. حماية سيادية
-app.use(helmet({ contentSecurityPolicy: false })); // Tailwind يبغاله inline
-app.use(rateLimit({ windowMs: 60000, max: 150 })); // 150 طلب بالدقيقة
-
-app.use(express.json({ limit: '50mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-// ملفات البيانات
-const POSTS_FILE = './posts.json';
-const WALLET_FILE = './wallet.json';
-
-let posts = [];
-try { posts = JSON.parse(fs.readFileSync(POSTS_FILE, 'utf8')) } catch (e) { posts = [] }
-
-let walletDB = { 'AL': { balance: 10000, earned: 0 } };
-try { walletDB = JSON.parse(fs.readFileSync(WALLET_FILE, 'utf8')) } catch (e) { }
-
-// 3. تنظيف ضد XSS
-function sanitize(text) {
-  return String(text || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-function savePosts() {
-  try { fs.writeFileSync(POSTS_FILE, JSON.stringify(posts.slice(0, 200))) } catch (e) { }
-}
-function saveWallet() {
-  try { fs.writeFileSync(WALLET_FILE, JSON.stringify(walletDB)) } catch (e) { }
-}
-
-// API المنشورات
-app.get('/api/posts', (req, res) => res.json(posts));
-
-app.post('/api/posts', (req, res) => {
-  const newPost = {
-    user: sanitize(req.body.user),
-    text: sanitize(req.body.text),
-    media: req.body.media || null,
-    type: req.body.type || 'text',
-    likes: 0,
-    time: Date.now()
-  };
-  posts.unshift(newPost);
-  savePosts();
-  io.emit('broadcast_post', newPost);
-  res.json({ ok: true })
-});
-
-// API المحفظة - اخفاء العنوان
-app.get('/api/wallet/:user', (req, res) => {
-  const u = sanitize(req.params.user) || 'AL';
-  if (!walletDB[u]) walletDB[u] = { balance: 100, earned: 0 };
-  res.json({
-    balance: walletDB[u].balance,
-    earned: walletDB[u].earned,
-    address: "0x53...c0af6" // مختصر
-  })
-});
-
-// API الهدايا
-app.post('/api/wallet/gift', (req, res) => {
-  const { from, to, gift } = req.body;
-  const prices = { '🎁': 10, '❤️': 5, '👑': 50, '🚀': 100 };
-  const price = prices[gift] || 10;
-
-  if (!walletDB[from]) walletDB[from] = { balance: 100, earned: 0 };
-  if (!walletDB[to]) walletDB[to] = { balance: 10000, earned: 0 };
-  if (walletDB[from].balance < price) return res.status(400).json({ error: 'رصيدك لا يكفي' });
-
-  walletDB[from].balance -= price;
-  walletDB[to].balance += price * 0.7;
-  walletDB[to].earned += price * 0.7;
-  walletDB[from].earned += 1;
-
-  saveWallet();
-  io.emit('gift_received', { from, gift, price });
-  res.json({ yourBalance: walletDB[from].balance, earned: walletDB[from].earned })
-});
-
-// API الرفع
-app.post('/api/upload', (req, res) => {
-  if (!req.body.videoBase64 &&!req.body.imageBase64) return res.status(400).json({ error: 'لا يوجد ملف' });
-  res.json({ url: req.body.videoBase64 || req.body.imageBase64 || '' })
-});
-
-// API الدعم - شلنا الايميل
-app.post('/api/support', (req, res) => {
-  const user = sanitize(req.body.user);
-  const replies = [
-    `تم استلام رسالتك يا ${user} - سيرد الفريق خلال 24 ساعة`,
-    `🛡️ فريق الدعم يراجع رسالتك الآن`,
-    `تم فتح تذكرة #${Date.now()}`
-  ];
-  res.json({ reply: replies[Math.floor(Math.random() * replies.length)] })
-});
-
-// اي شي ثاني يرجع index.html
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+const server = createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log('🏰 TARIM OS V11 Secure on ' + PORT + ' 👑🌍'));
+
+// امان سيادي
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.static('public'));
+
+const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200 });
+app.use('/api/', limiter);
+
+// ========== بروكسي عين الذكاء ==========
+app.post('/api/ai', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    if(!prompt) return res.status(400).json({error: 'مافي نص'});
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'فشل الاتصال بالذكاء' });
+  }
+});
+
+// ========== بروكسي الدعم ==========
+app.post('/api/support', async (req, res) => {
+  const { message } = req.body;
+  console.log('رسالة دعم جديدة:', message);
+  res.json({ reply: 'استلمنا رسالتك يا ملك، فريق TARIM OS بيرد عليك قريب' });
+});
+
+// ========== API الهدايا ==========
+app.post('/api/wallet/gift', async (req, res) => {
+  const { from, to, gift } = req.body;
+  console.log(`هدية: ${from} ارسل ${gift} الى ${to}`);
+  res.json({ status: 'ok', message: `تم استلام ${gift}` });
+});
+
+// ========== SOCKET.IO للبث المباشر ==========
+let viewers = 0;
+let onlineUsers = {};
+
+io.on('connection', (socket) => {
+  viewers++;
+  io.emit('viewers_count', viewers);
+
+  socket.on('register', (data) => {
+    onlineUsers[socket.id] = data.phone;
+  });
+
+  socket.on('like_live', (data)=> socket.broadcast.emit('like_live', data));
+  socket.on('comment_live', (data)=> socket.broadcast.emit('comment_live', data));
+
+  socket.on('disconnect', ()=>{
+    viewers--; 
+    delete onlineUsers[socket.id];
+    io.emit('viewers_count', viewers);
+  });
+});
+
+// الصفحة الرئيسية
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+server.listen(PORT, () => console.log(`TARIM OS V1.0 Beta شغال على http://localhost:${PORT}`));
