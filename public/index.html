@@ -29,8 +29,8 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 </div>
 </div>
 
-<!-- الهيدر معدل RTL -->
-<header class="fixed top-0 left-0 right-0 z-50 glass px-4 py-3 flex flex-row-reverse justify-between items-center text-xs font-bold">
+<!-- الهيدر معدل: فريق الدعم يمين -->
+<header class="fixed top-0 left-0 right-0 z-50 glass px-4 py-3 flex justify-between items-center text-xs font-bold">
 <button onclick="openTab('support', event)" class="text-yellow-400 flex items-center gap-1">🛡️ فريق الدعم</button>
 <div class="text-cyan-400">TARIM OS</div>
 <button onclick="openTab('ai', event)" class="text-cyan-400 flex items-center gap-1">👁️ عين الذكاء</button>
@@ -54,7 +54,7 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 <main id="tab-operations" class="hidden min-h-screen pt-16 p-4 space-y-3">
   <div class="font-black text-cyan-400 text-sm">⚡ قسم العمليات السيادية</div>
   <button onclick="startLive()" class="glass w-full p-3 rounded-xl text-right text-xs flex justify-between border-red-500/30">
-    <span class="text-red-400">🔴 بث مباشر سيادي (8 دقائق)</span><span>بدء ←</span>
+    <span class="text-red-400">🔴 بث مباشر سيادي</span><span>بدء ←</span>
   </button>
   <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-right text-xs flex justify-between">
     <span>المراسلة الامنة 💬</span><span>فتح ←</span>
@@ -129,7 +129,7 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 <main id="tab-ai" class="hidden min-h-screen pt-16 p-3 flex-col"><div class="font-black text-cyan-400 text-sm">👁️ عين الذكاء</div><div id="aiLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div></main>
 <main id="tab-support" class="hidden min-h-screen pt-16 p-3 flex-col"><div class="font-black text-yellow-400 text-sm">🛡️ فريق الدعم</div><div id="supportLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div></main>
 
-<!-- طبقة البث الكاملة الجديدة -->
+<!-- طبقة البث الكاملة -->
 <div id="fullScreenCam" class="fixed inset-0 z-[600] bg-black hidden">
   <video id="fullCamVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
   <div id="liveFilter" class="absolute inset-0 pointer-events-none mix-blend-overlay opacity-0 bg-gradient-to-tr from-cyan-500/30 to-purple-500/30"></div>
@@ -157,8 +157,8 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 
 <div id="toastBox" class="fixed top-20 left-4 right-4 z-[700] flex-col items-center"></div>
 
-<!-- القائمة السفلية معدلة RTL -->
-<nav class="fixed bottom-0 left-0 right-0 glass flex flex-row-reverse justify-around items-center py-2 text-[10px] border-t border-cyan-500/20 z-50">
+<!-- الشريط السفلي معدل: الرئيسية اول شي يمين -->
+<nav class="fixed bottom-0 left-0 right-0 glass flex justify-around items-center py-2 text-[10px] border-t border-cyan-500/20 z-50">
   <button onclick="openTab('home', event)" class="flex flex-col items-center text-cyan-400"><span class="text-2xl">🏠</span><span>الرئيسية</span></button>
   <button onclick="openTab('operations', event)" class="flex flex-col items-center text-gray-400"><span class="text-2xl">⚡</span><span>العمليات</span></button>
   <button onclick="openTab('create', event)" class="w-14 h-14 rounded-full bg-cyan-500 flex items-center justify-center text-3xl font-bold -mt-4 shadow-lg shadow-cyan-500/50">+</button>
