@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
     socket.join(roomId);
     socket.roomId = roomId;
     
-    // عداد البث - يعد للاعلى بدل التنازلي
+    // عداد البث - يعد للاعلى
     const interval = setInterval(() => {
       const room = liveRooms.get(roomId);
       if(!room) return clearInterval(interval);
@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
       io.to(roomId).emit('liveTimer', `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`);
     }, 1000);
 
-    socket.liveInterval = interval; // نخزنه عشان نوقفه عند الخروج
+    socket.liveInterval = interval; 
     socket.emit('liveStarted', {roomId});
     console.log('بدأ بث:', roomId);
   });
@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // لايك البث - مع قلوب تطير
+  // لايك البث
   socket.on('liveLike', (roomId) => {
     io.to(roomId).emit('newLike', {from: socket.phone});
   });
