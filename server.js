@@ -82,6 +82,7 @@ io.on('connection', (socket) => {
   // هدية
   socket.on('sendGift', (roomId) => {
     io.to(roomId).emit('newGift', {from: socket.phone});
+    console.log(`${socket.phone} ارسل هدية في ${roomId}`);
   });
 
   // ايقاف البث يدوي
