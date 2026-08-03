@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TARIM OS - نظام سيادي</title>
+    <title>TARIM OS - نظام سيادي متقدم</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
+        .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
     </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen flex flex-col justify-between font-sans select-none pb-20">
 
-    <!-- شاشة الإشعارات الموقتة -->
+    <!-- شاشة الإشعارات المؤقتة -->
     <div id="toastBox" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none"></div>
 
     <!-- نافذة القلعة السيادية (تسجيل الدخول / إنشاء حساب) -->
@@ -42,7 +42,7 @@
             <button type="button" onclick="googleLogin()" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
                 <span>متابعة بجوجل</span> 🌐
             </button>
-            <p id="authMsg" class="text-xs text-cyan-400 mt-4 text-center">👑 حساب الملك Gooaz@-#محمي</p>
+            <p id="authMsg" class="text-xs text-cyan-400 mt-4 text-center">👑 النظام السيادي محمي بالكامل</p>
         </div>
     </div>
 
@@ -209,13 +209,13 @@
         }
 
         function googleLogin() {
-            currentUser = "Gooaz";
+            currentUser = "أبو سلمان";
             localStorage.setItem('tarim_user', currentUser);
             const gate = document.getElementById('authGate');
             if(gate) gate.style.display = 'none';
-            updateProfileUI({username: "Gooaz", okki_balance: 500});
+            updateProfileUI({username: currentUser, okki_balance: 500});
             socket.emit('registerSocket', currentUser);
-            showToast('تم تسجيل الدخول بنجاح عبر حساب الملك Gooaz 👑');
+            showToast('تم تسجيل الدخول بنجاح للنظام السيادي 👑');
         }
 
         function updateProfileUI(user){
@@ -236,6 +236,13 @@
               qrcodeContainer.innerHTML = '';
               new QRCode(qrcodeContainer, { text: data.qr, width: 128, height: 128, colorDark : "#00f0ff", colorLight : "#0f172a" });
               showToast('تم انشاء QR بنجاح');
+            }
+          }).catch(() => {
+            const qrcodeContainer = document.getElementById('qrcode');
+            if(qrcodeContainer) {
+              qrcodeContainer.innerHTML = '';
+              new QRCode(qrcodeContainer, { text: currentUser || 'TARIM_OS_SECURE', width: 128, height: 128, colorDark : "#00f0ff", colorLight : "#0f172a" });
+              showToast('تم إنشاء الختم محلياً');
             }
           });
         }
@@ -263,7 +270,7 @@
         }
 
         function startLive(){
-          showToast('جاري تشغيل الكاميرا...');
+          showToast('جاري تشغيل الكاميرا والمراقبة...');
         }
 
         function publishPost(){
@@ -295,8 +302,10 @@
           openTab('home');
           const savedUser = localStorage.getItem('tarim_user');
           if(savedUser) {
-            const phoneInput = document.getElementById('userPhone');
-            if(phoneInput) phoneInput.value = savedUser;
+            currentUser = savedUser;
+            const gate = document.getElementById('authGate');
+            if(gate) gate.style.display = 'none';
+            updateProfileUI({username: savedUser, okki_balance: 100});
           }
         });
     </script>
