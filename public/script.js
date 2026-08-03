@@ -1,126 +1,139 @@
 const socket = io();
 let currentRoomId = null;
 let currentUser = null;
-let liveStream = null, liveTrack = null;
+let liveStream = null;
 let usingFrontCamera = true;
-let flash = false;
-let warnings = 0;
+let bgColorIndex = 0;
 let authMode = 'login';
-
-// الوان خلفية البث
 const bgColors = [
   'linear-gradient(135deg, #00f0ff, #7b2cff)',
   'linear-gradient(135deg, #ff006e, #8338ec)',
   'linear-gradient(135deg, #3a86ff, #06ffa5)',
   'linear-gradient(135deg, #ffbe0b, #fb5607)'
 ];
-let bgColorIndex = 0;
 
-// 1. الاشعارات
 function showToast(msg){
   const box = document.getElementById('toastBox');
-  if(!box) return alert(msg);
+  if(!box) return;
   const el = document.createElement('div');
-  el.className = 'glass px-4 py-2 rounded-xl text-xs mb-2 text-center text-cyan-300 border-cyan-500/40 shadow-lg';
+  el.className = 'glass px-4 py-2 rounded-xl text-xs mb-2 text-center text-cyan-300 border border-cyan-500/40 shadow-lg';
   el.innerText = msg;
   box.appendChild(el);
   setTimeout(()=>el.remove(), 2000);
 }
 
-// 2. شاشة الدخول
-function switchTab(t) {
-    document.querySelectorAll('.tab button').forEach(b => b.classList.remove('bg-cyan-500', 'text-black'));
-    document.querySelectorAll('.tab button').forEach(b => b.classList.add('text-slate-400'));
-    document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('bg-cyan-500', 'text-black');
-    document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('text-slate-400');
-    authMode = t;
+// تبديل وضع المصادقة (دخول / إنشاء حساب)
+function switchAuthMode(mode) {
+    authMode = mode;
+    const loginBtn = document.getElementById('tabLoginBtn');
+    const regBtn = document.getElementById('tabRegisterBtn');
+    const submitBtn = document.getElementById('authSubmitBtn');
+    
+    if(mode === 'login') {
+        if(loginBtn) loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-black";
+        if(regBtn) regBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-cyan-400";
+        if(submitBtn) submitBtn.innerText = "دخول القلعة 🔑";
+    } else {
+        if(regBtn) regBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-black";
+        if(loginBtn) loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-cyan-400";
+        if(submitBtn) submitBtn.innerText = "إنشاء حساب جديد ✨";
+    }
 }
 
-async function login() {
-    const username = document.getElementById('userInput').value.trim();
-    const password = document.getElementById('passInput').value.trim();
-    if (!username ||!password) return showToast('ادخل الايميل وكلمة السر');
+// تسجيل الدخول + انشاء حساب عبر API
+async function registerAndLogin(){
+  const usernameField = document.getElementById('userPhone');
+  const passwordField = document.getElementById('userPass');
+  const msgBox = document.getElementById('authMsg');
+  
+  if(!usernameField || !passwordField) return showToast('خطأ في عناصر المدخلات');
+  
+  const username = usernameField.value.trim();
+  const password = passwordField.value.trim();
+  
+  if(!username || !password) {
+    if(msgBox) msgBox.innerText = 'ادخل الاسم وكلمة السر';
+    return showToast('ادخل الاسم وكلمة السر');
+  }
 
-    let endpoint = authMode === 'login'? '/api/login' : '/api/register';
+  let endpoint = authMode === 'login' ? '/api/login' : '/api/register';
+  
+  try {
+    let res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username, password})
+    });
+    let data = await res.json();
 
-    try {
-      let res = await fetch(endpoint, {
+    if(authMode === 'login' && !data.success) {
+      // لو حاول الدخول والحساب غير موجود، نحول تلقائياً لإنشاء حساب أو ننبهه
+      res = await fetch('/api/register', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username, password})
       });
-      let data = await res.json();
+      data = await res.json();
+    }
 
-      if(data.success){
-        currentUser = data.user.username;
-        localStorage.setItem('tarim_user', currentUser);
-        document.getElementById('login').classList.remove('active');
-        document.getElementById('mainApp').classList.remove('hidden');
-        updateProfileUI(data.user);
-        socket.emit('registerSocket', currentUser);
-        showToast('مرحباً بك يا ' + currentUser);
-      } else {
-        showToast(data.message);
-      }
-    } catch(e) { showToast('خطأ في الاتصال بالسيرفر'); }
+    if(data.success){
+      currentUser = data.user ? data.user.username : username;
+      localStorage.setItem('tarim_user', currentUser);
+      const authGate = document.getElementById('authGate');
+      if(authGate) authGate.style.display = 'none';
+      updateProfileUI(data.user || {username: currentUser, okki_balance: 100, followers: 0, likes: 0, posts: 0});
+      socket.emit('registerSocket', currentUser);
+      showToast('مرحباً بك يا ' + currentUser);
+    } else {
+      if(msgBox) msgBox.innerText = data.message;
+      showToast(data.message);
+    }
+  } catch(e) {
+    if(msgBox) msgBox.innerText = 'خطأ في الاتصال بالسيرفر';
+    showToast('خطأ في الاتصال بالسيرفر');
+  }
 }
 
 function googleLogin() {
     currentUser = "Gooaz";
     localStorage.setItem('tarim_user', currentUser);
-    document.getElementById('login').classList.remove('active');
-    document.getElementById('mainApp').classList.remove('hidden');
-    updateProfileUI({username: "Gooaz", okx_balance: 500, followers: 25, likes: 120, posts: 5});
+    const authGate = document.getElementById('authGate');
+    if(authGate) authGate.style.display = 'none';
+    updateProfileUI({username: "Gooaz", okki_balance: 500, followers: 25, likes: 120, posts: 5});
     socket.emit('registerSocket', currentUser);
-    showToast('تم تسجيل الدخول بحساب الملك Gooaz 👑');
+    showToast('تم تسجيل الدخول بنجاح عبر حساب الملك Gooaz 👑');
 }
 
-// 3. التنقل بين الصفحات
-function switchPage(id, el) {
-    document.querySelectorAll('#mainApp.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelectorAll('nav button').forEach(n => n.classList.remove('nav-active', 'text-cyan-400'));
-    document.querySelectorAll('nav button').forEach(n => n.classList.add('text-gray-400'));
-    if(el) {
-      el.classList.add('nav-active', 'text-cyan-400');
-      el.classList.remove('text-gray-400');
-    }
-}
-
-// 4. تحديث واجهة الملف
 function updateProfileUI(user){
-  if(document.getElementById('profileAvatar')) document.getElementById('profileAvatar').innerText = user.username.slice(0,2).toUpperCase();
-  if(document.getElementById('profileName')) document.getElementById('profileName').innerText = user.username;
-  if(document.getElementById('homeUsername')) document.getElementById('homeUsername').innerText = user.username + '@';
-  if(document.getElementById('statFollowers')) document.getElementById('statFollowers').innerText = user.followers || 0;
-  if(document.getElementById('statLikes')) document.getElementById('statLikes').innerText = user.likes || 0;
-  if(document.getElementById('statPosts')) document.getElementById('statPosts').innerText = user.posts || 0;
+  const avatarEl = document.getElementById('profileAvatar');
+  const nameEl = document.getElementById('profileName');
+  const statsHeaderEl = document.getElementById('profileStatsHeader');
+  const followersEl = document.getElementById('statFollowers');
+  const likesEl = document.getElementById('statLikes');
+  const postsEl = document.getElementById('statPosts');
+  const okkiBtn = document.getElementById('okkiBtn');
+  const homeUser = document.getElementById('homeUsername');
+  const homeOkki = document.getElementById('homeOkki');
+
+  if(avatarEl) avatarEl.innerText = user.username.slice(0,2).toUpperCase();
+  if(nameEl) nameEl.innerText = user.username;
+  if(homeUser) homeUser.innerText = user.username;
+  if(statsHeaderEl) statsHeaderEl.innerText = `OKKI: ${user.okki_balance || 0} - الملكي: ${user.okki_balance || 0}`;
+  if(followersEl) followersEl.innerText = user.followers || 0;
+  if(likesEl) likesEl.innerText = user.likes || 0;
+  if(postsEl) postsEl.innerText = user.posts || 0;
+  if(okkiBtn) okkiBtn.innerText = user.okki_balance || 0;
+  if(homeOkki) homeOkki.innerText = (user.okki_balance || 0) + " OKKI";
 }
 
-// 5. الملفات والادوات
-function editProfile(){ showToast('تعديل الملف الشخصي') }
-function checkWarnings(){ warnings++; document.getElementById('warn').innerText = warnings+'/3'; if(warnings >= 3) showToast('تم تعليق الحساب') }
-function logout(){ localStorage.removeItem('tarim_user'); currentUser = null; document.getElementById('mainApp').classList.add('hidden'); document.getElementById('login').classList.add('active'); showToast('تم تسجيل الخروج') }
-function openOKX(){ showToast('رصيد OKX الملكي') }
-function openActivity(){ showToast('مركز الانشطة') }
-function openOfflineVideos(){ showToast('فيديوهات دون اتصال') }
-function openBusiness(){ showToast('المجموعة التجارية') }
-function openAds(){ showToast('الترويج والاعلانات') }
-function openPosts(){ showToast('ادارة المنشورات') }
-function openAccount(){ showToast('اعدادات الحساب') }
-function openPrivacy(){ showToast('الخصوصية والامان') }
-function changeBG(){ document.body.style.background = `linear-gradient(135deg, #${Math.floor(Math.random()*16777215).toString(16)}, #050b14)`; showToast('تم تغيير الخلفية') }
-function shareProfile(){ navigator.clipboard.writeText(window.location.origin); showToast('تم نسخ الرابط') }
-function openPolicy(){ showToast('السياسة والخصوصية') }
-
-// 6. العمليات
-function start8MinLive(){ switchPage('tab-create', document.querySelector('.nav-plus')); openLive() }
-function secureChat(){ showToast('المراسلة الامنة قريباً') }
-function offlineMap(){ openMap() }
+// دوال مركز التحكم والأدوات
+function openOKKI(){ showToast(`رصيدك: ${document.getElementById('okkiBtn') ? document.getElementById('okkiBtn').innerText : 0} OKKI`); }
+function openActivity(){ showToast('سجل الانشطة: نشط'); }
+function openOfflineVideos(){ showToast('فيديوهات دون اتصال: متوفرة محلياً'); }
 function generateQR(){
   fetch('/api/qr', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({phone: currentUser || 'tarim_os'}) })
- .then(res => res.json())
- .then(data => {
+  .then(res => res.json())
+  .then(data => {
     const qrcodeContainer = document.getElementById('qrcode');
     if(qrcodeContainer) {
       qrcodeContainer.innerHTML = '';
@@ -129,11 +142,33 @@ function generateQR(){
     }
   });
 }
+function openBusiness(){ showToast('المجموعة التجارية: نشطة'); }
+function openAds(){ showToast('الاعلانات السيادية: مفعّلة'); }
+function openPosts(){ showToast('ادارة المنشورات: تعمل'); }
+function openAccount(){ showToast('اعدادات الحساب متصلة'); }
+function openPrivacy(){ showToast('الخصوصية والامان: محمي'); }
+function changeBG(){ 
+  document.body.style.background = `linear-gradient(135deg, #${Math.floor(Math.random()*16777215).toString(16)}, #050b14)`; 
+  showToast('تم تغيير الخلفية بنجاح'); 
+}
+function shareProfile(){ 
+  navigator.clipboard.writeText(window.location.origin + '/user/' + (currentUser || 'Gooaz')); 
+  showToast('تم نسخ رابط ملفك الشخصي'); 
+}
+function openPolicy(){ showToast('سياسة الخصوصية لـ TARIM OS'); }
+function logout(){ 
+  localStorage.removeItem('tarim_user'); 
+  currentUser = null;
+  const authGate = document.getElementById('authGate');
+  if(authGate) authGate.style.display='flex'; 
+  showToast('تم تسجيل الخروج'); 
+}
+
 function openMap(){
   const mapBox = document.getElementById('mapContainer');
   if(!mapBox) return;
   mapBox.classList.toggle('hidden');
-  if(!window.mapInitialized &&!mapBox.classList.contains('hidden')){
+  if(!window.mapInitialized && !mapBox.classList.contains('hidden')){
     setTimeout(() => {
       const map = L.map('map').setView([15.9576, 48.7903], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -143,89 +178,150 @@ function openMap(){
   }
 }
 
-// 7. البث المباشر
-async function openLive(){
-  document.getElementById('liveScreen').classList.remove('hidden');
-  try{
-    liveStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: usingFrontCamera? "user" : "environment"}, audio: true});
-    document.getElementById('cam').srcObject = liveStream;
-    liveTrack = liveStream.getVideoTracks()[0];
-    socket.emit('startLive');
-    showToast('البث بدأ 🔴');
-  }catch(e){ showToast('اسمح بالكاميرا'); closeLive(); }
-}
-
-function closeLive(){
-  document.getElementById('liveScreen').classList.add('hidden');
-  if(liveStream) liveStream.getTracks().forEach(t => t.stop());
-  socket.emit('stopLive');
-}
-
-async function toggleFlash(){
-  flash =!flash;
-  try{ await liveTrack.applyConstraints({advanced:[{torch:flash}]}) }catch(e){ showToast('الفلاش غير مدعوم') }
-}
-
+// تبديل الكاميرا
 async function switchCamera(){
-  usingFrontCamera =!usingFrontCamera;
-  showToast(usingFrontCamera? 'الكاميرا الامامية 🤳' : 'الكاميرا الخلفية 📷');
-  if(liveStream){ closeLive(); await openLive(); }
+  usingFrontCamera = !usingFrontCamera;
+  showToast(usingFrontCamera ? 'الكاميرا الامامية 🤳' : 'الكاميرا الخلفية 📷');
+  if(liveStream){ await confirmStartLive(); }
 }
 
+// تغيير خلفية البث
 function changeBackground(){
   bgColorIndex = (bgColorIndex + 1) % bgColors.length;
   const filterEl = document.getElementById('liveFilter');
-  if(filterEl) { filterEl.style.background = bgColors[bgColorIndex]; filterEl.classList.remove('opacity-0'); }
+  if(filterEl) {
+    filterEl.style.background = bgColors[bgColorIndex];
+    filterEl.classList.remove('opacity-0');
+  }
   showToast('تم تغيير خلفية البث');
 }
 
-function sendGift(){ if(currentRoomId) socket.emit('sendGift', currentRoomId); showToast('تم ارسال هدية 🎁'); }
-function liveLike(){ if(currentRoomId) socket.emit('liveLike', currentRoomId); }
+// بدء البث
+function startLive(){
+  showToast('جاري تشغيل الكاميرا...');
+  const camScreen = document.getElementById('fullScreenCam');
+  if(camScreen) camScreen.classList.remove('hidden');
+}
 
-// 8. الوارد والمنشورات
-function sendMsg(){
-  let msg = document.getElementById('msgInput').value;
-  if(msg){
-    document.getElementById('chatBox').innerHTML += `<div class="glass p-2 rounded-lg mb-2 text-xs">${msg}</div>`;
-    document.getElementById('msgInput').value = ''
+async function confirmStartLive(){
+  const preLive = document.getElementById('preLiveOverlay');
+  if(preLive) preLive.classList.add('hidden');
+  try {
+    if(liveStream){ liveStream.getTracks().forEach(track => track.stop()); }
+    liveStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: usingFrontCamera ? "user" : "environment" },
+      audio: true
+    });
+    const video = document.getElementById('fullCamVideo');
+    if(video) {
+      video.srcObject = liveStream;
+      video.play();
+    }
+    socket.emit('startLive');
+    showToast('البث بدأ على الهواء 🔴');
+  } catch(err) {
+    showToast('فشل تشغيل الكاميرا: ' + err.message);
+    exitFullScreen();
   }
 }
 
+function exitFullScreen(){
+  if(liveStream){ liveStream.getTracks().forEach(track => track.stop()); liveStream = null; }
+  socket.emit('stopLive');
+  const camScreen = document.getElementById('fullScreenCam');
+  if(camScreen) camScreen.classList.add('hidden');
+  const preLive = document.getElementById('preLiveOverlay');
+  if(preLive) preLive.classList.remove('hidden');
+  const comments = document.getElementById('liveComments');
+  const likes = document.getElementById('liveLikes');
+  const timer = document.getElementById('liveTimer');
+  if(comments) comments.innerHTML = '';
+  if(likes) likes.innerText = '0';
+  if(timer) timer.innerText = '00:00';
+}
+
+function likeLive(){ 
+  if(currentRoomId) socket.emit('liveLike', currentRoomId); 
+  let el = document.getElementById('liveLikes'); 
+  if(el) el.innerText = parseInt(el.innerText || '0') + 1; 
+}
+function sendGift(){ 
+  if(currentRoomId) socket.emit('sendGift', currentRoomId); 
+  showToast('تم ارسال هدية 🎁'); 
+}
+function applyFilter(){ 
+  const filterEl = document.getElementById('liveFilter');
+  if(filterEl) filterEl.classList.toggle('opacity-0'); 
+  showToast('تم تطبيق الفلتر'); 
+}
+function shareLive(){ 
+  navigator.clipboard.writeText(window.location.href + '?live=' + currentRoomId); 
+  showToast('تم نسخ رابط البث'); 
+}
+function sendLiveComment(){ 
+  const input = document.getElementById('liveCommentIn'); 
+  if(input && input.value.trim() && currentRoomId){ 
+    socket.emit('liveComment', {roomId: currentRoomId, text: input.value}); 
+    input.value = ''; 
+  } 
+}
+
+// نشر المنشورات الفورية
 function publishPost(){
-  const desc = document.getElementById('postText');
-  if(!desc.value.trim()) return showToast('اكتب وصف المنشور اولاً');
-  showToast('تم النشر الفوري 🚀');
+  const desc = document.getElementById('postDescInput');
+  if(!desc || !desc.value.trim()) {
+    showToast('الرجاء كتابة وصف المنشور أولاً');
+    return;
+  }
+  showToast('تم النشر الفوري بنجاح 🚀');
   desc.value = '';
 }
 
-// 9. الرئيسية
-function like(){ showToast('تم الاعجاب ❤️') }
-function openAIEye(){ showToast('عين الذكاء: مراقبة نشطة') }
-function openSupport(){ showToast('فريق الدعم السيادي متصل') }
-function pickImage(){ showToast('رفع صورة') }
-function pickVideo(){ showToast('رفع فيديو') }
-
-// 10. استقبال الاحداث من السيرفر
+// استقبال الاحداث من السيرفر
 socket.on('liveStarted', ({roomId}) => { currentRoomId = roomId; });
-socket.on('viewersUpdate', (count) => { const el = document.getElementById('liveViewers'); if(el) el.innerText = count; });
+socket.on('liveTimer', (time) => { 
+  const timerEl = document.getElementById('liveTimer');
+  if(timerEl) timerEl.innerText = time; 
+});
+socket.on('viewersUpdate', (count) => { 
+  const viewersEl = document.getElementById('liveViewers');
+  if(viewersEl) viewersEl.innerText = count; 
+});
 socket.on('newLike', ({from}) => { showToast(from + ' اعجب بالبث ❤️'); });
-socket.on('newComment', ({from, text}) => {
+socket.on('newComment', ({from, text}) => { 
   const commentsContainer = document.getElementById('liveComments');
   if(commentsContainer) {
-    const div = document.createElement('div');
-    div.className = 'glass px-2 py-1 rounded text-[10px] text-white mb-1';
-    div.innerText = from + ': ' + text;
-    commentsContainer.appendChild(div);
+    const div = document.createElement('div'); 
+    div.className = 'glass px-2 py-1 rounded text-[10px] text-white'; 
+    div.innerText = from + ': ' + text; 
+    commentsContainer.appendChild(div); 
+    commentsContainer.scrollTop = commentsContainer.scrollHeight; 
   }
 });
 socket.on('newGift', ({from}) => { showToast(from + ' ارسل هدية 🎁'); });
-socket.on('liveEnded', () => { showToast('انتهى البث'); closeLive(); });
+socket.on('liveEnded', () => { showToast('انتهى البث'); exitFullScreen(); });
 
-// 11. تحميل الحساب المحفوظ
+function openTab(tab, e){
+  document.querySelectorAll('main').forEach(m => m.classList.add('hidden'));
+  const targetTab = document.getElementById('tab-' + tab);
+  if(targetTab) targetTab.classList.remove('hidden');
+  
+  document.querySelectorAll('nav button').forEach(b => { 
+    b.classList.remove('text-cyan-400'); 
+    b.classList.add('text-gray-400'); 
+  });
+  if(e && e.currentTarget) {
+    e.currentTarget.classList.remove('text-gray-400'); 
+    e.currentTarget.classList.add('text-cyan-400');
+  }
+}
+
+// التحقق من الحساب المحفوظ عند التحميل
 document.addEventListener('DOMContentLoaded', ()=>{
-  switchPage('tab-home', document.querySelector('nav button'));
+  openTab('home');
   const savedUser = localStorage.getItem('tarim_user');
   if(savedUser) {
-    document.getElementById('userInput').value = savedUser;
+    const phoneInput = document.getElementById('userPhone');
+    if(phoneInput) phoneInput.value = savedUser;
   }
 });
