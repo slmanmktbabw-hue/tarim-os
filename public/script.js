@@ -7,6 +7,7 @@ let authMode = 'login';
 let liveLikesCount = 0;
 let liveTimerInterval = null;
 let liveSeconds = 0;
+let tempIdentifier = '';
 
 const bgColors = [
   'linear-gradient(135deg, rgba(0,240,255,0.3), rgba(123,44,255,0.3))',
@@ -15,6 +16,7 @@ const bgColors = [
   'linear-gradient(135deg, rgba(255,190,11,0.3), rgba(251,86,7,0.3))'
 ];
 
+// دالة عرض الإشعارات (Toast)
 function showToast(msg){
   const box = document.getElementById('toastBox');
   if(!box) return;
@@ -59,7 +61,87 @@ function switchAuthMode(mode) {
     }
 }
 
-// تسجيل الدخول + إنشاء حساب
+// نظام التحقق العالمي وإرسال رمز OTP عبر البريد أو الهاتف
+async function requestOTP() {
+  const inputField = document.getElementById('userPhoneOrEmail');
+  const passField = document.getElementById('userPass');
+  const msgBox = document.getElementById('authMsg');
+
+  if(!inputField || !passField) return;
+  const identifier = inputField.value.trim();
+  const password = passField.value.trim();
+
+  if(!identifier || !password) {
+    if(msgBox) msgBox.innerText = 'أدخل البريد/الهاتف وكلمة المرور';
+    showToast('أدخل البيانات المطلوبة');
+    return;
+  }
+
+  try {
+    let res = await fetch('/api/auth/request', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ identifier, password })
+    });
+    let data = await res.json();
+
+    if(data.success) {
+      tempIdentifier = identifier;
+      document.getElementById('stepCredentials').classList.add('hidden');
+      document.getElementById('stepOTP').classList.remove('hidden');
+      if(msgBox) msgBox.innerText = '';
+      showToast(data.message);
+    } else {
+      if(msgBox) msgBox.innerText = data.message;
+      showToast(data.message);
+    }
+  } catch(e) {
+    if(msgBox) msgBox.innerText = 'خطأ في الاتصال بالخادم';
+  }
+}
+
+// تأكيد رمز التحقق (OTP) ودخول المنصة
+async function verifyOTP() {
+  const otpInput = document.getElementById('otpCodeInput');
+  const msgBox = document.getElementById('authMsg');
+  if(!otpInput) return;
+  const otp = otpInput.value.trim();
+
+  if(otp.length < 4) {
+    showToast('أدخل رمز التحقق كاملاً');
+    return;
+  }
+
+  try {
+    let res = await fetch('/api/auth/verify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ identifier: tempIdentifier, otp })
+    });
+    let data = await res.json();
+
+    if(data.success) {
+      currentUser = data.user.username;
+      localStorage.setItem('tarim_user', currentUser);
+      document.getElementById('authGate').style.display = 'none';
+      updateProfileUI(data.user);
+      socket.emit('registerSocket', currentUser);
+      showToast('مرحباً بك في المنصة العالمية 🌍');
+    } else {
+      if(msgBox) msgBox.innerText = data.message;
+      showToast(data.message);
+    }
+  } catch(e) {
+    if(msgBox) msgBox.innerText = 'خطأ في التحقق من الرمز';
+  }
+}
+
+function backToCredentials() {
+  document.getElementById('stepOTP').classList.add('hidden');
+  document.getElementById('stepCredentials').classList.remove('hidden');
+}
+
+// تسجيل الدخول التقليدي (احتياطي)
 async function registerAndLogin(){
   const usernameField = document.getElementById('userPhone');
   const passwordField = document.getElementById('userPass');
@@ -85,15 +167,6 @@ async function registerAndLogin(){
     });
     let data = await res.json();
 
-    if(authMode === 'login' && !data.success) {
-      res = await fetch('/api/register', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({username, password})
-      });
-      data = await res.json();
-    }
-
     if(data.success){
       currentUser = data.user ? data.user.username : username;
       localStorage.setItem('tarim_user', currentUser);
@@ -112,16 +185,7 @@ async function registerAndLogin(){
   }
 }
 
-function googleLogin() {
-    currentUser = "Gooaz";
-    localStorage.setItem('tarim_user', currentUser);
-    const authGate = document.getElementById('authGate');
-    if(authGate) authGate.style.display = 'none';
-    updateProfileUI({username: "Gooaz", okki_balance: 500, followers: 25, likes: 120, posts: 5});
-    socket.emit('registerSocket', currentUser);
-    showToast('تم تسجيل الدخول بنجاح عبر حساب الملك Gooaz 👑');
-}
-
+// تحديث واجهة الملف الشخصي
 function updateProfileUI(user){
   const avatarEl = document.getElementById('profileAvatar');
   const nameEl = document.getElementById('profileName');
@@ -144,10 +208,11 @@ function updateProfileUI(user){
   if(statsHeaderEl) statsHeaderEl.innerText = `OKKI: ${user.okki_balance || 0} - الملكي: ${user.okki_balance || 0}`;
 }
 
-// أدوات الحساب
+// أدوات الحساب والخدمات
 function openOKKI(){ showToast('رصيد OKX الملكي متصل بنجاح 🪙'); }
 function openActivity(){ showToast('مركز الانشطة يعمل بكفاءة 📊'); }
 function openOfflineVideos(){ showToast('فيديوهات دون اتصال متاح محلياً 📁'); }
+
 function generateQR(){
   fetch('/api/qr', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({phone: currentUser || 'tarim_os'}) })
   .then(res => res.json())
@@ -179,6 +244,7 @@ function logout(){
   showToast('تم تسجيل الخروج بنجاح 🚪'); 
 }
 
+// الخريطة Offline
 function openMap(){
   const mapBox = document.getElementById('mapContainer');
   if(!mapBox) return;
@@ -193,7 +259,7 @@ function openMap(){
   }
 }
 
-// التحكم بالكاميرا والبث المباشر السيادي
+// إدارة البث المباشر والكاميرا
 function startLive(){
   const screen = document.getElementById('fullScreenCam');
   const preOverlay = document.getElementById('preLiveOverlay');
@@ -292,6 +358,7 @@ function sendLiveComment(){
   box.scrollTop = box.scrollHeight;
 }
 
+// النشر والرسائل
 function publishPost(){
   const desc = document.getElementById('postDescInput');
   if(desc && desc.value.trim()) {
