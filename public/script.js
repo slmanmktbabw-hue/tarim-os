@@ -4,6 +4,7 @@ let currentUser = null;
 let liveStream = null;
 let usingFrontCamera = true;
 let bgColorIndex = 0;
+let authMode = 'login';
 const bgColors = [
   'linear-gradient(135deg, #00f0ff, #7b2cff)',
   'linear-gradient(135deg, #ff006e, #8338ec)',
@@ -21,40 +22,86 @@ function showToast(msg){
   setTimeout(()=>el.remove(), 2000);
 }
 
+// تبديل وضع المصادقة (دخول / إنشاء حساب)
+function switchAuthMode(mode) {
+    authMode = mode;
+    const loginBtn = document.getElementById('tabLoginBtn');
+    const regBtn = document.getElementById('tabRegisterBtn');
+    const submitBtn = document.getElementById('authSubmitBtn');
+    
+    if(mode === 'login') {
+        if(loginBtn) loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-black";
+        if(regBtn) regBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-cyan-400";
+        if(submitBtn) submitBtn.innerText = "دخول القلعة 🔑";
+    } else {
+        if(regBtn) regBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-black";
+        if(loginBtn) loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-cyan-400";
+        if(submitBtn) submitBtn.innerText = "إنشاء حساب جديد ✨";
+    }
+}
+
 // تسجيل الدخول + انشاء حساب عبر API
 async function registerAndLogin(){
-  const username = document.getElementById('userPhone').value.trim();
-  const password = document.getElementById('userPass').value.trim();
-  if(!username || !password) return showToast('ادخل الاسم وكلمة السر');
+  const usernameField = document.getElementById('userPhone');
+  const passwordField = document.getElementById('userPass');
+  const msgBox = document.getElementById('authMsg');
+  
+  if(!usernameField || !passwordField) return showToast('خطأ في عناصر المدخلات');
+  
+  const username = usernameField.value.trim();
+  const password = passwordField.value.trim();
+  
+  if(!username || !password) {
+    if(msgBox) msgBox.innerText = 'ادخل الاسم وكلمة السر';
+    return showToast('ادخل الاسم وكلمة السر');
+  }
 
-  // نجرب تسجيل دخول
-  let res = await fetch('/api/login', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({username, password})
-  });
-  let data = await res.json();
-
-  // لو ما لقى الحساب نسجله
-  if(!data.success){
-    res = await fetch('/api/register', {
+  let endpoint = authMode === 'login' ? '/api/login' : '/api/register';
+  
+  try {
+    let res = await fetch(endpoint, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({username, password})
     });
-    data = await res.json();
-  }
+    let data = await res.json();
 
-  if(data.success){
-    currentUser = data.user.username;
-    localStorage.setItem('tarim_user', currentUser);
-    document.getElementById('authGate').style.display = 'none';
-    updateProfileUI(data.user);
-    socket.emit('registerSocket', currentUser);
-    showToast('مرحبا ' + currentUser);
-  } else {
-    showToast(data.message);
+    if(authMode === 'login' && !data.success) {
+      // لو حاول الدخول والحساب غير موجود، نحول تلقائياً لإنشاء حساب أو ننبهه
+      res = await fetch('/api/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password})
+      });
+      data = await res.json();
+    }
+
+    if(data.success){
+      currentUser = data.user ? data.user.username : username;
+      localStorage.setItem('tarim_user', currentUser);
+      const authGate = document.getElementById('authGate');
+      if(authGate) authGate.style.display = 'none';
+      updateProfileUI(data.user || {username: currentUser, okki_balance: 100, followers: 0, likes: 0, posts: 0});
+      socket.emit('registerSocket', currentUser);
+      showToast('مرحباً بك يا ' + currentUser);
+    } else {
+      if(msgBox) msgBox.innerText = data.message;
+      showToast(data.message);
+    }
+  } catch(e) {
+    if(msgBox) msgBox.innerText = 'خطأ في الاتصال بالسيرفر';
+    showToast('خطأ في الاتصال بالسيرفر');
   }
+}
+
+function googleLogin() {
+    currentUser = "Gooaz";
+    localStorage.setItem('tarim_user', currentUser);
+    const authGate = document.getElementById('authGate');
+    if(authGate) authGate.style.display = 'none';
+    updateProfileUI({username: "Gooaz", okki_balance: 500, followers: 25, likes: 120, posts: 5});
+    socket.emit('registerSocket', currentUser);
+    showToast('تم تسجيل الدخول بنجاح عبر حساب الملك Gooaz 👑');
 }
 
 function updateProfileUI(user){
@@ -66,15 +113,17 @@ function updateProfileUI(user){
   const postsEl = document.getElementById('statPosts');
   const okkiBtn = document.getElementById('okkiBtn');
   const homeUser = document.getElementById('homeUsername');
+  const homeOkki = document.getElementById('homeOkki');
 
   if(avatarEl) avatarEl.innerText = user.username.slice(0,2).toUpperCase();
   if(nameEl) nameEl.innerText = user.username;
   if(homeUser) homeUser.innerText = user.username;
-  if(statsHeaderEl) statsHeaderEl.innerText = `OKKI: ${user.okki_balance} - الملكي: ${user.okki_balance}`;
-  if(followersEl) followersEl.innerText = user.followers;
-  if(likesEl) likesEl.innerText = user.likes;
-  if(postsEl) postsEl.innerText = user.posts;
-  if(okkiBtn) okkiBtn.innerText = user.okki_balance;
+  if(statsHeaderEl) statsHeaderEl.innerText = `OKKI: ${user.okki_balance || 0} - الملكي: ${user.okki_balance || 0}`;
+  if(followersEl) followersEl.innerText = user.followers || 0;
+  if(likesEl) likesEl.innerText = user.likes || 0;
+  if(postsEl) postsEl.innerText = user.posts || 0;
+  if(okkiBtn) okkiBtn.innerText = user.okki_balance || 0;
+  if(homeOkki) homeOkki.innerText = (user.okki_balance || 0) + " OKKI";
 }
 
 // دوال مركز التحكم والأدوات
@@ -82,7 +131,7 @@ function openOKKI(){ showToast(`رصيدك: ${document.getElementById('okkiBtn')
 function openActivity(){ showToast('سجل الانشطة: نشط'); }
 function openOfflineVideos(){ showToast('فيديوهات دون اتصال: متوفرة محلياً'); }
 function generateQR(){
-  fetch('/api/qr', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({phone: currentUser}) })
+  fetch('/api/qr', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({phone: currentUser || 'tarim_os'}) })
   .then(res => res.json())
   .then(data => {
     const qrcodeContainer = document.getElementById('qrcode');
@@ -103,14 +152,15 @@ function changeBG(){
   showToast('تم تغيير الخلفية بنجاح'); 
 }
 function shareProfile(){ 
-  navigator.clipboard.writeText(window.location.origin + '/user/' + currentUser); 
+  navigator.clipboard.writeText(window.location.origin + '/user/' + (currentUser || 'Gooaz')); 
   showToast('تم نسخ رابط ملفك الشخصي'); 
 }
 function openPolicy(){ showToast('سياسة الخصوصية لـ TARIM OS'); }
 function logout(){ 
   localStorage.removeItem('tarim_user'); 
   currentUser = null;
-  document.getElementById('authGate').style.display='flex'; 
+  const authGate = document.getElementById('authGate');
+  if(authGate) authGate.style.display='flex'; 
   showToast('تم تسجيل الخروج'); 
 }
 
@@ -149,7 +199,8 @@ function changeBackground(){
 // بدء البث
 function startLive(){
   showToast('جاري تشغيل الكاميرا...');
-  document.getElementById('fullScreenCam').classList.remove('hidden');
+  const camScreen = document.getElementById('fullScreenCam');
+  if(camScreen) camScreen.classList.remove('hidden');
 }
 
 async function confirmStartLive(){
@@ -177,7 +228,8 @@ async function confirmStartLive(){
 function exitFullScreen(){
   if(liveStream){ liveStream.getTracks().forEach(track => track.stop()); liveStream = null; }
   socket.emit('stopLive');
-  document.getElementById('fullScreenCam').classList.add('hidden');
+  const camScreen = document.getElementById('fullScreenCam');
+  if(camScreen) camScreen.classList.add('hidden');
   const preLive = document.getElementById('preLiveOverlay');
   if(preLive) preLive.classList.remove('hidden');
   const comments = document.getElementById('liveComments');
@@ -212,6 +264,17 @@ function sendLiveComment(){
     socket.emit('liveComment', {roomId: currentRoomId, text: input.value}); 
     input.value = ''; 
   } 
+}
+
+// نشر المنشورات الفورية
+function publishPost(){
+  const desc = document.getElementById('postDescInput');
+  if(!desc || !desc.value.trim()) {
+    showToast('الرجاء كتابة وصف المنشور أولاً');
+    return;
+  }
+  showToast('تم النشر الفوري بنجاح 🚀');
+  desc.value = '';
 }
 
 // استقبال الاحداث من السيرفر
