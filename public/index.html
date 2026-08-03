@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TARIM OS - نظام سيادي</title>
+    <title>TARIM OS - نظام سيادي متقدم</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
+        .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
     </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen flex flex-col justify-between font-sans select-none pb-20">
@@ -24,7 +24,6 @@
             <h1 class="text-2xl font-black text-cyan-400 mb-1">TARIM OS 🏰</h1>
             <p class="text-xs text-slate-400 mb-6">tarimos.org - نظام سيادي</p>
             
-            <!-- أزرار تبديل الوضع -->
             <div class="flex w-full bg-slate-900 p-1 rounded-xl mb-4 border border-slate-800">
                 <button type="button" id="tabLoginBtn" onclick="switchAuthMode('login')" class="flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-black transition-all cursor-pointer">دخول</button>
                 <button type="button" id="tabRegisterBtn" onclick="switchAuthMode('register')" class="flex-1 py-2 text-xs font-bold rounded-lg text-cyan-400 transition-all cursor-pointer">إنشاء حساب</button>
@@ -42,7 +41,7 @@
             <button type="button" onclick="googleLogin()" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
                 <span>متابعة بجوجل</span> 🌐
             </button>
-            <p id="authMsg" class="text-xs text-cyan-400 mt-4 text-center">👑 حساب الملك Gooaz@-#محمي</p>
+            <p id="authMsg" class="text-xs text-cyan-400 mt-4 text-center">👑 حساب الملك والإمبراطور AL</p>
         </div>
     </div>
 
@@ -61,10 +60,10 @@
             <div class="glass p-5 rounded-2xl border border-cyan-500/30">
                 <div class="flex justify-between items-center mb-4">
                     <div>
-                        <h3 id="homeUsername" class="text-lg font-bold text-cyan-300">أبو سلمان</h3>
+                        <h3 id="homeUsername" class="text-lg font-bold text-cyan-300">الإمبراطور AL</h3>
                         <p class="text-xs text-slate-400">عضو سيادي معتمد</p>
                     </div>
-                    <div id="homeOkki" class="bg-cyan-500/20 border border-cyan-500 text-cyan-300 px-3 py-1 rounded-full text-xs font-bold">100 OKKI</div>
+                    <div id="homeOkki" class="bg-cyan-500/20 border border-cyan-500 text-cyan-300 px-3 py-1 rounded-full text-xs font-bold">OKKI 500</div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <button type="button" onclick="openMap()" class="bg-slate-900 hover:bg-slate-800 p-3 rounded-xl border border-cyan-500/20 text-xs text-cyan-300 font-bold flex items-center justify-center gap-2 cursor-pointer">🗺️ خريطة حضرموت</button>
@@ -75,44 +74,162 @@
                     <div id="map" class="w-full h-full"></div>
                 </div>
             </div>
+
+            <div class="glass p-4 rounded-2xl border border-cyan-500/20 text-center space-y-2">
+                <p class="text-xs text-slate-300">AL@</p>
+                <h4 class="text-sm font-bold text-cyan-400">النظام السيادي TARIM OS</h4>
+                <p class="text-xs text-red-400 font-bold">120 ❤️</p>
+            </div>
         </main>
 
         <!-- تبويب العمليات -->
-        <main id="tab-operations" class="hidden space-y-4">
-            <div class="glass p-5 rounded-2xl border border-cyan-500/30 text-center">
-                <h3 class="text-md font-bold text-cyan-400 mb-2">البث المباشر السيادي 🔴</h3>
-                <p class="text-xs text-slate-400 mb-4">ابث بثاً مباشراً عبر كاميرا الأجهزة أو الميدان</p>
-                <button type="button" onclick="startLive()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-6 py-3 rounded-xl w-full cursor-pointer">بدء البث الحي</button>
+        <main id="tab-operations" class="hidden space-y-3">
+            <div class="text-sm font-bold text-cyan-400 mb-2 px-1">⚡ قسم العمليات السيادية</div>
+            
+            <div class="glass p-4 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="startLive()">
+                <div class="flex items-center gap-2 text-xs text-red-400 font-bold">
+                    <span>🔴</span> بث مباشر سيادي (8 دقائق)
+                </div>
+                <span class="text-xs text-cyan-400">بدء ←</span>
+            </div>
+
+            <div class="glass p-4 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('جاري فتح المراسلة الآمنة...')">
+                <div class="flex items-center gap-2 text-xs text-cyan-300 font-bold">
+                    <span>💬</span> المراسلة الآمنة
+                </div>
+                <span class="text-xs text-cyan-400">فتح ←</span>
+            </div>
+
+            <div class="glass p-4 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="openMap()">
+                <div class="flex items-center gap-2 text-xs text-cyan-300 font-bold">
+                    <span>🗺️</span> خريطة حضرموت Offline
+                </div>
+                <span class="text-xs text-cyan-400">عرض ←</span>
+            </div>
+
+            <div class="glass p-4 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="generateQR()">
+                <div class="flex items-center gap-2 text-xs text-cyan-300 font-bold">
+                    <span>🪪</span> الختم الميداني QR
+                </div>
+                <span class="text-xs text-cyan-400">إصدار ←</span>
             </div>
         </main>
 
         <!-- تبويب الإنشاء -->
-        <main id="tab-create" class="hidden space-y-4">
-            <div class="glass p-5 rounded-2xl border border-cyan-500/30">
-                <h3 class="text-md font-bold text-cyan-400 mb-3">محطة النشر السيادي 🚀</h3>
-                <textarea id="postDescInput" placeholder="اكتب منشورك أو تقريرك الميداني هنا..." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-cyan-300 mb-3 focus:outline-none focus:border-cyan-500 h-24"></textarea>
-                <button type="button" onclick="publishPost()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs cursor-pointer">نشر فوري</button>
+        <main id="tab-create" class="hidden space-y-3">
+            <div class="text-sm font-bold text-cyan-400 mb-2 px-1">✨ محطة الإنشاء السيادي</div>
+            
+            <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="showToast('تم اختيار كاميرا أمامية')" class="glass p-3 rounded-xl text-xs text-cyan-300 font-bold flex items-center justify-center gap-1 cursor-pointer"><span>📷</span> أمامية</button>
+                <button type="button" onclick="showToast('إعداد الخلفية السيادية')" class="glass p-3 rounded-xl text-xs text-cyan-300 font-bold flex items-center justify-center gap-1 cursor-pointer"><span>🌄</span> خلفية</button>
+                <button type="button" onclick="showToast('تم تفعيل التبديل')" class="glass p-3 rounded-xl text-xs text-cyan-300 font-bold flex items-center justify-center gap-1 cursor-pointer"><span>🔄</span> تبديل</button>
             </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="showToast('جاهز لرفع صورة')" class="glass p-3 rounded-xl text-xs text-cyan-300 font-bold flex items-center justify-center gap-1 cursor-pointer"><span>🖼️</span> رفع صورة</button>
+                <button type="button" onclick="showToast('جاهز لرفع فيديو')" class="glass p-3 rounded-xl text-xs text-cyan-300 font-bold flex items-center justify-center gap-1 cursor-pointer"><span>📹</span> رفع فيديو</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="showToast('وضع البث الحي')" class="glass p-3 rounded-xl text-xs red-400 font-bold flex items-center justify-center gap-1 cursor-pointer"><span>🔴</span> LIVE</button>
+                <button type="button" onclick="showToast('وضع منشور نصي')" class="glass p-3 rounded-xl text-xs text-cyan-300 font-bold flex items-center justify-center gap-1 cursor-pointer"><span>📄</span> منشور نصي</button>
+            </div>
+
+            <textarea id="postDescInput" placeholder="اكتب وصف للمنشور..." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500 h-20"></textarea>
+            
+            <button type="button" onclick="publishPost()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-3 rounded-xl text-xs cursor-pointer shadow-lg">نشر فوري</button>
         </main>
 
         <!-- تبويب الوارد -->
         <main id="tab-inbox" class="hidden space-y-4">
-            <div class="glass p-5 rounded-2xl border border-cyan-500/30 text-center">
-                <h3 class="text-md font-bold text-cyan-400 mb-2">صندوق الوارد السيادي 📬</h3>
-                <p class="text-xs text-slate-400">لا توجد رسائل جديدة حالياً</p>
+            <div class="glass p-5 rounded-2xl border border-cyan-500/30 space-y-4">
+                <h3 class="text-sm font-bold text-cyan-400 flex items-center gap-2"><span>📬</span> صندوق الوارد</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="inboxMsgInput" placeholder="رسالتك..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500">
+                    <button type="button" onclick="sendInboxMsg()" class="bg-cyan-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">إرسال</button>
+                </div>
             </div>
         </main>
 
         <!-- تبويب الملف الشخصي -->
-        <main id="tab-profile" class="hidden space-y-4">
+        <main id="tab-profile" class="hidden space-y-3">
             <div class="glass p-5 rounded-2xl border border-cyan-500/30 flex flex-col items-center">
-                <div id="profileAvatar" class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-cyan-300 font-bold text-xl mb-2">AS</div>
-                <h3 id="profileName" class="font-bold text-cyan-300">أبو سلمان</h3>
-                <p id="profileStatsHeader" class="text-xs text-slate-400 mb-4">OKKI: 100 - الملكي: 100</p>
-                <div class="w-full space-y-2">
-                    <button type="button" onclick="logout()" class="w-full bg-red-500/20 border border-red-500/40 text-red-300 font-bold py-2 rounded-xl text-xs cursor-pointer">تسجيل الخروج 🚪</button>
+                <div id="profileAvatar" class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-cyan-300 font-bold text-xl mb-2">AL</div>
+                <h3 id="profileName" class="font-bold text-cyan-300 text-base">الإمبراطور AL</h3>
+                <p class="text-xs text-slate-400 mb-2">OKX: 0x53...c0af6</p>
+                <span class="text-xs text-cyan-400 mb-4">🌍 عالمي</span>
+                
+                <div class="grid grid-cols-3 w-full gap-2 text-center mb-4 border-y border-slate-800 py-3">
+                    <div>
+                        <div class="font-bold text-cyan-300">0</div>
+                        <div class="text-[10px] text-slate-400">متابع</div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-cyan-300">0</div>
+                        <div class="text-[10px] text-slate-400">يتابع</div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-cyan-300">0</div>
+                        <div class="text-[10px] text-slate-400">اعجاب</div>
+                    </div>
                 </div>
             </div>
+
+            <div class="text-xs font-bold text-cyan-400 px-1">أدوات الحساب</div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('رصيد OKX الملكي: 0')">
+                <span class="text-xs text-cyan-300 font-bold">💰 رصيد (OKX الملكي) - 0</span>
+                <span class="text-xs text-cyan-400">فتح ←</span>
+            </div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('مركز الأنشطة مفعل')">
+                <span class="text-xs text-cyan-300 font-bold">📊 مركز الأنشطة</span>
+                <span class="text-xs text-cyan-400">فتح ←</span>
+            </div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('فيديوهات دون اتصال')">
+                <span class="text-xs text-cyan-300 font-bold">📁 فيديوهات دون اتصال</span>
+                <span class="text-xs text-cyan-400">فتح ←</span>
+            </div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="generateQR()">
+                <span class="text-xs text-cyan-300 font-bold">🪪 رمز QR لديك</span>
+                <span class="text-xs text-cyan-400">عرض ←</span>
+            </div>
+
+            <div class="text-xs font-bold text-cyan-400 px-1 pt-2">أدوات الابداع والاعمال</div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('المجموعة التجارية')">
+                <span class="text-xs text-cyan-300 font-bold">🏢 المجموعة التجارية</span>
+                <span class="text-xs text-cyan-400">فتح ←</span>
+            </div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('الترويج والاعلانات')">
+                <span class="text-xs text-cyan-300 font-bold">📢 الترويج والاعلانات</span>
+                <span class="text-xs text-cyan-400">فتح ←</span>
+            </div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('ادارة المنشورات')">
+                <span class="text-xs text-cyan-300 font-bold">📄 ادارة المنشورات</span>
+                <span class="text-xs text-cyan-400">ادارة ←</span>
+            </div>
+
+            <div class="text-xs font-bold text-cyan-400 px-1 pt-2">الاعدادات والخصوصية</div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('إعدادات الحساب')">
+                <span class="text-xs text-cyan-300 font-bold">👤 الحساب</span>
+                <span class="text-xs text-cyan-400">←</span>
+            </div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('الخصوصية والأمان')">
+                <span class="text-xs text-cyan-300 font-bold">🔒 الخصوصية والامان</span>
+                <span class="text-xs text-cyan-400">←</span>
+            </div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('تغيير الخلفية')">
+                <span class="text-xs text-cyan-300 font-bold">🎨 تغير خلفية المستخدم</span>
+                <span class="text-xs text-cyan-400">تغير ←</span>
+            </div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('تم نسخ الرابط الشخصي')">
+                <span class="text-xs text-cyan-300 font-bold">🔗 مشاركة ملفك الشخصي</span>
+                <span class="text-xs text-cyan-400">مشاركة ←</span>
+            </div>
+            <div class="glass p-3 rounded-xl border border-cyan-500/20 flex justify-between items-center cursor-pointer hover:bg-slate-900" onclick="showToast('السياسة والخصوصية')">
+                <span class="text-xs text-cyan-300 font-bold">📜 السياسة والخصوصية</span>
+                <span class="text-xs text-cyan-400">فتح ←</span>
+            </div>
+            
+            <button type="button" onclick="logout()" class="w-full bg-red-500/20 border border-red-500/40 text-red-300 font-bold py-3 rounded-xl text-xs cursor-pointer mt-2">تسجيل الخروج 🚪</button>
         </main>
 
     </div>
@@ -128,7 +245,7 @@
 
     <script>
         const socket = io();
-        let currentUser = null;
+        let currentUser = "الإمبراطور AL";
         let authMode = 'login';
 
         function showToast(msg){
@@ -161,144 +278,6 @@
         async function registerAndLogin(){
           const usernameField = document.getElementById('userPhone');
           const passwordField = document.getElementById('userPass');
-          const msgBox = document.getElementById('authMsg');
           
           if(!usernameField || !passwordField) return;
-          const username = usernameField.value.trim();
-          const password = passwordField.value.trim();
-          
-          if(!username || !password) {
-            if(msgBox) msgBox.innerText = 'ادخل الاسم وكلمة السر';
-            return showToast('ادخل الاسم وكلمة السر');
-          }
-
-          let endpoint = authMode === 'login' ? '/api/login' : '/api/register';
-          
-          try {
-            let res = await fetch(endpoint, {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({username, password})
-            });
-            let data = await res.json();
-
-            if(authMode === 'login' && !data.success) {
-              res = await fetch('/api/register', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username, password})
-              });
-              data = await res.json();
-            }
-
-            if(data.success){
-              currentUser = data.user ? data.user.username : username;
-              localStorage.setItem('tarim_user', currentUser);
-              const gate = document.getElementById('authGate');
-              if(gate) gate.style.display = 'none';
-              updateProfileUI(data.user || {username: currentUser, okki_balance: 100});
-              socket.emit('registerSocket', currentUser);
-              showToast('مرحباً بك يا ' + currentUser);
-            } else {
-              if(msgBox) msgBox.innerText = data.message;
-              showToast(data.message);
-            }
-          } catch(e) {
-            showToast('خطأ في الاتصال بالسيرفر');
-          }
-        }
-
-        function googleLogin() {
-            currentUser = "Gooaz";
-            localStorage.setItem('tarim_user', currentUser);
-            const gate = document.getElementById('authGate');
-            if(gate) gate.style.display = 'none';
-            updateProfileUI({username: "Gooaz", okki_balance: 500});
-            socket.emit('registerSocket', currentUser);
-            showToast('تم تسجيل الدخول بنجاح عبر حساب الملك Gooaz 👑');
-        }
-
-        function updateProfileUI(user){
-          const nameEl = document.getElementById('profileName');
-          const homeUser = document.getElementById('homeUsername');
-          const homeOkki = document.getElementById('homeOkki');
-          if(nameEl) nameEl.innerText = user.username;
-          if(homeUser) homeUser.innerText = user.username;
-          if(homeOkki) homeOkki.innerText = (user.okki_balance || 0) + " OKKI";
-        }
-
-        function generateQR(){
-          fetch('/api/qr', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({phone: currentUser || 'tarim_os'}) })
-          .then(res => res.json())
-          .then(data => {
-            const qrcodeContainer = document.getElementById('qrcode');
-            if(qrcodeContainer) {
-              qrcodeContainer.innerHTML = '';
-              new QRCode(qrcodeContainer, { text: data.qr, width: 128, height: 128, colorDark : "#00f0ff", colorLight : "#0f172a" });
-              showToast('تم انشاء QR بنجاح');
-            }
-          });
-        }
-
-        function logout(){ 
-          localStorage.removeItem('tarim_user'); 
-          currentUser = null;
-          const gate = document.getElementById('authGate');
-          if(gate) gate.style.display='flex'; 
-          showToast('تم تسجيل الخروج'); 
-        }
-
-        function openMap(){
-          const mapBox = document.getElementById('mapContainer');
-          if(!mapBox) return;
-          mapBox.classList.toggle('hidden');
-          if(!window.mapInitialized && !mapBox.classList.contains('hidden')){
-            setTimeout(() => {
-              const map = L.map('map').setView([15.9576, 48.7903], 13);
-              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-              L.marker([15.9576, 48.7903]).addTo(map).bindPopup('TARIM OS - سيئون/تريم').openPopup();
-              window.mapInitialized = true;
-            }, 300);
-          }
-        }
-
-        function startLive(){
-          showToast('جاري تشغيل الكاميرا...');
-        }
-
-        function publishPost(){
-          const desc = document.getElementById('postDescInput');
-          if(!desc || !desc.value.trim()) {
-            showToast('الرجاء كتابة وصف المنشور أولاً');
-            return;
-          }
-          showToast('تم النشر الفوري بنجاح 🚀');
-          desc.value = '';
-        }
-
-        function openTab(tab, e){
-          document.querySelectorAll('main').forEach(m => m.classList.add('hidden'));
-          const targetTab = document.getElementById('tab-' + tab);
-          if(targetTab) targetTab.classList.remove('hidden');
-          
-          document.querySelectorAll('nav button').forEach(b => { 
-            b.classList.remove('text-cyan-400'); 
-            b.classList.add('text-gray-400'); 
-          });
-          if(e && e.currentTarget) {
-            e.currentTarget.classList.remove('text-gray-400'); 
-            e.currentTarget.classList.add('text-cyan-400');
-          }
-        }
-
-        document.addEventListener('DOMContentLoaded', ()=>{
-          openTab('home');
-          const savedUser = localStorage.getItem('tarim_user');
-          if(savedUser) {
-            const phoneInput = document.getElementById('userPhone');
-            if(phoneInput) phoneInput.value = savedUser;
-          }
-        });
-    </script>
-</body>
-</html>
+    
