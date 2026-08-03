@@ -29,10 +29,11 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 </div>
 </div>
 
-<header class="fixed top-0 left-0 right-0 z-50 glass px-4 py-3 flex justify-between items-center text-xs font-bold">
-<button onclick="openTab('ai', event)" class="text-cyan-400 flex items-center gap-1">👁️ عين الذكاء</button>
+<!-- الهيدر معدل RTL -->
+<header class="fixed top-0 left-0 right-0 z-50 glass px-4 py-3 flex flex-row-reverse justify-between items-center text-xs font-bold">
+<button onclick="openTab('support', event)" class="text-yellow-400 flex items-center gap-1">🛡️ فريق الدعم</button>
 <div class="text-cyan-400">TARIM OS</div>
-<button onclick="openTab('support', event)" class="text-yellow-400 flex items-center gap-1">فريق الدعم 🛡️</button>
+<button onclick="openTab('ai', event)" class="text-cyan-400 flex items-center gap-1">👁️ عين الذكاء</button>
 </header>
 
 <!-- الرئيسية - فيديو -->
@@ -138,7 +139,7 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
     <div id="liveComments" class="space-y-1 max-h-40 overflow-y-auto text-[11px]"></div>
     <div class="flex items-center gap-2 text-xs"><span>❤️</span><span id="liveLikes">0</span><span class="ml-3">👁️</span><span id="liveViewers">1</span></div>
   </div>
-  <div class="absolute right-3 bottom-28 flex-col gap-4 z-20 items-center">
+  <div class="absolute right-3 bottom-28 flex flex-col gap-4 z-20 items-center">
     <button onclick="likeLive()" class="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-xl">❤️</button>
     <button onclick="sendGift()" class="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-xl">🎁</button>
     <button onclick="applyFilter()" class="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-xs">🎨</button>
@@ -150,18 +151,19 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
   </div>
   <div id="preLiveOverlay" class="absolute inset-0 bg-black/75 flex items-center justify-center flex-col z-30">
     <div class="text-cyan-400 font-black mb-3">جاهز للبث؟</div>
-    <button onclick="confirmStartLive()" class="bg-red-600 text-white font-black px-10 py-3 rounded-full text-sm">▶️ ابدأ البث 8 دقائق</button>
+    <button onclick="confirmStartLive()" class="bg-red-600 text-white font-black px-10 py-3 rounded-full text-sm">▶️ ابدأ البث</button>
   </div>
 </div>
 
 <div id="toastBox" class="fixed top-20 left-4 right-4 z-[700] flex-col items-center"></div>
 
-<nav class="fixed bottom-0 left-0 right-0 glass flex justify-around items-center py-2 text-[10px] border-t border-cyan-500/20 z-50">
-  <button onclick="openTab('profile', event)" class="flex flex-col items-center text-gray-400"><span class="text-2xl">👤</span><span>الملفات</span></button>
-  <button onclick="openTab('inbox', event)" class="flex flex-col items-center text-gray-400"><span class="text-2xl">💬</span><span>الوارد</span></button>
-  <button onclick="openTab('create', event)" class="w-14 h-14 rounded-full bg-cyan-500 flex items-center justify-center text-3xl font-bold -mt-4 shadow-lg shadow-cyan-500/50">+</button>
-  <button onclick="openTab('operations', event)" class="flex flex-col items-center text-gray-400"><span class="text-2xl">⚡</span><span>العمليات</span></button>
+<!-- القائمة السفلية معدلة RTL -->
+<nav class="fixed bottom-0 left-0 right-0 glass flex flex-row-reverse justify-around items-center py-2 text-[10px] border-t border-cyan-500/20 z-50">
   <button onclick="openTab('home', event)" class="flex flex-col items-center text-cyan-400"><span class="text-2xl">🏠</span><span>الرئيسية</span></button>
+  <button onclick="openTab('operations', event)" class="flex flex-col items-center text-gray-400"><span class="text-2xl">⚡</span><span>العمليات</span></button>
+  <button onclick="openTab('create', event)" class="w-14 h-14 rounded-full bg-cyan-500 flex items-center justify-center text-3xl font-bold -mt-4 shadow-lg shadow-cyan-500/50">+</button>
+  <button onclick="openTab('inbox', event)" class="flex flex-col items-center text-gray-400"><span class="text-2xl">💬</span><span>الوارد</span></button>
+  <button onclick="openTab('profile', event)" class="flex flex-col items-center text-gray-400"><span class="text-2xl">👤</span><span>الملفات</span></button>
 </nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
