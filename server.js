@@ -17,7 +17,7 @@ const liveRooms = new Map(); // roomId -> {host, viewers, startTime}
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// صفحة واحدة فقط
+// صفحة واحدة فقط لتوجيه المسارات الـ SPA
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
   // تسجيل الدخول
   socket.on('register', ({phone}) => {
     users.set(phone, socket.id);
-    socket.phone = phone;
+    socket.phone = phone || 'AL';
     console.log('تم تسجيل:', phone);
   });
 
@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
       host: socket.id,
       viewers: 1,
       startTime: Date.now(),
-      duration: 0 // 0 = مفتوح للابد
+      duration: 0 
     });
     socket.join(roomId);
     socket.roomId = roomId;
@@ -71,17 +71,17 @@ io.on('connection', (socket) => {
 
   // لايك البث
   socket.on('liveLike', (roomId) => {
-    io.to(roomId).emit('newLike', {from: socket.phone});
+    if(roomId) io.to(roomId).emit('newLike', {from: socket.phone});
   });
 
   // تعليق البث
   socket.on('liveComment', ({roomId, text}) => {
-    io.to(roomId).emit('newComment', {from: socket.phone, text});
+    if(roomId) io.to(roomId).emit('newComment', {from: socket.phone || 'AL', text});
   });
 
   // هدية
   socket.on('sendGift', (roomId) => {
-    io.to(roomId).emit('newGift', {from: socket.phone});
+    if(roomId) io.to(roomId).emit('newGift', {from: socket.phone || 'AL'});
   });
 
   // ايقاف البث يدوي
@@ -104,7 +104,7 @@ io.on('connection', (socket) => {
         liveRooms.delete(socket.roomId);
       }
     }
-    users.delete(socket.phone);
+    if(socket.phone) users.delete(socket.phone);
     console.log('مستخدم قطع:', socket.id);
   });
 
@@ -112,7 +112,7 @@ io.on('connection', (socket) => {
 
 // تشفير بسيط للـ QR
 app.post('/api/qr', (req, res) => {
-  const data = JSON.stringify({user: req.body.phone, time: Date.now()});
+  const data = JSON.stringify({user: req.body.phone || 'AL', time: Date.now()});
   const hash = crypto.createHash('sha256').update(data).digest('hex');
   res.json({qr: hash.slice(0, 20)});
 });
