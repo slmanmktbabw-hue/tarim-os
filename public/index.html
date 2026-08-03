@@ -20,25 +20,29 @@
 </head>
 <body class="text-white min-h-screen flex flex-col justify-between select-none pb-24">
 
-    <!-- بوابة تسجيل الدخول / إنشاء حساب -->
+    <!-- بوابة المصادقة وتنظيم الجمهور العالمية (OTP) -->
     <div id="authGate" class="fixed inset-0 bg-[#030B1A] z-50 flex items-center justify-center p-4">
         <div class="glass w-full max-w-sm p-6 rounded-2xl border border-cyan-500/40 text-center space-y-4 shadow-2xl">
             <div class="text-3xl font-black text-cyan-400">🏰 TARIM OS</div>
-            <div class="text-xs text-slate-400">النظام السيادي - tarimos.org</div>
+            <div class="text-xs text-slate-400">المنصة العالمية لترتيب الجمهور - tarimos.org</div>
             
-            <div class="flex bg-slate-900 p-1 rounded-xl border border-cyan-500/20">
-                <button id="tabLoginBtn" onclick="switchAuthMode('login')" class="flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-black transition-all">دخول</button>
-                <button id="tabRegisterBtn" onclick="switchAuthMode('register')" class="flex-1 py-2 text-xs font-bold rounded-lg text-cyan-400 transition-all">انشاء حساب</button>
+            <!-- خطوة إدخال البيانات الأساسية (البريد الإلكتروني أو رقم الهاتف) -->
+            <div id="stepCredentials" class="space-y-3">
+                <input id="userPhoneOrEmail" type="text" placeholder="البريد الإلكتروني أو رقم الهاتف" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-xs text-cyan-300 outline-none focus:border-cyan-400 text-right">
+                <input id="userPass" type="password" placeholder="كلمة المرور" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-xs text-cyan-300 outline-none focus:border-cyan-400 text-right">
+                <button onclick="requestOTP()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl shadow-lg shadow-cyan-500/30 transition-all">إرسال رمز التحقق 📨</button>
             </div>
 
-            <input id="userPhone" type="text" placeholder="الايميل / الهاتف / الاسم" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-xs text-cyan-300 outline-none focus:border-cyan-400">
-            <input id="userPass" type="password" placeholder="كلمة المرور" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-xs text-cyan-300 outline-none focus:border-cyan-400">
-            
-            <button id="authSubmitBtn" onclick="registerAndLogin()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl shadow-lg shadow-cyan-500/30 transition-all">دخول القلعة 🔑</button>
-            <button onclick="googleLogin()" class="w-full bg-white hover:bg-slate-200 text-black font-bold py-3 rounded-xl transition-all">🌐 متابعة بحساب الملك Gooaz</button>
+            <!-- خطوة إدخال رمز التحقق OTP (مخفية لحين طلب الرمز) -->
+            <div id="stepOTP" class="hidden space-y-3">
+                <p class="text-xs text-cyan-300">أدخل رمز التحقق (4 أرقام) المرسل لك:</p>
+                <input id="otpCodeInput" type="text" placeholder="أدخل الرمز هنا" maxlength="4" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-center text-lg tracking-widest text-cyan-300 outline-none">
+                <button onclick="verifyOTP()" class="w-full bg-green-500 hover:bg-green-400 text-black font-bold py-3 rounded-xl shadow-lg transition-all">تأكيد ودخول القلعة 🔑</button>
+                <button onclick="backToCredentials()" class="text-[10px] text-slate-400 underline">تعديل البريد / الهاتف</button>
+            </div>
             
             <div id="authMsg" class="text-xs text-red-400 h-4"></div>
-            <div class="text-[10px] text-cyan-500 font-bold pt-2">👑 حساب الملك @Gooaz #صحمي</div>
+            <div class="text-[10px] text-cyan-500 font-bold pt-2">🌐 نظام تنظيم الجمهور العالمي</div>
         </div>
     </div>
 
