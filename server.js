@@ -2,181 +2,69 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const io = new Server(server);
 
-const PORT = process.env.PORT || 3000;
-const users = new Map();
-const liveRooms = new Map();
-
+// السماح بقراءة البيانات بصيغة JSON
 app.use(express.json());
-app.use(cors());
+
+// ربط مجلد الواجهة الأمامية (public)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 1. الاتصال بقاعدة البيانات باستخدام sqlite3 القياسية
-const dbPath = path.resolve(__dirname, 'tarim_os.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('❌ خطأ في الاتصال بقاعدة البيانات:', err.message);
+// نقطة اختبار أو تسجيل الدخول البسيطة
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    if (username && password) {
+        res.json({ success: true, user: { username, okki_balance: 100, followers: 0, likes: 0, posts: 0 } });
     } else {
-        console.log('✅ تم الاتصال بقاعدة بيانات Tarim OS بنجاح.');
+        res.json({ success: false, message: 'بيانات غير صالحة' });
     }
 });
 
-// 2. انشاء الجداول لو مش موجودة
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        password TEXT,
-        okki_balance REAL DEFAULT 0,
-        followers INTEGER DEFAULT 0,
-        likes INTEGER DEFAULT 0,
-        posts INTEGER DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
-});
-
-// 3. API انشاء حساب جديد
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'الرجاء إدخال اسم المستخدم وكلمة المرور' });
-    }
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const query = `INSERT INTO users (username, password) VALUES (?, ?)`;
-        db.run(query, [username, hashedPassword], function(err) {
-            if (err) {
-                return res.status(400).json({ success: false, message: 'اسم المستخدم موجود مسبقاً!' });
-            }
-            res.json({
-                success: true,
-                message: 'تم إنشاء الحساب بنجاح',
-                user: { username, okki_balance: 0, followers: 0, likes: 0, posts: 0 }
-            });
-        });
-    } catch (e) {
-        res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
-    }
+    res.json({ success: true, user: { username, okki_balance: 100, followers: 0, likes: 0, posts: 0 } });
 });
 
-// 4. API تسجيل دخول
-app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'الرجاء إدخال اسم المستخدم وكلمة المرور' });
-    }
-    
-    const query = `SELECT * FROM users WHERE username = ?`;
-    db.get(query, [username], async (err, user) => {
-        if (err || !user) {
-            return res.status(400).json({ success: false, message: 'المستخدم غير موجود!' });
-        }
-        
-        try {
-            const isValidPassword = await bcrypt.compare(password, user.password);
-            if (!isValidPassword) {
-                return res.status(400).json({ success: false, message: 'كلمة المرور غير صحيحة!' });
-            }
+app.post('/api/qr', (req, res) => {
+    res.json({ qr: 'TARIM_OS_SECURE_' + (req.body.phone || 'Gooaz') });
+});
 
-            res.json({
-                success: true,
-                message: 'تم تسجيل الدخول بنجاح',
-                user: { 
-                    username: user.username, 
-                    okki_balance: user.okki_balance, 
-                    followers: user.followers, 
-                    likes: user.likes, 
-                    posts: user.posts 
-                }
-            });
-        } catch (error) {
-            res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
-        }
+// إدارة الاتصالات اللحظية عبر Socket.io للبث المباشر
+io.on('connection', (socket) => {
+    console.log('مستخدم متصل:', socket.id);
+
+    socket.on('startLive', () => {
+        const roomId = 'room_' + Math.floor(Math.random() * 1000);
+        socket.join(roomId);
+        socket.emit('liveStarted', { roomId });
+        io.to(roomId).emit('viewersUpdate', 1);
+    });
+
+    socket.on('liveLike', (roomId) => {
+        socket.to(roomId).emit('newLike', { from: 'مستخدم' });
+    });
+
+    socket.on('liveComment', ({ roomId, text }) => {
+        io.to(roomId).emit('newComment', { from: 'مستخدم', text });
+    });
+
+    socket.on('sendGift', (roomId) => {
+        io.to(roomId).emit('newGift', { from: 'مستخدم متميز' });
+    });
+
+    socket.on('stopLive', () => {
+        socket.broadcast.emit('liveEnded');
+    });
+
+    socket.on('disconnect', () => {
+        console.log('انقطع الاتصال:', socket.id);
     });
 });
 
-// 5. API انشاء QR
-app.post('/api/qr', (req, res) => {
-  const data = JSON.stringify({user: req.body.phone, time: Date.now()});
-  const hash = crypto.createHash('sha256').update(data).digest('hex');
-  res.json({qr: hash.slice(0, 20)});
-});
-
-// 6. Socket.io للبث المباشر
-io.on('connection', (socket) => {
-  console.log('مستخدم متصل:', socket.id);
-  
-  socket.on('registerSocket', (username) => { 
-    users.set(socket.id, username); 
-    socket.username = username; 
-  });
-  
-  socket.on('startLive', () => {
-    const roomId = 'live_' + socket.id;
-    liveRooms.set(roomId, { host: socket.id, viewers: 1, startTime: Date.now() });
-    socket.join(roomId); 
-    socket.roomId = roomId;
-    
-    const interval = setInterval(() => {
-      const room = liveRooms.get(roomId);
-      if(!room) return clearInterval(interval);
-      const elapsed = Date.now() - room.startTime;
-      const minutes = Math.floor(elapsed / 60000);
-      const seconds = Math.floor((elapsed % 60000) / 1000);
-      io.to(roomId).emit('liveTimer', `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`);
-    }, 1000);
-    
-    socket.liveInterval = interval;
-    socket.emit('liveStarted', {roomId});
-  });
-  
-  socket.on('joinLive', (roomId) => {
-    const room = liveRooms.get(roomId);
-    if(room){ 
-      room.viewers++; 
-      socket.join(roomId); 
-      io.to(roomId).emit('viewersUpdate', room.viewers); 
-    }
-  });
-  
-  socket.on('liveLike', (roomId) => io.to(roomId).emit('newLike', {from: socket.username}));
-  socket.on('liveComment', ({roomId, text}) => io.to(roomId).emit('newComment', {from: socket.username, text}));
-  socket.on('sendGift', (roomId) => io.to(roomId).emit('newGift', {from: socket.username}));
-  
-  socket.on('stopLive', () => {
-    if(socket.roomId){ 
-      clearInterval(socket.liveInterval); 
-      io.to(socket.roomId).emit('liveEnded'); 
-      liveRooms.delete(socket.roomId); 
-    }
-  });
-  
-  socket.on('disconnect', () => {
-    if(socket.roomId){ 
-      clearInterval(socket.liveInterval); 
-      const room = liveRooms.get(socket.roomId); 
-      if(room && room.host === socket.id){ 
-        io.to(socket.roomId).emit('liveEnded'); 
-        liveRooms.delete(socket.roomId); 
-      }
-    }
-    users.delete(socket.id);
-  });
-});
-
-// صفحة واحدة SPA
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`TARIM OS V1.0 Beta شغال على http://localhost:${PORT}`);
+    console.log(`السيرفر يعمل بنجاح على البورت: ${PORT}`);
 });
