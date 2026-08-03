@@ -40,7 +40,7 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
 // 3. API انشاء حساب جديد
 app.post('/api/register', async (req, res) => {
     const { username, password } = req.body;
-    if (!username ||!password) {
+    if (!username || !password) {
         return res.status(400).json({ success: false, message: 'الرجاء إدخال اسم المستخدم وكلمة المرور' });
     }
     try {
@@ -61,8 +61,8 @@ app.post('/api/register', async (req, res) => {
 // 4. API تسجيل دخول
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    db.get(`SELECT * FROM users WHERE username =?`, [username], async (err, user) => {
-        if (err ||!user) return res.status(400).json({ success: false, message: 'المستخدم غير موجود!' });
+    db.get(`SELECT * FROM users WHERE username = ?`, [username], async (err, user) => {
+        if (err || !user) return res.status(400).json({ success: false, message: 'المستخدم غير موجود!' });
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) return res.status(400).json({ success: false, message: 'كلمة المرور غير صحيحة!' });
 
