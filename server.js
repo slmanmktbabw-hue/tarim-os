@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const bcrypt = require('bcrypt'); // مكتبة التشفير السيادي
+const bcrypt = require('bcrypt');
 
 const app = express();
 const server = http.createServer(app);
@@ -13,82 +13,97 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// قاعدة بيانات آمنة (تم إعدادها لتخزين كلمات المرور مشفرة)
-let users = {};
+// قاعدة بيانات مرتبة للجمهور (تخزين الحسابات والرموز المؤقتة)
+let audienceDB = {}; // مفتاحها البريد أو الهاتف
+let pendingOTPs = {}; // لحفظ رمز التحقق المؤقت
 
-// 1. مسار تسجيل حساب جديد مع تشفير كلمة المرور
-app.post('/api/register', async (req, res) => {
+// حساب الملك الأساسي المعتمد مسبقاً
+const MASTER_USER = "Gooaz@$&-#";
+const MASTER_PASS_HASH = bcrypt.hashSync("GG12345123rr@#$*", 10);
+audienceDB[MASTER_USER] = {
+  identifier: MASTER_USER,
+  password: MASTER_PASS_HASH,
+  type: 'master',
+  verified: true,
+  okki_balance: 500,
+  followers: 25,
+  likes: 120,
+  posts: 5
+};
+
+// 1. طلب التسجيل أو الدخول عبر (البريد أو الهاتف) وتوليد كود التحقق OTP
+app.post('/api/auth/request', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.json({ success: false, message: 'يرجى إدخال اسم المستخدم وكلمة المرور' });
+    const { identifier, password } = req.body;
+    if (!identifier || !password) {
+      return res.json({ success: false, message: 'يرجى إدخال البريد الإلكتروني أو رقم الهاتف مع كلمة المرور' });
     }
 
-    if (users[username]) {
-      return res.json({ success: false, message: 'اسم المستخدم مسجل مسبقاً' });
-    }
+    // توليد رمز تحقق عشوائي من 4 أرقام
+    const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    pendingOTPs[identifier] = { otp: otpCode, password, timestamp: Date.now() };
 
-    // تشفير كلمة المرور بقوة 10 جولات (Salt Rounds) لمنع أي اختراق
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    users[username] = {
-      username,
-      password: hashedPassword, // تخزين الـ Hash فقط وليس كلمة المرور النصية
-      okki_balance: 100,
-      followers: 10,
-      likes: 120,
-      posts: 2
-    };
+    // محاكاة إرسال الكود (في البيئة الحقيقية يتم ربطه بـ SMS أو Email Gateway)
+    console.log(`🔐 [رمز التحقق العالمي] للمعرف (${identifier}) هو: ${otpCode}`);
 
     res.json({ 
       success: true, 
-      user: { username, okki_balance: 100, followers: 10, likes: 120, posts: 2 },
-      message: 'تم إنشاء الحساب وتشفيره بنجاح 🛡️' 
+      requiresOTP: true,
+      message: `تم إرسال رمز التحقق بنجاح إلى (${identifier}). (رمز التجربة في الكونسول: ${otpCode})` 
     });
-  } catch (error) {
-    res.json({ success: false, message: 'خطأ داخلي في نظام التشفير' });
+  } catch (e) {
+    res.json({ success: false, message: 'حدث خطأ في طلب المصادقة' });
   }
 });
 
-// 2. مسار تسجيل الدخول الآمن والتحقق من المطابقة
-app.post('/api/login', async (req, res) => {
+// 2. تأكيد رمز التحقق (OTP) وإنشاء الحساب أو تسجيل الدخول وترتيب الجمهور
+app.post('/api/auth/verify', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.json({ success: false, message: 'يرجى إدخال البيانات كاملة' });
+    const { identifier, otp } = req.body;
+    const pending = pendingOTPs[identifier];
+
+    if (!pending || pending.otp !== otp) {
+      return res.json({ success: false, message: '❌ رمز التحقق غير صحيح أو انتهت صلاحيته' });
     }
 
-    const user = users[username];
+    let user = audienceDB[identifier];
     if (!user) {
-      return res.json({ success: false, message: 'الحساب غير موجود' });
+      // إنشاء حساب جديد وترتيبه في قاعدة بيانات الجمهور العالمية
+      const hashedPassword = await bcrypt.hash(pending.password, 10);
+      user = {
+        identifier,
+        password: hashedPassword,
+        type: identifier.includes('@') ? 'email' : 'phone',
+        verified: true,
+        okki_balance: 100,
+        followers: 1,
+        likes: 10,
+        posts: 0
+      };
+      audienceDB[identifier] = user;
     }
 
-    // مقارنة كلمة المرور المدخلة مع التشفير المحفوظ في القاعدة
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.json({ success: false, message: 'كلمة المرور غير صحيحة' });
-    }
+    delete pendingOTPs[identifier]; // مسح الرمز بعد الاستخدام
 
-    res.json({ 
-      success: true, 
-      user: { 
-        username: user.username, 
-        okki_balance: user.okki_balance, 
-        followers: user.followers, 
-        likes: user.likes, 
-        posts: user.posts 
+    res.json({
+      success: true,
+      user: {
+        username: user.identifier,
+        okki_balance: user.okki_balance,
+        followers: user.followers,
+        likes: user.likes,
+        posts: user.posts
       },
-      message: 'تم تسجيل الدخول بأمان تام' 
+      message: '✅ تم التحقق ودخول القلعة بنجاح'
     });
-  } catch (error) {
-    res.json({ success: false, message: 'خطأ في عملية التحقق' });
+  } catch (e) {
+    res.json({ success: false, message: 'خطأ في عملية التحقق من الرمز' });
   }
 });
 
-// مسار الـ QR الميداني
 app.post('/api/qr', (req, res) => {
   const { phone } = req.body;
-  res.json({ success: true, qr: `TARIM-OS-SECURE-AUTH-${phone || 'Gooaz'}` });
+  res.json({ success: true, qr: `TARIM-OS-GLOBAL-AUDIENCE-${phone || 'Gooaz'}` });
 });
 
 io.on('connection', (socket) => {
@@ -98,5 +113,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`🚀 TARIM OS يعمل بحماية فائقة وتشفير تام على البورت: ${PORT}`);
+  console.log(`🌍 منصة TARIM OS العالمية للجمهور تعمل بكفاءة على البورت: ${PORT}`);
 });
