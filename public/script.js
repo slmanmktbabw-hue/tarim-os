@@ -1,108 +1,154 @@
 const socket = io();
-let currentUser = 'AL';
-let liveStream = null;
-let likes = 0;
-let filterOn = false;
-let liveSeconds = 0;
-let liveInterval;
+let currentRoomId = null;
+let userPhone = localStorage.getItem('tarim_phone') || 'AL';
 
-function startLive() {
+// تسجيل الدخول
+function registerAndLogin(){
+  const phone = document.getElementById('userPhone').value || 'AL';
+  const pass = document.getElementById('userPass').value;
+
+  if(!phone) return showToast('ادخل اسم المستخدم');
+
+  userPhone = phone;
+  localStorage.setItem('tarim_phone', phone);
+
+  socket.emit('register', {phone});
+
+  document.getElementById('authGate').style.display = 'none';
+  document.getElementById('profileAvatar').innerText = phone.slice(0,2).toUpperCase();
+  showToast('مرحبا ' + phone);
+}
+
+// بدء البث
+function startLive(){
+  socket.emit('startLive');
   document.getElementById('fullScreenCam').classList.remove('hidden');
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true })
- .then(stream => {
-    liveStream = stream;
-    document.getElementById('fullCamVideo').srcObject = stream;
-  }).catch(err => showToast('اسمح بالكاميرا والمايك يا ملك'));
+  document.getElementById('preLiveOverlay').classList.remove('hidden');
 }
 
+// تأكيد بدء البث
 function confirmStartLive(){
-  document.getElementById('preLiveOverlay').style.display='none';
-  showToast('🔴 تم بدء البث 8 دقائق');
-  liveSeconds=0;
-  liveInterval = setInterval(()=>{
-    liveSeconds++;
-    let m = String(Math.floor(liveSeconds/60)).padStart(2,'0');
-    let s = String(liveSeconds%60).padStart(2,'0');
-    document.getElementById('liveTimer').innerText = `${m}:${s}`;
-    if(liveSeconds >= 480){ exitFullScreen(); showToast('انتهى البث 8 دقائق'); }
-  },1000);
+  document.getElementById('preLiveOverlay').classList.add('hidden');
+  showToast('البث بدأ');
 }
 
+// الخروج من البث
 function exitFullScreen(){
+  socket.emit('stopLive');
   document.getElementById('fullScreenCam').classList.add('hidden');
-  document.getElementById('preLiveOverlay').style.display='flex';
-  clearInterval(liveInterval);
-  if(liveStream){ liveStream.getTracks().forEach(t=>t.stop()); liveStream=null; }
+  document.getElementById('preLiveOverlay').classList.remove('hidden');
+  document.getElementById('liveComments').innerHTML = '';
+  document.getElementById('liveLikes').innerText = '0';
+  document.getElementById('liveTimer').innerText = '00:00';
 }
 
+// لايك البث
 function likeLive(){
-  likes++;
-  document.getElementById('liveLikes').innerText = likes;
-  const heart = document.createElement('div');
-  heart.innerText='❤️';
-  heart.className='absolute bottom-20 right-10 text-2xl animate-bounce z-20';
-  document.getElementById('fullScreenCam').appendChild(heart);
-  setTimeout(()=>heart.remove(),1000);
-  socket.emit('like_live', {user: currentUser});
+  if(currentRoomId) socket.emit('liveLike', currentRoomId);
+  let el = document.getElementById('liveLikes');
+  el.innerText = parseInt(el.innerText)+1;
 }
 
+// ارسال هدية
+function sendGift(){
+  if(currentRoomId) socket.emit('sendGift', currentRoomId);
+  showToast('تم ارسال هدية 🎁');
+}
+
+// فلتر
+function applyFilter(){
+  const filter = document.getElementById('liveFilter');
+  filter.classList.toggle('opacity-0');
+  showToast('تم تطبيق الفلتر');
+}
+
+// مشاركة
+function shareLive(){
+  navigator.clipboard.writeText(window.location.href + '?live=' + currentRoomId);
+  showToast('تم نسخ رابط البث');
+}
+
+// ارسال تعليق البث
 function sendLiveComment(){
   const input = document.getElementById('liveCommentIn');
-  const txt = input.value.trim(); if(!txt) return;
-  document.getElementById('liveComments').innerHTML += `<div class="bg-black/60 p-1.5 rounded-full px-3">${currentUser}: ${txt}</div>`;
-  input.value='';
-  document.getElementById('liveComments').scrollTop = document.getElementById('liveComments').scrollHeight;
-  socket.emit('comment_live', {user: currentUser, text: txt});
+  if(input.value.trim() && currentRoomId){
+    socket.emit('liveComment', {roomId: currentRoomId, text: input.value});
+    input.value = '';
+  }
 }
 
-function sendGift(){
-  const gifts = ['🎁','❤️','👑','🚀'];
-  const gift = gifts[Math.floor(Math.random()*gifts.length)];
-  document.getElementById('liveComments').innerHTML += `<div class="bg-yellow-500/30 p-1.5 rounded-full px-3">🎁 ${currentUser} ارسل ${gift}</div>`;
-  fetch('/api/wallet/gift', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({from: currentUser, to: 'AL', gift})});
-  showToast('تم ارسال '+gift);
+// انشاء QR
+function generateQR(){
+  fetch('/api/qr', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({phone: userPhone})
+  })
+.then(res => res.json())
+.then(data => {
+    document.getElementById('qrcode').innerHTML = '';
+    new QRCode(document.getElementById('qrcode'), {
+      text: data.qr,
+      width: 128,
+      height: 128,
+      colorDark : "#00f0ff",
+      colorLight : "#0f172a"
+    });
+    showToast('تم انشاء QR');
+  });
 }
 
-function applyFilter(){
-  filterOn =!filterOn;
-  document.getElementById('liveFilter').style.opacity = filterOn? '1' : '0';
-  showToast(filterOn? 'تم تفعيل الفلتر السيادي 🎨' : 'تم إيقاف الفلتر');
-}
+// استقبال الاحداث من السيرفر
+socket.on('liveStarted', ({roomId}) => {
+  currentRoomId = roomId;
+  showToast('البث جاهز');
+});
 
-function shareLive(){
-  if(navigator.share) navigator.share({title:'TARIM OS LIVE', url: location.href});
-  else { navigator.clipboard.writeText(location.href); showToast('تم نسخ رابط البث'); }
-}
+socket.on('liveTimer', (time) => {
+  document.getElementById('liveTimer').innerText = time;
+});
 
-socket.on('like_live', (data) => {
-  likes++;
-  document.getElementById('liveLikes').innerText = likes;
-})
-socket.on('comment_live', (data) => {
-  document.getElementById('liveComments').innerHTML += `<div class="bg-black/60 p-1.5 rounded-full px-3">${data.user}: ${data.text}</div>`;
-  document.getElementById('liveComments').scrollTop = document.getElementById('liveComments').scrollHeight;
-})
-socket.on('viewers_count', (count) => {
+socket.on('viewersUpdate', (count) => {
   document.getElementById('liveViewers').innerText = count;
-})
+});
 
+socket.on('newLike', ({from}) => {
+  showToast(from + ' اعجب بالبث ❤️');
+});
+
+socket.on('newComment', ({from, text}) => {
+  const div = document.createElement('div');
+  div.className = 'glass px-2 py-1 rounded text-[10px]';
+  div.innerText = from + ': ' + text;
+  document.getElementById('liveComments').appendChild(div);
+  document.getElementById('liveComments').scrollTop = document.getElementById('liveComments').scrollHeight;
+});
+
+socket.on('newGift', ({from}) => {
+  showToast(from + ' ارسل هدية 🎁');
+});
+
+socket.on('liveEnded', () => {
+  showToast('انتهى البث');
+  exitFullScreen();
+});
+
+// فتح التبويب
 function openTab(tab, e){
   document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));
   document.getElementById('tab-'+tab).classList.remove('hidden');
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('text-cyan-400'));
-  if(e) e.currentTarget.classList.add('text-cyan-400');
+  document.querySelectorAll('nav button').forEach(b=>{
+    b.classList.remove('text-cyan-400');
+    b.classList.add('text-gray-400');
+  });
+  e.currentTarget.classList.remove('text-gray-400');
+  e.currentTarget.classList.add('text-cyan-400');
 }
-function showToast(msg){
-  const box = document.getElementById('toastBox');
-  const div = document.createElement('div');
-  div.className = 'bg-cyan-500 text-black px-4 py-2 rounded-full text-xs font-bold mb-2 animate-pulse';
-  div.innerText = msg;
-  box.appendChild(div);
-  setTimeout(()=>div.remove(), 3000);
-}
-function registerAndLogin(){
-  currentUser = document.getElementById('userPhone').value || 'AL';
-  document.getElementById('authGate').classList.add('hidden');
-  openTab('home');
-  socket.emit('register', {phone: currentUser});
-}
+
+// فتح الرئيسية تلقائي
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('tab-home').classList.remove('hidden');
+  if(localStorage.getItem('tarim_phone')){
+    document.getElementById('authGate').style.display = 'none';
+  }
+});
