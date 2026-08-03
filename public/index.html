@@ -23,7 +23,7 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 <div class="w-full max-w-sm glass rounded-3xl p-6 text-center space-y-4 border-cyan-500/40">
 <div class="text-3xl font-black text-cyan-400">TARIM OS 🏰</div>
 <div class="text-xs text-gray-300">tarimos.org - من تريم إلى العالم</div>
-<input id="userPhone" type="text" placeholder="AL" class="w-full bg-black/60 border-cyan-500/30 rounded-xl p-3 text-xs text-center text-cyan-300 font-bold outline-none">
+<input id="userPhone" type="text" placeholder="الاسم" class="w-full bg-black/60 border-cyan-500/30 rounded-xl p-3 text-xs text-center text-cyan-300 font-bold outline-none">
 <input id="userPass" type="password" placeholder="كلمة المرور" class="w-full bg-black/60 border-cyan-500/30 rounded-xl p-3 text-xs text-center text-cyan-300 font-bold outline-none">
 <button onclick="registerAndLogin()" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs">فتح النظام</button>
 </div>
@@ -53,15 +53,15 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 <!-- العمليات -->
 <main id="tab-operations" class="hidden min-h-screen pt-16 p-4 space-y-3">
   <div class="font-black text-cyan-400 text-sm text-right">⚡ قسم العمليات السيادية</div>
-  <button onclick="startLive()" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center border-red-500/30"><span class="text-red-400">🔴 بث مباشر سيادي</span><span>بدء ←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>💬 المراسلة الامنة</span><span>فتح ←</span></button>
-  <button onclick="openMap()" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>🗺️ خريطة حضرموت Offline</span><span>عرض ←</span></button>
+  <button onclick="startLive()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center border-red-500/30"><span class="text-red-400">🔴 بث مباشر سيادي</span><span>بدء ←</span></button>
+  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>💬 المراسلة الامنة</span><span>فتح ←</span></button>
+  <button onclick="openMap()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🗺️ خريطة حضرموت Offline</span><span>عرض ←</span></button>
   <div id="mapContainer" class="hidden glass p-2 rounded-xl"><div id="map"></div><div class="text-[10px] text-center mt-2 text-gray-400">سيئون - حضرموت</div></div>
   <div class="font-black text-xs text-right">🔐 الختم الميداني QR</div>
   <div id="qrcode" class="glass p-4 rounded-xl flex justify-center"></div>
 </main>
 
-<!-- انشاء - تم تفعيل الازرار -->
+<!-- انشاء -->
 <main id="tab-create" class="hidden min-h-screen pt-16 p-4 space-y-3">
   <div class="font-black text-cyan-400 text-sm text-center">✨ محطة الانشاء السيادي</div>
   <div class="grid grid-cols-3 gap-2">
@@ -69,26 +69,16 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
     <button onclick="changeBackground()" class="glass p-3 rounded-xl text-xs">خلفية 🎨</button>
     <button onclick="startLive()" class="glass p-3 rounded-xl text-xs">امية 🤳</button>
   </div>
-  <div class="grid grid-cols-2 gap-2">
-    <button onclick="document.getElementById('imgInput').click()" class="glass p-3 rounded-xl text-xs">رفع صورة 🖼️</button>
-    <input type="file" id="imgInput" accept="image/*" class="hidden">
-    <button onclick="document.getElementById('vidInput').click()" class="glass p-3 rounded-xl text-xs text-yellow-400">رفع فيديو 📦</button>
-    <input type="file" id="vidInput" accept="video/*" class="hidden">
-  </div>
   <button onclick="startLive()" class="glass w-full py-4 rounded-xl font-bold text-red-400">LIVE 🔴</button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs">منشور نص 📄</button>
-  <input placeholder="اكتب وصف للمنشور..." class="w-full bg-black/60 rounded-xl p-3 text-xs">
-  <button onclick="showToast('تم النشر')" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs">نشر فوري</button>
 </main>
 
 <!-- الوارد -->
 <main id="tab-inbox" class="hidden min-h-screen pt-16 p-3 flex-col">
   <div class="font-black text-cyan-400 text-sm">💬 صندوق الوارد</div>
-  <div class="flex gap-2 mt-3"><input placeholder="اكتب رسالة..." class="flex-1 bg-black/60 rounded-xl p-3 text-xs"><button onclick="showToast('تم الارسال')" class="bg-cyan-500 text-black px-4 rounded-xl text-xs font-bold">ارسال</button></div>
   <div id="chatLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div>
 </main>
 
-<!-- الملفات -->
+<!-- الملفات - تم التعديل هنا -->
 <main id="tab-profile" class="hidden min-h-screen pt-16 p-4 space-y-3">
   <div class="glass p-4 rounded-2xl text-center">
     <div id="profileAvatar" class="w-20 h-20 bg-cyan-500 rounded-full mx-auto flex items-center justify-center text-2xl font-black">AL</div>
@@ -101,21 +91,23 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
     <div class="glass p-2 rounded-xl">0<br>المنشورات</div>
   </div>
   <div class="font-black text-cyan-400 text-xs mt-3 text-right">ادوات الحساب</div>
-  <button onclick="showToast('OKKI قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>💰 0 - OKKI الملكي</span><span>فتح ←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>📊 مركز الانشطة</span><span>فتح ←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>📁 فيديوهات دون اتصال</span><span>فتح ←</span></button>
-  <button onclick="generateQR()" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>🔐 رمز QR لديك</span><span>عرض ←</span></button>
+  <button onclick="openOKKI()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>💰 <span id="okkiBtn">0</span> - نقاطي OKKI</span><span>فتح ←</span></button>
+  <button onclick="openActivity()" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>📊 سجل الانشطة</span><span>فتح ←</span></button>
+  <button onclick="openOfflineVideos()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📁 فيديوهات دون اتصال</span><span>فتح ←</span></button>
+  <button onclick="generateQR()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🔐 رمز QR لملفك</span><span>عرض ←</span></button>
+
   <div class="font-black text-cyan-400 text-xs mt-3 text-right">ادوات الاعمال</div>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🏢 المجموعة التجارية</span><span>فتح ←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>📢 الترويج والاعلانات</span><span>فتح ←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📄 ادارة المنشورات</span><span>ادارة ←</span></button>
+  <button onclick="openBusiness()" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>🏢 المجموعة التجارية</span><span>فتح ←</span></button>
+  <button onclick="openAds()" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>📢 الترويج والاعلانات</span><span>فتح ←</span></button>
+  <button onclick="openPosts()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📄 ادارة المنشورات</span><span>ادارة ←</span></button>
+
   <div class="font-black text-cyan-400 text-xs mt-3 text-right">الاعدادات والخصوصية</div>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>👤 الحساب</span><span>←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>🔒 الخصوصية والامان</span><span>←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>🎨 تغير خلفية المستخدم</span><span>تغير ←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>🔗 مشاركة ملف الشخصي</span><span>مشاركة ←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>📜 السياسة والخصوصية</span><span>فتح ←</span></button>
-  <button onclick="logout()" class="glass w-full p-3 rounded-xl text-xs text-red-400 flex-row-reverse justify-between items-center"><span>🚪 تسجيل الخروج</span><span>←</span></button>
+  <button onclick="openAccount()" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>👤 الحساب</span><span>←</span></button>
+  <button onclick="openPrivacy()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🔒 الخصوصية والامان</span><span>←</span></button>
+  <button onclick="changeBG()" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>🎨 تغير خلفية المستخدم</span><span>تغير ←</span></button>
+  <button onclick="shareProfile()" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>🔗 مشاركة ملف الشخصي</span><span>مشاركة ←</span></button>
+  <button onclick="openPolicy()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📜 السياسة والخصوصية</span><span>فتح ←</span></button>
+  <button onclick="logout()" class="glass w-full p-3 rounded-xl text-xs text-red-400 flex flex-row-reverse justify-between items-center"><span>🚪 تسجيل الخروج</span><span>←</span></button>
 </main>
 
 <main id="tab-ai" class="hidden min-h-screen pt-16 p-3 flex-col"><div class="font-black text-cyan-400 text-sm">👁️ عين الذكاء</div><div id="aiLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div></main>
@@ -150,166 +142,6 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 </nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-const socket = io();
-let liveStream = null;
-let currentRoomId = null;
-let usingFrontCamera = true; // true = امية, false = خلفية
-let bgColorIndex = 0;
-const bgColors = [
-  'linear-gradient(135deg, #00f0ff, #7b2cff)',
-  'linear-gradient(135deg, #ff006e, #8338ec)',
-  'linear-gradient(135deg, #3a86ff, #06ffa5)',
-  'linear-gradient(135deg, #ffbe0b, #fb5607)',
-  'linear-gradient(135deg, #8338ec, #ff006e)'
-];
-
-function showToast(msg){
-  const box = document.getElementById('toastBox');
-  const el = document.createElement('div');
-  el.className = 'glass px-4 py-2 rounded-xl text-xs mb-2 text-center';
-  el.innerText = msg;
-  box.appendChild(el);
-  setTimeout(()=>el.remove(), 2000);
-}
-
-function logout(){ document.getElementById('authGate').style.display='flex'; }
-function generateQR(){ showToast('تم انشاء QR'); }
-
-function openMap(){
-  document.getElementById('mapContainer').classList.toggle('hidden');
-  if(!window.mapInitialized){
-    const map = L.map('map').setView([15.4694, 48.5164], 8);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: 'TARIM OS'}).addTo(map);
-    L.marker([15.4694, 48.5164]).addTo(map).bindPopup('TARIM OS - سيئون');
-    window.mapInitialized = true;
-  }
-}
-
-// تبديل الكاميرا امية / خلفية
-async function switchCamera(){
-  usingFrontCamera =!usingFrontCamera;
-  showToast(usingFrontCamera? 'الكاميرا الامامية 🤳' : 'الكاميرا الخلفية 📷');
-  if(liveStream){
-    await confirmStartLive();
-  }
-}
-
-// تغيير خلفية البث
-function changeBackground(){
-  bgColorIndex = (bgColorIndex + 1) % bgColors.length;
-  document.getElementById('liveFilter').style.background = bgColors[bgColorIndex];
-  document.getElementById('liveFilter').classList.remove('opacity-0');
-  showToast('تم تغيير الخلفية');
-}
-
-// دوال البث مع الكاميرا
-function startLive(){
-  showToast('جاري تشغيل الكاميرا...');
-  document.getElementById('fullScreenCam').classList.remove('hidden');
-}
-
-async function confirmStartLive(){
-  document.getElementById('preLiveOverlay').classList.add('hidden');
-
-  try {
-    if(liveStream){
-      liveStream.getTracks().forEach(track => track.stop());
-    }
-
-    liveStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: usingFrontCamera? "user" : "environment" },
-      audio: true
-    });
-
-    const video = document.getElementById('fullCamVideo');
-    video.srcObject = liveStream;
-    video.play();
-
-    socket.emit('startLive');
-    showToast('البث بدأ 🔴');
-
-  } catch(err) {
-    showToast('فشل تشغيل الكاميرا: ' + err.message);
-    exitFullScreen();
-  }
-}
-
-function exitFullScreen(){
-  if(liveStream){
-    liveStream.getTracks().forEach(track => track.stop());
-    liveStream = null;
-  }
-  document.getElementById('fullScreenCam').classList.add('hidden');
-  document.getElementById('preLiveOverlay').classList.remove('hidden');
-  socket.emit('stopLive');
-}
-
-function likeLive(){
-  let el = document.getElementById('liveLikes');
-  el.innerText = parseInt(el.innerText)+1;
-  if(currentRoomId) socket.emit('liveLike', currentRoomId);
-}
-
-function sendGift(){
-  showToast('تم ارسال هدية 🎁');
-  if(currentRoomId) socket.emit('sendGift', currentRoomId);
-}
-
-function applyFilter(){
-  document.getElementById('liveFilter').classList.toggle('opacity-0');
-  showToast('تم تطبيق الفلتر');
-}
-
-function shareLive(){
-  navigator.clipboard.writeText(window.location.href);
-  showToast('تم نسخ الرابط');
-}
-
-function sendLiveComment(){
-  const input = document.getElementById('liveCommentIn');
-  if(input.value.trim() && currentRoomId){
-    socket.emit('liveComment', {roomId: currentRoomId, text: input.value});
-    input.value = '';
-  }
-}
-
-function openTab(tab, e){
-  document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));
-  document.getElementById('tab-'+tab).classList.remove('hidden');
-  document.querySelectorAll('nav button').forEach(b=>{
-    b.classList.remove('text-cyan-400');
-    b.classList.add('text-gray-400');
-  });
-  e.currentTarget.classList.remove('text-gray-400');
-  e.currentTarget.classList.add('text-cyan-400');
-}
-
-function registerAndLogin(){
-  const phone = document.getElementById('userPhone').value || 'AL';
-  socket.emit('register', {phone});
-  document.getElementById('authGate').style.display = 'none';
-  document.getElementById('profileAvatar').innerText = phone.slice(0,2).toUpperCase();
-  showToast('مرحبا ' + phone);
-}
-
-// استقبال من السيرفر
-socket.on('liveStarted', ({roomId}) => { currentRoomId = roomId; });
-socket.on('liveTimer', (time) => { document.getElementById('liveTimer').innerText = time; });
-socket.on('viewersUpdate', (count) => { document.getElementById('liveViewers').innerText = count; });
-socket.on('newLike', ({from}) => { showToast(from + ' اعجب ❤️'); });
-socket.on('newComment', ({from, text}) => {
-  const div = document.createElement('div');
-  div.className = 'glass px-2 py-1 rounded text-[10px]';
-  div.innerText = from + ': ' + text;
-  document.getElementById('liveComments').appendChild(div);
-});
-socket.on('liveEnded', () => { showToast('انتهى البث'); exitFullScreen(); });
-
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('tab-home').classList.remove('hidden');
-})
-</script>
-<script src="/script.js"></script>
+<script src="/script.js"></script> <!-- خليته واحد بس -->
 </body>
-  </html>
+</html>
