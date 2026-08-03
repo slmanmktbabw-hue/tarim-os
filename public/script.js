@@ -16,7 +16,10 @@ const bgColors = [
   'linear-gradient(135deg, rgba(255,190,11,0.3), rgba(251,86,7,0.3))'
 ];
 
-// دالة عرض الإشعارات (Toast)
+// ==========================================
+// 1. نظام الإشعارات والتنقل
+// ==========================================
+
 function showToast(msg){
   const box = document.getElementById('toastBox');
   if(!box) return;
@@ -27,7 +30,6 @@ function showToast(msg){
   setTimeout(()=>el.remove(), 2000);
 }
 
-// التبديل بين التبويبات الرئيسية
 function openTab(tabName, event) {
   document.querySelectorAll('main').forEach(m => m.classList.add('hidden'));
   const target = document.getElementById('tab-' + tabName);
@@ -43,25 +45,27 @@ function openTab(tabName, event) {
   }
 }
 
-// تبديل وضع المصادقة (دخول / إنشاء حساب)
 function switchAuthMode(mode) {
-    authMode = mode;
-    const loginBtn = document.getElementById('tabLoginBtn');
-    const regBtn = document.getElementById('tabRegisterBtn');
-    const submitBtn = document.getElementById('authSubmitBtn');
-    
-    if(mode === 'login') {
-        if(loginBtn) loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-black transition-all";
-        if(regBtn) regBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-cyan-400 transition-all";
-        if(submitBtn) submitBtn.innerText = "دخول القلعة 🔑";
-    } else {
-        if(regBtn) regBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-black transition-all";
-        if(loginBtn) loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-cyan-400 transition-all";
-        if(submitBtn) submitBtn.innerText = "إنشاء حساب جديد ✨";
-    }
+  authMode = mode;
+  const loginBtn = document.getElementById('tabLoginBtn');
+  const regBtn = document.getElementById('tabRegisterBtn');
+  const submitBtn = document.getElementById('authSubmitBtn');
+  
+  if(mode === 'login') {
+    if(loginBtn) loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-black transition-all";
+    if(regBtn) regBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-cyan-400 transition-all";
+    if(submitBtn) submitBtn.innerText = "دخول القلعة 🔑";
+  } else {
+    if(regBtn) regBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-black transition-all";
+    if(loginBtn) loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-cyan-400 transition-all";
+    if(submitBtn) submitBtn.innerText = "إنشاء حساب جديد ✨";
+  }
 }
 
-// نظام التحقق العالمي وإرسال رمز OTP عبر البريد أو الهاتف
+// ==========================================
+// 2. نظام المصادقة والتحقق الفوري
+// ==========================================
+
 async function requestOTP() {
   const inputField = document.getElementById('userPhoneOrEmail');
   const passField = document.getElementById('userPass');
@@ -86,6 +90,16 @@ async function requestOTP() {
     let data = await res.json();
 
     if(data.success) {
+      if(data.directLogin) {
+        currentUser = data.user.username;
+        localStorage.setItem('tarim_user', currentUser);
+        document.getElementById('authGate').style.display = 'none';
+        updateProfileUI(data.user);
+        socket.emit('registerSocket', currentUser);
+        showToast('مرحباً بك في القلعة الملكية 🌍');
+        return;
+      }
+
       tempIdentifier = identifier;
       document.getElementById('stepCredentials').classList.add('hidden');
       document.getElementById('stepOTP').classList.remove('hidden');
@@ -100,7 +114,6 @@ async function requestOTP() {
   }
 }
 
-// تأكيد رمز التحقق (OTP) ودخول المنصة
 async function verifyOTP() {
   const otpInput = document.getElementById('otpCodeInput');
   const msgBox = document.getElementById('authMsg');
@@ -141,7 +154,6 @@ function backToCredentials() {
   document.getElementById('stepCredentials').classList.remove('hidden');
 }
 
-// تسجيل الدخول التقليدي (احتياطي)
 async function registerAndLogin(){
   const usernameField = document.getElementById('userPhone');
   const passwordField = document.getElementById('userPass');
@@ -185,7 +197,10 @@ async function registerAndLogin(){
   }
 }
 
-// تحديث واجهة الملف الشخصي
+// ==========================================
+// 3. إدارة الملف الشخصي والخدمات
+// ==========================================
+
 function updateProfileUI(user){
   const avatarEl = document.getElementById('profileAvatar');
   const nameEl = document.getElementById('profileName');
@@ -208,7 +223,6 @@ function updateProfileUI(user){
   if(statsHeaderEl) statsHeaderEl.innerText = `OKKI: ${user.okki_balance || 0} - الملكي: ${user.okki_balance || 0}`;
 }
 
-// أدوات الحساب والخدمات
 function openOKKI(){ showToast('رصيد OKX الملكي متصل بنجاح 🪙'); }
 function openActivity(){ showToast('مركز الانشطة يعمل بكفاءة 📊'); }
 function openOfflineVideos(){ showToast('فيديوهات دون اتصال متاح محلياً 📁'); }
@@ -244,7 +258,10 @@ function logout(){
   showToast('تم تسجيل الخروج بنجاح 🚪'); 
 }
 
-// الخريطة Offline
+// ==========================================
+// 4. الخريطة والبث المباشر والكاميرا
+// ==========================================
+
 function openMap(){
   const mapBox = document.getElementById('mapContainer');
   if(!mapBox) return;
@@ -259,7 +276,6 @@ function openMap(){
   }
 }
 
-// إدارة البث المباشر والكاميرا
 function startLive(){
   const screen = document.getElementById('fullScreenCam');
   const preOverlay = document.getElementById('preLiveOverlay');
@@ -358,7 +374,10 @@ function sendLiveComment(){
   box.scrollTop = box.scrollHeight;
 }
 
-// النشر والرسائل
+// ==========================================
+// 5. النشر والرسائل
+// ==========================================
+
 function publishPost(){
   const desc = document.getElementById('postDescInput');
   if(desc && desc.value.trim()) {
@@ -383,4 +402,5 @@ function sendInboxMsg(){
   input.value = '';
   box.scrollTop = box.scrollHeight;
   showToast('تم إرسال الرسالة بنجاح 💬');
-}
+    }
+    
