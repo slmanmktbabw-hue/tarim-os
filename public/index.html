@@ -29,11 +29,11 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 </div>
 </div>
 
-<!-- الهيدر -->
-<header class="fixed top-0 left-0 right-0 z-50 glass px-4 py-3 flex flex-row-reverse justify-between items-center text-xs font-bold">
-<button onclick="openTab('support', event)" class="text-yellow-400 flex items-center gap-1">فريق الدعم 🛡️</button>
-<div class="text-cyan-400 font-black">TARIM OS</div>
+<!-- الهيدر مصحح: عين الذكاء يسار | TARIM OS وسط | فريق الدعم يمين -->
+<header class="fixed top-0 left-0 right-0 z-50 glass px-4 py-3 flex justify-between items-center text-xs font-bold">
 <button onclick="openTab('ai', event)" class="text-cyan-400 flex items-center gap-1">👁️ عين الذكاء</button>
+<div class="text-cyan-400 font-black">TARIM OS</div>
+<button onclick="openTab('support', event)" class="text-yellow-400 flex items-center gap-1">فريق الدعم 🛡️</button>
 </header>
 
 <!-- الرئيسية -->
@@ -103,23 +103,23 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
   <div class="font-black text-cyan-400 text-xs mt-3 text-right">ادوات الحساب</div>
   <button onclick="showToast('OKKI قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>💰 0 - OKKI الملكي</span><span>فتح ←</span></button>
   <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>📊 مركز الانشطة</span><span>فتح ←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📁 فيديوهات دون اتصال</span><span>فتح ←</span></button>
-  <button onclick="generateQR()" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>🔐 رمز QR لديك</span><span>عرض ←</span></button>
+  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>📁 فيديوهات دون اتصال</span><span>فتح ←</span></button>
+  <button onclick="generateQR()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🔐 رمز QR لديك</span><span>عرض ←</span></button>
   <div class="font-black text-cyan-400 text-xs mt-3 text-right">ادوات الاعمال</div>
   <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🏢 المجموعة التجارية</span><span>فتح ←</span></button>
   <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📢 الترويج والاعلانات</span><span>فتح ←</span></button>
   <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📄 ادارة المنشورات</span><span>ادارة ←</span></button>
   <div class="font-black text-cyan-400 text-xs mt-3 text-right">الاعدادات والخصوصية</div>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>👤 الحساب</span><span>←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>🔒 الخصوصية والامان</span><span>←</span></button>
+  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>👤 الحساب</span><span>←</span></button>
+  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🔒 الخصوصية والامان</span><span>←</span></button>
   <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🎨 تغير خلفية المستخدم</span><span>تغير ←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>🔗 مشاركة ملف الشخصي</span><span>مشاركة ←</span></button>
-  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex-row-reverse justify-between items-center"><span>📜 السياسة والخصوصية</span><span>فتح ←</span></button>
-  <button onclick="logout()" class="glass w-full p-3 rounded-xl text-xs text-red-400 flex-row-reverse justify-between items-center"><span>🚪 تسجيل الخروج</span><span>←</span></button>
+  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🔗 مشاركة ملف الشخصي</span><span>مشاركة ←</span></button>
+  <button onclick="showToast('قريباً')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📜 السياسة والخصوصية</span><span>فتح ←</span></button>
+  <button onclick="logout()" class="glass w-full p-3 rounded-xl text-xs text-red-400 flex flex-row-reverse justify-between items-center"><span>🚪 تسجيل الخروج</span><span>←</span></button>
 </main>
 
-<main id="tab-ai" class="hidden min-h-screen pt-16 p-3 flex-col"><div class="font-black text-cyan-400 text-sm">👁️ عين الذكاء</div><div id="aiLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div></main>
-<main id="tab-support" class="hidden min-h-screen pt-16 p-3 flex-col"><div class="font-black text-yellow-400 text-sm">🛡️ فريق الدعم</div><div id="supportLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div></main>
+<main id="tab-ai" class="hidden min-h-screen pt-16 p-3 flex flex-col"><div class="font-black text-cyan-400 text-sm">👁️ عين الذكاء</div><div id="aiLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div></main>
+<main id="tab-support" class="hidden min-h-screen pt-16 p-3 flex flex-col"><div class="font-black text-yellow-400 text-sm">🛡️ فريق الدعم</div><div id="supportLogs" class="flex-1 my-3 space-y-2 overflow-y-auto"></div></main>
 
 <!-- البث -->
 <div id="fullScreenCam" class="fixed inset-0 z-[600] bg-black hidden">
@@ -140,8 +140,8 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 
 <div id="toastBox" class="fixed top-20 left-4 right-4 z-[700] flex flex-col items-center"></div>
 
-<!-- الشريط السفلي المضبوط 100% -->
-<nav class="fixed bottom-0 left-0 right-0 glass flex-row-reverse justify-around items-center py-2 text-[10px] border-t border-cyan-500/20 z-50 bg-[#0a0f1a]">
+<!-- الشريط السفلي مصحح: شلت flex-row-reverse -->
+<nav class="fixed bottom-0 left-0 right-0 glass flex justify-around items-center py-2 text-[10px] border-t border-cyan-500/20 z-50 bg-[#0a0f1a] h-16">
   <button onclick="openTab('home', event)" class="flex flex-col items-center text-cyan-400"><span class="text-2xl">🏠</span><span>الرئيسية</span></button>
   <button onclick="openTab('operations', event)" class="flex flex-col items-center text-gray-400"><span class="text-2xl">⚡</span><span>العمليات</span></button>
   <button onclick="openTab('create', event)" class="w-14 h-14 rounded-full bg-cyan-500 flex items-center justify-center text-3xl font-bold -mt-4 shadow-lg shadow-cyan-500/50 text-black">+</button>
@@ -203,4 +203,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </script>
 <script src="/script.js"></script>
 </body>
-  </html>
+      </html>
