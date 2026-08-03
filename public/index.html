@@ -1,131 +1,151 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TARIM OS</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
-body{background:#0a0e1a;color:#fff;user-select:none}
-.header{position:fixed;top:0;width:100%;height:45px;background:linear-gradient(90deg,#001f3f,#00d4ff);color:#000;display:flex;align-items:center;justify-content:space-between;padding:0 15px;font-weight:bold;z-index:999}
-.page{display:none;padding:55px 0 70px 0;min-height:100vh}
-.page.active{display:block}
-
-/* شاشة الدخول */
-.login-box{background:#151b2d;margin:40px 15px;padding:20px;border-radius:15px;text-align:center}
-.login-box input{width:100%;padding:12px;margin:8px 0;background:#0f1422;border:1px solid #1e2740;border-radius:8px;color:#fff}
-.btn-main{width:100%;padding:14px;margin:8px 0;background:#00d4ff;border:none;border-radius:8px;color:#000;font-weight:bold;cursor:pointer}
-.tab{display:flex;background:#0f1422;border-radius:8px;margin-bottom:10px}
-.tab button{flex:1;padding:10px;border:none;background:transparent;color:#888;cursor:pointer}
-.tab button.active{background:#00d4ff;color:#000;border-radius:8px}
-
-.bottom-nav{position:fixed;bottom:0;width:100%;height:60px;background:#0f1422;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #1a2333}
-.nav-item{text-align:center;font-size:11px;color:#888;cursor:pointer}
-.nav-item.active{color:#00d4ff}
-.nav-plus{background:#00d4ff;color:#000;border-radius:50%;width:55px;height:55px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-top:-25px}
-.card{background:#151b2d;margin:10px;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
-.btn{background:#1e2740;padding:10px;margin:5px;border-radius:8px;text-align:center;cursor:pointer}
-#qrBox{width:180px;height:180px;background:#000;margin:15px auto;border:2px solid #00d4ff}
-.live-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:1000;display:none}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TARIM OS - النظام السيادي المتقدم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background: #030B1A; user-select: none; }
+       .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
+       .service-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(0, 240, 255, 0.15); padding: 12px 16px; border-radius: 12px; color: #E0F2FE; font-size: 14px; font-weight: 600; cursor:pointer; }
+        #fullScreenCam { position: fixed; inset: 0; background: black; z-index: 60; }
+        #liveFilter { position: absolute; inset: 0; mix-blend-mode: overlay; transition: 0.3s; }
+       .page { display: none; }
+       .page.active { display: block; }
+       .nav-active { color: #00d4ff!important; }
+    </style>
 </head>
-<body>
+<body class="text-white min-h-screen flex-col justify-between select-none pb-24">
 
-<!-- 1. شاشة الدخول -->
-<div id="login" class="page active">
-    <div class="login-box">
-        <div style="font-size:24px">🏰 <span style="color:#00d4ff">TARIM OS</span></div>
-        <div style="font-size:12px;margin-bottom:15px">نظام سيادي - tarimos.org</div>
-        <div class="tab">
-            <button id="tabLogin" class="active" onclick="switchTab('login')">دخول</button>
-            <button id="tabSignup" onclick="switchTab('signup')">انشاء حساب</button>
-        </div>
-        <input type="text" id="userInput" placeholder="الايميل / الهاتف">
-        <input type="password" id="passInput" placeholder="كلمة المرور">
-        <button class="btn-main" onclick="login()">🔑 دخول القلعة</button>
-        <button class="btn-main" style="background:#fff" onclick="googleLogin()">🌐 متابعة بجوجل</button>
-        <div style="margin-top:15px;font-size:12px;color:#00d4ff">👑 حساب الملك @Gooaz #صحمي</div>
-    </div>
-</div>
-
-<!-- 2. التطبيق -->
-<div id="mainApp" style="display:none">
-    <div class="header">
-        <div onclick="openSupport()">فريق الدعم</div>
-        <div>TARIM OS</div>
-        <div onclick="openAIEye()">عين الذكاء 👁️</div>
-    </div>
-
-    <!-- الملفات -->
-    <div id="profile" class="page active">
-        <div style="padding:15px;display:flex;align-items:center;gap:10px">
-            <div style="width:50px;height:50px;border-radius:50%;background:#00d4ff;display:flex;align-items:center;justify-content:center;font-size:20px">AL</div>
-            <div><div>الامبراطور AL</div><div style="font-size:12px;color:#00d4ff">OKX: 0x53...c0af6</div></div>
-            <div style="margin-right:auto;background:#222;padding:5px 10px;border-radius:5px" onclick="editProfile()">تعديل</div>
-        </div>
-        <div style="display:flex;gap:10px;padding:0 10px"><div class="btn" style="flex:1">0<br>متابع</div><div class="btn" style="flex:1">0<br>يتابع</div><div class="btn" style="flex:1">0<br>اعجاب</div></div>
-        <div class="card" onclick="checkWarnings()">نظام التحذيرات: <span id="warn">0/3</span></div>
-        <div class="card" onclick="logout()" style="color:red"><span>🚪 تسجيل الخروج</span></div>
-    </div>
-
-    <!-- العمليات -->
-    <div id="operations" class="page">
-        <h3 style="text-align:center;padding:10px">قسم العمليات السيادية ⚡</h3>
-        <div class="card" onclick="start8MinLive()"><span>🔴 بت مباشر سيادي (8 دقائق)</span></div>
-        <div class="card" onclick="secureChat()"><span>💬 المراسلة الامنة</span></div>
-        <div class="card" onclick="offlineMap()"><span>🗺️ خريطة حضرموت Offline</span></div>
-        <div class="card" onclick="generateQR()"><span>🧾 الختم الميداني QR</span></div>
-        <div id="qrBox"></div>
-    </div>
-
-    <!-- الانشاء -->
-    <div id="create" class="page">
-        <h3 style="text-align:center;padding:10px">محلق الانشاء السيادي</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:10px">
-            <div class="btn" onclick="pickImage()">🖼️ صورة</div>
-            <div class="btn" onclick="pickVideo()">🎥 فيديو</div>
-            <div class="btn" onclick="openLive()" style="background:red;color:#fff">🔴 LIVE</div>
-        </div>
-        <textarea id="postText" placeholder="اكتب منشور نص..." style="width:90%;margin:10px;height:80px;background:#151b2d;border:none;color:#fff;padding:10px;border-radius:8px"></textarea>
-        <button onclick="publishPost()" class="btn-main">نشر فوري</button>
-        <div id="liveScreen" class="live-screen">
-            <video id="cam" autoplay style="width:100%;height:100%;object-fit:cover"></video>
-            <div style="position:absolute;top:10px;width:100%;display:flex;justify-content:space-between;padding:10px">
-                <span id="liveTimer">00:00</span>
-                <button onclick="closeLive()" style="background:red;border:none;padding:5px 10px;border-radius:5px">اغلاق</button>
+    <!-- 1. شاشة الدخول -->
+    <div id="login" class="page active p-4">
+        <div class="glass max-w-md mx-auto mt-20 p-6 rounded-2xl text-center">
+            <div style="font-size:24px">🏰 <span style="color:#00d4ff">TARIM OS</span></div>
+            <div style="font-size:12px;margin-bottom:15px" class="text-slate-400">نظام سيادي - tarimos.org</div>
+            <div class="tab flex bg-slate-800 rounded-lg mb-4">
+                <button id="tabLogin" class="flex-1 p-2 rounded-lg bg-cyan-500 text-black" onclick="switchTab('login')">دخول</button>
+                <button id="tabSignup" class="flex-1 p-2 text-slate-400" onclick="switchTab('signup')">انشاء حساب</button>
             </div>
-            <div style="position:absolute;bottom:20px;width:100%;display:flex;justify-content:space-around">
-                <button onclick="toggleFlash()">💡 فلاش</button>
-                <button onclick="flipCam()">🔄</button>
-                <button onclick="sendGift()">🎁</button>
-                <button onclick="liveLike()">❤️</button>
+            <input type="text" id="userInput" placeholder="الايميل / الهاتف" class="w-full p-3 mb-3 bg-slate-900 border border-cyan-500/20 rounded-lg text-white">
+            <input type="password" id="passInput" placeholder="كلمة المرور" class="w-full p-3 mb-3 bg-slate-900 border-cyan-500/20 rounded-lg text-white">
+            <button class="w-full p-3 mb-2 bg-cyan-500 text-black font-bold rounded-lg" onclick="login()">🔑 دخول القلعة</button>
+            <button class="w-full p-3 bg-white text-black font-bold rounded-lg" onclick="googleLogin()">🌐 متابعة بجوجل</button>
+            <div style="margin-top:15px;font-size:12px;color:#00d4ff">👑 حساب الملك @Gooaz #صحمي</div>
+        </div>
+    </div>
+
+    <!-- 2. التطبيق الرئيسي -->
+    <div id="mainApp" class="hidden">
+        <!-- الهيدر -->
+        <header class="w-full p-3 flex justify-between items-center glass border-b border-cyan-500/20 fixed top-0 z-40">
+            <button onclick="openAIEye()" class="text-xs text-cyan-400 flex items-center gap-1">👁️ عين الذكاء</button>
+            <h2 class="font-bold text-cyan-400 tracking-wider">TARIM OS</h2>
+            <button onclick="openSupport()" class="text-xs text-yellow-400 flex items-center gap-1">فريق الدعم 🛡️</button>
+        </header>
+
+        <!-- المحتوى -->
+        <div class="flex-1 w-full max-w-md mx-auto overflow-y-auto pt-16 pb-24">
+
+            <!-- الرئيسية -->
+            <main id="tab-home" class="page active space-y-4 text-right p-4">
+                <div class="flex justify-between items-start mt-2">
+                    <div>
+                        <p id="homeUsername" class="font-bold text-lg">AL@</p>
+                        <p class="text-xs text-slate-400">TARIM OS النظام السيادي</p>
+                    </div>
+                    <div id="profileAvatar" class="w-12 h-12 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center font-bold text-lg">AL</div>
+                </div>
+                <div class="flex justify-start items-center gap-2 text-red-400">
+                    <button onclick="like()">❤️</button> <span id="homeLikes">120</span>
+                </div>
+            </main>
+
+            <!-- العمليات -->
+            <main id="tab-operations" class="page space-y-4 text-right p-4">
+                <h3 class="text-center text-cyan-400 font-bold">قسم العمليات السيادية ⚡</h3>
+                <button onclick="start8MinLive()" class="service-btn"><span>← بدء</span><span>بت مباشر سيادي (8 دقائق) 🔴</span></button>
+                <button onclick="secureChat()" class="service-btn"><span>← فتح</span><span>المراسلة الامنة 💬</span></button>
+                <button onclick="openMap()" class="service-btn"><span>← عرض</span><span>خريطة حضرموت Offline 🗺️</span></button>
+                <button onclick="generateQR()" class="service-btn"><span>← إصدار</span><span>الختم الميداني QR 🧾</span></button>
+                <div id="qrcode" class="flex justify-center mt-4"></div>
+                <div id="mapContainer" class="hidden mt-4 h-48 rounded-xl overflow-hidden border border-cyan-500/30"><div id="map" class="w-full h-full"></div></div>
+            </main>
+
+            <!-- الإنشاء -->
+            <main id="tab-create" class="page space-y-4 text-right p-4">
+                <h3 class="text-center text-cyan-400 font-bold">محطة الانشاء السيادي ✨</h3>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="switchCamera()" class="glass p-2 rounded-xl text-xs">تبديل 📷</button>
+                    <button onclick="changeBackground()" class="glass p-2 rounded-xl text-xs">خلفية 🖼️</button>
+                    <button onclick="pickImage()" class="glass p-2 rounded-xl text-xs">رفع صورة 🖼️</button>
+                    <button onclick="pickVideo()" class="glass p-2 rounded-xl text-xs">رفع فيديو 📹</button>
+                    <button onclick="openLive()" class="glass p-2 rounded-xl text-xs text-red-400">LIVE 🔴</button>
+                </div>
+                <textarea id="postText" placeholder="اكتب منشور نص..." class="w-full bg-slate-900/80 border border-cyan-500/20 rounded-xl p-3 text-xs text-cyan-300 h-24"></textarea>
+                <button onclick="publishPost()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl">نشر فوري</button>
+            </main>
+
+            <!-- الوارد -->
+            <main id="tab-inbox" class="page space-y-4 text-right p-4">
+                <h3 class="text-center text-cyan-400 font-bold">صندوق الوارد 💬</h3>
+                <div id="chatBox" class="h-96 overflow-y-auto mb-2"></div>
+                <div class="glass p-2 rounded-xl flex gap-2 fixed bottom-20 left-0 right-0 max-w-md mx-auto">
+                    <button onclick="sendMsg()" class="bg-cyan-500 text-black px-4 rounded-xl font-bold">إرسال</button>
+                    <input id="msgInput" type="text" placeholder="رسالتك..." class="flex-1 bg-transparent outline-none text-xs">
+                </div>
+            </main>
+
+            <!-- الملفات -->
+            <main id="tab-profile" class="page space-y-4 text-right p-4">
+                <div class="glass p-4 rounded-2xl border-cyan-500/30 flex-col items-center relative">
+                    <button onclick="editProfile()" class="absolute top-2 left-2 text-xs bg-slate-800 px-2 py-1 rounded">تعديل</button>
+                    <div id="profileAvatarBig" class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-cyan-300 font-bold text-xl mb-2 mx-auto">AL</div>
+                    <h3 id="profileName" class="font-bold text-cyan-300 text-center">الامبراطور AL</h3>
+                    <p class="text-xs text-cyan-500 text-center">OKX: 0x53...c0af6</p>
+                    <p class="text-[10px] text-slate-400 flex items-center gap-1 justify-center">ملكي 🌍</p>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="glass p-2 rounded"><div id="statFollowers">0</div><div class="text-[10px]">متابع</div></div>
+                    <div class="glass p-2 rounded"><div id="statLikes">0</div><div class="text-[10px]">يتابع</div></div>
+                    <div class="glass p-2 rounded"><div id="statPosts">0</div><div class="text-[10px]">اعجاب</div></div>
+                </div>
+                <h4 class="text-cyan-400 text-xs font-bold mt-2">ادوات الحساب</h4>
+                <button onclick="openOKX()" class="service-btn"><span>← فتح</span><span>رصيد OKX الملكي - 0 🪙</span></button>
+                <button onclick="checkWarnings()" class="service-btn"><span>← <span id="warn">0/3</span></span><span>نظام التحذيرات ⚠️</span></button>
+                <button onclick="logout()" class="service-btn text-red-400"><span>←</span><span>تسجيل الخروج 🚪</span></button>
+            </main>
+        </div>
+
+        <!-- شريط التنقل السفلي -->
+        <nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 flex justify-around p-2 z-30">
+            <button onclick="switchPage('tab-home', this)" class="flex flex-col items-center text-[10px] nav-active"><span class="text-2xl">🏠</span>الرئيسية</button>
+            <button onclick="switchPage('tab-operations', this)" class="flex flex-col items-center text-gray-400 text-[10px]"><span class="text-2xl">⚡</span>العمليات</button>
+            <button onclick="switchPage('tab-create', this)" class="w-14 h-14 bg-cyan-500 text-black rounded-full flex items-center justify-center font-bold text-3xl shadow-lg shadow-cyan-500/40 -mt-4">＋</button>
+            <button onclick="switchPage('tab-inbox', this)" class="flex flex-col items-center text-gray-400 text-[10px]"><span class="text-2xl">💬</span>الوارد</button>
+            <button onclick="switchPage('tab-profile', this)" class="flex flex-col items-center text-gray-400 text-[10px]"><span class="text-2xl">👤</span>الملفات</button>
+        </nav>
+
+        <!-- شاشة البث الكامل -->
+        <div id="liveScreen" class="hidden fixed inset-0 bg-black z-50">
+            <video id="cam" autoplay playsinline class="w-full h-full object-cover"></video>
+            <div class="absolute top-4 left-4 glass px-3 py-1 rounded-full text-xs">🔴 <span id="liveTimer">00:00</span></div>
+            <button onclick="closeLive()" class="absolute top-4 right-4 bg-red-500 px-3 py-1 rounded text-xs">اغلاق</button>
+            <div class="absolute bottom-4 left-0 right-0 px-4">
+                <div class="flex justify-around">
+                    <button onclick="toggleFlash()" class="text-2xl">💡</button>
+                    <button onclick="switchCamera()" class="text-2xl">🔄</button>
+                    <button onclick="sendGift()" class="text-2xl">🎁</button>
+                    <button onclick="liveLike()" class="text-2xl">❤️</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- الوارد -->
-    <div id="inbox" class="page">
-        <h3 style="text-align:center;padding:10px">صندوق الوارد 💬</h3>
-        <div id="chatBox" style="height:70vh;overflow-y:auto;padding:10px"></div>
-        <div style="position:fixed;bottom:60px;width:100%;display:flex;padding:10px;background:#0f1422">
-            <input id="msgInput" placeholder="رسالتك..." style="flex:1;background:#151b2d;border:none;padding:10px;border-radius:20px;color:#fff">
-            <button onclick="sendMsg()" style="background:#00d4ff;border:none;padding:10px 15px;border-radius:20px;margin-right:5px">ارسال</button>
-        </div>
-    </div>
-
-    <!-- الرئيسية -->
-    <div id="home" class="page"><div style="text-align:center;padding:20px">@AL<br>120 ❤️</div></div>
-
-    <div class="bottom-nav">
-        <div class="nav-item" onclick="switchPage('profile',this)">الملفات</div>
-        <div class="nav-item" onclick="switchPage('inbox',this)">الوارد</div>
-        <div class="nav-item nav-plus" onclick="switchPage('create',this)">+</div>
-        <div class="nav-item" onclick="switchPage('operations',this)">العمليات</div>
-        <div class="nav-item" onclick="switchPage('home',this)">الرئيسية</div>
-    </div>
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
