@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const Database = require('better-sqlite3'); // 1. التعديل هنا
+const Database = require('better-sqlite3');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 1. الاتصال بقاعدة البيانات - التعديل هنا
+// 1. الاتصال بقاعدة البيانات
 const db = new Database('./tarim_os.db');
 console.log('✅ تم الاتصال بقاعدة بيانات Tarim OS بنجاح.');
 
@@ -56,20 +56,38 @@ app.post('/api/register', async (req, res) => {
 });
 
 // 4. API تسجيل دخول
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
-    const stmt = db.prepare(`SELECT * FROM users WHERE username = ?`);
-    const user = stmt.get(username);
-    if (!user) return res.status(400).json({ success: false, message: 'المستخدم غير موجود!' });
+    if (!username || !password) {
+        return res.status(400).json({ success: false, message: 'الرجاء إدخال اسم المستخدم وكلمة المرور' });
+    }
     
-    bcrypt.compare(password, user.password).then(isValidPassword => {
-        if (!isValidPassword) return res.status(400).json({ success: false, message: 'كلمة المرور غير صحيحة!' });
+    try {
+        const stmt = db.prepare(`SELECT * FROM users WHERE username = ?`);
+        const user = stmt.get(username);
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'المستخدم غير موجود!' });
+        }
+        
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (!isValidPassword) {
+            return res.status(400).json({ success: false, message: 'كلمة المرور غير صحيحة!' });
+        }
+
         res.json({
             success: true,
             message: 'تم تسجيل الدخول بنجاح',
-            user: { username: user.username, okki_balance: user.okki_balance, followers: user.followers, likes: user.likes, posts: user.posts }
+            user: { 
+                username: user.username, 
+                okki_balance: user.okki_balance, 
+                followers: user.followers, 
+                likes: user.likes, 
+                posts: user.posts 
+            }
         });
-    });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
+    }
 });
 
 // 5. API انشاء QR
@@ -79,14 +97,21 @@ app.post('/api/qr', (req, res) => {
   res.json({qr: hash.slice(0, 20)});
 });
 
-// 6. Socket.io للبث - نفسه بدون تغيير
+// 6. Socket.io للبث المباشر
 io.on('connection', (socket) => {
   console.log('مستخدم متصل:', socket.id);
-  socket.on('registerSocket', (username) => { users.set(socket.id, username); socket.username = username; });
+  
+  socket.on('registerSocket', (username) => { 
+    users.set(socket.id, username); 
+    socket.username = username; 
+  });
+  
   socket.on('startLive', () => {
     const roomId = 'live_' + socket.id;
     liveRooms.set(roomId, { host: socket.id, viewers: 1, startTime: Date.now() });
-    socket.join(roomId); socket.roomId = roomId;
+    socket.join(roomId); 
+    socket.roomId = roomId;
+    
     const interval = setInterval(() => {
       const room = liveRooms.get(roomId);
       if(!room) return clearInterval(interval);
@@ -95,21 +120,41 @@ io.on('connection', (socket) => {
       const seconds = Math.floor((elapsed % 60000) / 1000);
       io.to(roomId).emit('liveTimer', `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`);
     }, 1000);
+    
     socket.liveInterval = interval;
     socket.emit('liveStarted', {roomId});
   });
+  
   socket.on('joinLive', (roomId) => {
     const room = liveRooms.get(roomId);
-    if(room){ room.viewers++; socket.join(roomId); io.to(roomId).emit('viewersUpdate', room.viewers); }
+    if(room){ 
+      room.viewers++; 
+      socket.join(roomId); 
+      io.to(roomId).emit('viewersUpdate', room.viewers); 
+    }
   });
+  
   socket.on('liveLike', (roomId) => io.to(roomId).emit('newLike', {from: socket.username}));
   socket.on('liveComment', ({roomId, text}) => io.to(roomId).emit('newComment', {from: socket.username, text}));
   socket.on('sendGift', (roomId) => io.to(roomId).emit('newGift', {from: socket.username}));
+  
   socket.on('stopLive', () => {
-    if(socket.roomId){ clearInterval(socket.liveInterval); io.to(socket.roomId).emit('liveEnded'); liveRooms.delete(socket.roomId); }
+    if(socket.roomId){ 
+      clearInterval(socket.liveInterval); 
+      io.to(socket.roomId).emit('liveEnded'); 
+      liveRooms.delete(socket.roomId); 
+    }
   });
+  
   socket.on('disconnect', () => {
-    if(socket.roomId){ clearInterval(socket.liveInterval); const room = liveRooms.get(socket.roomId); if(room && room.host === socket.id){ io.to(socket.roomId).emit('liveEnded'); liveRooms.delete(socket.roomId); }}
+    if(socket.roomId){ 
+      clearInterval(socket.liveInterval); 
+      const room = liveRooms.get(socket.roomId); 
+      if(room && room.host === socket.id){ 
+        io.to(socket.roomId).emit('liveEnded'); 
+        liveRooms.delete(socket.roomId); 
+      }
+    }
     users.delete(socket.id);
   });
 });
