@@ -1,28 +1,22 @@
 {
-  "name": "TARIM OS - النظام السيادي العالمي",
-  "short_name": "TARIM",
-  "description": "منصة الملك AL - فيديو عمودي، بث مباشر، مراسلة آمنة، ومحفظة OKX",
-  "start_url": "/?v=11",
-  "scope": "/",
+  "name": "TARIM OS V1.0 Beta",
+  "short_name": "TARIM OS",
+  "description": "من تريم إلى العالم - أول منصة فيديو حضرمية تشتغل بدون نت",
+  "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#050b14",
   "theme_color": "#00f0ff",
-  "lang": "ar",
-  "dir": "rtl",
-  "categories": ["social", "video", "news"],
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
