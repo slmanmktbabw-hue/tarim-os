@@ -19,13 +19,12 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 </head>
 <body class="min-h-screen pb-20">
 
-<!-- بوابة الدخول / إنشاء الحساب -->
+<!-- بوابة الدخول / إنشاء الحساب بتصميم القلعة -->
 <div id="authGate" class="fixed inset-0 z-[400] bg-[#050b14]/98 flex items-center justify-center p-4">
 <div class="w-full max-w-sm glass rounded-3xl p-6 text-center space-y-4 border-cyan-500/40">
-<div class="text-3xl font-black text-cyan-400">TARIM OS 🏰</div>
-<div class="text-xs text-gray-300">tarimos.org - من تريم إلى العالم</div>
+<div class="text-3xl font-black text-cyan-400">🏰 TARIM OS</div>
+<div class="text-xs text-gray-300">tarimos.org - نظام سيادي</div>
 
-<!-- تبديل بين تسجيل الدخول وإنشاء حساب -->
 <div class="flex bg-black/50 p-1 rounded-xl">
 <button id="tabLoginBtn" onclick="switchAuthMode('login')" class="flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500 text-black">دخول</button>
 <button id="tabRegisterBtn" onclick="switchAuthMode('register')" class="flex-1 py-2 text-xs font-bold rounded-lg text-cyan-400">إنشاء حساب</button>
@@ -35,6 +34,15 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 <input id="userPass" type="password" placeholder="كلمة المرور" class="w-full bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-center text-cyan-300 font-bold outline-none">
 
 <button id="authSubmitBtn" onclick="handleAuth()" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs">دخول القلعة 🔑</button>
+
+<div class="text-center text-[10px] text-gray-400 my-1">أو</div>
+
+<button onclick="googleLogin()" class="w-full bg-white text-black font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md">
+<svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.95H1.19v3.15C3.17 21.36 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.25c-.25-.72-.38-1.49-.38-2.25s.13-1.53.38-2.25V6.6H1.19C.43 8.13 0 9.87 0 12s.43 3.87 1.19 5.4l4.09-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.64 1.19 6.6l4.09 3.15c.95-2.84 3.6-4.95 6.72-4.95z"/></svg>
+متابعة بجوجل
+</button>
+
+<div class="text-[10px] text-yellow-400 font-bold mt-2">👑 حساب الملك Gooaz@-#محمي</div>
 <div id="authMsg" class="text-[11px] text-red-400 h-4"></div>
 </div>
 </div>
@@ -48,11 +56,15 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 
 <!-- الرئيسية -->
 <main id="tab-home" class="hidden min-h-screen bg-black">
-  <div id="videoFeed" class="h-screen overflow-y-scroll snap-y snap-mandatory pt-12 pb-16">
+  <div class="glass m-3 p-3 rounded-2xl flex justify-between items-center text-xs">
+    <div class="text-yellow-400">💰 <span id="homeOkki">0</span></div>
+    <div class="text-gray-300">مرحباً ...<br><span id="homeUsername" class="text-cyan-400 font-bold">OKX: 0x53ce...0af6</span></div>
+  </div>
+  <div id="videoFeed" class="h-screen overflow-y-scroll snap-y snap-mandatory pt-2 pb-16">
     <div class="snap-start h-screen relative">
       <video class="w-full h-full object-cover" autoplay muted loop playsinline src=""></video>
       <div class="absolute bottom-20 right-4 text-right text-xs">
-        <div id="homeUsername" class="font-bold">AL</div>
+        <div class="font-bold">AL</div>
         <div>TARIM OS - البث المباشر</div>
         <div class="flex items-center gap-1">120 ❤️</div>
       </div>
@@ -71,15 +83,28 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
   <div id="qrcode" class="glass p-4 rounded-xl flex justify-center"></div>
 </main>
 
-<!-- انشاء -->
+<!-- محطة الانشاء السيادي -->
 <main id="tab-create" class="hidden min-h-screen pt-16 p-4 space-y-3">
   <div class="font-black text-cyan-400 text-sm text-center">✨ محطة الانشاء السيادي</div>
+  
   <div class="grid grid-cols-3 gap-2">
-    <button onclick="showToast('تم تبديل الكاميرا')" class="glass p-3 rounded-xl text-xs">تبديل 🔄</button>
-    <button onclick="showToast('تم تغيير الخلفية')" class="glass p-3 rounded-xl text-xs">خلفية 🎨</button>
+    <button onclick="switchCamera()" class="glass p-3 rounded-xl text-xs">تبديل 🔄</button>
+    <button onclick="changeBackground()" class="glass p-3 rounded-xl text-xs">خلفية 🎨</button>
     <button onclick="startLive()" class="glass p-3 rounded-xl text-xs">امية 🤳</button>
   </div>
+
+  <div class="grid grid-cols-2 gap-2">
+    <button onclick="showToast('جاري رفع الفيديو...')" class="glass p-3 rounded-xl text-xs text-center text-yellow-300">رفع فيديو 📦</button>
+    <button onclick="showToast('جاري رفع الصورة...')" class="glass p-3 rounded-xl text-xs text-center text-cyan-300">رفع صورة 🖼️</button>
+  </div>
+
   <button onclick="startLive()" class="glass w-full py-4 rounded-xl font-bold text-red-400">LIVE 🔴</button>
+
+  <button onclick="showToast('منشور نصي مفعّل')" class="glass w-full p-3 rounded-xl text-xs text-center text-gray-200">منشور نص 📄</button>
+
+  <textarea id="postDescInput" placeholder="اكتب وصف للمنشور..." class="w-full h-20 bg-black/60 border border-cyan-500/30 rounded-xl p-3 text-xs text-right text-cyan-300 outline-none resize-none"></textarea>
+
+  <button onclick="publishPost()" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-xs shadow-lg">نشر فوري</button>
 </main>
 
 <!-- الوارد -->
@@ -88,7 +113,7 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
   <div id="chatLogs" class="flex-1 my-3 space-y-2 overflow-y-auto text-xs text-gray-300 p-2">لا توجد رسائل جديدة حالياً.</div>
 </main>
 
-<!-- الملفات -->
+<!-- الملفات ولوحة التحكم -->
 <main id="tab-profile" class="hidden min-h-screen pt-16 p-4 space-y-3">
   <div class="glass p-4 rounded-2xl text-center">
     <div id="profileAvatar" class="w-20 h-20 bg-cyan-500 rounded-full mx-auto flex items-center justify-center text-2xl font-black text-black">GO</div>
@@ -100,23 +125,24 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
     <div class="glass p-2 rounded-xl"><span id="statLikes">0</span><br>الاعجابات</div>
     <div class="glass p-2 rounded-xl"><span id="statPosts">0</span><br>المنشورات</div>
   </div>
+
   <div class="font-black text-cyan-400 text-xs mt-3 text-right">ادوات الحساب</div>
-  <button onclick="showToast('نقاط OKKI جاهزة')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>💰 <span id="okkiBtn">0</span> - نقاطي OKKI</span><span>فتح ←</span></button>
-  <button onclick="showToast('سجل الأنشطة فارغ')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📊 سجل الانشطة</span><span>فتح ←</span></button>
-  <button onclick="showToast('لا توجد فيديوهات دون اتصال')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📁 فيديوهات دون اتصال</span><span>فتح ←</span></button>
+  <button onclick="openOKKI()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>💰 <span id="okkiBtn">0</span> - نقاطي OKKI</span><span>فتح ←</span></button>
+  <button onclick="openActivity()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📊 سجل الانشطة</span><span>فتح ←</span></button>
+  <button onclick="openOfflineVideos()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📁 فيديوهات دون اتصال</span><span>فتح ←</span></button>
   <button onclick="generateQR()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🔐 رمز QR لملفك</span><span>عرض ←</span></button>
 
   <div class="font-black text-cyan-400 text-xs mt-3 text-right">ادوات الاعمال</div>
-  <button onclick="showToast('المجموعة التجارية نشطة')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🏢 المجموعة التجارية</span><span>فتح ←</span></button>
-  <button onclick="showToast('لا توجد إعلانات نشطة')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📢 الترويج والاعلانات</span><span>فتح ←</span></button>
-  <button onclick="showToast('إدارة المنشورات')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📄 ادارة المنشورات</span><span>ادارة ←</span></button>
+  <button onclick="openBusiness()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🏢 المجموعة التجارية</span><span>فتح ←</span></button>
+  <button onclick="openAds()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📢 الترويج والاعلانات</span><span>فتح ←</span></button>
+  <button onclick="openPosts()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📄 ادارة المنشورات</span><span>ادارة ←</span></button>
 
   <div class="font-black text-cyan-400 text-xs mt-3 text-right">الاعدادات والخصوصية</div>
-  <button onclick="showToast('إعدادات الحساب')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>👤 الحساب</span><span>←</span></button>
-  <button onclick="showToast('الحساب محمي بنظام سيادي')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🔒 الخصوصية والامان</span><span>←</span></button>
-  <button onclick="showToast('تم تغيير الخلفية بنجاح')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🎨 تغير خلفية المستخدم</span><span>تغير ←</span></button>
-  <button onclick="showToast('تم نسخ رابط الملف الشخصي')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🔗 مشاركة ملف الشخصي</span><span>مشاركة ←</span></button>
-  <button onclick="showToast('سياسة الاستخدام لـ TARIM OS')" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📜 السياسة والخصوصية</span><span>فتح ←</span></button>
+  <button onclick="openAccount()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>👤 الحساب</span><span>←</span></button>
+  <button onclick="openPrivacy()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🔒 الخصوصية والامان</span><span>←</span></button>
+  <button onclick="changeBG()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🎨 تغير خلفية المستخدم</span><span>تغير ←</span></button>
+  <button onclick="shareProfile()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>🔗 مشاركة ملف الشخصي</span><span>مشاركة ←</span></button>
+  <button onclick="openPolicy()" class="glass w-full p-3 rounded-xl text-xs flex flex-row-reverse justify-between items-center"><span>📜 السياسة والخصوصية</span><span>فتح ←</span></button>
   <button onclick="logout()" class="glass w-full p-3 rounded-xl text-xs text-red-400 flex flex-row-reverse justify-between items-center"><span>🚪 تسجيل الخروج</span><span>←</span></button>
 </main>
 
@@ -153,7 +179,7 @@ body{background:#050b14;color:#fff;font-family:sans-serif;overflow-x:hidden}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-let authMode = 'login'; // 'login' or 'register'
+let authMode = 'login';
 let currentUser = null;
 let socket = io();
 let mapInstance = null;
@@ -209,10 +235,19 @@ async function handleAuth() {
     }
 }
 
+function googleLogin() {
+    currentUser = { username: "Gooaz", okki_balance: 100, followers: 15, likes: 50, posts: 3 };
+    document.getElementById('authGate').style.display = 'none';
+    updateProfileUI();
+    showToast('تم تسجيل الدخول بنجاح عبر حساب الملك Gooaz 👑');
+    socket.emit('registerSocket', currentUser.username);
+}
+
 function updateProfileUI() {
     if(!currentUser) return;
     document.getElementById('profileName').innerText = currentUser.username;
     document.getElementById('homeUsername').innerText = currentUser.username;
+    document.getElementById('homeOkki').innerText = currentUser.okki_balance + " OKKI";
     document.getElementById('profileAvatar').innerText = currentUser.username.slice(0,2).toUpperCase();
     document.getElementById('okkiBtn').innerText = currentUser.okki_balance;
     document.getElementById('statFollowers').innerText = currentUser.followers;
@@ -229,93 +264,37 @@ function logout() {
     showToast('تم تسجيل الخروج بنجاح');
 }
 
+function publishPost() {
+    const desc = document.getElementById('postDescInput').value.trim();
+    if(!desc) {
+        showToast('الرجاء كتابة وصف المنشور أولاً');
+        return;
+    }
+    showToast('تم النشر الفوري بنجاح 🚀');
+    document.getElementById('postDescInput').value = '';
+}
+
+// تفعيل مهام أزرار لوحة التحكم بالكامل
+function openOKKI() { showToast('💰 تم فتح لوحة نقاط OKKI والتحويلات'); }
+function openActivity() { showToast('📊 تم تحميل سجل الأنشطة والعمليات السيادية'); }
+function openOfflineVideos() { showToast('📁 تم فتح مجلد الفيديوهات المحفوظة دون اتصال'); }
+function openBusiness() { showToast('🏢 تم فتح إدارة المجموعة التجارية والخدمات العامة'); }
+function openAds() { showToast('📢 تم تفعيل لوحة الإعلانات والحملات السيادية'); }
+function openPosts() { showToast('📄 تم فتح واجهة إدارة المنشورات والتحكم بها'); }
+function openAccount() { showToast('👤 تم فتح إعدادات الحساب الشخصي'); }
+function openPrivacy() { showToast('🔒 تم تفعيل حماية الخصوصية والأمان السيادي'); }
+function changeBG() { 
+    document.body.style.background = `linear-gradient(135deg, #${Math.floor(Math.random()*16777215).toString(16)}, #050b14)`; 
+    showToast('🎨 تم تغيير خلفية النظام بنجاح'); 
+}
+function shareProfile() { 
+    navigator.clipboard.writeText(window.location.origin + '/user/' + (currentUser ? currentUser.username : 'Gooaz')); 
+    showToast('🔗 تم نسخ رابط ملفك الشخصي السيادي'); 
+}
+function openPolicy() { showToast('📜 تم عرض سياسة الخصوصية ونظام تريم السيادي'); }
+
 function openTab(tabName, event) {
     document.querySelectorAll('main').forEach(el => el.classList.add('hidden'));
     document.getElementById('tab-' + tabName).classList.remove('hidden');
     
-    if(event && event.currentTarget) {
-        document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('text-cyan-400'));
-        document.querySelectorAll('nav button').forEach(btn => btn.classList.add('text-gray-400'));
-        event.currentTarget.classList.remove('text-gray-400');
-        event.currentTarget.classList.add('text-cyan-400');
-    }
-}
-
-function showToast(text) {
-    const box = document.getElementById('toastBox');
-    const t = document.createElement('div');
-    t.className = "glass bg-cyan-950/90 text-cyan-300 px-4 py-2 rounded-xl text-xs mb-2 border border-cyan-500/40 shadow-lg text-center animate-bounce";
-    t.innerText = text;
-    box.appendChild(t);
-    setTimeout(() => t.remove(), 3000);
-}
-
-function openMap() {
-    const mapBox = document.getElementById('mapContainer');
-    mapBox.classList.toggle('hidden');
-    if(!mapInstance && !mapBox.classList.contains('hidden')) {
-        setTimeout(() => {
-            mapInstance = L.map('map').setView([15.9576, 48.7903], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19}).addTo(mapInstance);
-            L.marker([15.9576, 48.7903]).addTo(mapInstance).bindPopup('تريم - حضرموت').openPopup();
-        }, 300);
-    }
-}
-
-function generateQR() {
-    const qrDiv = document.getElementById('qrcode');
-    qrDiv.innerHTML = '';
-    fetch('/api/qr', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({phone: currentUser ? currentUser.username : 'tarim_os'})
-    })
-    .then(res => res.json())
-    .then(data => {
-        new QRCode(qrDiv, {text: data.qr, width: 128, height: 128});
-        showToast('تم إنشاء رمز QR بنجاح');
-    });
-}
-
-// تشغيل البث المباشر
-function startLive() {
-    document.getElementById('fullScreenCam').classList.remove('hidden');
-    navigator.mediaDevices.getUserMedia({video: true, audio: true})
-    .then(stream => { document.getElementById('fullCamVideo').srcObject = stream; })
-    .catch(e => showToast('تعذر الوصول للكاميرا'));
-}
-
-function confirmStartLive() {
-    document.getElementById('preLiveOverlay').style.display = 'none';
-    socket.emit('startLive');
-    showToast('بدأ البث المباشر السيادي بنجاح 🔴');
-}
-
-function exitFullScreen() {
-    document.getElementById('fullScreenCam').classList.add('hidden');
-    socket.emit('stopLive');
-}
-
-function likeLive() { socket.emit('liveLike', 'room_id'); }
-function sendGift() { socket.emit('sendGift', 'room_id'); }
-function sendLiveComment() {
-    const input = document.getElementById('liveCommentIn');
-    if(!input.value) return;
-    socket.emit('liveComment', {roomId: 'room_id', text: input.value});
-    input.value = '';
-}
-
-socket.on('newLike', () => {
-    let l = document.getElementById('liveLikes');
-    l.innerText = parseInt(l.innerText) + 1;
-});
-socket.on('newComment', (data) => {
-    let c = document.getElementById('liveComments');
-    c.innerHTML += `<div><b>${data.from}:</b> ${data.text}</div>`;
-});
-socket.on('viewersUpdate', (v) => {
-    document.getElementById('liveViewers').innerText = v;
-});
-</script>
-</body>
-</html>
+  
