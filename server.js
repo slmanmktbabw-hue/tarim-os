@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const Database = require('better-sqlite3');
+const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
@@ -19,21 +19,29 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 1. الاتصال بقاعدة البيانات
-const db = new Database('./tarim_os.db');
-console.log('✅ تم الاتصال بقاعدة بيانات Tarim OS بنجاح.');
+// 1. الاتصال بقاعدة البيانات باستخدام sqlite3 القياسية
+const dbPath = path.resolve(__dirname, 'tarim_os.db');
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+        console.error('❌ خطأ في الاتصال بقاعدة البيانات:', err.message);
+    } else {
+        console.log('✅ تم الاتصال بقاعدة بيانات Tarim OS بنجاح.');
+    }
+});
 
 // 2. انشاء الجداول لو مش موجودة
-db.exec(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE,
-    password TEXT,
-    okki_balance REAL DEFAULT 0,
-    followers INTEGER DEFAULT 0,
-    likes INTEGER DEFAULT 0,
-    posts INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-)`);
+db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT,
+        okki_balance REAL DEFAULT 0,
+        followers INTEGER DEFAULT 0,
+        likes INTEGER DEFAULT 0,
+        posts INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+});
 
 // 3. API انشاء حساب جديد
 app.post('/api/register', async (req, res) => {
@@ -43,15 +51,19 @@ app.post('/api/register', async (req, res) => {
     }
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        const stmt = db.prepare(`INSERT INTO users (username, password) VALUES (?,?)`);
-        stmt.run(username, hashedPassword);
-        res.json({
-            success: true,
-            message: 'تم إنشاء الحساب بنجاح',
-            user: { username, okki_balance: 0, followers: 0, likes: 0, posts: 0 }
+        const query = `INSERT INTO users (username, password) VALUES (?, ?)`;
+        db.run(query, [username, hashedPassword], function(err) {
+            if (err) {
+                return res.status(400).json({ success: false, message: 'اسم المستخدم موجود مسبقاً!' });
+            }
+            res.json({
+                success: true,
+                message: 'تم إنشاء الحساب بنجاح',
+                user: { username, okki_balance: 0, followers: 0, likes: 0, posts: 0 }
+            });
         });
     } catch (e) {
-        res.status(400).json({ success: false, message: 'اسم المستخدم موجود مسبقاً!' });
+        res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
     }
 });
 
@@ -62,32 +74,33 @@ app.post('/api/login', async (req, res) => {
         return res.status(400).json({ success: false, message: 'الرجاء إدخال اسم المستخدم وكلمة المرور' });
     }
     
-    try {
-        const stmt = db.prepare(`SELECT * FROM users WHERE username = ?`);
-        const user = stmt.get(username);
-        if (!user) {
+    const query = `SELECT * FROM users WHERE username = ?`;
+    db.get(query, [username], async (err, user) => {
+        if (err || !user) {
             return res.status(400).json({ success: false, message: 'المستخدم غير موجود!' });
         }
         
-        const isValidPassword = await bcrypt.compare(password, user.password);
-        if (!isValidPassword) {
-            return res.status(400).json({ success: false, message: 'كلمة المرور غير صحيحة!' });
-        }
-
-        res.json({
-            success: true,
-            message: 'تم تسجيل الدخول بنجاح',
-            user: { 
-                username: user.username, 
-                okki_balance: user.okki_balance, 
-                followers: user.followers, 
-                likes: user.likes, 
-                posts: user.posts 
+        try {
+            const isValidPassword = await bcrypt.compare(password, user.password);
+            if (!isValidPassword) {
+                return res.status(400).json({ success: false, message: 'كلمة المرور غير صحيحة!' });
             }
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
-    }
+
+            res.json({
+                success: true,
+                message: 'تم تسجيل الدخول بنجاح',
+                user: { 
+                    username: user.username, 
+                    okki_balance: user.okki_balance, 
+                    followers: user.followers, 
+                    likes: user.likes, 
+                    posts: user.posts 
+                }
+            });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
+        }
+    });
 });
 
 // 5. API انشاء QR
