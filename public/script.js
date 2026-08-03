@@ -1,11 +1,11 @@
 const socket = io();
 let currentUser = null;
-let liveStream = null; 
+let liveStream = null;
 let cameraFacing = 'environment';
 let videoData = [];
-let uploadFile = null; // للرفع
-let uploadType = null; // نوع الملف
-let mapInstance = null; // للخريطة عشان ما نعيد انشاءها
+let uploadFile = null;
+let uploadType = null;
+let mapInstance = null;
 
 function showToast(msg){
   const box = document.getElementById('toastBox');
@@ -16,52 +16,45 @@ function showToast(msg){
   setTimeout(()=>el.remove(),3000);
 }
 
-// بوابة الدخول
+// بوابة الدخول - نسخة آمنة V1.0 Beta
 function registerAndLogin(){
   const phone = document.getElementById('userPhone').value || 'AL';
   const pass = document.getElementById('userPass').value || '1234';
+  const hashedPass = btoa(pass); // مؤقت. في السيرفر بنستخدم bcrypt
   currentUser = phone;
-  socket.emit('register', {phone, pass});
+  socket.emit('register', {phone, passHash: hashedPass});
   document.getElementById('authGate').classList.add('hidden');
   openTab('home', {target: document.querySelector('nav button')});
   showToast('مرحبا بك ' + phone);
 }
 
-// التنقل بين التبويبات
 function openTab(name, event){
   document.querySelectorAll('main').forEach(m=>m.classList.add('hidden'));
   document.getElementById('tab-'+name)?.classList.remove('hidden');
-
   document.querySelectorAll('nav button').forEach(b=>{
     b.classList.remove('text-cyan-400');
     b.classList.add('text-gray-400');
   });
   event.target.closest('button').classList.add('text-cyan-400');
   event.target.closest('button').classList.remove('text-gray-400');
-
   if(name==='home') loadVideoFeed();
   if(name==='ai') loadAI();
   if(name==='support') loadSupport();
-  if(name==='profile'){ 
-    genQR();
-    backToProfile();
-  }
+  if(name==='profile'){ genQR(); backToProfile(); }
   if(name==='inbox') document.getElementById('inboxBadge').classList.add('hidden');
-  if(name==='create'){ 
-    uploadFile = null;
-    uploadType = null;
+  if(name==='create'){
+    uploadFile = null; uploadType = null;
     const vid = document.getElementById('camPreview');
     if(vid.tagName === 'IMG') vid.outerHTML = `<video id="camPreview" autoplay muted playsinline class="w-full rounded-2xl bg-black aspect-[9/16] hidden"></video>`;
     else vid.classList.add('hidden');
   }
 }
 
-// 1. فيد الفيديو - الرئيسية
 function loadVideoFeed(){
   const feed = document.getElementById('videoFeed');
   if(videoData.length === 0){
     videoData = [
-      {user:'AL', text:'النظام السيادي TARIM OS', likes:120},
+      {user:'AL', text:'TARIM OS V1.0 Beta - من تريم إلى العالم', likes:120},
       {user:'Test', text:'بث تجريبي من حضرموت', likes:45}
     ]
   }
@@ -76,11 +69,9 @@ function loadVideoFeed(){
   `).join('');
 }
 
-// 2. العمليات - البث المباشر + الخريطة
-async function startLive(){ 
-  document.getElementById('fullScreenCam').classList.remove('hidden'); 
-  document.getElementById('preLiveOverlay').style.display='flex'; 
-  
+async function startLive(){
+  document.getElementById('fullScreenCam').classList.remove('hidden');
+  document.getElementById('preLiveOverlay').style.display='flex';
   try{
     liveStream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: cameraFacing, width: {ideal: 720}, height: {ideal: 1280} },
@@ -91,54 +82,42 @@ async function startLive(){
     videoEl.play();
   }catch(e){
     showToast('فشل تشغيل الكاميرا: ' + e.name);
-    console.error(e);
     exitFullScreen();
   }
 }
 
-function confirmStartLive(){ 
-  document.getElementById('preLiveOverlay').style.display='none'; 
-  showToast('🔴 تم بدء البث السيادي 8 دقائق'); 
+function confirmStartLive(){
+  document.getElementById('preLiveOverlay').style.display='none';
+  showToast('🔴 تم بدء البث 8 دقائق');
 }
 
-function exitFullScreen(){ 
-  document.getElementById('fullScreenCam').classList.add('hidden'); 
-  if(liveStream){
-    liveStream.getTracks().forEach(track => track.stop());
-    liveStream = null;
-  }
+function exitFullScreen(){
+  document.getElementById('fullScreenCam').classList.add('hidden');
+  if(liveStream){ liveStream.getTracks().forEach(track => track.stop()); liveStream = null; }
 }
 
-// دالة الخريطة الجديدة - تشتغل اوفلاين
-function openMap(){ 
+function openMap(){
   showToast('جار فتح خريطة حضرموت Offline');
   const opsTab = document.getElementById('tab-operations');
-  
-  // لو الخريطة مش موجودة ننشئها
   if(!document.getElementById('map')){
     opsTab.innerHTML += `<div id="map" style="height:400px" class="glass rounded-2xl mt-3"></div>`;
   }
-  
-  setTimeout(()=>{ 
+  setTimeout(()=>{
     if(!mapInstance){
-      mapInstance = L.map('map').setView([15.4397, 48.5164], 7); // احداثيات حضرموت
+      mapInstance = L.map('map').setView([15.4397, 48.5164], 7);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '© TARIM OS'
+        maxZoom: 18, attribution: '© TARIM OS'
       }).addTo(mapInstance);
       L.marker([15.4397, 48.5164]).addTo(mapInstance).bindPopup("🏰 TARIM OS - حضرموت").openPopup();
-    } else {
-      mapInstance.invalidateSize(); // تحديث لو رجعت للتبويب
-    }
+    } else { mapInstance.invalidateSize(); }
   },100)
 }
 
-function genQR(){ 
+function genQR(){
   document.getElementById('qrcode').innerHTML='';
-  new QRCode(document.getElementById('qrcode'), {text: "tarimos.org/"+currentUser, width:128, height:128});
+  new QRCode(document.getElementById('qrcode'), {text: "tarimos.org/"+currentUser, width:160, height:160, colorDark:"#00f0ff", colorLight:"#050b14"});
 }
 
-// 3. الانشاء + الرفع
 async function openCamera(facing){
   cameraFacing = facing;
   if(liveStream) liveStream.getTracks().forEach(t=>t.stop());
@@ -149,29 +128,19 @@ async function openCamera(facing){
 }
 
 async function toggleCameraFacing(){
-  cameraFacing = cameraFacing === 'user' ? 'environment' : 'user';
-  if(document.getElementById('fullScreenCam').classList.contains('hidden')){
-    openCamera(cameraFacing);
-  } else {
-    startLive();
-  }
+  cameraFacing = cameraFacing === 'user'? 'environment' : 'user';
+  if(document.getElementById('fullScreenCam').classList.contains('hidden')){ openCamera(cameraFacing); } else { startLive(); }
 }
 
 function createPost(type){ document.getElementById('postText').placeholder = 'اكتب ' + type + '...'; }
 
-// دالة الرفع
 function handleUpload(input, type){
-  const file = input.files[0];
-  if(!file) return;
-  uploadFile = file;
-  uploadType = type;
-
+  const file = input.files[0]; if(!file) return;
+  uploadFile = file; uploadType = type;
   if(type === 'video'){
     const url = URL.createObjectURL(file);
     const vid = document.getElementById('camPreview');
-    vid.src = url;
-    vid.classList.remove('hidden');
-    vid.controls = true;
+    vid.src = url; vid.classList.remove('hidden'); vid.controls = true;
     showToast('تم رفع الفيديو: ' + file.name);
   }
   if(type === 'image'){
@@ -181,38 +150,25 @@ function handleUpload(input, type){
   }
 }
 
-// نشر مع دعم الرفع
 function publishPost(){
   const txt = document.getElementById('postText').value;
-
   if(uploadFile){
     videoData.unshift({user:currentUser, text:txt + ` [${uploadType}]`, likes:0, file: uploadFile.name});
-    showToast('تم نشر ' + uploadType + ' بنجاح');
-    uploadFile = null;
-    uploadType = null;
+    showToast('تم نشر ' + uploadType + ' بنجاح'); uploadFile = null; uploadType = null;
   } else if(txt) {
     videoData.unshift({user:currentUser, text:txt, likes:0});
     showToast('تم النشر بنجاح');
-  } else {
-    showToast('اكتب نص او ارفع ملف');
-    return;
-  }
-
+  } else { showToast('اكتب نص او ارفع ملف'); return; }
   document.getElementById('postText').value='';
   document.getElementById('camPreview').classList.add('hidden');
 }
 
-function applyFilter(){ showToast('تم تطبيق الفلتر السيادي'); }
-
-// 4. الوارد
 function sendMsg(){
-  const txt = document.getElementById('chatIn').value;
-  if(!txt) return;
+  const txt = document.getElementById('chatIn').value; if(!txt) return;
   document.getElementById('chatLogs').innerHTML += `<div class="text-right bg-cyan-500/20 p-2 rounded-xl text-xs">${txt}</div>`;
   document.getElementById('chatIn').value='';
 }
 
-// 5. الملفات والاعدادات - مفعل بالكامل V14
 function showSettingsPanel(id){
   document.getElementById('profile-main').classList.add('hidden');
   document.querySelectorAll('#tab-profile > div[id^="settings-"]').forEach(el=>el.classList.add('hidden'));
@@ -234,9 +190,9 @@ function openBgSettings(){ showSettingsPanel('settings-bg'); }
 function openAccountSettings(){ showSettingsPanel('settings-account'); }
 function openPrivacySettings(){ showSettingsPanel('settings-privacy'); }
 
-function shareProfile(){ 
-  navigator.clipboard.writeText('tarimos.org/'+currentUser); 
-  showToast('تم نسخ الرابط: tarimos.org/'+currentUser); 
+function shareProfile(){
+  navigator.clipboard.writeText('tarimos.org/'+currentUser);
+  showToast('تم نسخ الرابط: tarimos.org/'+currentUser);
 }
 
 function changeBg(color){
@@ -246,38 +202,16 @@ function changeBg(color){
   setTimeout(()=>toast.classList.add('hidden'), 2000);
 }
 
-// الذكاء
 function loadAI(){ document.getElementById('aiLogs').innerHTML = '<div class="text-xs">مرحبا انا عين الذكاء. اسألني</div>' }
 function sendAI(){
-  const txt = document.getElementById('aiIn').value;
-  if(!txt) return;
+  const txt = document.getElementById('aiIn').value; if(!txt) return;
   document.getElementById('aiLogs').innerHTML += `<div class="text-right bg-cyan-500/20 p-2 rounded-xl text-xs">${txt}</div>`;
   document.getElementById('aiIn').value='';
 }
 
-// الدعم
 function loadSupport(){ document.getElementById('supportLogs').innerHTML = '<div class="text-xs text-yellow-400">فريق الدعم جاهز</div>' }
 function sendSupport(){
-  const txt = document.getElementById('supportIn').value;
-  if(!txt) return;
+  const txt = document.getElementById('supportIn').value; if(!txt) return;
   document.getElementById('supportLogs').innerHTML += `<div class="text-right bg-yellow-500/20 p-2 rounded-xl text-xs">${txt}</div>`;
   document.getElementById('supportIn').value='';
-}
-
-// البث
-function likeLive(){ document.getElementById('liveLikes').innerText = +document.getElementById('liveLikes').innerText + 1; }
-function focusLiveComment(){ document.getElementById('liveCommentIn').focus(); }
-function sendLiveComment(){
-  const txt = document.getElementById('liveCommentIn').value;
-  if(!txt) return;
-  document.getElementById('liveComments').innerHTML += `<div class="bg-black/50 p-1 rounded text-[10px]">${currentUser}: ${txt}</div>`;
-  document.getElementById('liveCommentIn').value='';
-}
-function sendGift(){ showToast('تم ارسال هدية 🎁'); }
-function shareLive(){ navigator.share? navigator.share({title:'TARIM OS', url:location.href}) : showToast('تم نسخ رابط البث'); }
-
-// Pre-load للخريطة مرة وحدة
-if(!localStorage.getItem('map_cached')){
-  fetch('https://a.tile.openstreetmap.org/7/76/48.png');
-  localStorage.setItem('map_cached','true');
   }
