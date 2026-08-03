@@ -1,92 +1,122 @@
-import express from 'express';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import fetch from 'node-fetch'; // npm i node-fetch
-
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: "*" }
+});
 
 const PORT = process.env.PORT || 3000;
+const users = new Map(); // phone -> socketId
+const liveRooms = new Map(); // roomId -> {host, viewers, startTime}
 
-// امان سيادي
-app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.static('public'));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200 });
-app.use('/api/', limiter);
-
-// ========== بروكسي عين الذكاء ==========
-app.post('/api/ai', async (req, res) => {
-  try {
-    const { prompt } = req.body;
-    if(!prompt) return res.status(400).json({error: 'مافي نص'});
-
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
-    const data = await response.json();
-    res.json(data);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'فشل الاتصال بالذكاء' });
-  }
-});
-
-// ========== بروكسي الدعم ==========
-app.post('/api/support', async (req, res) => {
-  const { message } = req.body;
-  console.log('رسالة دعم جديدة:', message);
-  res.json({ reply: 'استلمنا رسالتك يا ملك، فريق TARIM OS بيرد عليك قريب' });
-});
-
-// ========== API الهدايا ==========
-app.post('/api/wallet/gift', async (req, res) => {
-  const { from, to, gift } = req.body;
-  console.log(`هدية: ${from} ارسل ${gift} الى ${to}`);
-  res.json({ status: 'ok', message: `تم استلام ${gift}` });
-});
-
-// ========== SOCKET.IO للبث المباشر ==========
-let viewers = 0;
-let onlineUsers = {};
-
-io.on('connection', (socket) => {
-  viewers++;
-  io.emit('viewers_count', viewers);
-
-  socket.on('register', (data) => {
-    onlineUsers[socket.id] = data.phone;
-  });
-
-  socket.on('like_live', (data)=> socket.broadcast.emit('like_live', data));
-  socket.on('comment_live', (data)=> socket.broadcast.emit('comment_live', data));
-
-  socket.on('disconnect', ()=>{
-    viewers--; 
-    delete onlineUsers[socket.id];
-    io.emit('viewers_count', viewers);
-  });
-});
-
-// الصفحة الرئيسية
+// صفحة واحدة فقط
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-server.listen(PORT, () => console.log(`TARIM OS V1.0 Beta شغال على http://localhost:${PORT}`));
+io.on('connection', (socket) => {
+  console.log('مستخدم متصل:', socket.id);
+
+  // تسجيل الدخول
+  socket.on('register', ({phone}) => {
+    users.set(phone, socket.id);
+    socket.phone = phone;
+    console.log('تم تسجيل:', phone);
+  });
+
+  // بدء البث - مفتوح للابد
+  socket.on('startLive', () => {
+    const roomId = 'live_' + socket.id;
+    liveRooms.set(roomId, {
+      host: socket.id,
+      viewers: 1,
+      startTime: Date.now(),
+      duration: 0 // 0 = مفتوح للابد
+    });
+    socket.join(roomId);
+    socket.roomId = roomId;
+    
+    // عداد البث - يعد للاعلى بدل التنازلي
+    const interval = setInterval(() => {
+      const room = liveRooms.get(roomId);
+      if(!room) return clearInterval(interval);
+      const elapsed = Date.now() - room.startTime;
+      const minutes = Math.floor(elapsed / 60000);
+      const seconds = Math.floor((elapsed % 60000) / 1000);
+      io.to(roomId).emit('liveTimer', `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`);
+    }, 1000);
+
+    socket.liveInterval = interval; // نخزنه عشان نوقفه عند الخروج
+    socket.emit('liveStarted', {roomId});
+    console.log('بدأ بث:', roomId);
+  });
+
+  // الانضمام للبث
+  socket.on('joinLive', (roomId) => {
+    const room = liveRooms.get(roomId);
+    if(room){
+      room.viewers++;
+      socket.join(roomId);
+      io.to(roomId).emit('viewersUpdate', room.viewers);
+    }
+  });
+
+  // لايك البث - مع قلوب تطير
+  socket.on('liveLike', (roomId) => {
+    io.to(roomId).emit('newLike', {from: socket.phone});
+  });
+
+  // تعليق البث
+  socket.on('liveComment', ({roomId, text}) => {
+    io.to(roomId).emit('newComment', {from: socket.phone, text});
+  });
+
+  // هدية
+  socket.on('sendGift', (roomId) => {
+    io.to(roomId).emit('newGift', {from: socket.phone});
+  });
+
+  // ايقاف البث يدوي
+  socket.on('stopLive', () => {
+    if(socket.roomId){
+      clearInterval(socket.liveInterval);
+      io.to(socket.roomId).emit('liveEnded');
+      liveRooms.delete(socket.roomId);
+      console.log('تم ايقاف البث:', socket.roomId);
+    }
+  });
+
+  // قطع الاتصال
+  socket.on('disconnect', () => {
+    if(socket.roomId){
+      clearInterval(socket.liveInterval);
+      const room = liveRooms.get(socket.roomId);
+      if(room && room.host === socket.id){
+        io.to(socket.roomId).emit('liveEnded');
+        liveRooms.delete(socket.roomId);
+      }
+    }
+    users.delete(socket.phone);
+    console.log('مستخدم قطع:', socket.id);
+  });
+
+});
+
+// تشفير بسيط للـ QR
+app.post('/api/qr', (req, res) => {
+  const data = JSON.stringify({user: req.body.phone, time: Date.now()});
+  const hash = crypto.createHash('sha256').update(data).digest('hex');
+  res.json({qr: hash.slice(0, 20)});
+});
+
+server.listen(PORT, () => {
+  console.log(`TARIM OS V1.0 Beta شغال على http://localhost:${PORT}`);
+});
