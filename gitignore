@@ -1,0 +1,21 @@
+# Dependencies
+node_modules
+package-lock.json
+yarn.lock
+
+# Env - المفاتيح السرية لا ترفع ابداً
+.env
+.env.local
+
+# بيانات المستخدمين - لا ترفع
+posts.json
+wallet.json
+*.tmp
+*.log
+
+# نظام
+.DS_Store
+Thumbs.db
+public/uploads
+dist
+build
