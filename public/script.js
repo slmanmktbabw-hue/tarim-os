@@ -1,4 +1,4 @@
-Const socket = io();
+const socket = io();
 
 // تحميل بيانات المستخدم والمنشورات المخزنة محلياً (localStorage) لتجنب ضياعها
 let currentUser = localStorage.getItem('tarim_user') || 'slmanmktbabw@gmail.com';
@@ -16,7 +16,8 @@ let liveSeconds = 0;
 // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 window.addEventListener('DOMContentLoaded', () => {
   if(localStorage.getItem('tarim_logged_in') === 'true'){
-    document.getElementById('authGate').style.display = 'none';
+    const authGate = document.getElementById('authGate');
+    if(authGate) authGate.style.display = 'none';
     updateProfileUI();
     renderSavedMedia();
   }
@@ -56,8 +57,10 @@ function requestOTP(){
     return;
   }
   currentUser = inputField.value.trim();
-  document.getElementById('stepCredentials').classList.add('hidden');
-  document.getElementById('stepOTP').classList.remove('hidden');
+  const stepCred = document.getElementById('stepCredentials');
+  const stepOTP = document.getElementById('stepOTP');
+  if(stepCred) stepCred.classList.add('hidden');
+  if(stepOTP) stepOTP.classList.remove('hidden');
   showToast(`تم إرسال رمز التحقق إلى: ${currentUser} 📨`);
 }
 
@@ -72,7 +75,8 @@ function verifyOTP(){
   localStorage.setItem('tarim_logged_in', 'true');
   localStorage.setItem('tarim_user', currentUser);
 
-  document.getElementById('authGate').style.display = 'none';
+  const authGate = document.getElementById('authGate');
+  if(authGate) authGate.style.display = 'none';
   socket.emit('registerSocket', currentUser);
   updateProfileUI();
   renderSavedMedia();
@@ -80,8 +84,10 @@ function verifyOTP(){
 }
 
 function backToCredentials(){
-  document.getElementById('stepOTP').classList.add('hidden');
-  document.getElementById('stepCredentials').classList.remove('hidden');
+  const stepCred = document.getElementById('stepCredentials');
+  const stepOTP = document.getElementById('stepOTP');
+  if(stepOTP) stepOTP.classList.add('hidden');
+  if(stepCred) stepCred.classList.remove('hidden');
 }
 
 function updateProfileUI(){
@@ -183,9 +189,12 @@ function shareProfile(){
 
 function logout(){ 
   localStorage.removeItem('tarim_logged_in');
-  document.getElementById('authGate').style.display = 'flex'; 
-  document.getElementById('stepOTP').classList.add('hidden');
-  document.getElementById('stepCredentials').classList.remove('hidden');
+  const authGate = document.getElementById('authGate');
+  if(authGate) authGate.style.display = 'flex'; 
+  const stepOTP = document.getElementById('stepOTP');
+  const stepCred = document.getElementById('stepCredentials');
+  if(stepOTP) stepOTP.classList.add('hidden');
+  if(stepCred) stepCred.classList.remove('hidden');
   showToast('تم تسجيل الخروج بنجاح 🚪'); 
 }
 
@@ -205,15 +214,19 @@ function openMap(){
 
 // البث المباشر
 function startLiveStudio(){
-  document.getElementById('fullScreenCam').classList.remove('hidden');
-  document.getElementById('preLiveOverlay').classList.remove('hidden');
+  const fullCam = document.getElementById('fullScreenCam');
+  const preLive = document.getElementById('preLiveOverlay');
+  if(fullCam) fullCam.classList.remove('hidden');
+  if(preLive) preLive.classList.remove('hidden');
 }
 
 async function confirmStartLive(){
-  document.getElementById('preLiveOverlay').classList.add('hidden');
+  const preLive = document.getElementById('preLiveOverlay');
+  if(preLive) preLive.classList.add('hidden');
   try {
     liveStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    document.getElementById('fullCamVideo').srcObject = liveStream;
+    const fullCamVideo = document.getElementById('fullCamVideo');
+    if(fullCamVideo) fullCamVideo.srcObject = liveStream;
     startLiveTimer();
     showToast('🔴 بدأ البث المباشر السيادي بنجاح!');
   } catch(e) {
@@ -237,7 +250,8 @@ function startLiveTimer(){
 function exitFullScreen(){
   if(liveStream) { liveStream.getTracks().forEach(t => t.stop()); liveStream = null; }
   if(liveTimerInterval) clearInterval(liveTimerInterval);
-  document.getElementById('fullScreenCam').classList.add('hidden');
+  const fullCam = document.getElementById('fullScreenCam');
+  if(fullCam) fullCam.classList.add('hidden');
   showToast('تم إنهاء البث المباشر');
 }
 
@@ -253,6 +267,7 @@ function sendInboxMsg(){
   box.scrollTop = box.scrollHeight;
   showToast('تم إرسال الرسالة بنجاح 💬');
 }
+
 function openModal(modalId) {
   const modal = document.getElementById(modalId);
   if(modal) {
@@ -262,7 +277,7 @@ function openModal(modalId) {
       if(listContainer) {
         listContainer.innerHTML = '';
         savedMediaList.forEach((item, idx) => {
-          listContainer.innerHTML += `<div class="glass p-2 rounded flex justify-between items-center"><span>${item.content.substring(0,30)}...</span><button onclick="deleteMedia(${idx}); openModal('modalManagePosts')" class="text-red-400 text-[10px]">حذف</button></div>`;
+          listContainer.innerHTML += `<div class="glass p-2 rounded flex justify-between items-center text-xs"><span>${item.content.substring(0,30)}...</span><button onclick="deleteMedia(${idx}); openModal('modalManagePosts')" class="text-red-400 text-[10px]">حذف</button></div>`;
         });
       }
     }
@@ -275,11 +290,11 @@ function closeModal(modalId) {
 }
 
 function updateAccountInfo() {
-  const newEmail = document.getElementById('accEmailInput').value;
-  if(newEmail) {
-    currentUser = newEmail;
+  const emailInput = document.getElementById('accEmailInput');
+  if(emailInput && emailInput.value.trim()) {
+    currentUser = emailInput.value.trim();
     localStorage.setItem('tarim_user', currentUser);
     updateProfileUI();
     showToast('تم تحديث بيانات الحساب بنجاح 👤');
   }
-               }
+}
