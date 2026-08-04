@@ -2,36 +2,35 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const helmet = require('helmet');
-const compression = require('compression');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
-const PORT = process.env.PORT || 3000;
+const io = new Server(server);
 
-// الحماية + السرعة
-app.use(helmet({ contentSecurityPolicy: false }));
-app.use(compression());
-app.use(express.json());
-app.use(express.static(__dirname)); // يخدم index.html و script.js
+// تقديم الملفات الثابتة (HTML, CSS, JS) من المجلد الحالي
+app.use(express.static(path.join(__dirname)));
 
-// الصفحة الرئيسية
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-
-// API وهمي عشان ما يعلق
-app.post('/api/login', (req, res) => res.json({ success: true }));
-app.post('/api/register', (req, res) => res.json({ success: true }));
-
-// Socket.IO
-io.on('connection', (socket) => {
-    console.log('✅ متصل:', socket.id);
-    socket.on('registerSocket', (user) => console.log('المستخدم دخل:', user));
-    socket.on('disconnect', () => console.log('❌ فصل:', socket.id));
+// مسار رئيسي اختباري للتأكد من عمل السيرفر
+app.get('/health', (req, res) => {
+  res.status(200).send('TARIM OS Server is running smoothly 🚀');
 });
 
-// عشان ما يطيح من اي خطأ
-process.on('uncaughtException', err => console.log('تم الامساك بالخطأ:', err.message));
-process.on('unhandledRejection', reason => console.log('وعد مرفوض:', reason));
+// إدارة الاتصالات الحية عبر Socket.io
+io.on('connection', (socket) => {
+  console.log(`🔌 اتصال جديد تم بنجاح - معرف السوكيت: ${socket.id}`);
 
-server.listen(PORT, () => console.log(`🚀 TARIM OS PRO شغال على: http://localhost:${PORT}`));
+  // تسجيل المستخدم بريده أو معرفه الخاص
+  socket.on('registerSocket', (userEmail) => {
+    socket.userEmail = userEmail;
+    console.log(`👤 تم ربط السوكيت بالمستخدم: ${userEmail}`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`🔌 تم إنهاء الاتصال: ${socket.id}`);
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`✨ خادم منصة TARIM OS يعمل الآن على المنفذ: ${PORT}`);
+});
