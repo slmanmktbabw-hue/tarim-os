@@ -19,7 +19,7 @@
 </head>
 <body class="text-white min-h-screen flex flex-col justify-between select-none pb-24">
 
-    <!-- بوابة المصادقة وتسجيل الدخول -->
+    <!-- بوابة المصادقة وتسجيل الدخول (تمت برمجتها لتختفي تلقائياً عند الدخول لتسهيل التصفح) -->
     <div id="authGate" class="fixed inset-0 bg-[#030B1A] z-50 flex items-center justify-center p-4">
         <div class="glass w-full max-w-sm p-6 rounded-2xl border border-cyan-500/40 text-center space-y-4 shadow-2xl">
             <div class="text-3xl font-black text-cyan-400">TARIM OS 🏰</div>
@@ -113,7 +113,7 @@
             </div>
         </main>
 
-        <!-- الملفات (محدث بالكامل مع ربط الأزرار بنافذ منبثقة Modal) -->
+        <!-- الملفات -->
         <main id="tab-profile" class="hidden space-y-3 text-right p-4">
             <div class="glass p-4 rounded-2xl border border-cyan-500/30 flex flex-col items-center relative">
                 <div id="profileAvatarBig" class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-cyan-300 font-bold text-xl mb-2">SL</div>
@@ -253,4 +253,4 @@
             <div class="glass p-3 rounded-xl text-center text-cyan-300 font-bold text-lg">OKKI 1000 USDT</div>
             <button onclick="showToast('تم مزامنة محفظة OKX بنجاح'); closeModal('modalOKX')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">مزامنة الرصيد 🔄</button>
             <button onclick="closeModal('modalOKX')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
-    </div>
+        
