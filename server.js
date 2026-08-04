@@ -2,48 +2,18 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-
-// حماية الأمان الأساسية
-app.use(helmet({
-  contentSecurityPolicy: false,
-}));
-
-// تحديد معدل الطلبات لحماية السيرفر
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 دقيقة
-  max: 100 // حد اقصى للطلبات
-});
-app.use(limiter);
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
-// مسار التحقق وإرسال البريد
-app.post('/api/auth/request', (req, res) => {
-  const { identifier } = req.body;
-  res.json({ success: true, message: `تم إرسال رمز التحقق إلى ${identifier} بنجاح` });
-});
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// إدارة الاتصالات الحية عبر Socket.io
-io.on('connection', (socket) => {
-  socket.on('registerSocket', (user) => {
-    socket.join(user);
-  });
-  
-  socket.on('disconnect', () => {
-    // قطع الاتصال بهدوء
-  });
-});
+io.on('connection', (socket) => console.log('متصل:', socket.id));
 
-// تشغيل السيرفر على المنفذ الصحيح لـ Render
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`TARIM OS Server running on port ${PORT}`);
-});
-            
+process.on('uncaughtException', err => console.log(err));
+server.listen(PORT, () => console.log(`🚀 شغال على ${PORT}`));
