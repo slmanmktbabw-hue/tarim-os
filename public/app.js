@@ -6,17 +6,17 @@
 const socket = io();
 let currentAuthTab = 'login';
 let localStream = null;
-let liveLikes = 0;
+let liveLikesCount = 0;
 let mapInstance = null;
+let flashState = false;
 
 socket.on('connect', () => {
-    console.log("🔗 متصل بالسيرفر السيادي بنجاح:", socket.id);
+    console.log("🔗 متصل بالسيفر السيادي بنجاح:", socket.id);
 });
 
-// إدارة التبويبات والدخول
 document.addEventListener('DOMContentLoaded', () => {
 
-    // التبويبات الرئيسية
+    // التنقل بين التبويبات
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const tabName = btn.getAttribute('data-tab');
@@ -24,41 +24,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // تبديل نافذة الدخول وتسجيل جديد
+    // المصادقة
     document.getElementById('tabLoginBtn').addEventListener('click', () => switchAuthTab('login'));
     document.getElementById('tabRegBtn').addEventListener('click', () => switchAuthTab('register'));
-
-    // أزرار المصادقة
     document.getElementById('authActionBtn').addEventListener('click', processLogin);
     document.getElementById('googleAuthBtn').addEventListener('click', processGoogleLogin);
 
-    // الأزرار التفاعلية بالواجهة
-    document.getElementById('gotoOpsBtn').addEventListener('click', () => {
-        document.querySelector('[data-tab="operations"]').click();
-    });
-    document.getElementById('likeVideoBtn').addEventListener('click', (e) => likeVideo(e.currentTarget));
-    document.getElementById('openAccountModalBtn').addEventListener('click', () => openModal('modalAccount'));
-    document.getElementById('closeAccountModalBtn').addEventListener('click', () => closeModal('modalAccount'));
-    document.getElementById('logoutBtn').addEventListener('click', secureLogout);
+    // الهيدر والنافذة العلوية
+    document.getElementById('openAiEyeBtn').addEventListener('click', () => openModal('modalAiEye'));
+    document.getElementById('openSupportBtn').addEventListener('click', () => openModal('modalSupport'));
+    document.getElementById('sendSupportBtn').addEventListener('click', sendSupportMessage);
 
-    // العمليات والبث
-    document.getElementById('startStudioBtn').addEventListener('click', startLiveStudio);
-    document.getElementById('toggleMapBtn').addEventListener('click', openMap);
-    document.getElementById('startLiveBtn').addEventListener('click', startLiveBroadcast);
-    document.getElementById('exitCamBtn').addEventListener('click', exitFullScreen);
-    document.getElementById('endLiveBtn').addEventListener('click', endLiveBroadcast);
-    document.getElementById('sendLiveLikeBtn').addEventListener('click', sendLiveLike);
-    document.getElementById('sendCommentBtn').addEventListener('click', sendLiveCommentMsg);
+    // قسم العمليات
+    document.getElementById('opLiveBtn').addEventListener('click', () => { document.querySelector('[data-tab="create"]').click(); startCameraStudio(); });
+    document.getElementById('opInboxBtn').addEventListener('click', () => { document.querySelector('[data-tab="inbox"]').click(); });
+    document.getElementById('opMapBtn').addEventListener('click', toggleMapOffline);
+    document.getElementById('opQrBtn').addEventListener('click', generateOperationsQR);
 
-    // النشر والصندوق الوارد
-    document.getElementById('publishPostBtn').addEventListener('click', () => publishPost('post'));
-    document.getElementById('publishVideoBtn').addEventListener('click', () => publishPost('video'));
-    document.getElementById('sendInboxBtn').addEventListener('click', sendInboxMsg);
+    // الإنشاء والكاميرا
+    document.getElementById('openCamStudioBtn').addEventListener('click', startCameraStudio);
+    document.getElementById('startLiveStudioBtn').addEventListener('click', startCameraStudio);
+    document.getElementById('exitCamBtn').addEventListener('click', closeCameraStudio);
+    document.getElementById('closeCamStudioBtn').addEventListener('click', closeCameraStudio);
+    document.getElementById('toggleFlashBtn').addEventListener('click', toggleFlashlight);
+    document.getElementById('sendLiveHeartBtn').addEventListener('click', () => { liveLikesCount++; document.getElementById('liveHeartCount').innerText = liveLikesCount; });
+    document.getElementById('sendLiveCommentBtn').addEventListener('click', sendLiveComment);
+    document.getElementById('publishTextBtn').addEventListener('click', () => { showToast("📢 تم نشر المنشور السيادي بنجاح"); document.getElementById('postContentInput').value = ""; });
 
-    // الحساب والختم
-    document.getElementById('generateQRBtn').addEventListener('click', generateQR);
-    document.getElementById('shareProfileBtn').addEventListener('click', shareProfileLink);
-    document.getElementById('saveAccountBtn').addEventListener('click', saveAccountSettings);
+    // الوارد
+    document.getElementById('sendInboxMsgBtn').addEventListener('click', sendInboxMessage);
+
+    // الملف الشخصي
+    document.getElementById('logoutProfileBtn').addEventListener('click', logoutSystem);
+
+    // توليد QR الأولي
+    generateInitialQR();
 });
 
 function switchAuthTab(tab) {
@@ -92,9 +92,9 @@ function processLogin() {
     }
 
     authMsg.innerText = "";
-    showToast("✨ تم الدخول بنجاح!");
+    showToast("✨ أهلاً بك يا أبو سلمان في القلعة!");
     document.getElementById('authGate').classList.add('hidden');
-    document.getElementById('homeUsername').innerText = "@" + userField;
+    document.getElementById('homeUsernameDisplay').innerText = "@" + userField + " 👑";
 }
 
 function processGoogleLogin() {
@@ -115,10 +115,6 @@ function openTab(tabName, clickedBtn) {
     const targetTab = document.getElementById('tab-' + tabName);
     if (targetTab) targetTab.classList.remove('hidden');
 
-    if (tabName !== 'operations' && tabName !== 'create') {
-        stopCameraFeed();
-    }
-
     if (clickedBtn) {
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-cyan-400', 'text-slate-400'));
         clickedBtn.classList.replace('text-slate-400', 'text-cyan-400');
@@ -134,99 +130,115 @@ function showToast(message) {
     setTimeout(() => alertDiv.remove(), 2500);
 }
 
-function likeVideo(btn) {
-    const countSpan = btn.querySelector('.like-count');
-    let count = parseInt(countSpan.innerText);
-    count++;
-    countSpan.innerText = count;
-    showToast("❤️ تم إبداء الإعجاب");
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+function generateInitialQR() {
+    const box = document.getElementById('operationsQrBox');
+    if (box && box.children.length === 0) {
+        new QRCode(box, {
+            text: "https://tarimos.org/?sovereign=al",
+            width: 100,
+            height: 100,
+            colorDark: "#000000",
+            colorLight: "#ffffff"
+        });
+    }
 }
 
-function generateQR() {
-    const qrcodeContainer = document.getElementById('qrcode');
-    qrcodeContainer.innerHTML = "";
-    new QRCode(qrcodeContainer, {
-        text: "https://tarimos.org/?ref=sovereign_al",
-        width: 120,
-        height: 120,
-        colorDark: "#00f0ff",
-        colorLight: "#030b1a"
-    });
-    showToast("🖨️ تم إصدار الختم QR");
+function generateOperationsQR() {
+    showToast("🧾 تم إصدار الختم الميداني بنجاح");
 }
 
-function openMap() {
-    const mapCont = document.getElementById('mapContainer');
-    mapCont.classList.toggle('hidden');
-    if (!mapCont.classList.contains('hidden') && !mapInstance) {
+function toggleMapOffline() {
+    const mapEl = document.getElementById('mapContainer');
+    mapEl.classList.toggle('hidden');
+    if (!mapEl.classList.contains('hidden') && !mapInstance) {
         setTimeout(() => {
-            mapInstance = L.map('map').setView([16.0042, 48.9814], 13);
+            mapInstance = L.map('mapContainer').setView([16.0042, 48.9814], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
-            L.marker([16.0042, 48.9814]).addTo(mapInstance).bindPopup('تريم - حضرموت').openPopup();
+            L.marker([16.0042, 48.9814]).addTo(mapInstance).bindPopup('تريم - حضرموت التاريخية').openPopup();
         }, 300);
     }
 }
 
-function sendInboxMsg() {
-    const input = document.getElementById('inboxInput');
-    if (!input.value.trim()) return;
-    const inboxList = document.getElementById('inboxMessages');
-    inboxList.innerHTML += `<div class="glass p-2.5 rounded-xl text-xs text-cyan-200 text-left"><b>أبو سلمان:</b> ${input.value}</div>`;
-    input.value = "";
-    showToast("🚀 تم الإرسال");
-}
-
-function startLiveStudio() {
+function startCameraStudio() {
     document.getElementById('fullScreenCam').classList.remove('hidden');
-    document.getElementById('preLiveOverlay').classList.remove('hidden');
+    document.getElementById('liveChatOverlay').classList.remove('hidden');
+    
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: true })
+        .then(stream => {
+            localStream = stream;
+            document.getElementById('fullCamVideo').srcObject = stream;
+        })
+        .catch(() => {
+            showToast("⚠️ تشغيل وضع محاكاة الكاميرا الميدانية");
+        });
 }
 
-function startLiveBroadcast() {
-    document.getElementById('preLiveOverlay').classList.add('hidden');
-    document.getElementById('liveChatBox').classList.remove('hidden');
-    showToast("🔴 بدأ البث المباشر!");
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-        .then(stream => { localStream = stream; document.getElementById('fullCamVideo').srcObject = stream; })
-        .catch(() => showToast("⚠️ يعمل البث بوضع المحاكاة"));
+function closeCameraStudio() {
+    if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+    }
+    document.getElementById('fullScreenCam').classList.add('hidden');
 }
 
-function endLiveBroadcast() { stopCameraFeed(); document.getElementById('fullScreenCam').classList.add('hidden'); }
-function exitFullScreen() { stopCameraFeed(); document.getElementById('fullScreenCam').classList.add('hidden'); }
-function stopCameraFeed() { if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; } }
-
-function sendLiveLike() {
-    liveLikes++;
-    document.getElementById('liveLikesCount').innerText = liveLikes;
+async function toggleFlashlight() {
+    if (!localStream) {
+        showToast("⚠️ افتح الكاميرا أولاً لتفعيل الفلاش");
+        return;
+    }
+    try {
+        const track = localStream.getVideoTracks()[0];
+        const capabilities = track.getCapabilities();
+        if (capabilities.torch) {
+            flashState = !flashState;
+            await track.applyConstraints({ advanced: [{ torch: flashState }] });
+            document.getElementById('toggleFlashBtn').innerText = flashState ? "🔦 فلاش: مفعل" : "🔦 فلاش: معطل";
+            showToast(flashState ? "💡 تم تشغيل الفلاش" : "💡 تم إطفاء الفلاش");
+        } else {
+            showToast("⚠️ الفلاش غير مدعوم في هذا الجهاز");
+        }
+    } catch (e) {
+        showToast("⚠️ تعذر تشغيل فلاش الكاميرا");
+    }
 }
 
-function sendLiveCommentMsg() {
+function sendLiveComment() {
     const input = document.getElementById('liveCommentInput');
-    if(!input.value.trim()) return;
-    document.getElementById('liveCommentsList').innerHTML += `<div class="text-xs text-cyan-300 bg-black/60 p-1.5 rounded"><b>أبو سلمان:</b> ${input.value}</div>`;
+    if (!input.value.trim()) return;
+    const box = document.getElementById('liveCommentsBox');
+    box.innerHTML += `<div class="text-xs text-cyan-300 bg-black/70 p-1.5 rounded"><b>أبو سلمان:</b> ${input.value}</div>`;
     input.value = "";
 }
 
-function publishPost(type) {
-    showToast(type === 'post' ? "📢 تم نشر المنشور بنجاح" : "🎥 تم رفع الفيديو بنجاح");
-    document.getElementById('postDescInput').value = "";
+function sendInboxMessage() {
+    const input = document.getElementById('inboxInputField');
+    if (!input.value.trim()) return;
+    const list = document.getElementById('inboxMessagesList');
+    list.innerHTML += `<div class="glass p-2.5 rounded-xl text-xs text-cyan-200 text-left"><b>أبو سلمان:</b> ${input.value}</div>`;
+    input.value = "";
+    showToast("🚀 تم إرسال الرسالة السيادية");
 }
 
-function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function sendSupportMessage() {
+    const input = document.getElementById('supportInput');
+    if (!input.value.trim()) return;
+    const list = document.getElementById('supportChatList');
+    list.innerHTML += `<div class="bg-slate-800 text-white p-2.5 rounded-xl text-right"><b>أبو سلمان:</b> ${input.value}</div>`;
+    
+    setTimeout(() => {
+        list.innerHTML += `<div class="bg-blue-500/20 text-blue-200 p-2.5 rounded-xl border border-blue-500/30"><b>فريق الدعم الذكي:</b> تم استلام استفسارك يا أبو سلمان، النظام السيادي يعمل بكفاءة كاملة.</div>`;
+        list.scrollTop = list.scrollHeight;
+    }, 800);
 
-function saveAccountSettings() {
-    document.getElementById('profileNameDisplay').innerText = document.getElementById('editNameInput').value;
-    document.getElementById('profileEmailDisplay').innerText = document.getElementById('editEmailInput').value;
-    closeModal('modalAccount');
-    showToast("✅ تم الحفظ");
+    input.value = "";
+    list.scrollTop = list.scrollHeight;
 }
 
-function shareProfileLink() {
-    navigator.clipboard.writeText("https://tarimos.org/@sovereign_al");
-    showToast("🔗 تم النسخ");
+function logoutSystem() {
+    if (confirm("هل تريد تسجيل الخروج من القلعة؟")) {
+        document.getElementById('authGate').classList.remove('hidden');
+    }
 }
-
-function secureLogout() {
-    if(confirm("تسجيل الخروج؟")) document.getElementById('authGate').classList.remove('hidden');
-}
-
