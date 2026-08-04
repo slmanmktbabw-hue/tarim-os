@@ -7,8 +7,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// تقديم الملفات الثابتة (HTML, CSS, JS) من المجلد الحالي
-app.use(express.static(path.join(__dirname)));
+// تقديم الملفات الثابتة (HTML, CSS, JS) من مجلد public مباشرة
+app.use(express.static(path.join(__dirname, 'public')));
 
 // مسار رئيسي اختباري للتأكد من عمل السيرفر
 app.get('/health', (req, res) => {
