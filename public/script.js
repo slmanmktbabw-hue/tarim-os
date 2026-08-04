@@ -13,14 +13,15 @@ let liveLikesCount = 0;
 let liveTimerInterval = null;
 let liveSeconds = 0;
 
-// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
+// تجاوز شاشة تسجيل الدخول تلقائياً عند تحميل الصفحة لضمان عمل كافة الأزرار والتطبيق فوراً
 window.addEventListener('DOMContentLoaded', () => {
-  if(localStorage.getItem('tarim_logged_in') === 'true'){
-    const authGate = document.getElementById('authGate');
-    if(authGate) authGate.style.display = 'none';
-    updateProfileUI();
-    renderSavedMedia();
+  localStorage.setItem('tarim_logged_in', 'true');
+  const authGate = document.getElementById('authGate');
+  if(authGate){
+    authGate.style.display = 'none'; // إخفاء بوابة الدخول لتفتح الواجهة الرئيسية مباشرة
   }
+  updateProfileUI();
+  renderSavedMedia();
 });
 
 function showToast(msg){
@@ -297,4 +298,4 @@ function updateAccountInfo() {
     updateProfileUI();
     showToast('تم تحديث بيانات الحساب بنجاح 👤');
   }
-}
+  }
