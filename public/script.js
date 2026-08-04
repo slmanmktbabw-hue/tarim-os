@@ -1,6 +1,6 @@
 const socket = io();
 
-// تحميل بيانات المستخدم والمنشورات المخزنة محلياً (localStorage) لتجنب ضياعها
+// تحميل بيانات المستخدم والمنشورات المخزنة محلياً
 let currentUser = localStorage.getItem('tarim_user') || 'slmanmktbabw@gmail.com';
 let savedMediaList = JSON.parse(localStorage.getItem('tarim_media')) || [
   { type: 'video', author: 'slmanmktbabw@gmail.com', content: 'فيديو سيادي مسجل ومحفوظ على سيرفرات TARIM OS 🎥', date: '2026-08-04' },
@@ -13,12 +13,12 @@ let liveLikesCount = 0;
 let liveTimerInterval = null;
 let liveSeconds = 0;
 
-// تجاوز شاشة تسجيل الدخول تلقائياً عند تحميل الصفحة لضمان عمل كافة الأزرار والتطبيق فوراً
+// تجاوز شاشة تسجيل الدخول وإخفاؤها تماماً فور تحميل الصفحة
 window.addEventListener('DOMContentLoaded', () => {
   localStorage.setItem('tarim_logged_in', 'true');
   const authGate = document.getElementById('authGate');
   if(authGate){
-    authGate.style.display = 'none'; // إخفاء بوابة الدخول لتفتح الواجهة الرئيسية مباشرة
+    authGate.style.display = 'none'; // إخفاء شاشة تسجيل الدخول وفتح المنصة مباشرة
   }
   updateProfileUI();
   renderSavedMedia();
@@ -50,7 +50,6 @@ function openTab(tabName, event) {
   if(tabName === 'home') renderSavedMedia();
 }
 
-// ضبط وإدارة تسجيل الدخول
 function requestOTP(){
   const inputField = document.getElementById('userPhoneOrEmail');
   if(!inputField || !inputField.value.trim()) {
@@ -66,22 +65,14 @@ function requestOTP(){
 }
 
 function verifyOTP(){
-  const otpInput = document.getElementById('otpCodeInput');
-  if(!otpInput || otpInput.value.trim().length < 4) {
-    showToast('أدخل رمز التحقق المكون من 4 أرقام');
-    return;
-  }
-
-  // تخزين بيانات المستخدم بشكل دائم
   localStorage.setItem('tarim_logged_in', 'true');
   localStorage.setItem('tarim_user', currentUser);
-
   const authGate = document.getElementById('authGate');
   if(authGate) authGate.style.display = 'none';
   socket.emit('registerSocket', currentUser);
   updateProfileUI();
   renderSavedMedia();
-  showToast('تم تسجيل الدخول وحفظ بيانات المستخدم بنجاح! 🔑');
+  showToast('تم تسجيل الدخول بنجاح! 🔑');
 }
 
 function backToCredentials(){
@@ -98,38 +89,34 @@ function updateProfileUI(){
   if(profileName) profileName.innerText = currentUser;
 }
 
-// تفعيل عين الذكاء وفريق الدعم
 let aiEyeActive = false;
 function toggleAIEye(){
   aiEyeActive = !aiEyeActive;
-  showToast(aiEyeActive ? 'عين الذكاء: مراقبة نشطة ومرتبطة بفريق الدعم السيادي 👁️🛡️' : 'عين الذكاء: في وضع الاستعداد');
+  showToast(aiEyeActive ? 'عين الذكاء: مراقبة نشطة 👁️🛡️' : 'عين الذكاء: في وضع الاستعداد');
 }
 
 let supportActive = false;
 function toggleSupportAI(){
   supportActive = !supportActive;
-  showToast(supportActive ? 'فريق الدعم السيادي متصل الآن ويتولى التنسيق مع عين الذكاء الاصطناعي 🛡️🤖' : 'فريق الدعم أغلق الجلسة المباشرة');
+  showToast(supportActive ? 'فريق الدعم السيادي متصل الآن 🛡️🤖' : 'فريق الدعم أغلق الجلسة');
 }
 
-// نشر وحفظ المنشورات والفيديوهات وتخزينها محلياً
 function publishPost(type){
   const desc = document.getElementById('postDescInput');
   if(!desc || !desc.value.trim()) {
-    showToast('اكتب محتوى المنشور أو الفيديو أولاً');
+    showToast('اكتب محتوى المنشور أولاً');
     return;
   }
-
   const newMedia = {
     type: type,
     author: currentUser,
     content: desc.value.trim(),
     date: new Date().toISOString().split('T')[0]
   };
-
   savedMediaList.unshift(newMedia);
-  localStorage.setItem('tarim_media', JSON.stringify(savedMediaList)); // حفظ دائم
+  localStorage.setItem('tarim_media', JSON.stringify(savedMediaList));
   desc.value = '';
-  showToast(type === 'media' ? '✨ تم حفظ الفيديو في تخزين النظام بنجاح!' : '✨ تم نشر المنشور وحفظه بنجاح!');
+  showToast('✨ تم النشر والحفظ بنجاح!');
   renderSavedMedia();
 }
 
@@ -137,12 +124,10 @@ function renderSavedMedia(){
   const feed = document.getElementById('savedMediaFeed');
   if(!feed) return;
   feed.innerHTML = '';
-  
   if(savedMediaList.length === 0){
-    feed.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">لا توجد منشورات أو فيديوهات محفوظة حالياً.</p>';
+    feed.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">لا توجد منشورات محفوظة حالياً.</p>';
     return;
   }
-
   savedMediaList.forEach((item, index) => {
     const div = document.createElement('div');
     div.className = 'glass p-3 rounded-xl border border-cyan-500/20 space-y-2 text-right';
@@ -153,7 +138,7 @@ function renderSavedMedia(){
       </div>
       <p class="text-xs text-cyan-100">${item.content}</p>
       <div class="flex justify-end gap-2 pt-1">
-        <button onclick="showToast('تمت مشاهدة المحتوى بنجاح 👀')" class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded border border-cyan-500/30">مشاهدة 👀</button>
+        <button onclick="showToast('تمت مشاهدة المحتوى 👀')" class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded border border-cyan-500/30">مشاهدة 👀</button>
         <button onclick="deleteMedia(${index})" class="text-[10px] bg-red-500/20 text-red-300 px-2.5 py-1 rounded border border-red-500/30">حذف 🗑️</button>
       </div>
     `;
@@ -164,39 +149,34 @@ function renderSavedMedia(){
 function deleteMedia(index){
   savedMediaList.splice(index, 1);
   localStorage.setItem('tarim_media', JSON.stringify(savedMediaList));
-  showToast('تم حذف المحتوى بنجاح');
+  showToast('تم الحذف بنجاح');
   renderSavedMedia();
 }
 
-// أزرار الملفات والإعدادات الفعالة
 function generateQR(){
   const qrcodeContainer = document.getElementById('qrcode');
   if(qrcodeContainer) {
     qrcodeContainer.innerHTML = '';
     new QRCode(qrcodeContainer, { text: window.location.href, width: 128, height: 128, colorDark : "#00f0ff", colorLight : "#0f172a" });
-    showToast('تم إصدار وعرض رمز QR الميداني بنجاح 🧾');
+    showToast('تم إصدار رمز QR بنجاح 🧾');
   }
 }
 
 function changeBackgroundProfile(){ 
   document.body.style.background = `linear-gradient(135deg, #${Math.floor(Math.random()*16777215).toString(16)}, #030B1A)`; 
-  showToast('تم تغيير خلفية النظام بنجاح 🎨'); 
+  showToast('تم تغيير الخلفية بنجاح 🎨'); 
 }
 
 function shareProfile(){ 
   navigator.clipboard.writeText(window.location.origin + '/user/' + currentUser); 
-  showToast('تم نسخ رابط ملفك الشخصي الملكي 🔗'); 
+  showToast('تم نسخ الرابط 🔗'); 
 }
 
 function logout(){ 
   localStorage.removeItem('tarim_logged_in');
   const authGate = document.getElementById('authGate');
   if(authGate) authGate.style.display = 'flex'; 
-  const stepOTP = document.getElementById('stepOTP');
-  const stepCred = document.getElementById('stepCredentials');
-  if(stepOTP) stepOTP.classList.add('hidden');
-  if(stepCred) stepCred.classList.remove('hidden');
-  showToast('تم تسجيل الخروج بنجاح 🚪'); 
+  showToast('تم تسجيل الخروج 🚪'); 
 }
 
 function openMap(){
@@ -213,7 +193,6 @@ function openMap(){
   }
 }
 
-// البث المباشر
 function startLiveStudio(){
   const fullCam = document.getElementById('fullScreenCam');
   const preLive = document.getElementById('preLiveOverlay');
@@ -229,10 +208,10 @@ async function confirmStartLive(){
     const fullCamVideo = document.getElementById('fullCamVideo');
     if(fullCamVideo) fullCamVideo.srcObject = liveStream;
     startLiveTimer();
-    showToast('🔴 بدأ البث المباشر السيادي بنجاح!');
+    showToast('🔴 بدأ البث المباشر بنجاح!');
   } catch(e) {
     startLiveTimer();
-    showToast('تم تفعيل محاكاة البث المباشر السيادي الاحترافي 🔴');
+    showToast('تم تفعيل محاكاة البث المباشر 🔴');
   }
 }
 
@@ -253,7 +232,7 @@ function exitFullScreen(){
   if(liveTimerInterval) clearInterval(liveTimerInterval);
   const fullCam = document.getElementById('fullScreenCam');
   if(fullCam) fullCam.classList.add('hidden');
-  showToast('تم إنهاء البث المباشر');
+  showToast('تم إنهاء البث');
 }
 
 function sendInboxMsg(){
@@ -266,7 +245,7 @@ function sendInboxMsg(){
   box.appendChild(div);
   input.value = '';
   box.scrollTop = box.scrollHeight;
-  showToast('تم إرسال الرسالة بنجاح 💬');
+  showToast('تم إرسال الرسالة 💬');
 }
 
 function openModal(modalId) {
@@ -296,6 +275,6 @@ function updateAccountInfo() {
     currentUser = emailInput.value.trim();
     localStorage.setItem('tarim_user', currentUser);
     updateProfileUI();
-    showToast('تم تحديث بيانات الحساب بنجاح 👤');
+    showToast('تم تحديث الحساب بنجاح 👤');
   }
-    }
+        }
