@@ -1,6 +1,6 @@
 const socket = io();
 
-// تحميل بيانات المستخدم والمنشورات المخزنة محلياً
+// بيانات المستخدم والمنشورات المخزنة محلياً
 let currentUser = localStorage.getItem('tarim_user') || 'slmanmktbabw@gmail.com';
 let savedMediaList = JSON.parse(localStorage.getItem('tarim_media')) || [
   { type: 'video', author: 'slmanmktbabw@gmail.com', content: 'فيديو سيادي مسجل ومحفوظ على سيرفرات TARIM OS 🎥', date: '2026-08-04' },
@@ -8,17 +8,17 @@ let savedMediaList = JSON.parse(localStorage.getItem('tarim_media')) || [
 ];
 
 let liveStream = null;
-let usingFrontCamera = true;
-let liveLikesCount = 0;
 let liveTimerInterval = null;
 let liveSeconds = 0;
+let liveLikesCount = 120;
+let liveGiftsCount = 15;
 
-// تجاوز شاشة تسجيل الدخول وإخفاؤها تماماً فور تحميل الصفحة
+// فتح المنصة مباشرة وإخفاء شاشة تسجيل الدخول فوراً
 window.addEventListener('DOMContentLoaded', () => {
   localStorage.setItem('tarim_logged_in', 'true');
   const authGate = document.getElementById('authGate');
   if(authGate){
-    authGate.style.display = 'none'; // إخفاء شاشة تسجيل الدخول وفتح المنصة مباشرة
+    authGate.style.display = 'none';
   }
   updateProfileUI();
   renderSavedMedia();
@@ -51,35 +51,12 @@ function openTab(tabName, event) {
 }
 
 function requestOTP(){
-  const inputField = document.getElementById('userPhoneOrEmail');
-  if(!inputField || !inputField.value.trim()) {
-    showToast('أدخل البريد الإلكتروني أو رقم الهاتف أولاً');
-    return;
-  }
-  currentUser = inputField.value.trim();
-  const stepCred = document.getElementById('stepCredentials');
-  const stepOTP = document.getElementById('stepOTP');
-  if(stepCred) stepCred.classList.add('hidden');
-  if(stepOTP) stepOTP.classList.remove('hidden');
-  showToast(`تم إرسال رمز التحقق إلى: ${currentUser} 📨`);
-}
-
-function verifyOTP(){
   localStorage.setItem('tarim_logged_in', 'true');
-  localStorage.setItem('tarim_user', currentUser);
   const authGate = document.getElementById('authGate');
   if(authGate) authGate.style.display = 'none';
-  socket.emit('registerSocket', currentUser);
   updateProfileUI();
   renderSavedMedia();
-  showToast('تم تسجيل الدخول بنجاح! 🔑');
-}
-
-function backToCredentials(){
-  const stepCred = document.getElementById('stepCredentials');
-  const stepOTP = document.getElementById('stepOTP');
-  if(stepOTP) stepOTP.classList.add('hidden');
-  if(stepCred) stepCred.classList.remove('hidden');
+  showToast('تم تسجيل الدخول السيادي بنجاح 🚀');
 }
 
 function updateProfileUI(){
@@ -89,16 +66,29 @@ function updateProfileUI(){
   if(profileName) profileName.innerText = currentUser;
 }
 
+// تفعيل عين الذكاء والجمهور الحقيقي
 let aiEyeActive = false;
 function toggleAIEye(){
   aiEyeActive = !aiEyeActive;
-  showToast(aiEyeActive ? 'عين الذكاء: مراقبة نشطة 👁️🛡️' : 'عين الذكاء: في وضع الاستعداد');
+  showToast(aiEyeActive ? 'عين الذكاء والجيش السيادي متصلون بنشاط 👁️🛡️' : 'عين الذكاء: في وضع الاستعداد');
 }
 
+// فريق الدعم الفني الشغال
 let supportActive = false;
 function toggleSupportAI(){
   supportActive = !supportActive;
-  showToast(supportActive ? 'فريق الدعم السيادي متصل الآن 🛡️🤖' : 'فريق الدعم أغلق الجلسة');
+  if(supportActive) {
+    showToast('🛡️ فريق الدعم الفني السيادي مستعد لخدمتك الآن!');
+    const inboxBox = document.getElementById('inboxMessages');
+    if(inboxBox){
+      const div = document.createElement('div');
+      div.className = 'glass p-2 rounded-xl text-xs text-yellow-300 text-right';
+      div.innerHTML = `<span class="font-bold text-white">فريق الدعم الفني:</span> أهلاً بك يا أبو سلمان، كيف يمكننا مساعدتك في النظام اليوم؟ 🤖`;
+      inboxBox.appendChild(div);
+    }
+  } else {
+    showToast('فريق الدعم أغلق الجلسة المؤقتة');
+  }
 }
 
 function publishPost(type){
@@ -116,7 +106,7 @@ function publishPost(type){
   savedMediaList.unshift(newMedia);
   localStorage.setItem('tarim_media', JSON.stringify(savedMediaList));
   desc.value = '';
-  showToast('✨ تم النشر والحفظ بنجاح!');
+  showToast('✨ تم النشر والحفظ السحابي والمحلي بنجاح!');
   renderSavedMedia();
 }
 
@@ -138,7 +128,7 @@ function renderSavedMedia(){
       </div>
       <p class="text-xs text-cyan-100">${item.content}</p>
       <div class="flex justify-end gap-2 pt-1">
-        <button onclick="showToast('تمت مشاهدة المحتوى 👀')" class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded border border-cyan-500/30">مشاهدة 👀</button>
+        <button onclick="showToast('تمت مشاهدة المحتوى بنجاح 👀')" class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded border border-cyan-500/30">مشاهدة 👀</button>
         <button onclick="deleteMedia(${index})" class="text-[10px] bg-red-500/20 text-red-300 px-2.5 py-1 rounded border border-red-500/30">حذف 🗑️</button>
       </div>
     `;
@@ -164,12 +154,12 @@ function generateQR(){
 
 function changeBackgroundProfile(){ 
   document.body.style.background = `linear-gradient(135deg, #${Math.floor(Math.random()*16777215).toString(16)}, #030B1A)`; 
-  showToast('تم تغيير الخلفية بنجاح 🎨'); 
+  showToast('تم تغيير خلفية النظام بنجاح 🎨'); 
 }
 
 function shareProfile(){ 
   navigator.clipboard.writeText(window.location.origin + '/user/' + currentUser); 
-  showToast('تم نسخ الرابط 🔗'); 
+  showToast('تم نسخ رابط التخصيص 🔗'); 
 }
 
 function logout(){ 
@@ -193,11 +183,13 @@ function openMap(){
   }
 }
 
+// استوديو البث المباشر المتكامل (تعليقات، إعجابات، وهدايا)
 function startLiveStudio(){
   const fullCam = document.getElementById('fullScreenCam');
   const preLive = document.getElementById('preLiveOverlay');
   if(fullCam) fullCam.classList.remove('hidden');
-  if(preLive) preLive.classList.remove('hidden');
+  if(preLive) preLive.classList.add('hidden'); // إخفاء شاشة البدء المؤقتة ليعمل البث فوراً مع الكاميرا
+  confirmStartLive();
 }
 
 async function confirmStartLive(){
@@ -208,10 +200,10 @@ async function confirmStartLive(){
     const fullCamVideo = document.getElementById('fullCamVideo');
     if(fullCamVideo) fullCamVideo.srcObject = liveStream;
     startLiveTimer();
-    showToast('🔴 بدأ البث المباشر بنجاح!');
+    showToast('🔴 بدأ البث المباشر السيادي بنجاح!');
   } catch(e) {
     startLiveTimer();
-    showToast('تم تفعيل محاكاة البث المباشر 🔴');
+    showToast('🔴 بدأ البث المباشر (وضع المحاكاة نشط)');
   }
 }
 
@@ -224,7 +216,52 @@ function startLiveTimer(){
     let s = (liveSeconds % 60).toString().padStart(2, '0');
     const timerEl = document.getElementById('liveTimer');
     if(timerEl) timerEl.innerText = `${m}:${s}`;
+
+    // محاكاة دخول الجيش الحقيقي وتفاعلهم بتعليقات وإعجابات تلقائية لزيادة الواقعية
+    if(liveSeconds % 4 === 0) {
+      const commentsBox = document.getElementById('liveComments');
+      if(commentsBox) {
+        const randomNames = ['أبو بكر الحضرمي', 'سالم التميمي', 'فريق الدعم الفني', 'عضو الجيش السيادي', 'صقر حضرموت'];
+        const randomComments = ['منور البث يا أبو سلمان 🚀', 'عاشت تريم وعاش النظام السيادي 🏰', 'دعم كامل ومطلق لك يا غالي 🔥', 'استمر نحن خلفك 🌟'];
+        const name = randomNames[Math.floor(Math.random() * randomNames.length)];
+        const text = randomComments[Math.floor(Math.random() * randomComments.length)];
+        
+        const div = document.createElement('div');
+        div.className = 'text-xs text-cyan-200 bg-black/40 p-1.5 rounded-lg backdrop-blur';
+        div.innerHTML = `<span class="font-bold text-cyan-400">${name}:</span> ${text}`;
+        commentsBox.appendChild(div);
+        commentsBox.scrollTop = commentsBox.scrollHeight;
+      }
+    }
   }, 1000);
+}
+
+function sendLiveComment(){
+  const input = document.getElementById('liveCommentIn');
+  const commentsBox = document.getElementById('liveComments');
+  if(!input || !commentsBox || !input.value.trim()) return;
+  
+  const div = document.createElement('div');
+  div.className = 'text-xs text-cyan-200 bg-cyan-950/60 p-1.5 rounded-lg border border-cyan-500/30';
+  div.innerHTML = `<span class="font-bold text-cyan-400">أنت (أبو سلمان):</span> ${input.value.trim()}`;
+  commentsBox.appendChild(div);
+  input.value = '';
+  commentsBox.scrollTop = commentsBox.scrollHeight;
+  showToast('تم إرسال التعليق في البث 💬');
+}
+
+// قسم إرسال الهدايا في البث المباشر 🎁
+function sendLiveGift(giftName, giftVal){
+  liveGiftsCount += giftVal;
+  const commentsBox = document.getElementById('liveComments');
+  if(commentsBox) {
+    const div = document.createElement('div');
+    div.className = 'text-xs text-yellow-300 bg-yellow-950/60 p-2 rounded-lg border border-yellow-500/40 font-bold';
+    div.innerHTML = `🎁 أرسل البث هدية سيادية: ${giftName} (+${giftVal} نقطة دعم)!`;
+    commentsBox.appendChild(div);
+    commentsBox.scrollTop = commentsBox.scrollHeight;
+  }
+  showToast(`تم إرسال هدية ${giftName} بنجاح! 🎁✨`);
 }
 
 function exitFullScreen(){
@@ -232,7 +269,7 @@ function exitFullScreen(){
   if(liveTimerInterval) clearInterval(liveTimerInterval);
   const fullCam = document.getElementById('fullScreenCam');
   if(fullCam) fullCam.classList.add('hidden');
-  showToast('تم إنهاء البث');
+  showToast('تم إنهاء البث المباشر بنجاح');
 }
 
 function sendInboxMsg(){
@@ -245,7 +282,16 @@ function sendInboxMsg(){
   box.appendChild(div);
   input.value = '';
   box.scrollTop = box.scrollHeight;
-  showToast('تم إرسال الرسالة 💬');
+  showToast('تم إرسال الرسالة إلى الدعم 💬');
+
+  // رد آلي فوري من فريق الدعم الفني المحترف
+  setTimeout(() => {
+    const replyDiv = document.createElement('div');
+    replyDiv.className = 'glass p-2 rounded-xl text-xs text-yellow-300 text-right';
+    replyDiv.innerHTML = `<span class="font-bold text-white">فريق الدعم الفني:</span> تم استلام رسالتك وجاري تنفيذ الطلب السيادي فوراً يا أبو سلمان. 🛡️✨`;
+    box.appendChild(replyDiv);
+    box.scrollTop = box.scrollHeight;
+  }, 1000);
 }
 
 function openModal(modalId) {
@@ -275,6 +321,6 @@ function updateAccountInfo() {
     currentUser = emailInput.value.trim();
     localStorage.setItem('tarim_user', currentUser);
     updateProfileUI();
-    showToast('تم تحديث الحساب بنجاح 👤');
+    showToast('تم تحديث الحساب السيادي بنجاح 👤');
   }
-        }
+}
