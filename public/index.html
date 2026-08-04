@@ -3,52 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TARIM OS - النظام السيادي المتقدم</title>
+    <title>TARIM OS - النظام السيادي</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
-        body { font-family: 'Cairo', sans-serif; background: #030B1A; }
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
-        .service-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(0, 240, 255, 0.15); padding: 12px 16px; border-radius: 12px; color: #E0F2FE; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .service-btn:hover { background: rgba(0, 240, 255, 0.1); border-color: rgba(0, 240, 255, 0.4); }
+      .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
+      body { font-family: 'Cairo', sans-serif; background: #030B1A; color: #ffffff; }
+      .service-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(15, 23, 42, 0.8); padding: 12px; border-radius: 12px; border: 1px solid rgba(0, 240, 255, 0.2); margin-bottom: 8px; transition: 0.3s; }
+      .service-btn:hover { background: rgba(0, 240, 255, 0.1); border-color: rgba(0, 240, 255, 0.4); }
     </style>
 </head>
 <body class="text-white min-h-screen flex flex-col justify-between select-none pb-24">
 
-    <!-- بوابة المصادقة وتسجيل الدخول (تمت برمجتها لتختفي تلقائياً عند الدخول لتسهيل التصفح) -->
+    <!-- بوابة المصادقة وتسجيل الدخول (تختفي فوراً عند التحميل أو الضغط) -->
     <div id="authGate" class="fixed inset-0 bg-[#030B1A] z-50 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-sm p-6 rounded-2xl border border-cyan-500/40 text-center space-y-4 shadow-2xl">
-            <div class="text-3xl font-black text-cyan-400">TARIM OS 🏰</div>
+        <div class="glass w-full max-w-sm p-6 rounded-2xl border border-cyan-500/40 space-y-4 shadow-2xl text-center">
+            <div class="text-3xl">🏰 TARIM OS</div>
             <div class="text-xs text-slate-400">النظام السيادي لتنظيم الجمهور - tarimos.org</div>
             
             <div id="stepCredentials" class="space-y-3">
-                <input id="userPhoneOrEmail" type="text" value="slmanmktbabw@gmail.com" placeholder="البريد الإلكتروني أو رقم الهاتف" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-xs text-cyan-300 outline-none text-right">
-                <input id="userPass" type="password" placeholder="كلمة المرور" value="123456" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-xs text-cyan-300 outline-none text-right">
-                <button onclick="requestOTP()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl shadow-lg transition-all">إرسال رمز التحقق (OTP) 📨</button>
+                <input id="userPhoneOrEmail" type="text" value="slmanmktbabw@gmail.com" placeholder="البريد الإلكتروني أو رقم الهاتف" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 text-center">
+                <input id="userPass" type="password" value="123456" placeholder="كلمة المرور" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 text-center">
+                <button onclick="requestOTP()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl transition shadow-lg shadow-cyan-500/20">إرسال رمز التحقق (OTP) 📨</button>
             </div>
 
             <div id="stepOTP" class="hidden space-y-3">
-                <p class="text-xs text-cyan-300">تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح!</p>
-                <input id="otpCodeInput" type="text" placeholder="أدخل رمز التحقق (4 أرقام)" maxlength="4" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-center text-lg tracking-widest text-cyan-300 outline-none">
-                <button onclick="verifyOTP()" class="w-full bg-green-500 hover:bg-green-400 text-black font-bold py-3 rounded-xl shadow-lg">تأكيد الدخول وحفظ البيانات 🔑</button>
-                <button onclick="backToCredentials()" class="text-[10px] text-slate-400 underline">تعديل البريد الإلكتروني</button>
+                <p class="text-xs text-cyan-300">تم إرسال رمز التحقق إلى بريدك الإلكتروني أو أمانك 📩</p>
+                <input id="otpCodeInput" type="text" placeholder="أدخل رمز التحقق (4 أرقام)" maxlength="4" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 tracking-widest text-center">
+                <button onclick="verifyOTP()" class="w-full bg-green-500 hover:bg-green-400 text-black font-bold py-3 rounded-xl transition shadow-lg shadow-green-500/20">تأكيد الدخول السيادي 🔑</button>
+                <button onclick="backToCredentials()" class="text-[10px] text-slate-400 underline block mx-auto">تعديل البريد الإلكتروني ↺</button>
             </div>
             <div id="authMsg" class="text-xs text-red-400 h-4"></div>
         </div>
     </div>
 
-    <!-- الإشعارات السريعة -->
-    <div id="toastBox" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none"></div>
+    <!-- الإشعارات السريعة (Toasts) -->
+    <div id="toastBox" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none w-11/12 max-w-sm"></div>
 
     <!-- الهيدر العلوي -->
     <header class="w-full p-3 flex justify-between items-center glass border-b border-cyan-500/20">
-        <button onclick="toggleAIEye()" class="text-xs text-cyan-400 flex items-center gap-1 bg-slate-900/80 px-3 py-1.5 rounded-full border border-cyan-500/30">عين الذكاء 👁️</button>
+        <button onclick="toggleAIEye()" class="text-xs text-cyan-400 flex items-center gap-1 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-cyan-500/30">عين الذكاء 👁️</button>
         <h2 class="font-bold text-cyan-400 tracking-wider">TARIM OS</h2>
-        <button onclick="toggleSupportAI()" class="text-xs text-yellow-400 flex items-center gap-1 bg-slate-900/80 px-3 py-1.5 rounded-full border border-yellow-500/30">فريق الدعم 🛡️</button>
+        <button onclick="toggleSupportAI()" class="text-xs text-yellow-400 flex items-center gap-1 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-yellow-500/30">فريق الدعم 🛡️</button>
     </header>
 
     <!-- المحتوى الرئيسي -->
@@ -56,123 +55,195 @@
 
         <!-- الرئيسية -->
         <main id="tab-home" class="space-y-4 text-right p-4">
-            <div class="flex justify-between items-start mt-2">
+            <div class="flex items-center justify-start mt-2">
                 <div>
                     <p id="homeUsername" class="font-bold text-lg text-cyan-300">slmanmktbabw@gmail.com</p>
                     <p class="text-xs text-slate-400">TARIM OS النظام السيادي</p>
                 </div>
-                <div id="profileAvatar" class="w-12 h-12 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center font-bold text-lg text-cyan-300">SL</div>
             </div>
-            <div class="flex justify-between items-center glass p-4 rounded-xl border border-cyan-500/30">
-                <div id="homeOkki" class="text-sm text-cyan-400 font-bold">OKKI 1000</div>
-                <div class="flex items-center gap-2 text-red-400">
-                    <span id="homeLikes">120</span> <span>❤️</span>
+
+            <div class="flex justify-between items-center glass p-4 rounded-xl border-2 border-cyan-500 flex items-center">
+                <div>
+                    <div id="homeOKI" class="text-us text-cyan-400 font-bold">OKKI 1000 USDT</div>
+                    <div class="flex items-center gap-2 text-red-400">
+                        <span id="homeLikes">120</span> <span class="text-xs">❤️ إعجاب</span>
+                    </div>
                 </div>
+                <button onclick="openModal('modalOKX')" class="bg-cyan-500/20 text-cyan-300 text-xs px-3 py-1.5 rounded-lg border border-cyan-500/40">رصيد OKX 💼</button>
             </div>
 
             <div class="space-y-3 pt-2">
-                <h4 class="text-cyan-400 text-xs font-bold">المنشورات والفيديوهات المخزنة في النظام 📁</h4>
+                <h4 class="text-cyan-400 text-xs font-bold">📢 المنشورات والفيديوهات المحفوظة في النظام:</h4>
                 <div id="savedMediaFeed" class="space-y-3"></div>
             </div>
         </main>
 
         <!-- العمليات السيادية -->
         <main id="tab-operations" class="hidden space-y-4 text-right p-4">
-            <h3 class="text-center text-cyan-400 font-bold">قسم العمليات السيادية ⚡</h3>
-            <button onclick="startLiveStudio()" class="service-btn"><span>بدء بث مباشر سيادي 🔴</span><span>←</span></button>
-            <button onclick="showToast('المراسلة الآمنة مشفرة ومتاحة')" class="service-btn"><span>المراسلة الآمنة 💬</span><span>←</span></button>
-            <button onclick="openMap()" class="service-btn"><span>خريطة حضرموت Offline 🗺️</span><span>←</span></button>
-            <button onclick="generateQR()" class="service-btn"><span>الختم الميداني QR 🧾</span><span>←</span></button>
-            <div id="qrcode" class="flex justify-center mt-4"></div>
-            <div id="mapContainer" class="hidden mt-4 h-48 rounded-xl overflow-hidden border border-cyan-500/30"><div id="map" class="w-full h-full"></div></div>
+            <h3 class="text-center text-cyan-400 font-bold">⚡ قسم العمليات السيادية</h3>
+            <button onclick="startLiveStudio()" class="service-btn"><span>بدء بث مباشر سيادي 🔴</span><span>🎥</span></button>
+            <button onclick="showToast('الفرَاسة الآمنة متوفرة وسلامة البيانات مفعلة')" class="service-btn"><span>الفرَاسة الأمنية ومراقبة الـ Offline 🛡️</span><span>📍</span></button>
+            <button onclick="openMap()" class="service-btn"><span>خريطة حضرموت Offline 🗺️</span><span>🌐</span></button>
+            <button onclick="generateQR()" class="service-btn"><span>الختم الميداني QR 🧾</span><span>🖨️</span></button>
+            <div id="mapContainer" class="hidden mt-4 h-48 rounded-xl overflow-hidden border border-cyan-500/30">
+                <div id="map" class="w-full h-full"></div>
+            </div>
         </main>
 
-        <!-- محطة الإنشاء -->
+        <!-- محطة الإنشاء والرفع -->
         <main id="tab-create" class="hidden space-y-4 text-right p-4">
-            <h3 class="text-center text-cyan-400 font-bold">محطة الإنشاء السيادي ✨</h3>
+            <h3 class="text-center text-cyan-400 font-bold">✨ محطة الإنشاء السيادي</h3>
             <div class="grid grid-cols-4 gap-2 text-center">
-                <button onclick="switchCamera()" class="glass p-2 rounded-xl text-[11px]">🔄 قلب</button>
-                <button onclick="showToast('تجميل وتعديل الوجه نشط')" class="glass p-2 rounded-xl text-[11px]">✨ تجميل</button>
-                <button onclick="changeBackgroundLive()" class="glass p-2 rounded-xl text-[11px]">🎨 خلفية</button>
-                <button onclick="startLiveStudio()" class="glass p-2 rounded-xl text-[11px] text-red-400">🔴 LIVE</button>
+                <button onclick="switchCamera()" class="glass p-2 rounded-xl text-[11px]">كاميرا 📷</button>
+                <button onclick="showToast('تحميل وتفعيل الوجه نشط')" class="glass p-2 rounded-xl text-[11px]">تجميل ✨</button>
+                <button onclick="changeBackgroundProfile()" class="glass p-2 rounded-xl text-[11px]">خلفية 🎨</button>
+                <button onclick="startLiveStudio()" class="glass p-2 rounded-xl text-[11px] text-red-400">LIVE 🔴</button>
             </div>
-            <textarea id="postDescInput" placeholder="اكتب وصف المنشور أو الفيديو السيادي..." class="w-full bg-slate-900/80 border border-cyan-500/20 rounded-xl p-3 text-xs text-cyan-300 h-24 outline-none"></textarea>
+            <textarea id="postDescInput" placeholder="اكتب وصف المنشور أو الفيديو السيادي..." class="w-full bg-slate-900/80 border border-cyan-500/30 rounded-xl p-3 text-xs text-cyan-200 focus:outline-none h-28"></textarea>
             <div class="flex gap-2">
-                <button onclick="publishPost('text')" class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl text-xs">نشر فوري نصي 📄</button>
-                <button onclick="publishPost('media')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-xs">حفظ فيديو/صورة 💾</button>
+                <button onclick="publishPost('post')" class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-2.5 rounded-xl text-xs transition">نشر المنشور السيادي 📢</button>
+                <button onclick="publishPost('media')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ الفيديو 🎥</button>
             </div>
         </main>
 
-        <!-- الوارد -->
+        <!-- الوارد (Inbox) -->
         <main id="tab-inbox" class="hidden space-y-4 text-right p-4">
-            <h3 class="text-center text-cyan-400 font-bold">صندوق الوارد السيادي 💬</h3>
-            <div id="inboxMessages" class="h-64 overflow-y-auto space-y-2 mb-2 p-2 glass rounded-xl"></div>
-            <div class="glass p-2 rounded-xl flex gap-2">
-                <input id="inboxInput" type="text" placeholder="اكتب رسالة..." class="flex-1 bg-transparent outline-none text-xs px-2">
-                <button onclick="sendInboxMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl font-bold text-xs">إرسال</button>
+            <h3 class="text-center text-cyan-400 font-bold">💬 صندوق الوارد السيادي</h3>
+            <div id="inboxMessages" class="h-64 overflow-y-auto space-y-2 mb-2 glass p-3 rounded-xl border border-cyan-500/20"></div>
+            <div class="flex p-2 rounded-xl glass gap-2">
+                <input id="inboxInput" type="text" placeholder="اكتب رسالة..." class="flex-1 bg-transparent outline-none text-xs text-cyan-200 px-2">
+                <button onclick="sendInboxMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold">إرسال 🚀</button>
             </div>
         </main>
 
-        <!-- الملفات -->
+        <!-- الملفات والإعدادات -->
         <main id="tab-profile" class="hidden space-y-3 text-right p-4">
             <div class="glass p-4 rounded-2xl border border-cyan-500/30 flex flex-col items-center relative">
-                <div id="profileAvatarBig" class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-cyan-300 font-bold text-xl mb-2">SL</div>
+                <div id="profileAvatarBig" class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-2xl mb-2">👤</div>
                 <h3 id="profileName" class="font-bold text-cyan-300 text-sm">slmanmktbabw@gmail.com</h3>
-                <p class="text-xs text-cyan-500 mt-0.5">OKX: 0x53...c0af6</p>
-                <p class="text-[10px] text-slate-400 mt-1">النظام السيادي - تريم 🌍</p>
+                <p class="text-xs text-cyan-500 mt-0.5">مكتب أبو سلمان للخدمات العامة - تعز</p>
+                <p class="text-[10px] text-slate-400 mt-1">النظام السيادي - تريم 🏰</p>
             </div>
 
-            <h4 class="text-cyan-400 text-xs font-bold mt-1">أدوات الحساب والأعمال</h4>
-            <button onclick="openModal('modalOKX')" class="service-btn"><span>رصيد OKX الملكي - 1000 🪙</span><span>فتح ←</span></button>
-            <button onclick="openModal('modalStats')" class="service-btn"><span>مركز الأنشطة 📊</span><span>فتح ←</span></button>
-            <button onclick="openModal('modalOfflineVid')" class="service-btn"><span>فيديوهات دون اتصال 📁</span><span>فتح ←</span></button>
-            <button onclick="generateQR()" class="service-btn"><span>رمز QR لديك 🧾</span><span>عرض ←</span></button>
+            <h4 class="text-cyan-400 text-xs font-bold mt-1">💼 أدوات الحساب والاعمال:</h4>
+            <button onclick="openModal('modalOKX')" class="service-btn"><span>رصيد OKX</span><span>1000 USDT 💰</span></button>
+            <button onclick="openModal('modalAds')" class="service-btn"><span>الروج والإعلانات (Meta Ads)</span><span>إدارة الحملات 📢</span></button>
+            <button onclick="openModal('modalManagePosts')" class="service-btn"><span>إدارة المنشورات المحفوظة</span><span>عرض وحذف 📋</span></button>
 
-            <h4 class="text-cyan-400 text-xs font-bold mt-1">ادوات الابداع والاعمال</h4>
-            <button onclick="openModal('modalBusiness')" class="service-btn"><span>المجموعة التجارية 🏢</span><span>فتح ←</span></button>
-            <button onclick="openModal('modalAds')" class="service-btn"><span>الترويج والاعلانات 📢</span><span>فتح ←</span></button>
-            <button onclick="openModal('modalManagePosts')" class="service-btn"><span>ادارة المنشورات 📄</span><span>ادارة ←</span></button>
-
-            <h4 class="text-cyan-400 text-xs font-bold mt-1">الاعدادات والخصوصية</h4>
-            <button onclick="openModal('modalAccount')" class="service-btn"><span>الحساب 👤</span><span>إعدادات الحساب ←</span></button>
-            <button onclick="openModal('modalSecurity')" class="service-btn"><span>الخصوصية والامان 🔒</span><span>فتح ←</span></button>
-            <button onclick="changeBackgroundProfile()" class="service-btn"><span>تغير خلفية المستخدم 🎨</span><span>تغير ←</span></button>
-            <button onclick="shareProfile()" class="service-btn"><span>مشاركة ملف الشخصي 🔗</span><span>مشاركة ←</span></button>
-            <button onclick="openModal('modalPolicy')" class="service-btn"><span>السياسة والخصوصية 📜</span><span>فتح ←</span></button>
-            <button onclick="logout()" class="service-btn text-red-400"><span>تسجيل الخروج 🚪</span><span>←</span></button>
+            <h4 class="text-cyan-400 text-xs font-bold mt-1">🛡️ أدوات الأمان والخصوصية:</h4>
+            <button onclick="openModal('modalAccount')" class="service-btn"><span>إعدادات الحساب والبريد</span><span>تحديث 👤</span></button>
+            <button onclick="openModal('modalSecurity')" class="service-btn"><span>الخصوصية والأمان (Passkeys)</span><span>حماية 🔒</span></button>
+            <button onclick="changeBackgroundProfile()" class="service-btn"><span>تغيير خلفية النظام</span><span>ألوان 🎨</span></button>
+            <button onclick="shareProfile()" class="service-btn"><span>مشاركة ملف التخصيص</span><span>رابط 🔗</span></button>
+            <button onclick="openModal('modalPolicy')" class="service-btn"><span>السياسة والخصوصية</span><span>تخزين محلي 📜</span></button>
+            <button onclick="logout()" class="service-btn text-red-400"><span>تسجيل الخروج الآمن</span><span>🚪</span></button>
         </main>
+
+        <!-- استوديو البث المباشر -->
+        <main id="fullScreenCam" class="hidden fixed inset-0 bg-black z-60 flex flex-col justify-between p-4">
+            <div class="flex justify-between items-center z-10">
+                <button onclick="exitFullScreen()" class="glass px-3 py-1 rounded-full text-xs text-red-400 font-bold">إنهاء البث ❌</button>
+                <div class="glass px-3 py-1 rounded-full text-xs text-cyan-300">🔴 <span id="liveTimer">00:00</span></div>
+            </div>
+            <video id="fullCamVideo" autoplay playsinline class="absolute inset-0 w-full h-full object-cover -z-0"></video>
+            <div class="absolute inset-0 opacity-20 -z-0 transition-all"></div>
+            <div class="z-10 space-y-2">
+                <div id="liveComments" class="h-32 overflow-y-auto space-y-1"></div>
+                <div class="flex gap-2">
+                    <input id="liveCommentIn" type="text" placeholder="اكتب تعليقاً في البث..." class="flex-1 bg-slate-900/90 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white outline-none">
+                    <button onclick="sendLiveComment()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
+                </div>
+            </div>
+            <div id="preLiveOverlay" class="absolute inset-0 bg-black/85 flex items-center justify-center z-20">
+                <div class="text-xl font-bold text-cyan-400 text-center space-y-3">
+                    <p>استوديو البث المباشر السيادي 🔴</p>
+                    <button onclick="confirmStartLive()" class="bg-red-500 hover:bg-red-400 text-white font-bold px-8 py-3 rounded-xl text-sm shadow-lg shadow-red-500/30">بدء البث فوراً 🎥</button>
+                </div>
+            </div>
+        </main>
+
     </div>
 
-    <!-- استوديو البث المباشر -->
-    <div id="fullScreenCam" class="hidden fixed inset-0 bg-black z-60 flex flex-col justify-between p-4">
-        <div class="flex justify-between items-center z-10">
-            <button onclick="exitFullScreen()" class="glass px-3 py-1 rounded-full text-xs text-red-400 font-bold">إغلاق ❌</button>
-            <div class="glass px-3 py-1 rounded-full text-xs text-cyan-300">🔴 <span id="liveTimer">00:00</span> | <span id="liveViewers">1</span> مشاهد</div>
+    <!-- نافذة أرباح OKX -->
+    <div id="modalOKX" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">💼 رصيد OKX المالي</h3>
+            <div class="glass p-3 text-center text-cyan-300 font-bold text-lg">OKKI 1000 USDT</div>
+            <button onclick="closeModal('modalOKX'); showToast('تم مراجعة OKX بنجاح')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
         </div>
-        <video id="fullCamVideo" autoplay playsinline class="absolute inset-0 w-full h-full object-cover -z-0"></video>
-        <div id="liveFilter" class="absolute inset-0 opacity-0 -z-0 transition-all"></div>
-        <div class="z-10 space-y-2">
-            <div id="liveComments" class="h-32 overflow-y-auto space-y-1"></div>
-            <div class="flex gap-2">
-                <input id="liveCommentIn" type="text" placeholder="اكتب تعليقاً في البث..." class="flex-1 bg-slate-900/90 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs outline-none text-cyan-300">
-                <button onclick="sendLiveComment()" class="bg-cyan-500 text-black px-4 rounded-xl text-xs font-bold">إرسال</button>
+    </div>
+
+    <!-- نافذة إدارة الأعمال -->
+    <div id="modalBusiness" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">🏢 المجموعة التجارية</h3>
+            <p class="text-xs text-slate-300">إدارة أعمالك وخدماتك العامة (مكتب أبو سلمان - تعز)</p>
+            <input type="text" value="مكتب أبو سلمان للخدمات العامة" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-cyan-300">
+            <button onclick="closeModal('modalBusiness'); showToast('تم حفظ بيانات المجموعة المجارية')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة إدارة الإعلانات -->
+    <div id="modalAds" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">📢 الترويج والإعلانات</h3>
+            <div class="glass p-3 text-xs text-green-400">الحملة الحالية: (Meta Ads) نشطة وف فعالة ✅</div>
+            <button onclick="closeModal('modalAds'); showToast('تم إغلاق الحملة الترويجية حميدة')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة إدارة المنشورات -->
+    <div id="modalManagePosts" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">📋 إدارة المنشورات</h3>
+            <p class="text-xs text-slate-300">التحكم الكامل بالمنشورات والفيديوهات المحفوظة محلياً وسحابتك</p>
+            <div id="modalPostsList" class="max-h-40 overflow-y-auto space-y-2 text-xs text-cyan-200"></div>
+            <button onclick="closeModal('modalManagePosts')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة إعدادات الحساب -->
+    <div id="modalAccount" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">👤 إعدادات الحساب</h3>
+            <input id="accEmailInput" type="text" value="slmanmktbabw@gmail.com" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-cyan-300">
+            <button onclick="updateAccountInfo(); closeModal('modalAccount')" class="w-full bg-cyan-500 text-black font-bold py-2 rounded-xl text-xs">حفظ التغييرات</button>
+        </div>
+    </div>
+
+    <!-- نافذة الأمان والخصوصية -->
+    <div id="modalSecurity" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">🔒 الخصوصية والأمان</h3>
+            <p class="text-xs text-slate-300">وفعيل الجلسة السيادية Passkeys وحماية الحماية المحلية</p>
+            <div class="flex justify-between items-center text-xs text-cyan-300 glass p-2 rounded">
+                <span>(Helmet & SSL) حماية</span>
+                <span class="text-green-400 font-bold">جهاز 🛡️</span>
             </div>
+            <button onclick="closeModal('modalSecurity')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
         </div>
-        <div id="preLiveOverlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center z-20 space-y-4 p-4 text-center">
-            <div class="text-xl font-bold text-cyan-400">استوديو البث المباشر السيادي 🔴</div>
-            <button onclick="confirmStartLive()" class="bg-red-500 hover:bg-red-400 text-white font-bold px-8 py-3 rounded-2xl shadow-lg text-sm">بدء LIVE فوراً 🚀</button>
+    </div>
+
+    <!-- نافذة السياسة والخصوصية -->
+    <div id="modalPolicy" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">📜 السياسة والخصوصية</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">التصميم وتخزينها محلياً على الجهاز عبر التخزين المحلي TARIM OS مضمون ومحمي تماماً.</p>
+            <button onclick="closeModal('modalPolicy')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
         </div>
     </div>
 
     <!-- شريط التنقل السفلي -->
     <nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 flex justify-around p-2 z-30">
         <button onclick="openTab('home', event)" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px]">
-            <span class="text-2xl">🏠</span>الرئيسية
+            <span class="text-2xl">🏰</span>الرئيسية
         </button>
         <button onclick="openTab('operations', event)" class="nav-btn flex flex-col items-center text-gray-400 text-[10px]">
             <span class="text-2xl">⚡</span>العمليات
         </button>
-        <button onclick="openTab('create', event)" class="w-14 h-14 bg-cyan-500 text-black rounded-full flex items-center justify-center font-bold text-3xl shadow-lg shadow-cyan-500/40 -mt-4">＋</button>
+        <button onclick="openTab('create', event)" class="w-14 h-14 bg-cyan-500 text-black rounded-full flex items-center justify-center text-2xl -mt-5 shadow-lg shadow-cyan-500/40 border-2 border-[#030B1A]">
+            <span>✨</span>
+        </button>
         <button onclick="openTab('inbox', event)" class="nav-btn flex flex-col items-center text-gray-400 text-[10px]">
             <span class="text-2xl">💬</span>الوارد
         </button>
@@ -181,76 +252,7 @@
         </button>
     </nav>
 
-    <!-- النوافذ المنبثقة التفاعلية (Modals) لكافة الأزرار -->
-    <!-- نافذة المجموعة التجارية -->
-    <div id="modalBusiness" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
-            <h3 class="font-bold text-cyan-400 text-sm">المجموعة التجارية 🏢</h3>
-            <p class="text-xs text-slate-300">إدارة أعمالك وخدماتك العامة (مكتب أبو سلمان - تريم)</p>
-            <input type="text" value="مكتب أبو سلمان للخدمات العامة" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl p-2.5 text-xs text-cyan-300 outline-none">
-            <button onclick="showToast('تم حفظ بيانات المجموعة التجارية'); closeModal('modalBusiness')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">حفظ التعديلات</button>
-            <button onclick="closeModal('modalBusiness')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- نافذة الترويج والإعلانات -->
-    <div id="modalAds" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
-            <h3 class="font-bold text-cyan-400 text-sm">الترويج والإعلانات 📢</h3>
-            <p class="text-xs text-slate-300">إدارة الحملات الإعلانية النشطة عبر واتساب ومنصات التواصل</p>
-            <div class="glass p-3 rounded-xl text-xs text-green-400">الحملة الحالية: نشطة وفعالة (Meta Ads) ✅</div>
-            <button onclick="showToast('تم إطلاق حملة ترويجية جديدة بنجاح!'); closeModal('modalAds')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">بدء حملة جديدة 🚀</button>
-            <button onclick="closeModal('modalAds')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- نافذة إدارة المنشورات -->
-    <div id="modalManagePosts" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
-            <h3 class="font-bold text-cyan-400 text-sm">إدارة المنشورات 📄</h3>
-            <p class="text-xs text-slate-300">التحكم الكامل بالمنشورات والفيديوهات المخزنة محلياً وسحابياً</p>
-            <div id="modalPostsList" class="max-h-40 overflow-y-auto space-y-2 text-xs text-cyan-200"></div>
-            <button onclick="closeModal('modalManagePosts')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- نافذة الحساب -->
-    <div id="modalAccount" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
-            <h3 class="font-bold text-cyan-400 text-sm">إعدادات الحساب 👤</h3>
-            <input id="accEmailInput" type="text" value="slmanmktbabw@gmail.com" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl p-2.5 text-xs text-cyan-300 outline-none">
-            <button onclick="updateAccountInfo(); closeModal('modalAccount')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">تحديث البريد واسم الحساب</button>
-            <button onclick="closeModal('modalAccount')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- نافذة الخصوصية والأمان -->
-    <div id="modalSecurity" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
-            <h3 class="font-bold text-cyan-400 text-sm">الخصوصية والأمان 🔒</h3>
-            <p class="text-xs text-slate-300">حماية التخزين المحلي، Passkeys، وتشفير الجلسة السيادية.</p>
-            <div class="flex justify-between items-center text-xs text-cyan-300 glass p-2 rounded">
-                <span>تشفير الاتصال (Helmet & SSL)</span>
-                <span class="text-green-400 font-bold">مفعل</span>
-            </div>
-            <button onclick="closeModal('modalSecurity')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">تم الحفظ</button>
-        </div>
-    </div>
-
-    <!-- نافذة السياسة والخصوصية -->
-    <div id="modalPolicy" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
-            <h3 class="font-bold text-cyan-400 text-sm">السياسة والخصوصية 📜</h3>
-            <p class="text-xs text-slate-300 leading-relaxed">منصة TARIM OS مصممة للعمل الميداني والسيادي مع الحفاظ التام على أمان بيانات المستخدم وتخزينها محلياً على الجهاز عبر التخزين المحلي الآمن.</p>
-            <button onclick="closeModal('modalPolicy')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">فهمت واستوعبت</button>
-        </div>
-    </div>
-
-    <!-- نافذة رصيد OKX -->
-    <div id="modalOKX" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
-            <h3 class="font-bold text-cyan-400 text-sm">رصيد OKX الملكي 🪙</h3>
-            <div class="glass p-3 rounded-xl text-center text-cyan-300 font-bold text-lg">OKKI 1000 USDT</div>
-            <button onclick="showToast('تم مزامنة محفظة OKX بنجاح'); closeModal('modalOKX')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">مزامنة الرصيد 🔄</button>
-            <button onclick="closeModal('modalOKX')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
-        
+    <!-- استدعاء ملف السكربت والوظائف -->
+    <script src="script.js"></script>
+</body>
+</html>
