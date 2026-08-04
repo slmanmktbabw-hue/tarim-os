@@ -11,26 +11,33 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
       .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
-      body { font-family: 'Cairo', sans-serif; background: #030B1A; color: #ffffff; user-select: none; -webkit-user-select: none; }
+      body { font-family: 'Cairo', sans-serif; background: #030B1A; color: #ffffff; user-select: none; -webkit-user-select: none; transition: background 0.3s ease; }
       .service-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(15, 23, 42, 0.8); padding: 12px; border-radius: 12px; border: 1px solid rgba(0, 240, 255, 0.2); margin-bottom: 8px; transition: 0.3s; }
       .service-btn:hover { background: rgba(0, 240, 255, 0.1); border-color: rgba(0, 240, 255, 0.4); }
       .tiktok-feed { scroll-snap-type: y mandatory; overflow-y: scroll; height: calc(100vh - 130px); }
       .tiktok-item { scroll-snap-align: start; height: 100%; position: relative; }
     </style>
 </head>
-<body class="text-white min-h-screen flex flex-col justify-between pb-24">
+<body id="appBody" class="text-white min-h-screen flex flex-col justify-between pb-24">
 
     <div id="authGate" class="fixed inset-0 bg-[#030B1A] z-50 flex items-center justify-center p-4">
         <div class="glass w-full max-w-sm p-6 rounded-2xl border border-cyan-500/40 space-y-4 shadow-2xl text-center">
             <div class="text-3xl font-bold text-cyan-400">🏰 TARIM OS</div>
             <div class="text-xs text-slate-400">النظام السيادي لتنظيم الجمهور - tarimos.org</div>
             
-            <div class="space-y-3 pt-2">
-                <input id="userPhoneOrEmail" type="text" value="slmanmktbabw@gmail.com" placeholder="اسم المستخدم أو الهاتف / البريد" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 text-center">
-                <input id="userPass" type="password" value="123456" placeholder="كلمة المرور السيادية" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 text-center">
-                <button onclick="forceLoginCastle()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl transition shadow-lg shadow-cyan-500/20">دخول القلعة السيادية 🔑</button>
+            <div class="flex justify-center gap-4 border-b border-cyan-500/20 pb-2">
+                <button onclick="switchAuthTab('login')" id="tabLoginBtn" class="text-xs font-bold text-cyan-400 border-b-2 border-cyan-400 pb-1">تسجيل الدخول</button>
+                <button onclick="switchAuthTab('register')" id="tabRegBtn" class="text-xs text-slate-400 pb-1">إنشاء حساب جديد</button>
             </div>
-            <div class="text-[10px] text-cyan-500 pt-2 font-semibold">حساب الملك والإمبراطور AL 👑 - تعز</div>
+
+            <div class="space-y-3">
+                <input id="userPhoneOrEmail" type="text" placeholder="اسم المستخدم أو الهاتف / البريد" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 text-center">
+                <input id="userPass" type="password" placeholder="كلمة المرور السيادية" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 text-center">
+                <button onclick="processLogin()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl transition shadow-lg shadow-cyan-500/20">دخول القلعة السيادية 🔑</button>
+                <button onclick="processGoogleLogin()" class="w-full bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 text-xs">متابعة بجوجل 🌐</button>
+            </div>
+            <div id="authMsg" class="text-xs text-red-400 h-4"></div>
+            <div class="text-[10px] text-cyan-500 pt-1 font-semibold">بإشراف الملك والإمبراطور AL 👑 - تعز</div>
         </div>
     </div>
 
@@ -69,7 +76,7 @@
 
         <main id="tab-operations" class="hidden space-y-4 text-right p-4">
             <h3 class="text-center text-cyan-400 font-bold text-sm">⚡ قسم العمليات السيادية</h3>
-            <button onclick="startLiveStudio()" class="service-btn"><span>بث مباشر سيادي (8 دقائق) 🔴</span><span>🎥</span></button>
+            <button onclick="startLiveStudio()" class="service-btn"><span>بث مباشر سيادي 🔴</span><span>🎥</span></button>
             <button onclick="openTab('inbox')" class="service-btn"><span>المراسلة الآمنة 💬</span><span>🔒</span></button>
             <button onclick="openMap()" class="service-btn"><span>خريطة حضرموت Offline 🗺️</span><span>🌐</span></button>
             <button onclick="generateQR()" class="service-btn"><span>الختم الميداني QR 🖨️</span><span>🧾</span></button>
@@ -110,8 +117,8 @@
         <main id="tab-profile" class="hidden space-y-3 text-right p-4">
             <div class="glass p-4 rounded-2xl border border-cyan-500/30 flex flex-col items-center relative">
                 <div class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-2xl mb-2 font-bold text-cyan-300">AL</div>
-                <h3 id="profileName" class="font-bold text-cyan-300 text-sm">الإمبراطور AL - تعز</h3>
-                <p class="text-[10px] text-cyan-500 mt-0.5">مكتب أبو سلمان للخدمات العامة</p>
+                <h3 id="profileNameDisplay" class="font-bold text-cyan-300 text-sm">الإمبراطور AL - تعز</h3>
+                <p id="profileEmailDisplay" class="text-[10px] text-cyan-500 mt-0.5">slmanmktbabw@gmail.com</p>
                 <div class="flex gap-4 mt-3 text-xs text-slate-300">
                     <span><b>0</b> متابع</span>
                     <span><b>120</b> إعجاب ❤️</span>
@@ -120,24 +127,43 @@
 
             <h4 class="text-cyan-400 text-xs font-bold mt-1">💼 أدوات الحساب والاعمال:</h4>
             <button onclick="openModal('modalOKX')" class="service-btn"><span>رصيد OKX</span><span>1000 USDT 💰</span></button>
-            <button onclick="openModal('modalAds')" class="service-btn"><span>الروج والإعلانات (Meta Ads)</span><span>إدارة الحملات 📢</span></button>
+            <button onclick="openModal('modalAds')" class="service-btn"><span>الترويج والإعلانات (Meta Ads)</span><span>إدارة الحملات 📢</span></button>
 
-            <h4 class="text-cyan-400 text-xs font-bold mt-1">🛡️ أدوات الأمان والخصوصية:</h4>
+            <h4 class="text-cyan-400 text-xs font-bold mt-1">🛡️ الإعدادات والخصوصية:</h4>
+            <button onclick="openModal('modalAccount')" class="service-btn"><span>إعدادات الحساب والبريد</span><span>تحديث 👤</span></button>
             <button onclick="openModal('modalSecurity')" class="service-btn"><span>الخصوصية والأمان (Passkeys)</span><span>حماية 🔒</span></button>
             <button onclick="changeBackgroundProfile()" class="service-btn"><span>تغيير خلفية النظام</span><span>ألوان 🎨</span></button>
-            <button onclick="forceLogout()" class="service-btn text-red-400"><span>تسجيل الخروج الآمن</span><span>🚪</span></button>
+            <button onclick="shareProfileLink()" class="service-btn"><span>مشاركة ملف التخصيص</span><span>رابط 🔗</span></button>
+            <button onclick="openModal('modalPolicy')" class="service-btn"><span>سياسة الخصوصية</span><span>تخزين 📜</span></button>
+            <button onclick="triggerSovereignWarning()" class="service-btn text-yellow-400"><span>نظام الحظر السيادي (التنبيهات)</span><span id="warnCountBadge">0/3 ⚠️</span></button>
+            <button onclick="secureLogout()" class="service-btn text-red-400"><span>تسجيل الخروج الآمن</span><span>🚪</span></button>
         </main>
 
         <main id="fullScreenCam" class="hidden fixed inset-0 bg-black z-60 flex flex-col justify-between p-4">
             <div class="flex justify-between items-center z-10">
-                <button onclick="exitFullScreen()" class="glass px-3 py-1 rounded-full text-xs text-red-400 font-bold">إغلاق ❌</button>
-                <div class="glass px-3 py-1 rounded-full text-xs text-cyan-300">🔴 <span id="liveTimer">00:00</span></div>
+                <button onclick="endLiveBroadcast()" class="glass px-3 py-1 rounded-full text-xs text-red-400 font-bold border border-red-500/50">إنهاء البث ❌</button>
+                <div class="flex items-center gap-2">
+                    <button onclick="switchCamera()" class="glass px-3 py-1 rounded-full text-xs text-cyan-300 font-bold">📷 تبديل</button>
+                    <div class="glass px-3 py-1 rounded-full text-xs text-cyan-300">🔴 <span id="liveTimer">00:00</span></div>
+                </div>
             </div>
+            
             <video id="fullCamVideo" autoplay playsinline class="absolute inset-0 w-full h-full object-cover -z-0"></video>
-            <div id="preLiveOverlay" class="absolute inset-0 bg-black/90 flex items-center justify-center z-20">
-                <div class="text-xl font-bold text-cyan-400 text-center space-y-4">
-                    <p>استوديو البث المباشر السيادي 🔴</p>
-                    <button onclick="confirmStartLive()" class="bg-red-500 text-white font-bold px-8 py-3 rounded-xl text-sm shadow-lg">LIVE ابدأ البث الآن 🎥</button>
+            
+            <div id="liveChatBox" class="z-10 space-y-2 mb-4 hidden">
+                <div id="liveCommentsList" class="h-28 overflow-y-auto space-y-1 text-right"></div>
+                <div class="flex gap-2 items-center">
+                    <input id="liveCommentInput" type="text" placeholder="اكتب تعليقاً في البث..." class="flex-1 bg-slate-900/90 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white outline-none">
+                    <button onclick="sendLiveChatMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
+                </div>
+            </div>
+
+            <div id="preLiveOverlay" class="absolute inset-0 bg-black/90 flex items-center justify-center z-20 p-4">
+                <div class="glass w-full max-w-sm p-6 rounded-2xl border border-red-500/40 text-center space-y-4">
+                    <div class="text-2xl font-bold text-red-400">🔴 استوديو البث السيادي</div>
+                    <p class="text-xs text-slate-300">استعد لبث محتواك الإمبراطور لجمهور تريم وسيادة النظام.</p>
+                    <button onclick="startLiveBroadcast()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl text-xs shadow-lg shadow-red-500/30 transition">تشغيل البث المباشر الآن 🎥</button>
+                    <button onclick="exitFullScreen()" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إلغاء وعودة</button>
                 </div>
             </div>
         </main>
@@ -152,11 +178,40 @@
         </div>
     </div>
 
+    <div id="modalAds" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">📢 الترويج والإعلانات (Meta Ads)</h3>
+            <div class="glass p-3 text-xs text-green-400">الحملة الترويجية السيادية نشطة وفعالة ✅</div>
+            <button onclick="closeModal('modalAds')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="modalAccount" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">👤 إعدادات الحساب والبريد</h3>
+            <label class="text-[10px] text-slate-400">اسم المستخدم أو اللقب السيادي:</label>
+            <input id="editNameInput" type="text" value="الإمبراطور AL" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-cyan-300 mb-2">
+            <label class="text-[10px] text-slate-400">البريد الإلكتروني:</label>
+            <input id="editEmailInput" type="text" value="slmanmktbabw@gmail.com" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-cyan-300">
+            <button onclick="saveAccountSettings()" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs mt-2">حفظ التغييرات السيادية</button>
+            <button onclick="closeModal('modalAccount')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
+        </div>
+    </div>
+
     <div id="modalSecurity" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
         <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
-            <h3 class="font-bold text-cyan-400 text-sm">🔒 الحماية السيادية</h3>
-            <p class="text-xs text-slate-300">نظام الحماية (Helmet & SSL) وتشفير البصمة مفعل بكفاءة.</p>
+            <h3 class="font-bold text-cyan-400 text-sm">🔒 الخصوصية والأمان (Passkeys)</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">نظام الحماية المتقدم ومفتاح البصمة السيادية (Passkeys & SSL) مفعل لحماية جلسة أبو سلمان بشكل كامل.</p>
+            <button onclick="showToast('تم تحديث بصمة الأمان بنجاح 🔐')" class="w-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 py-2 rounded-xl text-xs font-bold">تحديث مفتاح البصمة</button>
             <button onclick="closeModal('modalSecurity')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="modalPolicy" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">📜 سياسة الخصوصية السيادية</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">تخضع كافة البيانات والمنشورات لمعايير الأمان الإمبراطوري في منصة TARIM OS. يُحظر تماماً خرق السياسات ويتم إعطاء 3 تنبيهات تحذيرية تلقائية قبل تعليق الحساب نهائياً.</p>
+            <button onclick="closeModal('modalPolicy')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
         </div>
     </div>
 
@@ -179,92 +234,21 @@
     </nav>
 
     <script>
-        function forceLoginCastle() {
-            document.getElementById('authGate').style.display = 'none';
-            localStorage.setItem('tarimAuth', 'true');
-        }
+        let liveInterval = null;
+        let liveSeconds = 0;
 
         window.onload = function() {
-            if(localStorage.getItem('tarimAuth') === 'true') {
+            // استرجاع وتخزين بيانات المستخدم والخصوصية
+            const savedAuth = localStorage.getItem('tarimAuth');
+            const savedName = localStorage.getItem('tarimUserName');
+            const savedEmail = localStorage.getItem('tarimUserEmail');
+            const savedBg = localStorage.getItem('tarimBgColor');
+            
+            if(savedAuth === 'true') {
                 document.getElementById('authGate').style.display = 'none';
             }
-        }
-
-        function openTab(tabName, event) {
-            document.querySelectorAll('main').forEach(el => {
-                if(el.id !== 'fullScreenCam') el.classList.add('hidden');
-            });
-            const target = document.getElementById('tab-' + tabName);
-            if(target) target.classList.remove('hidden');
-
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-cyan-400', 'text-gray-400'));
-            if(event && event.currentTarget) {
-                event.currentTarget.classList.replace('text-gray-400', 'text-cyan-400');
+            if(savedName) {
+                document.getElementById('profileNameDisplay').innerText = savedName;
+                document.getElementById('homeUsername').innerText = '@' + savedName.replace(/\s+/g, '_');
             }
-        }
-
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.remove('hidden');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        function showToast(msg) {
-            const box = document.getElementById('toastBox');
-            const t = document.createElement('div');
-            t.className = "bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold mb-2 shadow-lg transition-all";
-            t.innerText = msg;
-            box.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
-        }
-
-        function startLiveStudio() {
-            document.getElementById('fullScreenCam').classList.remove('hidden');
-            navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-                document.getElementById('fullCamVideo').srcObject = stream;
-            }).catch(e => console.log(e));
-        }
-
-        function exitFullScreen() {
-            document.getElementById('fullScreenCam').classList.add('hidden');
-            const video = document.getElementById('fullCamVideo');
-            if(video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());
-            }
-        }
-
-        function confirmStartLive() {
-            document.getElementById('preLiveOverlay').style.display = 'none';
-            showToast('بدء البث المباشر السيادي بنجاح 🔴');
-        }
-
-        function forceLogout() {
-            localStorage.removeItem('tarimAuth');
-            location.reload();
-        }
-
-        function openMap() {
-            document.getElementById('mapContainer').classList.remove('hidden');
-            if(!window.mapInstance) {
-                window.mapInstance = L.map('map').setView([15.9785, 48.7917], 13);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.mapInstance);
-                L.marker([15.9785, 48.7917]).addTo(window.mapInstance).bindPopup('TARIM OS - تريم').openPopup();
-            }
-        }
-
-        function generateQR() {
-            document.getElementById('qrcode').innerHTML = '';
-            new QRCode(document.getElementById('qrcode'), {
-                text: "https://tarimos.org - TARIM OS السيادي",
-                width: 120,
-                height: 120
-            });
-            showToast('تم إصدار الختم الميداني QR بنجاح 🧾');
-        }
-    </script>
-    <script src="script.js"></script>
-    <script src="support.js"></script>
-</body>
-</html>
+          
