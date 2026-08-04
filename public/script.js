@@ -1,4 +1,4 @@
-const socket = io();
+Const socket = io();
 
 // تحميل بيانات المستخدم والمنشورات المخزنة محلياً (localStorage) لتجنب ضياعها
 let currentUser = localStorage.getItem('tarim_user') || 'slmanmktbabw@gmail.com';
@@ -253,4 +253,33 @@ function sendInboxMsg(){
   box.scrollTop = box.scrollHeight;
   showToast('تم إرسال الرسالة بنجاح 💬');
 }
-  
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if(modal) {
+    modal.classList.remove('hidden');
+    if(modalId === 'modalManagePosts') {
+      const listContainer = document.getElementById('modalPostsList');
+      if(listContainer) {
+        listContainer.innerHTML = '';
+        savedMediaList.forEach((item, idx) => {
+          listContainer.innerHTML += `<div class="glass p-2 rounded flex justify-between items-center"><span>${item.content.substring(0,30)}...</span><button onclick="deleteMedia(${idx}); openModal('modalManagePosts')" class="text-red-400 text-[10px]">حذف</button></div>`;
+        });
+      }
+    }
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if(modal) modal.classList.add('hidden');
+}
+
+function updateAccountInfo() {
+  const newEmail = document.getElementById('accEmailInput').value;
+  if(newEmail) {
+    currentUser = newEmail;
+    localStorage.setItem('tarim_user', currentUser);
+    updateProfileUI();
+    showToast('تم تحديث بيانات الحساب بنجاح 👤');
+  }
+               }
