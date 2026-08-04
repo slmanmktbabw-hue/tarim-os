@@ -13,12 +13,13 @@
         .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
         body { font-family: 'Cairo', sans-serif; background: #030B1A; }
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
-        .service-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(0, 240, 255, 0.15); padding: 12px 16px; border-radius: 12px; color: #E0F2FE; font-size: 14px; font-weight: 600; }
+        .service-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(0, 240, 255, 0.15); padding: 12px 16px; border-radius: 12px; color: #E0F2FE; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .service-btn:hover { background: rgba(0, 240, 255, 0.1); border-color: rgba(0, 240, 255, 0.4); }
     </style>
 </head>
 <body class="text-white min-h-screen flex flex-col justify-between select-none pb-24">
 
-    <!-- بوابة المصادقة وتسجيل الدخول وتخزين بيانات المستخدم -->
+    <!-- بوابة المصادقة وتسجيل الدخول -->
     <div id="authGate" class="fixed inset-0 bg-[#030B1A] z-50 flex items-center justify-center p-4">
         <div class="glass w-full max-w-sm p-6 rounded-2xl border border-cyan-500/40 text-center space-y-4 shadow-2xl">
             <div class="text-3xl font-black text-cyan-400">TARIM OS 🏰</div>
@@ -43,7 +44,7 @@
     <!-- الإشعارات السريعة -->
     <div id="toastBox" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none"></div>
 
-    <!-- الهيدر العلوي المماثل لصور الواجهة -->
+    <!-- الهيدر العلوي -->
     <header class="w-full p-3 flex justify-between items-center glass border-b border-cyan-500/20">
         <button onclick="toggleAIEye()" class="text-xs text-cyan-400 flex items-center gap-1 bg-slate-900/80 px-3 py-1.5 rounded-full border border-cyan-500/30">عين الذكاء 👁️</button>
         <h2 class="font-bold text-cyan-400 tracking-wider">TARIM OS</h2>
@@ -69,12 +70,9 @@
                 </div>
             </div>
 
-            <!-- قسم المنشورات والفيديوهات المخزنة محلياً وفي السيرفر -->
             <div class="space-y-3 pt-2">
                 <h4 class="text-cyan-400 text-xs font-bold">المنشورات والفيديوهات المخزنة في النظام 📁</h4>
-                <div id="savedMediaFeed" class="space-y-3">
-                    <!-- تعبئة ديناميكية -->
-                </div>
+                <div id="savedMediaFeed" class="space-y-3"></div>
             </div>
         </main>
 
@@ -115,36 +113,32 @@
             </div>
         </main>
 
-        <!-- الملفات (محدث تماماً ليطابق لقطة الشاشة الثانية) -->
-        <main id="tab-profile" class="hidden space-y-4 text-right p-4">
+        <!-- الملفات (محدث بالكامل مع ربط الأزرار بنافذ منبثقة Modal) -->
+        <main id="tab-profile" class="hidden space-y-3 text-right p-4">
             <div class="glass p-4 rounded-2xl border border-cyan-500/30 flex flex-col items-center relative">
-                <button onclick="showToast('وضع تعديل الملف نشط')" class="absolute top-2 left-2 text-xs bg-slate-800 px-3 py-1 rounded text-cyan-300 border border-cyan-500/30">تعديل</button>
                 <div id="profileAvatarBig" class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-cyan-300 font-bold text-xl mb-2">SL</div>
                 <h3 id="profileName" class="font-bold text-cyan-300 text-sm">slmanmktbabw@gmail.com</h3>
                 <p class="text-xs text-cyan-500 mt-0.5">OKX: 0x53...c0af6</p>
-                <p class="text-[10px] text-slate-400 mt-1">ملكي 🌍</p>
-            </div>
-            
-            <div class="grid grid-cols-3 gap-2 text-center">
-                <div class="glass p-2 rounded"><div id="statFollowers" class="font-bold text-cyan-400">50</div><div class="text-[10px] text-slate-400">متابع</div></div>
-                <div class="glass p-2 rounded"><div id="statLikes" class="font-bold text-cyan-400">500</div><div class="text-[10px] text-slate-400">يتابع</div></div>
-                <div class="glass p-2 rounded"><div id="statPosts" class="font-bold text-cyan-400">10</div><div class="text-[10px] text-slate-400">اعجاب</div></div>
+                <p class="text-[10px] text-slate-400 mt-1">النظام السيادي - تريم 🌍</p>
             </div>
 
-            <!-- أزرار الإدارة والأعمال المطابقة للصور تماماً -->
+            <h4 class="text-cyan-400 text-xs font-bold mt-1">أدوات الحساب والأعمال</h4>
+            <button onclick="openModal('modalOKX')" class="service-btn"><span>رصيد OKX الملكي - 1000 🪙</span><span>فتح ←</span></button>
+            <button onclick="openModal('modalStats')" class="service-btn"><span>مركز الأنشطة 📊</span><span>فتح ←</span></button>
+            <button onclick="openModal('modalOfflineVid')" class="service-btn"><span>فيديوهات دون اتصال 📁</span><span>فتح ←</span></button>
             <button onclick="generateQR()" class="service-btn"><span>رمز QR لديك 🧾</span><span>عرض ←</span></button>
 
-            <h4 class="text-cyan-400 text-xs font-bold mt-2">ادوات الابداع والاعمال</h4>
-            <button onclick="showToast('المجموعة التجارية نشطة')" class="service-btn"><span>المجموعة التجارية 🏢</span><span>فتح ←</span></button>
-            <button onclick="showToast('الترويج والإعلانات مفعلة')" class="service-btn"><span>الترويج والاعلانات 📢</span><span>فتح ←</span></button>
-            <button onclick="showToast('إدارة المنشورات السيادية')" class="service-btn"><span>ادارة المنشورات 📄</span><span>ادارة ←</span></button>
+            <h4 class="text-cyan-400 text-xs font-bold mt-1">ادوات الابداع والاعمال</h4>
+            <button onclick="openModal('modalBusiness')" class="service-btn"><span>المجموعة التجارية 🏢</span><span>فتح ←</span></button>
+            <button onclick="openModal('modalAds')" class="service-btn"><span>الترويج والاعلانات 📢</span><span>فتح ←</span></button>
+            <button onclick="openModal('modalManagePosts')" class="service-btn"><span>ادارة المنشورات 📄</span><span>ادارة ←</span></button>
 
-            <h4 class="text-cyan-400 text-xs font-bold mt-2">الاعدادات والخصوصية</h4>
-            <button onclick="showToast('إعدادات الحساب متصلة')" class="service-btn"><span>الحساب 👤</span><span>إعدادات الحساب متصلة ←</span></button>
-            <button onclick="showToast('حماية الخصوصية والأمان نشطة')" class="service-btn"><span>الخصوصية والامان 🔒</span><span>←</span></button>
+            <h4 class="text-cyan-400 text-xs font-bold mt-1">الاعدادات والخصوصية</h4>
+            <button onclick="openModal('modalAccount')" class="service-btn"><span>الحساب 👤</span><span>إعدادات الحساب ←</span></button>
+            <button onclick="openModal('modalSecurity')" class="service-btn"><span>الخصوصية والامان 🔒</span><span>فتح ←</span></button>
             <button onclick="changeBackgroundProfile()" class="service-btn"><span>تغير خلفية المستخدم 🎨</span><span>تغير ←</span></button>
             <button onclick="shareProfile()" class="service-btn"><span>مشاركة ملف الشخصي 🔗</span><span>مشاركة ←</span></button>
-            <button onclick="showToast('سياسة الخصوصية والامان نشطة')" class="service-btn"><span>السياسة والخصوصية 📜</span><span>فتح ←</span></button>
+            <button onclick="openModal('modalPolicy')" class="service-btn"><span>السياسة والخصوصية 📜</span><span>فتح ←</span></button>
             <button onclick="logout()" class="service-btn text-red-400"><span>تسجيل الخروج 🚪</span><span>←</span></button>
         </main>
     </div>
@@ -187,7 +181,76 @@
         </button>
     </nav>
 
-    <script src="/script.js"></script>
-</body>
-    </html>
-    
+    <!-- النوافذ المنبثقة التفاعلية (Modals) لكافة الأزرار -->
+    <!-- نافذة المجموعة التجارية -->
+    <div id="modalBusiness" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">المجموعة التجارية 🏢</h3>
+            <p class="text-xs text-slate-300">إدارة أعمالك وخدماتك العامة (مكتب أبو سلمان - تريم)</p>
+            <input type="text" value="مكتب أبو سلمان للخدمات العامة" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl p-2.5 text-xs text-cyan-300 outline-none">
+            <button onclick="showToast('تم حفظ بيانات المجموعة التجارية'); closeModal('modalBusiness')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">حفظ التعديلات</button>
+            <button onclick="closeModal('modalBusiness')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة الترويج والإعلانات -->
+    <div id="modalAds" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">الترويج والإعلانات 📢</h3>
+            <p class="text-xs text-slate-300">إدارة الحملات الإعلانية النشطة عبر واتساب ومنصات التواصل</p>
+            <div class="glass p-3 rounded-xl text-xs text-green-400">الحملة الحالية: نشطة وفعالة (Meta Ads) ✅</div>
+            <button onclick="showToast('تم إطلاق حملة ترويجية جديدة بنجاح!'); closeModal('modalAds')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">بدء حملة جديدة 🚀</button>
+            <button onclick="closeModal('modalAds')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة إدارة المنشورات -->
+    <div id="modalManagePosts" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">إدارة المنشورات 📄</h3>
+            <p class="text-xs text-slate-300">التحكم الكامل بالمنشورات والفيديوهات المخزنة محلياً وسحابياً</p>
+            <div id="modalPostsList" class="max-h-40 overflow-y-auto space-y-2 text-xs text-cyan-200"></div>
+            <button onclick="closeModal('modalManagePosts')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة الحساب -->
+    <div id="modalAccount" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">إعدادات الحساب 👤</h3>
+            <input id="accEmailInput" type="text" value="slmanmktbabw@gmail.com" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl p-2.5 text-xs text-cyan-300 outline-none">
+            <button onclick="updateAccountInfo(); closeModal('modalAccount')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">تحديث البريد واسم الحساب</button>
+            <button onclick="closeModal('modalAccount')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة الخصوصية والأمان -->
+    <div id="modalSecurity" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">الخصوصية والأمان 🔒</h3>
+            <p class="text-xs text-slate-300">حماية التخزين المحلي، Passkeys، وتشفير الجلسة السيادية.</p>
+            <div class="flex justify-between items-center text-xs text-cyan-300 glass p-2 rounded">
+                <span>تشفير الاتصال (Helmet & SSL)</span>
+                <span class="text-green-400 font-bold">مفعل</span>
+            </div>
+            <button onclick="closeModal('modalSecurity')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">تم الحفظ</button>
+        </div>
+    </div>
+
+    <!-- نافذة السياسة والخصوصية -->
+    <div id="modalPolicy" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">السياسة والخصوصية 📜</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">منصة TARIM OS مصممة للعمل الميداني والسيادي مع الحفاظ التام على أمان بيانات المستخدم وتخزينها محلياً على الجهاز عبر التخزين المحلي الآمن.</p>
+            <button onclick="closeModal('modalPolicy')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">فهمت واستوعبت</button>
+        </div>
+    </div>
+
+    <!-- نافذة رصيد OKX -->
+    <div id="modalOKX" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right">
+            <h3 class="font-bold text-cyan-400 text-sm">رصيد OKX الملكي 🪙</h3>
+            <div class="glass p-3 rounded-xl text-center text-cyan-300 font-bold text-lg">OKKI 1000 USDT</div>
+            <button onclick="showToast('تم مزامنة محفظة OKX بنجاح'); closeModal('modalOKX')" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">مزامنة الرصيد 🔄</button>
+            <button onclick="closeModal('modalOKX')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button>
+    </div>
