@@ -33,7 +33,13 @@
             <div class="space-y-3">
                 <input id="userPhoneOrEmail" type="text" placeholder="اسم المستخدم أو الهاتف / البريد" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 text-center">
                 <input id="userPass" type="password" placeholder="كلمة المرور السيادية" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 focus:outline-none focus:border-cyan-400 text-center">
-                <button onclick="processLogin()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl transition shadow-lg shadow-cyan-500/20">دخول القلعة السيادية 🔑</button>
+                
+                <div id="otpBox" class="hidden space-y-2">
+                    <div class="text-[11px] text-cyan-400">تم إرسال كود التحقق العشوائي إلى بريدك/هاتفك 📲</div>
+                    <input id="otpInput" type="text" placeholder="أدخل كود التحقق المكون من 4 أرقام" class="w-full bg-slate-900 border border-yellow-500/50 rounded-xl px-4 py-2.5 text-sm text-yellow-300 focus:outline-none text-center font-bold tracking-widest">
+                </div>
+
+                <button id="authActionBtn" onclick="processLogin()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl transition shadow-lg shadow-cyan-500/20">دخول القلعة السيادية 🔑</button>
                 <button onclick="processGoogleLogin()" class="w-full bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 text-xs">متابعة بجوجل 🌐</button>
             </div>
             <div id="authMsg" class="text-xs text-red-400 h-4"></div>
@@ -89,9 +95,9 @@
         <main id="tab-create" class="hidden space-y-4 text-right p-4">
             <h3 class="text-center text-cyan-400 font-bold text-sm">✨ محطة الإنشاء السيادي</h3>
             <div class="grid grid-cols-4 gap-2 text-center">
-                <button onclick="showToast('تفعيل تجميل الوجه الذكي ✨')" class="glass p-2 rounded-xl text-[11px]">تجميل ✨</button>
+                <button onclick="triggerBeautyEffect()" class="glass p-2 rounded-xl text-[11px]">تجميل ✨</button>
                 <button onclick="changeBackgroundProfile()" class="glass p-2 rounded-xl text-[11px]">خلفية 🎨</button>
-                <button onclick="switchCamera()" class="glass p-2 rounded-xl text-[11px]">تبديل 📷</button>
+                <button onclick="switchCameraFeed()" class="glass p-2 rounded-xl text-[11px]">تبديل 📷</button>
                 <button onclick="startLiveStudio()" class="glass p-2 rounded-xl text-[11px] text-red-400 font-bold">LIVE 🔴</button>
             </div>
             <textarea id="postDescInput" placeholder="اكتب وصف المنشور أو الفيديو السيادي هنا..." class="w-full bg-slate-900/80 border border-cyan-500/30 rounded-xl p-3 text-xs text-cyan-200 focus:outline-none h-28"></textarea>
@@ -143,18 +149,23 @@
             <div class="flex justify-between items-center z-10">
                 <button onclick="endLiveBroadcast()" class="glass px-3 py-1 rounded-full text-xs text-red-400 font-bold border border-red-500/50">إنهاء البث ❌</button>
                 <div class="flex items-center gap-2">
-                    <button onclick="switchCamera()" class="glass px-3 py-1 rounded-full text-xs text-cyan-300 font-bold">📷 تبديل</button>
+                    <button onclick="switchCameraFeed()" class="glass px-3 py-1 rounded-full text-xs text-cyan-300 font-bold">📷 تبديل</button>
                     <div class="glass px-3 py-1 rounded-full text-xs text-cyan-300">🔴 <span id="liveTimer">00:00</span></div>
                 </div>
             </div>
             
             <video id="fullCamVideo" autoplay playsinline class="absolute inset-0 w-full h-full object-cover -z-0"></video>
             
+            <div class="absolute left-3 bottom-24 flex flex-col items-center gap-3 z-20">
+                <button onclick="sendLiveLike()" class="flex flex-col items-center text-red-500 text-xs bg-slate-900/80 p-2 rounded-full border border-red-500/30 shadow-lg"><span class="text-xl">❤️</span><span id="liveLikesCount">0</span></button>
+                <button onclick="sendLiveGift('👑 تاج إمبراطوري')" class="flex flex-col items-center text-yellow-400 text-xs bg-slate-900/80 p-2 rounded-full border border-yellow-500/30 shadow-lg"><span class="text-xl">🎁</span><span class="text-[9px]">هدية</span></button>
+            </div>
+
             <div id="liveChatBox" class="z-10 space-y-2 mb-4 hidden">
-                <div id="liveCommentsList" class="h-28 overflow-y-auto space-y-1 text-right"></div>
+                <div id="liveCommentsList" class="h-32 overflow-y-auto space-y-1 text-right"></div>
                 <div class="flex gap-2 items-center">
                     <input id="liveCommentInput" type="text" placeholder="اكتب تعليقاً في البث..." class="flex-1 bg-slate-900/90 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white outline-none">
-                    <button onclick="sendLiveChatMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
+                    <button onclick="sendLiveCommentMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
                 </div>
             </div>
 
@@ -225,30 +236,4 @@
         <button onclick="openTab('create', event)" class="w-14 h-14 bg-cyan-500 text-black rounded-full flex items-center justify-center text-2xl -mt-5 shadow-lg border-2 border-[#030B1A]">
             <span>✨</span>
         </button>
-        <button onclick="openTab('inbox', event)" class="nav-btn flex flex-col items-center text-gray-400 text-[10px]">
-            <span class="text-2xl">💬</span>الوارد
-        </button>
-        <button onclick="openTab('profile', event)" class="nav-btn flex flex-col items-center text-gray-400 text-[10px]">
-            <span class="text-2xl">👤</span>الملفات
-        </button>
-    </nav>
-
-    <script>
-        let liveInterval = null;
-        let liveSeconds = 0;
-
-        window.onload = function() {
-            // استرجاع وتخزين بيانات المستخدم والخصوصية
-            const savedAuth = localStorage.getItem('tarimAuth');
-            const savedName = localStorage.getItem('tarimUserName');
-            const savedEmail = localStorage.getItem('tarimUserEmail');
-            const savedBg = localStorage.getItem('tarimBgColor');
-            
-            if(savedAuth === 'true') {
-                document.getElementById('authGate').style.display = 'none';
-            }
-            if(savedName) {
-                document.getElementById('profileNameDisplay').innerText = savedName;
-                document.getElementById('homeUsername').innerText = '@' + savedName.replace(/\s+/g, '_');
-            }
-          
+        <button onclick="openTab('inbox', event)" class="nav-btn flex flex-col items-center text-g
