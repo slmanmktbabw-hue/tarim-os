@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TARIM OS - النظام السيادي</title>
+    <title>TARIM OS - النظام السيادي والإمبراطوري</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -11,143 +11,114 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
      .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
-      body { font-family: 'Cairo', sans-serif; background: #030B1A; color: #ffffff; }
-     .service-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(15, 23, 42, 0.8); padding: 12px; border-radius: 12px; border: 1px solid rgba(0, 240, 255, 0.2); margin-bottom: 8px; transition: 0.3s; }
-     .service-btn:hover { background: rgba(0, 240, 255, 0.1); border-color: rgba(0, 240, 255, 0.4); }
+      body { font-family: 'Cairo', sans-serif; background: #030B1A; color: #ffffff; user-select: none; }
+     .service-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(15, 23, 42, 0.8); padding: 12px; border-radius: 12px; border: 1px solid rgba(0, 240, 255, 0.2); margin-bottom: 8px; }
+     .tiktok-feed { scroll-snap-type: y mandatory; overflow-y: scroll; height: calc(100vh - 130px); }
+     .tiktok-item { scroll-snap-align: start; height: 100%; position: relative; }
     </style>
 </head>
-<body class="text-white min-h-screen flex flex-col justify-between select-none pb-24">
-
+<body class="text-white min-h-screen flex flex-col justify-between pb-24">
     <div id="authGate" class="fixed inset-0 bg-[#030B1A] z-50 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-sm p-6 rounded-2xl border border-cyan-500/40 space-y-4 shadow-2xl text-center">
-            <div class="text-3xl">🏰 TARIM OS</div>
+        <div class="glass w-full max-w-sm p-6 rounded-2xl border border-cyan-500/40 space-y-4 text-center">
+            <div class="text-3xl font-bold text-cyan-400">🏰 TARIM OS</div>
             <div class="text-xs text-slate-400">النظام السيادي - tarimos.org</div>
-            <div id="stepCredentials" class="space-y-3">
-                <input id="userPhoneOrEmail" type="text" value="slmanmktbabw@gmail.com" placeholder="البريد الإلكتروني" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 text-center">
-                <input id="userPass" type="password" value="123456" placeholder="كلمة المرور" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 text-center">
-                <button onclick="requestOTP()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl">إرسال رمز التحقق 📨</button>
+            <div class="space-y-3">
+                <input id="userPhoneOrEmail" type="text" placeholder="اسم المستخدم / البريد" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 text-center">
+                <input id="userPass" type="password" placeholder="كلمة المرور" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 text-center">
+                <button onclick="requestOTP()" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl">دخول القلعة 🔑</button>
+                <button onclick="showToast('تسجيل جوجل قريباً 🌐')" class="w-full bg-slate-800 text-cyan-300 border border-cyan-500/30 font-bold py-2.5 rounded-xl text-xs">متابعة بجوجل 🌐</button>
             </div>
-            <div id="stepOTP" class="hidden space-y-3">
-                <p class="text-xs text-cyan-300">تم إرسال رمز التحقق 📩</p>
-                <input id="otpCodeInput" type="text" placeholder="أدخل الرمز (4 أرقام)" maxlength="4" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-cyan-300 tracking-widest text-center">
-                <button onclick="verifyOTP()" class="w-full bg-green-500 hover:bg-green-400 text-black font-bold py-3 rounded-xl">تأكيد الدخول 🔑</button>
-                <button onclick="backToCredentials()" class="text-[10px] text-slate-400 underline block mx-auto">تعديل البريد ↺</button>
-            </div>
+            <div class="text-[10px] text-cyan-500 pt-2 font-semibold">حساب الملك والإمبراطور AL 👑</div>
             <div id="authMsg" class="text-xs text-red-400 h-4"></div>
         </div>
     </div>
 
     <div id="toastBox" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none w-11/12 max-w-sm"></div>
 
-    <header class="w-full p-3 flex justify-between items-center glass border-b border-cyan-500/20">
-        <button id="ai-eye-btn" data-ai-eye onclick="toggleAIEye()" class="text-xs text-cyan-400 flex items-center gap-1 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-cyan-500/30">عين الذكاء 👁️</button>
-        <h2 class="font-bold text-cyan-400 tracking-wider">TARIM OS</h2>
-        <button id="support-btn" data-support onclick="toggleSupportAI()" class="text-xs text-yellow-400 flex items-center gap-1 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-yellow-500/30">فريق الدعم 🛡️</button>
+    <header class="w-full p-3 flex justify-between items-center glass border-b border-cyan-500/20 z-40 fixed top-0">
+        <button onclick="toggleAIEye()" class="text-xs text-cyan-400 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-cyan-500/30 font-bold">عين الذكاء 👁️</button>
+        <h2 class="font-bold text-cyan-400">TARIM OS</h2>
+        <button onclick="toggleSupportAI()" class="text-xs text-yellow-400 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-yellow-500/30 font-bold">فريق الدعم 🛡️</button>
     </header>
 
-    <div class="flex-1 w-full max-w-md mx-auto overflow-y-auto">
-        <main id="tab-home" class="space-y-4 text-right p-4">
-            <div class="flex items-center justify-start mt-2">
-                <div>
-                    <p id="homeUsername" class="font-bold text-lg text-cyan-300">slmanmktbabw@gmail.com</p>
-                    <p class="text-xs text-slate-400">TARIM OS النظام السيادي</p>
+    <div class="flex-1 w-full max-w-md mx-auto overflow-y-auto mt-14">
+        <main id="tab-home" class="space-y-0 p-0">
+            <div class="tiktok-feed w-full">
+                <div class="tiktok-item w-full h-full relative bg-slate-950 flex flex-col justify-end p-4 border-b border-cyan-500/10">
+                    <div class="absolute inset-0 flex items-center justify-center -z-0"><div class="text-center"><span class="text-5xl">🎥</span><p class="text-xs mt-2 text-cyan-400/60">فيديو سيادي بملء الشاشة</p></div></div>
+                    <div class="absolute left-3 bottom-16 flex flex-col items-center gap-4 z-10">
+                        <button onclick="showToast('تمت المتابعة ✨')" class="w-10 h-10 rounded-full bg-cyan-500 text-black font-bold">+</button>
+                        <button onclick="likeVideo(this)" class="flex flex-col items-center text-red-400 text-xs"><span class="text-2xl">❤️</span><span class="like-count">120</span></button>
+                        <button onclick="openTab('inbox')" class="flex flex-col items-center text-cyan-400 text-xs"><span class="text-2xl">💬</span>تعليق</button>
+                        <button onclick="showToast('تم الحفظ 💾')" class="flex flex-col items-center text-yellow-400 text-xs"><span class="text-2xl">⭐</span>حفظ</button>
+                    </div>
+                    <div class="z-10 space-y-1 pb-4">
+                        <h4 id="homeUsername" class="font-bold text-sm text-cyan-300">@AL</h4>
+                        <p class="text-xs text-cyan-100">فيديو سيادي مسجل على سيرفرات TARIM OS 🎥✨</p>
+                    </div>
                 </div>
-            </div>
-            <div class="flex justify-between items-center glass p-4 rounded-xl border-2 border-cyan-500">
-                <div>
-                    <div id="homeOKI" class="text-us text-cyan-400 font-bold">OKX 1000 USDT</div>
-                    <div class="flex items-center gap-2 text-red-400"><span id="homeLikes">120</span> <span class="text-xs">❤️ إعجاب</span></div>
-                </div>
-                <button onclick="openModal('modalOKX')" class="bg-cyan-500/20 text-cyan-300 text-xs px-3 py-1.5 rounded-lg border border-cyan-500/40">رصيد OKX 💼</button>
-            </div>
-            <div class="space-y-3 pt-2">
-                <h4 class="text-cyan-400 text-xs font-bold">📢 المنشورات المحفوظة:</h4>
-                <div id="savedMediaFeed" class="space-y-3"></div>
             </div>
         </main>
 
         <main id="tab-operations" class="hidden space-y-4 text-right p-4">
-            <h3 class="text-center text-cyan-400 font-bold">⚡ قسم العمليات السيادية</h3>
-            <button onclick="startLiveStudio()" class="service-btn"><span>بدء بث مباشر سيادي 🔴</span><span>🎥</span></button>
-            <button onclick="showToast('الفرَاسة الأمنية مفعلة 🛡️')" class="service-btn"><span>الفرَاسة الأمنية ومراقبة الميدان 🛡️</span><span>📍</span></button>
-            <button onclick="openMap()" class="service-btn"><span>خريطة حضرموت الميدانية 🗺️</span><span>🌐</span></button>
+            <h3 class="text-center text-cyan-400 font-bold text-sm">⚡ قسم العمليات السيادية</h3>
+            <button onclick="startLiveStudio()" class="service-btn"><span>بث مباشر سيادي 🔴</span><span>🎥</span></button>
+            <button onclick="openTab('inbox')" class="service-btn"><span>المراسلة الآمنة 💬</span><span>🔒</span></button>
+            <button onclick="openMap()" class="service-btn"><span>خريطة حضرموت 🗺️</span><span>🌐</span></button>
             <button onclick="generateQR()" class="service-btn"><span>الختم الميداني QR 🧾</span><span>🖨️</span></button>
+            <div id="qrcode" class="flex justify-center my-2"></div>
             <div id="mapContainer" class="hidden mt-4 h-48 rounded-xl overflow-hidden border border-cyan-500/30"><div id="map" class="w-full h-full"></div></div>
         </main>
 
         <main id="tab-create" class="hidden space-y-4 text-right p-4">
-            <h3 class="text-center text-cyan-400 font-bold">✨ محطة الإنشاء السيادي</h3>
-            <div class="grid grid-cols-4 gap-2 text-center">
-                <button onclick="switchCamera()" class="glass p-2 rounded-xl text-[11px]">كاميرا 📷</button>
-                <button onclick="showToast('تجميل الوجه نشط')" class="glass p-2 rounded-xl text-[11px]">تجميل ✨</button>
-                <button onclick="changeBackgroundProfile()" class="glass p-2 rounded-xl text-[11px]">خلفية 🎨</button>
-                <button onclick="startLiveStudio()" class="glass p-2 rounded-xl text-[11px] text-red-400">LIVE 🔴</button>
-            </div>
-            <textarea id="postDescInput" placeholder="اكتب وصف المنشور السيادي..." class="w-full bg-slate-900/80 border border-cyan-500/30 rounded-xl p-3 text-xs text-cyan-200 h-28"></textarea>
+            <h3 class="text-center text-cyan-400 font-bold text-sm">✨ محطة الإنشاء السيادي</h3>
+            <textarea id="postDescInput" placeholder="اكتب وصف المنشور..." class="w-full bg-slate-900/80 border border-cyan-500/30 rounded-xl p-3 text-xs text-cyan-200 h-28"></textarea>
             <div class="flex gap-2">
-                <button onclick="publishPost('post')" class="flex-1 bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">نشر المنشور 📢</button>
-                <button onclick="publishPost('media')" class="flex-1 bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-xs">حفظ الفيديو 🎥</button>
+                <button onclick="publishPost('post')" class="flex-1 bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">نشر 📢</button>
+                <button onclick="publishPost('media')" class="flex-1 bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-xs">رفع فيديو 🎥</button>
             </div>
         </main>
 
         <main id="tab-inbox" class="hidden space-y-4 text-right p-4">
-            <h3 class="text-center text-cyan-400 font-bold">💬 صندوق الوارد السيادي</h3>
-            <div id="inboxMessages" class="h-64 overflow-y-auto space-y-2 mb-2 glass p-3 rounded-xl border border-cyan-500/20"></div>
-            <div class="flex p-2 rounded-xl glass gap-2">
-                <input id="inboxInput" type="text" placeholder="اكتب رسالة..." class="flex-1 bg-transparent outline-none text-xs text-cyan-200 px-2">
-                <button onclick="sendInboxMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold">إرسال 🚀</button>
-            </div>
+            <h3 class="text-center text-cyan-400 font-bold text-sm">💬 صندوق الوارد</h3>
+            <div id="inboxMessages" class="h-64 overflow-y-auto space-y-2 mb-2 glass p-3 rounded-xl border border-cyan-500/20"><div class="glass p-2 rounded-xl text-xs text-yellow-300">أهلاً بك يا أبو سلمان 🛡️</div></div>
+            <div class="flex p-2 rounded-xl glass gap-2"><input id="inboxInput" type="text" placeholder="رسالتك..." class="flex-1 bg-transparent outline-none text-xs text-cyan-200 px-2"><button onclick="sendInboxMsg()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold">إرسال 🚀</button></div>
         </main>
 
         <main id="tab-profile" class="hidden space-y-3 text-right p-4">
             <div class="glass p-4 rounded-2xl border border-cyan-500/30 flex flex-col items-center">
-                <div class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-2xl mb-2">👤</div>
-                <h3 id="profileName" class="font-bold text-cyan-300 text-sm">slmanmktbabw@gmail.com</h3>
-                <p class="text-xs text-cyan-500">مكتب أبو سلمان - تعز</p>
+                <div class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-2xl mb-2 font-bold text-cyan-300">AL</div>
+                <h3 id="profileName" class="font-bold text-cyan-300 text-sm">الإمبراطور AL</h3>
+                <div class="flex gap-4 mt-3 text-xs text-slate-300"><span><b>0</b> متابع</span><span><b>0</b> يتابع</span><span><b>120</b> إعجاب ❤️</span></div>
+                <button onclick="openModal('modalAccount')" class="mt-3 bg-cyan-500/20 text-cyan-300 text-xs px-4 py-1.5 rounded-lg border border-cyan-500/40">تعديل الملف ✏️</button>
             </div>
-            <h4 class="text-cyan-400 text-xs font-bold">💼 أدوات الحساب:</h4>
             <button onclick="openModal('modalOKX')" class="service-btn"><span>رصيد OKX</span><span>1000 USDT 💰</span></button>
-            <button onclick="window.open('https://business.facebook.com/','_blank')" class="service-btn"><span>الروج والإعلانات</span><span>إدارة الحملات 📢</span></button>
-            <button onclick="openModal('modalManagePosts')" class="service-btn"><span>إدارة المنشورات</span><span>عرض وحذف 📋</span></button>
-            <h4 class="text-cyan-400 text-xs font-bold">🛡️ الأمان:</h4>
-            <button onclick="openModal('modalAccount')" class="service-btn"><span>إعدادات الحساب</span><span>تحديث 👤</span></button>
-            <button onclick="openModal('modalSecurity')" class="service-btn"><span>الخصوصية والأمان</span><span>حماية 🔒</span></button>
-            <button onclick="changeBackgroundProfile()" class="service-btn"><span>تغيير خلفية النظام</span><span>ألوان 🎨</span></button>
-            <button onclick="shareProfile()" class="service-btn"><span>مشاركة ملف التخصيص</span><span>رابط 🔗</span></button>
+            <button onclick="openModal('modalAds')" class="service-btn"><span>الروج والإعلانات</span><span>📢</span></button>
+            <button onclick="openModal('modalManagePosts')" class="service-btn"><span>إدارة المنشورات</span><span>📋</span></button>
+            <button onclick="openModal('modalAccount')" class="service-btn"><span>إعدادات الحساب</span><span>👤</span></button>
+            <button onclick="openModal('modalSecurity')" class="service-btn"><span>الخصوصية والأمان</span><span>🔒</span></button>
+            <button onclick="changeBackgroundProfile()" class="service-btn"><span>تغيير خلفية النظام</span><span>🎨</span></button>
+            <button onclick="shareProfile()" class="service-btn"><span>مشاركة ملف التخصيص</span><span>🔗</span></button>
             <button onclick="openModal('modalPolicy')" class="service-btn"><span>السياسة والخصوصية</span><span>📜</span></button>
             <button onclick="logout()" class="service-btn text-red-400"><span>تسجيل الخروج الآمن</span><span>🚪</span></button>
         </main>
 
-        <main id="fullScreenCam" class="hidden fixed inset-0 bg-black z-60 flex flex-col justify-between p-4">
-            <div class="flex justify-between items-center z-10">
-                <button onclick="exitFullScreen()" class="glass px-3 py-1 rounded-full text-xs text-red-400 font-bold">إنهاء البث ❌</button>
-                <div class="glass px-3 py-1 rounded-full text-xs text-cyan-300">🔴 <span id="liveTimer">00:00</span></div>
-            </div>
+        <main id="fullScreenCam" class="hidden fixed inset-0 bg-black z-50 flex flex-col justify-between p-4">
+            <div class="flex justify-between items-center z-10"><button onclick="exitFullScreen()" class="glass px-3 py-1 rounded-full text-xs text-red-400 font-bold">إغلاق ❌</button><div class="glass px-3 py-1 rounded-full text-xs text-cyan-300">🔴 <span id="liveTimer">00:00</span></div></div>
             <video id="fullCamVideo" autoplay playsinline class="absolute inset-0 w-full h-full object-cover -z-0"></video>
-            <div class="z-10 space-y-2">
-                <div id="liveComments" class="h-32 overflow-y-auto space-y-1"></div>
-                <div class="flex gap-2">
-                    <input id="liveCommentIn" type="text" placeholder="اكتب تعليقاً..." class="flex-1 bg-slate-900/90 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white outline-none">
-                    <button onclick="sendLiveComment()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
-                </div>
-            </div>
-            <div id="preLiveOverlay" class="absolute inset-0 bg-black/85 flex items-center justify-center z-20">
-                <div class="text-xl font-bold text-cyan-400 text-center space-y-3">
-                    <p>استوديو البث المباشر 🔴</p>
-                    <button onclick="confirmStartLive()" class="bg-red-500 text-white px-8 py-3 rounded-xl text-sm">بدء البث فوراً 🎥</button>
-                </div>
-            </div>
+            <div class="z-10 space-y-2 mb-4"><div id="liveComments" class="h-36 overflow-y-auto space-y-1"></div><div class="flex gap-2"><input id="liveCommentIn" type="text" placeholder="تعليق..." class="flex-1 bg-slate-900/90 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-white outline-none"><button onclick="sendLiveComment()" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold">إرسال</button></div></div>
+            <div id="preLiveOverlay" class="absolute inset-0 bg-black/90 flex items-center justify-center z-20"><div class="text-center space-y-4"><p class="font-bold text-cyan-400">استوديو البث المباشر 🔴</p><button onclick="confirmStartLive()" class="bg-red-500 text-white font-bold px-8 py-3 rounded-xl text-sm">ابدأ البث 🎥</button></div></div>
         </main>
     </div>
 
-    <div id="modalOKX" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right"><h3 class="font-bold text-cyan-400 text-sm">💼 رصيد OKX</h3><div class="glass p-3 text-center text-cyan-300 font-bold text-lg">1000 USDT</div><button onclick="closeModal('modalOKX')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button></div></div>
+    <div id="modalOKX" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right"><h3 class="font-bold text-cyan-400 text-sm">💼 رصيد OKX</h3><div class="glass p-3 text-center text-cyan-300 font-bold">1000 USDT</div><button onclick="closeModal('modalOKX')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button></div></div>
     <div id="modalAds" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right"><h3 class="font-bold text-cyan-400 text-sm">📢 الترويج</h3><div class="glass p-3 text-xs text-green-400">الحملة نشطة ✅</div><button onclick="closeModal('modalAds')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button></div></div>
     <div id="modalManagePosts" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right"><h3 class="font-bold text-cyan-400 text-sm">📋 المنشورات</h3><div id="modalPostsList" class="max-h-40 overflow-y-auto space-y-2 text-xs"></div><button onclick="closeModal('modalManagePosts')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button></div></div>
     <div id="modalAccount" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right"><h3 class="font-bold text-cyan-400 text-sm">👤 إعدادات الحساب</h3><input id="accEmailInput" type="text" value="slmanmktbabw@gmail.com" class="w-full bg-slate-900 border border-cyan-500/30 rounded-xl px-3 py-2 text-xs text-cyan-300"><button onclick="updateAccountInfo(); closeModal('modalAccount')" class="w-full bg-cyan-500 text-black font-bold py-2 rounded-xl text-xs">حفظ</button></div></div>
-    <div id="modalSecurity" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right"><h3 class="font-bold text-cyan-400 text-sm">🔒 الأمان</h3><div class="flex justify-between text-xs text-cyan-300 glass p-2 rounded"><span>حماية SSL</span><span class="text-green-400">مفعل 🛡️</span></div><button onclick="closeModal('modalSecurity')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button></div></div>
-    <div id="modalPolicy" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right"><h3 class="font-bold text-cyan-400 text-sm">📜 السياسة</h3><p class="text-xs text-slate-300">TARIM OS آمن ومحمي محلياً.</p><button onclick="closeModal('modalPolicy')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button></div></div>
+    <div id="modalSecurity" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right"><h3 class="font-bold text-cyan-400 text-sm">🔒 الأمان</h3><p class="text-xs text-slate-300">نظام الحماية مفعل.</p><button onclick="closeModal('modalSecurity')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button></div></div>
+    <div id="modalPolicy" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"><div class="glass w-full max-w-sm p-5 rounded-2xl border border-cyan-500/40 space-y-3 text-right"><h3 class="font-bold text-cyan-400 text-sm">📜 السياسة</h3><p class="text-xs text-slate-300">جميع البيانات محمية.</p><button onclick="closeModal('modalPolicy')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs">إغلاق</button></div></div>
 
-    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 flex justify-around p-2 z-30">
+    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 flex justify-around p-2 z-40">
         <button onclick="openTab('home', event)" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px]"><span class="text-2xl">🏰</span>الرئيسية</button>
         <button onclick="openTab('operations', event)" class="nav-btn flex flex-col items-center text-gray-400 text-[10px]"><span class="text-2xl">⚡</span>العمليات</button>
         <button onclick="openTab('create', event)" class="w-14 h-14 bg-cyan-500 text-black rounded-full flex items-center justify-center text-2xl -mt-5 shadow-lg border-2 border-[#030B1A]"><span>✨</span></button>
@@ -156,25 +127,5 @@
     </nav>
 
     <script src="script.js"></script>
-    <script>
-    // إصلاح عين الذكاء والدعم الفني - TARIM OS
-    function toggleAIEye(){
-      const msgs = [
-        '👁️ عين الذكاء نشطة\n\n✅ البث مستقر\n✅ 3 مشاهدين\n✅ الخريطة مؤمنة',
-        '👁️ فحص أمني:\n\n✅ لا يوجد تهديد\n✅ الاتصال مشفر\n✅ النظام مستقر'
-      ];
-      alert(msgs[Math.floor(Math.random()*msgs.length)]);
-    }
-    function toggleSupportAI(){
-      const msg = prompt('🛡️ فريق الدعم الفني - TARIM OS\n\nاكتب مشكلتك:');
-      if(!msg) return;
-      let reply = 'تم استلام رسالتك، فريق الدعم يراجعها الآن 🛡️';
-      if(msg.includes('بث')) reply = '🔴 للبث: اسمح للكاميرا من إعدادات الجوال ثم اضغط بدء بث سيادي';
-      else if(msg.includes('خريطة')) reply = '🗺️ الخريطة تعمل، قريباً Offline كاملة';
-      else if(msg.includes('رصيد') || msg.includes('OKX')) reply = '💰 رصيدك 1000 USDT آمن ومحفوظ';
-      else if(msg.includes('سلام')) reply = 'وعليكم السلام يا بطل TARIM OS 👑';
-      alert(reply);
-    }
-    </script>
 </body>
-            </html>
+</html>
