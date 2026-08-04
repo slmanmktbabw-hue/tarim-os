@@ -1,3 +1,8 @@
+/**
+ * TARIM OS - الملف الرئيسي للسيرفر (Server.js)
+ * الإشراف: أبو سلمان 👑
+ */
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -11,29 +16,18 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// تفعيل الحماية السيادية على التطبيق
+// تفعيل درع الحماية
 setupSecurity(app);
 
-// تهيئة التخزين
+// تهيئة قاعدة البيانات والتخزين المحلي
 initDatabase();
 
-// قراءة بيانات الـ JSON للتطبيق
 app.use(express.json());
+// ربط المجلد العام لخدمة الواجهة والأزرار و app.js
 app.use(express.static(path.join(__dirname, 'public')));
 
-// مسار تجريبي لجلب حالة التخزين عبر المنصة
-app.get('/api/sovereign-status', (req, res) => {
-    const dbData = getSovereignData();
-    res.json({
-        status: "Online",
-        ruler: "أبو سلمان 👑",
-        domain: "tarimos.org",
-        totalLogs: dbData.logs.length
-    });
-});
-
 io.on('connection', (socket) => {
-    console.log(`🔌 تم اتصال عميل سيادي بالقلعة: ${socket.id}`);
+    console.log(`🔌 عميل سيادي متصل بالقلعة: ${socket.id}`);
 
     socket.on('liveComment', (data) => {
         io.emit('newLiveComment', data);
@@ -44,7 +38,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('inboxMessage', (data) => {
-        // حفظ الرسالة في نظام التخزين السيادي
         const db = getSovereignData();
         db.logs.push({ event: "Inbox Message", data, timestamp: new Date() });
         saveSovereignData(db);
@@ -59,5 +52,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🏰 خادم TARIM OS السيادي يعمل بأعلى درجات الحماية والتخزين على المنفذ ${PORT}`);
+    console.log(`🏰 خادم TARIM OS السيادي يعمل بكامل طاقته على المنفذ: ${PORT}`);
 });
