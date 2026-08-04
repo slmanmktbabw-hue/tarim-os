@@ -15,7 +15,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between overflow-x-hidden pb-20">
 
-    <!-- بوابة المصادقة والدخول السيادية -->
+    <!-- بوابة المصادقة والدخول السيادية الحرة -->
     <div id="authGate" class="fixed inset-0 z-50 bg-[#030B1A] flex items-center justify-center p-4">
         <div class="glass w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-cyan-500/40 text-center space-y-4">
             <h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑</h1>
@@ -23,11 +23,12 @@
             
             <div class="flex justify-center gap-6 border-b border-slate-800 pb-2">
                 <button class="text-xs font-bold text-cyan-400 border-b-2 border-cyan-400 pb-1">تسجيل الدخول</button>
+                <button class="text-xs text-slate-400 pb-1">حساب جديد</button>
             </div>
 
             <div class="space-y-3">
-                <input id="userPhoneOrEmail" type="text" value="730555886" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
-                <input id="userPass" type="password" value="123456789" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
+                <input id="userPhoneOrEmail" type="text" placeholder="البريد أو رقم الهاتف السيادي" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
+                <input id="userPass" type="password" placeholder="كلمة المرور الإمبراطورية" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
             </div>
 
             <p id="authMsg" class="text-xs text-rose-400 font-bold h-4"></p>
@@ -119,27 +120,22 @@
             const toastBox = document.getElementById('toastBox');
             const alertDiv = document.createElement('div');
             alertDiv.className = "bg-cyan-500 text-black font-bold text-xs px-4 py-2 rounded-xl shadow-lg mt-2 text-center w-full";
-            alertDiv.innerText = "✨ أهلاً بك يا أبو سلمان في إمبراطورية TARIM OS!";
+            alertDiv.innerText = "✨ أهلاً بك في إمبراطورية TARIM OS!";
             toastBox.appendChild(alertDiv);
             setTimeout(() => alertDiv.remove(), 3000);
         }
 
         function switchTab(tabName, btnElement) {
-            // إخفاء كل المحتويات
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.add('hidden');
             });
-
-            // إظهار المحتوى المطلوب
             document.getElementById('tab-' + tabName).classList.remove('hidden');
 
-            // إعادة تعيين ألوان أزرار التنقل
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('text-cyan-400');
                 btn.classList.add('text-slate-400');
             });
 
-            // تلوين الزر النشط
             btnElement.classList.remove('text-slate-400');
             btnElement.classList.add('text-cyan-400');
         }
