@@ -17,26 +17,24 @@ const io = new Server(server, {
     }
 });
 
-// تفعيل الملفات الثابتة
+// تفعيل الملفات الثابتة لتخدم الواجهة الأمامية index.html
 app.use(express.static(path.join(__dirname, '.')));
 
-// قاعدة بيانات مؤقتة لتخزين جلسات المستخدمين والمتصلين
+// تخزين المتصلين والنشاطات
 const activeUsers = new Map();
-const activeRooms = new Map();
 
 io.on('connection', (socket) => {
     console.log(`🔌 تم اتصال عميل سيادي جديد بالبث: ${socket.id}`);
 
-    // تسجيل المستخدم في النظام برقم هاتفه أو بريده
-    socket.on('registerSocket', (identifier) => {
-        activeUsers.set(socket.id, identifier);
-        console.log(`👤 تم تسجيل الهوية السيادية: ${identifier} (Socket ID: ${socket.id})`);
+    // تسجيل المستخدم في النظام عبر الهوية أو البريد
+    socket.on('registerUser', (userData) => {
+        activeUsers.set(socket.id, userData);
+        console.log(`👤 تم تسجيل الهوية السيادية: ${userData.email} (Socket ID: ${socket.id})`);
     });
 
     // استقبال وإذاعة تعليقات البث المباشر لجميع الحاضرين
     socket.on('liveComment', (data) => {
         console.log(`💬 تعليق في البث من [${data.user}]: ${data.msg}`);
-        // بث التعليق فوراً لكل المتصلين في المنصة
         io.emit('newLiveComment', {
             user: data.user,
             msg: data.msg,
@@ -47,21 +45,21 @@ io.on('connection', (socket) => {
     // إدارة اللايكات والتفاعلات الحية في البث
     socket.on('liveLike', (data) => {
         io.emit('newLiveLike', {
-            user: data.user || 'مستخدم سيادي'
+            count: data.count || 1
         });
     });
 
     // إدارة الهدايا السيادية في البث المباشر
     socket.on('liveGift', (data) => {
-        console.log(`🎁 هدية سيادية مرسلة من [${data.user}]: ${data.gift}`);
+        console.log(`🎁 هدية سيادية مرسلة: ${data.gift}`);
         io.emit('newLiveGift', {
-            user: data.user,
             gift: data.gift
         });
     });
 
-    // إدارة الرسائل الآمنة في صندوق الوارد (Inbox)
+    // إدارة رسائل صندوق الوارد الآمن (Inbox)
     socket.on('inboxMessage', (data) => {
+        console.log(`📬 رسالة واردة من [${data.sender}]: ${data.text}`);
         io.emit('newInboxMessage', data);
     });
 
@@ -69,11 +67,11 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         const user = activeUsers.get(socket.id);
         activeUsers.delete(socket.id);
-        console.log(`❌ انقطع اتصال العميل السيادي: ${user || socket.id}`);
+        console.log(`❌ انقطع اتصال العميل السيادي: ${user ? user.email : socket.id}`);
     });
 });
 
-// تشغيل الخادم على المنفذ 3000 أو المنفذ الافتراضي للاستضافة
+// تشغيل الخادم على المنفذ المطلوب للاستضافة (مثل Render)
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`🏰 خادم TARIM OS السيادي يعمل بكامل طاقته على المنفذ: ${PORT}`);
