@@ -23,17 +23,17 @@
     <!-- بوابة المصادقة وتنظيم الجمهور العالمية (OTP) -->
     <div id="authGate" class="fixed inset-0 bg-[#030B1A] z-50 flex items-center justify-center p-4">
         <div class="glass w-full max-w-sm p-6 rounded-2xl border border-cyan-500/40 text-center space-y-4 shadow-2xl">
-            <div class="text-3xl font-black text-cyan-400">🏰 TARIM OS</div>
+            <div class="text-3xl font-black text-cyan-400">TARIM OS 🏰</div>
             <div class="text-xs text-slate-400">المنصة العالمية لترتيب الجمهور - tarimos.org</div>
             
-            <!-- خطوة إدخال البيانات الأساسية (البريد الإلكتروني أو رقم الهاتف) -->
+            <!-- خطوة إدخال البيانات الأساسية -->
             <div id="stepCredentials" class="space-y-3">
-                <input id="userPhoneOrEmail" type="text" placeholder="البريد الإلكتروني أو رقم الهاتف" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-xs text-cyan-300 outline-none focus:border-cyan-400 text-right">
+                <input id="userPhoneOrEmail" type="text" value="slmanmktbabw@gmail.com" placeholder="البريد الإلكتروني أو رقم الهاتف" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-xs text-cyan-300 outline-none focus:border-cyan-400 text-right">
                 <input id="userPass" type="password" placeholder="كلمة المرور" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-xs text-cyan-300 outline-none focus:border-cyan-400 text-right">
                 <button onclick="requestOTP()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl shadow-lg shadow-cyan-500/30 transition-all">إرسال رمز التحقق 📨</button>
             </div>
 
-            <!-- خطوة إدخال رمز التحقق OTP (مخفية لحين طلب الرمز) -->
+            <!-- خطوة إدخال رمز التحقق OTP -->
             <div id="stepOTP" class="hidden space-y-3">
                 <p class="text-xs text-cyan-300">أدخل رمز التحقق (4 أرقام) المرسل لك:</p>
                 <input id="otpCodeInput" type="text" placeholder="أدخل الرمز هنا" maxlength="4" class="w-full bg-slate-900/90 border border-cyan-500/30 rounded-xl px-4 py-3 text-center text-lg tracking-widest text-cyan-300 outline-none">
@@ -51,7 +51,7 @@
 
     <!-- الهيدر -->
     <header class="w-full p-3 flex justify-between items-center glass border-b border-cyan-500/20">
-        <button onclick="showToast('عين الذكاء: مراقبة نشطة')" class="text-xs text-cyan-400 flex items-center gap-1">👁️ عين الذكاء</button>
+        <button onclick="showToast('عين الذكاء: مراقبة نشطة')" class="text-xs text-cyan-400 flex items-center gap-1">عين الذكاء 👁️</button>
         <h2 class="font-bold text-cyan-400 tracking-wider">TARIM OS</h2>
         <button onclick="showToast('فريق الدعم السيادي متصل')" class="text-xs text-yellow-400 flex items-center gap-1">فريق الدعم 🛡️</button>
     </header>
@@ -79,10 +79,10 @@
         <!-- العمليات -->
         <main id="tab-operations" class="hidden space-y-4 text-right p-4">
             <h3 class="text-center text-cyan-400 font-bold">قسم العمليات السيادية ⚡</h3>
-            <button onclick="startLive()" class="service-btn"><span>← بدء</span><span>بت مباشر سيادي (8 دقائق) 🔴</span></button>
-            <button onclick="showToast('المراسلة الامنة قريباً')" class="service-btn"><span>← فتح</span><span>المراسلة الامنة 💬</span></button>
-            <button onclick="openMap()" class="service-btn"><span>← عرض</span><span>خريطة حضرموت Offline 🗺️</span></button>
-            <button onclick="generateQR()" class="service-btn"><span>← إصدار</span><span>الختم الميداني QR 🧾</span></button>
+            <button onclick="startLive()" class="service-btn"><span>بدء بث مباشر سيادي (8 دقائق) 🔴</span><span>←</span></button>
+            <button onclick="showToast('المراسلة الامنة قريباً')" class="service-btn"><span>المراسلة الامنة 💬</span><span>←</span></button>
+            <button onclick="openMap()" class="service-btn"><span>خريطة حضرموت Offline 🗺️</span><span>←</span></button>
+            <button onclick="generateQR()" class="service-btn"><span>الختم الميداني QR 🧾</span><span>←</span></button>
             <div id="qrcode" class="flex justify-center mt-4"></div>
             <div id="mapContainer" class="hidden mt-4 h-48 rounded-xl overflow-hidden border border-cyan-500/30"><div id="map" class="w-full h-full"></div></div>
         </main>
@@ -116,7 +116,7 @@
                 <div id="profileAvatarBig" class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-cyan-300 font-bold text-xl mb-2">AL</div>
                 <h3 id="profileName" class="font-bold text-cyan-300">الامبراطور AL</h3>
                 <p class="text-xs text-cyan-500">OKX: 0x53...c0af6</p>
-                <p id="profileStatsHeader" class="text-[10px] text-slate-400 mt-1">OKKI: 0 - الملكي: 0</p>
+                <p id="profileStatsHeader" class="text-[10px] text-slate-400 mt-1">ملكي 🌍</p>
             </div>
             <div class="grid grid-cols-3 gap-2 text-center">
                 <div class="glass p-2 rounded"><div id="statFollowers" class="font-bold text-cyan-400">0</div><div class="text-[10px] text-slate-400">متابع</div></div>
@@ -125,19 +125,27 @@
             </div>
 
             <h4 class="text-cyan-400 text-xs font-bold mt-2">ادوات الحساب</h4>
-            <button onclick="openOKKI()" class="service-btn"><span>← فتح</span><span id="okkiBtn">رصيد OKX الملكي - 0 🪙</span></button>
-            <button onclick="openActivity()" class="service-btn"><span>← فتح</span><span>مركز الانشطة 📊</span></button>
-            <button onclick="openOfflineVideos()" class="service-btn"><span>← فتح</span><span>فيديوهات دون اتصال 📁</span></button>
-            <button onclick="generateQR()" class="service-btn"><span>← عرض</span><span>رمز QR لديك 🧾</span></button>
+            <button onclick="openOKKI()" class="service-btn"><span id="okkiBtn">رصيد OKX الملكي - 0 🪙</span><span>فتح ←</span></button>
+            <button onclick="openActivity()" class="service-btn"><span>مركز الانشطة 📊</span><span>فتح ←</span></button>
+            <button onclick="openOfflineVideos()" class="service-btn"><span>فيديوهات دون اتصال 📁</span><span>فتح ←</span></button>
+            <button onclick="generateQR()" class="service-btn"><span>رمز QR لديك 🧾</span><span>عرض ←</span></button>
+
+            <h4 class="text-cyan-400 text-xs font-bold mt-2">ادوات الابداع والاعمال</h4>
+            <button onclick="showToast('المجموعة التجارية نشطة')" class="service-btn"><span>المجموعة التجارية 🏢</span><span>فتح ←</span></button>
+            <button onclick="showToast('حملات الترويج والاعلانات')" class="service-btn"><span>الترويج والاعلانات 📢</span><span>فتح ←</span></button>
+            <button onclick="showToast('إدارة المنشورات السيادية')" class="service-btn"><span>ادارة المنشورات 📄</span><span>ادارة ←</span></button>
 
             <h4 class="text-cyan-400 text-xs font-bold mt-2">الاعدادات والخصوصية</h4>
-            <button onclick="changeBG()" class="service-btn"><span>← تغير</span><span>تغير خلفية المستخدم 🎨</span></button>
-            <button onclick="shareProfile()" class="service-btn"><span>← مشاركة</span><span>مشاركة ملف الشخصي 🔗</span></button>
-            <button onclick="logout()" class="service-btn text-red-400"><span>←</span><span>تسجيل الخروج 🚪</span></button>
+            <button onclick="showToast('إعدادات الحساب متصلة')" class="service-btn"><span>الحساب 👤</span><span>←</span></button>
+            <button onclick="showToast('حماية الخصوصية والامان نشطة')" class="service-btn"><span>الخصوصية والامان 🔒</span><span>←</span></button>
+            <button onclick="changeBG()" class="service-btn"><span>تغير خلفية المستخدم 🎨</span><span>تغير ←</span></button>
+            <button onclick="shareProfile()" class="service-btn"><span>مشاركة ملف الشخصي 🔗</span><span>مشاركة ←</span></button>
+            <button onclick="showToast('سياسة الخصوصية والامان')" class="service-btn"><span>السياسة والخصوصية 📜</span><span>فتح ←</span></button>
+            <button onclick="logout()" class="service-btn text-red-400"><span>تسجيل الخروج 🚪</span><span>←</span></button>
         </main>
     </div>
 
-    <!-- شاشة البث الكامل -->
+    <!-- شاشة البث الكامل الاحترافية -->
     <div id="fullScreenCam" class="hidden">
         <video id="fullCamVideo" autoplay playsinline class="w-full h-full object-cover"></video>
         <div id="liveFilter" class="opacity-0"></div>
@@ -180,4 +188,5 @@
 
     <script src="/script.js"></script>
 </body>
-</html>
+                </html>
+                
