@@ -40,9 +40,11 @@
     <!-- صندوق الإشعارات -->
     <div id="toastBox" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none w-11/12 max-w-xs"></div>
 
-    <!-- المحتوى الرئيسي للقلعة -->
+    <!-- المحتوى الرئيسي للقلعة (التبويبات) -->
     <main class="flex-1 w-full max-w-md mx-auto p-4 relative">
-        <div id="tab-home" class="space-y-4">
+        
+        <!-- 1. الرئيسية -->
+        <div id="tab-home" class="tab-content space-y-4">
             <div class="relative w-full h-[72vh] bg-slate-950 rounded-2xl overflow-hidden border border-cyan-500/30 flex flex-col justify-end p-4">
                 <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover">
                     <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
@@ -54,30 +56,92 @@
                 </div>
             </div>
         </div>
+
+        <!-- 2. العمليات -->
+        <div id="tab-operations" class="tab-content hidden space-y-4">
+            <div class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
+                <h3 class="text-sm font-black text-cyan-400">قسم العمليات السيادية ⚡</h3>
+                <div class="space-y-2.5 text-xs text-white">
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">🔴 بث مباشر سيادي (8 دقائق)</div>
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">💬 المراسلة الامنة</div>
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">🗺️ خريطة حضرموت Offline</div>
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">🧾 الختم الميداني QR</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. إنشاء -->
+        <div id="tab-create" class="tab-content hidden space-y-4">
+            <div class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
+                <h3 class="text-sm font-black text-cyan-400">مركز الإنشاء والتصوير ➕</h3>
+                <textarea placeholder="اكتب منشورك أو مقالك السيادي..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white h-32 resize-none"></textarea>
+                <button class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">نشر فوري 📢</button>
+            </div>
+        </div>
+
+        <!-- 4. الوارد -->
+        <div id="tab-inbox" class="tab-content hidden space-y-4">
+            <div class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
+                <h3 class="text-sm font-black text-cyan-400">صندوق الوارد 💬</h3>
+                <div class="bg-slate-900 p-4 rounded-xl text-xs text-slate-300">لا توجد رسائل جديدة حالياً. النظام آمن ومتصل.</div>
+            </div>
+        </div>
+
+        <!-- 5. الملفات -->
+        <div id="tab-profile" class="tab-content hidden space-y-4">
+            <div class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
+                <div class="w-16 h-16 bg-cyan-500 rounded-full mx-auto flex items-center justify-center text-2xl font-black text-black">👑</div>
+                <h3 class="text-sm font-black text-cyan-400">الإمبراطور AL</h3>
+                <p class="text-[11px] text-cyan-300">OKX: 0x53...c0af6</p>
+                <div class="bg-slate-900 p-3 rounded-xl text-xs text-right space-y-2">
+                    <div>💳 رصيد OKX والأرباح</div>
+                    <div>⚙️ الإعدادات والخصوصية (نظام الحظر 3 تنبيهات)</div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- شريط التنقل السفلي -->
     <nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 px-4 py-2 flex justify-around items-center z-40">
-        <button class="flex flex-col items-center text-cyan-400 text-[10px]"><span class="text-xl">🏠</span>الرئيسية</button>
-        <button class="flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">⚡</span>العمليات</button>
-        <button class="flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">➕</span>إنشاء</button>
-        <button class="flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">💬</span>الوارد</button>
-        <button class="flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">👤</span>الملفات</button>
+        <button onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px] cursor-pointer"><span class="text-xl">🏠</span>الرئيسية</button>
+        <button onclick="switchTab('operations', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">⚡</span>العمليات</button>
+        <button onclick="switchTab('create', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">➕</span>إنشاء</button>
+        <button onclick="switchTab('inbox', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">💬</span>الوارد</button>
+        <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">👤</span>الملفات</button>
     </nav>
 
-    <!-- البرمجية المباشرة لفتح الباب -->
+    <!-- البرمجية والتنقل السيادي -->
     <script>
         function unlockCastle() {
-            const gate = document.getElementById('authGate');
-            gate.style.display = 'none';
+            document.getElementById('authGate').style.display = 'none';
             
-            // إشعار نجاح
             const toastBox = document.getElementById('toastBox');
             const alertDiv = document.createElement('div');
             alertDiv.className = "bg-cyan-500 text-black font-bold text-xs px-4 py-2 rounded-xl shadow-lg mt-2 text-center w-full";
             alertDiv.innerText = "✨ أهلاً بك يا أبو سلمان في إمبراطورية TARIM OS!";
             toastBox.appendChild(alertDiv);
             setTimeout(() => alertDiv.remove(), 3000);
+        }
+
+        function switchTab(tabName, btnElement) {
+            // إخفاء كل المحتويات
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+
+            // إظهار المحتوى المطلوب
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+            // إعادة تعيين ألوان أزرار التنقل
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-cyan-400');
+                btn.classList.add('text-slate-400');
+            });
+
+            // تلوين الزر النشط
+            btnElement.classList.remove('text-slate-400');
+            btnElement.classList.add('text-cyan-400');
         }
     </script>
 </body>
