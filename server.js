@@ -11,10 +11,10 @@ app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ربط الملفات الثابتة
+// ربط الملفات الثابتة من مجلد public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// محاولة استدعاء الروتر المخصص إن وجد لضمان توافق النظام
+// محاولة استدعاء الروتر المخصص إن وجد
 try {
     const router = require('./router');
     app.use('/api', router);
