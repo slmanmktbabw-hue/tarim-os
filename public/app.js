@@ -2,21 +2,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🏰 TARIM OS Client Application Initialized - KING AL');
     
-    // ربط الأحداث ديناميكياً لتوافق الكود الجديد
-    const loginBtn = document.querySelector('button[onclick="forceUnlockCastle()"]');
-    if(loginBtn) {
-        loginBtn.addEventListener('click', forceUnlockCastle);
+    // التحقق من حالة تسجيل الدخول المحفوظة مسبقاً
+    const savedUser = localStorage.getItem('tarim_user');
+    if (savedUser) {
+        const gate = document.getElementById('authGate');
+        if (gate) { 
+            gate.style.display = 'none'; 
+            gate.classList.add('hidden'); 
+        }
     }
 });
-
-let likesCount = 120;
-let isLiked = false;
 
 function showToast(msg) {
     const box = document.getElementById('toastBox');
     if (!box) return;
     const toast = document.createElement('div');
-    toast.className = 'toast-msg bg-cyan-500 text-black font-bold px-4 py-2 rounded-xl mb-2 text-xs shadow-lg transition-all';
+    toast.className = 'bg-cyan-500 text-black font-bold px-4 py-2 rounded-xl mb-2 text-xs shadow-lg transition-all text-center';
     toast.innerText = msg;
     box.appendChild(toast);
     setTimeout(() => { toast.remove(); }, 2500);
@@ -38,6 +39,7 @@ function lockCastleAgain() {
         gate.style.display = 'flex'; 
         gate.classList.remove('hidden'); 
     }
+    localStorage.removeItem('tarim_user');
     showToast('تم إقفال القلعة بنجاح 🚪');
 }
 
@@ -54,7 +56,7 @@ function switchTab(tabName, btnElement) {
         btnElement.classList.remove('text-slate-400');
         btnElement.classList.add('text-cyan-400');
     }
-    if(tabName === 'profile') backToProfile();
+    if (tabName === 'profile') backToProfile();
 }
 
 function showSubPage(pageId) {
@@ -63,9 +65,9 @@ function showSubPage(pageId) {
     document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
     
     const target = document.getElementById('sub-' + pageId);
-    if(target) {
+    if (target) {
         target.classList.remove('hidden');
-        if(pageId === 'qr-page') {
+        if (pageId === 'qr-page') {
             const qrContainer = document.getElementById('qrcode');
             if (qrContainer) {
                 qrContainer.innerHTML = "";
@@ -83,30 +85,32 @@ function backToProfile() {
     if (profileMain) profileMain.classList.remove('hidden');
 }
 
+// تفعيل خريطة Leaflet (تريم - حضرموت)
 let mapInstance = null;
 const mapBtn = document.getElementById('opMapBtn');
-if(mapBtn) {
+if (mapBtn) {
     mapBtn.addEventListener('click', () => {
         const mapContainer = document.getElementById('mapContainer');
-        if(!mapContainer) return;
+        if (!mapContainer) return;
         mapContainer.classList.toggle('hidden');
         if (!mapContainer.classList.contains('hidden') && !mapInstance) {
             setTimeout(() => {
                 if (typeof L !== 'undefined') {
                     mapInstance = L.map('mapContainer').setView([16.0355, 48.9856], 13);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapInstance);
-                    L.marker([16.0355, 48.9856]).addTo(mapInstance).bindPopup('<b>تريم حضرموت الخير</b> 🌴').openPopup();
+                    L.marker([16.0355, 48.9856]).addTo(mapInstance).bindPopup('<b>تريم - حضرموت الخير</b> 🌴').openPopup();
                 }
             }, 300);
         }
     });
 }
 
+// تفعيل ختم QR في العمليات
 const qrBtn = document.getElementById('opQrBtn');
-if(qrBtn) {
+if (qrBtn) {
     qrBtn.addEventListener('click', () => {
         const qrBox = document.getElementById('operationsQrBox');
-        if(!qrBox) return;
+        if (!qrBox) return;
         qrBox.classList.toggle('hidden');
         if (!qrBox.classList.contains('hidden')) {
             qrBox.innerHTML = "";
@@ -118,8 +122,9 @@ if(qrBtn) {
     });
 }
 
+// زر النشر الفوري
 const publishBtn = document.getElementById('publishTextBtn');
-if(publishBtn) {
+if (publishBtn) {
     publishBtn.addEventListener('click', () => {
         const input = document.getElementById('postContentInput');
         if (input && input.value.trim() !== "") {
@@ -132,8 +137,9 @@ if(publishBtn) {
     });
 }
 
+// صندوق الوارد الآمن
 const sendMsgBtn = document.getElementById('sendInboxMsgBtn');
-if(sendMsgBtn) {
+if (sendMsgBtn) {
     sendMsgBtn.addEventListener('click', () => {
         const input = document.getElementById('inboxInputField');
         const list = document.getElementById('inboxMessagesList');
@@ -146,4 +152,5 @@ if(sendMsgBtn) {
             showToast('✉️ تم إرسال الرسالة السيادية');
         }
     });
-}
+                                           }
+
