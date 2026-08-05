@@ -1,14 +1,17 @@
 /**
- * TARIM OS - app.js السيادي المربوط بالسيرفر - V1.0 Beta
+ * TARIM OS - app.js السيادي المستقر - V1.0 Beta
  * الملك: AL 👑 - تريم
  */
 
-// الاتصال الآمن بالسيرفر عبر Socket.io مع الحماية من الأخطاء عند عدم الاتصال
 let socket = null;
-if (typeof io !== 'undefined') {
-    socket = io();
-    socket.on('connect', () => console.log("🔗 متصل سيادي:", socket.id));
-    socket.on('broadcast_post', () => loadFeed());
+try {
+    if (typeof io !== 'undefined') {
+        socket = io();
+        socket.on('connect', () => console.log("🔗 متصل سيادي:", socket.id));
+        socket.on('broadcast_post', () => loadFeed());
+    }
+} catch(e) {
+    console.log("وضع العمل بدون سرفر مباشر");
 }
 
 let currentAuthTab = 'login';
@@ -16,55 +19,77 @@ let mapInstance = null;
 let currentUser = localStorage.getItem('tarim_user') || null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. التحقق من المستخدم وتمريره
+  // فتح التطبيق فوراً إذا كان المستخدم مسجلاً مسبقاً
   if (currentUser) {
     const gate = document.getElementById('authGate');
-    if (gate) gate.classList.add('hidden');
+    if (gate) {
+        gate.style.display = 'none';
+        gate.classList.add('hidden');
+    }
     const dis = document.getElementById('homeUsernameDisplay'); 
     if (dis) dis.innerText = '@' + currentUser + ' 👑';
-    if (socket) socket.emit('join', currentUser);
+    if (socket) {
+        try { socket.emit('join', currentUser); } catch(err) {}
+    }
   }
   
   loadFeed();
 
-  // 2. تفعيل أزرار الدخول والمصادقة
-  document.getElementById('tabLoginBtn')?.addEventListener('click', () => switchAuthTab('login'));
-  document.getElementById('tabRegBtn')?.addEventListener('click', () => switchAuthTab('register'));
-  
-  // 3. تفعيل أزرار العمليات في القلعة
-  document.getElementById('opLiveBtn')?.addEventListener('click', () => { 
+  // ربط أزرار الدخول بأمان
+  const loginBtn = document.getElementById('tabLoginBtn');
+  const regBtn = document.getElementById('tabRegBtn');
+  if(loginBtn) loginBtn.addEventListener('click', () => switchAuthTab('login'));
+  if(regBtn) regBtn.addEventListener('click', () => switchAuthTab('register'));
+
+  // العمليات والأزرار التفاعلية
+  const opLiveBtn = document.getElementById('opLiveBtn');
+  if(opLiveBtn) opLiveBtn.addEventListener('click', () => { 
     switchTab('create', document.querySelectorAll('.nav-btn')[2]); 
     startRoyalLiveStream();
   });
-  document.getElementById('opInboxBtn')?.addEventListener('click', () => { 
-    switchTab('inbox', document.querySelectorAll('.nav-btn')[3]); 
-  });
-  document.getElementById('opMapBtn')?.addEventListener('click', toggleMapOffline);
-  document.getElementById('opQrBtn')?.addEventListener('click', generateOperationsQR);
 
-  // 4. أزرار الإنشاء والرسائل
-  document.getElementById('publishTextBtn')?.addEventListener('click', publishPost);
-  document.getElementById('sendInboxMsgBtn')?.addEventListener('click', sendInboxMessage);
+  const opInboxBtn = document.getElementById('opInboxBtn');
+  if(opInboxBtn) opInboxBtn.addEventListener('click', () => { switchTab('inbox', document.querySelectorAll('.nav-btn')[3]); });
 
-  // 5. أزرار الهيدر (عين الذكاء وفريق الدعم)
-  document.getElementById('openAiEyeBtn')?.addEventListener('click', () => {
-    showToast("👁️ عين الذكاء: القلعة السيادية تعمل بأمان كلي");
-  });
-  document.getElementById('openSupportBtn')?.addEventListener('click', () => {
-    showToast("🛡️ فريق الدعم السيادي متصل في خدمتك");
-  });
+  const opMapBtn = document.getElementById('opMapBtn');
+  if(opMapBtn) opMapBtn.addEventListener('click', toggleMapOffline);
 
-  // توليد QR الأولي
+  const opQrBtn = document.getElementById('opQrBtn');
+  if(opQrBtn) opQrBtn.addEventListener('click', generateOperationsQR);
+
+  const publishBtn = document.getElementById('publishTextBtn');
+  if(publishBtn) publishBtn.addEventListener('click', publishPost);
+
+  const sendMsgBtn = document.getElementById('sendInboxMsgBtn');
+  if(sendMsgBtn) sendMsgBtn.addEventListener('click', sendInboxMessage);
+
   generateInitialQR();
 });
 
-// ===== إدارة بوابة الدخول والولوج الفوري =====
+// ===== فتح القلعة فوراً عند الضغط (إصلاح مشكلة التوقف) =====
 function forceUnlockCastle() {
-  processLogin();
+  const userField = document.getElementById('userPhoneOrEmail')?.value.trim() || 'AL';
+  currentUser = userField;
+  localStorage.setItem('tarim_user', currentUser);
+  
+  const gate = document.getElementById('authGate');
+  if (gate) {
+      gate.style.display = 'none';
+      gate.classList.add('hidden');
+  }
+  
+  const disp = document.getElementById('homeUsernameDisplay');
+  if (disp) disp.innerText = '@' + currentUser + ' 👑';
+  
+  showToast("👑 أهلاً بك يا إمبراطور في القلعة!");
+  loadFeed();
 }
 
 function lockCastleAgain() {
-  logoutSystem();
+  if (confirm("هل تريد تسجيل الخروج من القلعة؟")) { 
+    localStorage.removeItem('tarim_user'); 
+    location.reload(); 
+  } 
 }
 
 function switchAuthTab(tab) {
@@ -84,48 +109,7 @@ function switchAuthTab(tab) {
   }
 }
 
-async function processLogin() {
-  const userField = document.getElementById('userPhoneOrEmail')?.value.trim() || 'AL';
-  const passField = document.getElementById('userPass')?.value.trim() || '123456';
-  
-  try {
-    const endpoint = currentAuthTab === 'register' ? '/api/auth/register' : '/api/auth/login';
-    const r = await fetch(endpoint, {
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ user: userField, pass: passField })
-    });
-    const d = await r.json();
-    
-    currentUser = d.user || userField; 
-    localStorage.setItem('tarim_user', currentUser);
-    if (d.token) localStorage.setItem('tarim_token', d.token);
-    
-    document.getElementById('authGate')?.classList.add('hidden');
-    const disp = document.getElementById('homeUsernameDisplay');
-    if (disp) disp.innerText = '@' + currentUser + ' 👑';
-    if (socket) socket.emit('join', currentUser);
-    showToast("✨ أهلاً بك يا " + currentUser + " في القلعة!");
-  } catch(e) { 
-    currentUser = userField;
-    localStorage.setItem('tarim_user', currentUser);
-    document.getElementById('authGate')?.classList.add('hidden');
-    const disp = document.getElementById('homeUsernameDisplay');
-    if (disp) disp.innerText = '@' + currentUser + ' 👑';
-    showToast("✨ تم الدخول السيادي بنجاح!");
-  }
-}
-
-async function processGoogleLogin() {
-  currentUser = "AL_Google"; 
-  localStorage.setItem('tarim_user', currentUser);
-  document.getElementById('authGate')?.classList.add('hidden');
-  const disp = document.getElementById('homeUsernameDisplay');
-  if (disp) disp.innerText = '@' + currentUser + ' 👑';
-  showToast("👑 أهلاً سيادي عبر جوجل");
-}
-
-// ===== التنقل بين التبويبات والمشاريع =====
+// ===== التنقل بين التبويبات =====
 function switchTab(tabName, clickedBtn) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
   const target = document.getElementById('tab-' + tabName);
@@ -153,11 +137,9 @@ function showSubPage(pageId) {
         target.classList.remove('hidden');
         if (pageId === 'qr-page') {
             const qrContainer = document.getElementById('qrcode');
-            if (qrContainer) {
+            if (qrContainer && window.QRCode) {
                 qrContainer.innerHTML = "";
-                if (typeof QRCode !== 'undefined') {
-                    new QRCode(qrContainer, { text: "https://tarimos.org/user/" + (currentUser || 'AL'), width: 128, height: 128 });
-                }
+                new QRCode(qrContainer, { text: "https://tarimos.org/user/" + (currentUser || 'AL'), width: 128, height: 128 });
             }
         }
     }
@@ -169,14 +151,14 @@ function backToProfile() {
     if (profileMain) profileMain.classList.remove('hidden');
 }
 
-// ===== الفيد والمنشورات السيادية =====
+// ===== إدارة الفيد والمنشورات بأمان تام =====
 async function loadFeed() {
   try {
     const r = await fetch('/api/feed/home'); 
+    if (!r.ok) return;
     const posts = await r.json();
     const feed = document.getElementById('feedContainer');
-    if (!feed) return;
-    if (!posts || !posts.length) return;
+    if (!feed || !posts || !posts.length) return;
     
     feed.innerHTML = posts.map(p => `
       <div class="glass rounded-2xl p-3 mb-3 text-right">
@@ -185,7 +167,7 @@ async function loadFeed() {
       </div>
     `).join('');
   } catch(e) {
-    // المحافظة على التصميم في حال عدم وجود منشورات من السيرفر
+    // تجاوز أي خطأ بصمت لكي لا يتوقف التطبيق
   }
 }
 
@@ -209,7 +191,7 @@ async function publishPost() {
   switchTab('home', document.querySelectorAll('.nav-btn')[0]);
 }
 
-// ===== الأدوات الإضافية والخريطة والـ QR =====
+// ===== العمليات المساعدة =====
 function startRoyalLiveStream() {
     showToast("🔴 جاري فتح غرفة البث المباشر السيادي (8 دقائق)...");
 }
@@ -249,21 +231,13 @@ function sendInboxMessage() {
   const list = document.getElementById('inboxMessagesList'); 
   if (list) {
     const div = document.createElement('div');
-    div.className = "glass p-2.5 rounded-xl text-xs text-cyan-200 mt-2";
+    div.className = "glass p-2.5 rounded-xl text-xs text-cyan-200 mt-2 text-right";
     div.innerHTML = `<b>${currentUser || 'AL'}:</b> ${input.value}`;
     list.appendChild(div);
     list.scrollTop = list.scrollHeight;
   }
   input.value = ""; 
   showToast("🚀 تم إرسال الرسالة السيادية"); 
-}
-
-function logoutSystem() { 
-  if (confirm("هل تريد تسجيل الخروج من القلعة؟")) { 
-    localStorage.removeItem('tarim_user'); 
-    localStorage.removeItem('tarim_token');
-    location.reload(); 
-  } 
 }
 
 function showToast(m) { 
