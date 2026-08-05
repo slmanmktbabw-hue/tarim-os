@@ -1,48 +1,53 @@
-const CACHE_NAME = 'tarim-os-v1.0.0-beta';
-const urlsToCache = [
+// sw.js - TARIM OS V1.0 Beta - Service Worker - يخلي التطبيق يشتغل Offline + PWA
+const CACHE_NAME = 'tarim-os-v1.0-beta-king-AL';
+const URLS_TO_CACHE = [
   '/',
   '/index.html',
-  '/script.js',
-  '/manifest.json',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-  'https://cdn.tailwindcss.com',
-  'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
+  '/app.js',
+  '/ai-eye.js',
+  '/support.js',
+  '/support-team.js',
+  '/manifest.json'
 ];
 
-// تثبيت وتخزين الملفات
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
+  console.log('🏰 TARIM OS Service Worker Install');
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('👑 Caching King Files');
+      return cache.addAll(URLS_TO_CACHE);
+    })
   );
 });
 
-// استراتيجية: الكاش أولاً ثم الشبكة - للخريطة
-self.addEventListener('fetch', event => {
-  if (event.request.url.includes('tile.openstreetmap.org')) {
-    event.respondWith(
-      caches.match(event.request).then(resp => {
-        return resp || fetch(event.request).then(response => {
-          return caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, response.clone());
-            return response;
-          });
-        });
-      })
-    );
-    return;
-  }
+self.addEventListener('activate', (event) => {
+  console.log('⚡ TARIM OS Activate - ينزل الميدان');
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('🗑️ Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
 
+self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then(response => response || fetch(event.request))
-  );
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(key => key!== CACHE_NAME).map(key => caches.delete(key))
-    ))
+    caches.match(event.request).then((response) => {
+      // لو موجود في الكاش - يرجعه بدون نت (خريطة حضرموت Offline)
+      if (response) {
+        return response;
+      }
+      // لو مو موجود - يجيبه من النت
+      return fetch(event.request).catch(() => {
+        // لو مافي نت
+        return caches.match('/index.html');
+      });
+    })
   );
 });
