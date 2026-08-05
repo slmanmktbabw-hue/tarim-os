@@ -3,9 +3,13 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const cors = require('cors');
+const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
+
+global.io = io;
 
 app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: '100mb' }));
@@ -29,6 +33,15 @@ app.post('/api/auth/login', (req, res) => {
 
 app.get('/api/ping', (req, res) => {
     res.json({ ok: true, site: 'tarimos.org', king: 'AL' });
+});
+
+io.on('connection', (socket) => {
+    socket.on('join', (user) => {
+        socket.join(user);
+    });
+    socket.on('chat_message', (data) => {
+        io.emit('chat_message', data);
+    });
 });
 
 // توجيه باقي المسارات لملف الواجهة الرئيسي
