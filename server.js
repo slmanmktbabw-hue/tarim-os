@@ -1,4 +1,3 @@
-// server.js - TARIM OS V1 FINAL - STABLE
 const express = require('express');
 const http = require('http');
 const path = require('path');
@@ -15,9 +14,9 @@ app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// دعم قراءة الملفات من المجلد الرئيسي ومن مجلد public لضمان عدم ضياع أي ملف
-app.use(express.static(__dirname));
+// قراءة الملفات الثابتة من مجلد public ومن الجذر مباشرة لضمان عدم حدوث أي خطأ 404
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 app.get('/api/ping', (req, res) => {
     res.json({ ok: true, site: 'tarimos.org', king: 'AL' });
@@ -29,12 +28,11 @@ io.on('connection', (socket) => {
     });
 });
 
-// توجيه أي طلب لملف الواجهة الرئيسي
 app.get('*', (req, res) => {
-    const indexPath = path.join(__dirname, 'index.html');
-    res.sendFile(indexPath, (err) => {
+    const publicIndexPath = path.join(__dirname, 'public', 'index.html');
+    res.sendFile(publicIndexPath, (err) => {
         if (err) {
-            res.sendFile(path.join(__dirname, 'public', 'index.html'));
+            res.sendFile(path.join(__dirname, 'index.html'));
         }
     });
 });
