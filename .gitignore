@@ -6,10 +6,14 @@ yarn.lock
 # Env - المفاتيح السرية لا ترفع ابداً
 .env
 .env.local
+.env.production
+.env.development
 
 # بيانات المستخدمين - لا ترفع
 posts.json
 wallet.json
+data/
+*.db
 *.tmp
 *.log
 
@@ -19,3 +23,4 @@ Thumbs.db
 public/uploads
 dist
 build
+coverage/
