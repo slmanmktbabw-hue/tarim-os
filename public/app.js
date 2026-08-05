@@ -27,7 +27,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('googleAuthBtn')?.addEventListener('click', processGoogleLogin);
 
   // العمليات والأزرار التفاعلية
-  document.getElementById('opLiveBtn')?.addEventListener('click', ()=>{ switchTab('create', document.querySelector('[data-tab="create"]')); });
+  document.getElementById('opLiveBtn')?.addEventListener('click', ()=>{ 
+    switchTab('create', document.querySelector('[data-tab="create"]')); 
+    startRoyalLiveStream();
+  });
   document.getElementById('opInboxBtn')?.addEventListener('click', ()=>{ switchTab('inbox', document.querySelector('[data-tab="inbox"]')); });
   document.getElementById('opMapBtn')?.addEventListener('click', toggleMapOffline);
   document.getElementById('opQrBtn')?.addEventListener('click', generateOperationsQR);
@@ -167,6 +170,11 @@ async function publishPost(){
   showToast("📢 تم النشر الفوري بنجاح"); 
   loadFeed(); 
   switchTab('home', document.querySelector('[data-tab="home"]'));
+}
+
+// ===== البث المباشر السيادي المطلوبة =====
+function startRoyalLiveStream() {
+    showToast("🔴 جاري فتح غرفة البث المباشر السيادي (8 دقائق)...");
 }
 
 // ===== الأدوات الإضافية =====
