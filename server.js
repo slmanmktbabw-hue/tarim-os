@@ -1,4 +1,4 @@
-// server.js - TARIM OS V1.0 Beta FINAL - 8 FILES - ينزل الميدان للشغل 🏰
+// server.js - TARIM OS V1.0 Beta FINAL - 8 FILES - مصحح بدون أخطاء أقواس 🏰
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -18,7 +18,7 @@ app.use(helmet({ crossOriginEmbedderPolicy:false }));
 app.use(cors({ origin: process.env.CORS_ORIGIN || "*" }));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended:true, limit:'100mb' }));
-app.use(express.static(path.join(__dirname, 'public'))));
+app.use(express.static(path.join(__dirname, 'public')));
 
 const limiter = rateLimit({ windowMs: 60*1000, max: 120 });
 app.use('/api/', limiter);
@@ -27,7 +27,7 @@ global.io = io;
 global.supportTickets = [];
 global.FeedDB = {posts:[]};
 
-console.log('🏰 TARIM OS - تحميل 5 راوترات سيادية...');
+console.log('🏰 TARIM OS - تحميل 4 راوترات سيادية...');
 
 try { 
   app.use('/api', require('./security.js')); 
@@ -46,10 +46,9 @@ try {
 
 try { 
   app.use('/api', require('./support.js')); 
-  console.log('✅ 4- support.js - وارد + دعم فني'); 
+  console.log('✅ 4- support.js - وارد + مرسلة + دعم'); 
 } catch(e){ console.log('❌ support.js', e.message); }
 
-// ===== تذاكر الدعم + سكيت =====
 app.post('/api/support/ticket', (req,res)=>{
   const ticket = {id:'T_'+Date.now(),...req.body,time:Date.now()};
   global.supportTickets.unshift(ticket);
@@ -61,19 +60,15 @@ app.post('/api/support/ticket', (req,res)=>{
 io.on('connection', (socket)=>{
   console.log('👑 ملك متصل:', socket.id);
   socket.on('join', (user)=>{ socket.user = user; console.log(`👤 ${user} دخل الميدان`); });
-  
   socket.on('live_viewer_join', (data)=>{
     io.emit('viewer_count', {count: Math.floor(Math.random()*50)+1});
   });
-  
   socket.on('send_live_heart', (data)=>{
     io.emit('live_heart', {user: data.user, time: Date.now()});
   });
-  
   socket.on('send_live_comment', (data)=>{
     io.emit('live_comment', {user: data.user, text: data.text, time: Date.now()});
   });
-  
   socket.on('disconnect', ()=> console.log('خرج:', socket.user||socket.id));
 });
 
@@ -87,7 +82,6 @@ app.get('/api/ping', (req,res)=> res.json({
   features: ['حماية + كود','رئيسية + فيديو','عمليات + بث 8د','وارد ومرسلة','إعدادات + QR','عين AI','دعم فني','نشر + LIVE + فلش']
 }));
 
-// PWA + Frontend
 app.get('*', (req,res)=> res.sendFile(path.join(__dirname,'public','index.html')));
 
 const PORT = process.env.PORT || 10000;
@@ -95,5 +89,5 @@ server.listen(PORT,'0.0.0.0',()=>{
   console.log(`\n🏰 TARIM OS V1.0 Beta FINAL LIVE on ${PORT}`);
   console.log(`👑 KING: AL - أبو سلمان`);
   console.log(`🌍 tarimos.org - ينزل الميدان للشغل الآن!`);
-  console.log(`📁 5 راوترات + 3 ملفات قاعدة = 8 ملفات مع سيفر تشغيل كامل\n`);
+  console.log(`📁 4 راوترات + قاعدة بيانات = نظام سيادي كامل\n`);
 });
