@@ -88,12 +88,12 @@ function switchAuthTab(tab){
   const regBtn = document.getElementById('tabRegBtn');
   const actionBtn = document.getElementById('authActionBtn');
   if(tab === 'login'){
-    if(loginBtn) loginBtn.className = "text-xs font-bold text-cyan-400 border-b-2 border-cyan-400 pb-1";
-    if(regBtn) regBtn.className = "text-xs text-slate-400 pb-1";
+    if(loginBtn) loginBtn.className = "text-xs font-bold text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer";
+    if(regBtn) regBtn.className = "text-xs text-slate-400 pb-1 cursor-pointer";
     if(actionBtn) actionBtn.innerText = "دخول القلعة السيادية 🔑";
   }else{
-    if(regBtn) regBtn.className = "text-xs font-bold text-cyan-400 border-b-2 border-cyan-400 pb-1";
-    if(loginBtn) loginBtn.className = "text-xs text-slate-400 pb-1";
+    if(regBtn) regBtn.className = "text-xs font-bold text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer";
+    if(loginBtn) loginBtn.className = "text-xs text-slate-400 pb-1 cursor-pointer";
     if(actionBtn) actionBtn.innerText = "إنشاء الحساب السيادي 🚀";
   }
 }
@@ -101,7 +101,6 @@ function switchAuthTab(tab){
 async function processLogin(){
   const userField = document.getElementById('userPhoneOrEmail')?.value.trim() || 'AL';
   const passField = document.getElementById('userPass')?.value.trim() || '123456';
-  const authMsg = document.getElementById('authMsg');
   
   try{
     const endpoint = currentAuthTab === 'register' ? '/api/auth/register' : '/api/auth/login';
