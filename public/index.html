@@ -208,6 +208,16 @@
         <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">👤</span>الملفات</button>
     </nav>
 
+    <!-- استدعاء ملفات المشروع البرمجية الخارجية المتممة للوظائف والأزرار -->
+    <script src="/app.js"></script>
+    <script src="/ai-eye.js"></script>
+    <script src="/support.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+    </script>
+
     <script>
         function forceUnlockCastle() {
             const gate = document.getElementById('authGate');
@@ -257,8 +267,4 @@
         function backToProfile() {
             document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
             const profileMain = document.getElementById('profile-main');
-            if (profileMain) profileMain.classList.remove('hidden');
-        }
-    </script>
-</body>
-</html>
+            
