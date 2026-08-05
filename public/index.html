@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TARIM OS | النظام السيادي الإمبراطوري</title>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#00f0ff">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -17,7 +15,6 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between overflow-x-hidden pb-20">
 
-    <!-- بوابة الدخول السيادية -->
     <div id="authGate" class="fixed inset-0 z-50 bg-[#030B1A] flex items-center justify-center p-4">
         <div class="glass w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-cyan-500/40 text-center space-y-4">
             <h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑</h1>
@@ -38,20 +35,16 @@
         </div>
     </div>
 
-    <!-- صندوق التنبيهات -->
     <div id="toastBox" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none w-11/12 max-w-xs"></div>
 
-    <!-- الهيدر العلوي -->
     <header class="w-full glass border-b border-cyan-500/20 px-4 py-3 flex justify-between items-center text-xs z-40">
         <span id="openAiEyeBtn" onclick="triggerAiEye()" class="text-cyan-400 font-bold flex items-center gap-1 cursor-pointer">👁️ عين الذكاء</span>
         <span class="font-black text-cyan-300 tracking-wider">TARIM OS</span>
         <span id="openSupportBtn" onclick="triggerSupport()" class="text-slate-300 font-bold flex items-center gap-1 cursor-pointer">🛡️ فريق الدعم</span>
     </header>
 
-    <!-- المحتوى الرئيسي -->
     <main class="flex-1 w-full max-w-md mx-auto p-4 relative">
         
-        <!-- 1. الرئيسية -->
         <div id="tab-home" class="tab-content space-y-4">
             <div class="glass p-3 rounded-xl flex justify-between items-center border border-cyan-500/30">
                 <span id="homeUsernameDisplay" class="text-xs font-bold text-cyan-400">@AL 👑</span>
@@ -65,13 +58,13 @@
                 </div>
 
                 <div class="absolute left-4 bottom-16 flex flex-col items-center gap-4 z-10">
-                    <button onclick="switchTab('create', document.querySelector('[data-tab=&quot;create&quot;]'))" class="w-10 h-10 bg-cyan-500 rounded-full flex items-center justify-center text-black font-bold shadow-lg text-sm cursor-pointer">+</button>
+                    <button onclick="switchTab('create', document.querySelector('button[onclick*=\'create\']'))" class="w-10 h-10 bg-cyan-500 rounded-full flex items-center justify-center text-black font-bold shadow-lg text-sm cursor-pointer">+</button>
                     <div class="flex flex-col items-center text-white text-[11px]">
                         <button onclick="incrementLike()" class="text-2xl hover:scale-110 transition cursor-pointer">❤️</button>
                         <span id="likeCountDisplay">120</span>
                     </div>
                     <div class="flex flex-col items-center text-white text-[11px]">
-                        <button onclick="switchTab('inbox', document.querySelector('[data-tab=&quot;inbox&quot;]'))" class="text-2xl hover:scale-110 transition cursor-pointer">💬</button>
+                        <button onclick="switchTab('inbox', document.querySelector('button[onclick*=\'inbox\']'))" class="text-2xl hover:scale-110 transition cursor-pointer">💬</button>
                         <span>تعليق</span>
                     </div>
                     <div class="flex flex-col items-center text-white text-[11px]">
@@ -87,13 +80,12 @@
             </div>
         </div>
 
-        <!-- 2. العمليات -->
         <div id="tab-operations" class="tab-content hidden space-y-4">
             <div class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
                 <h3 class="text-sm font-black text-cyan-400">⚡ عمليات القلعة</h3>
                 <div class="grid grid-cols-2 gap-2 text-xs">
-                    <button id="opLiveBtn" onclick="switchTab('create', document.querySelector('[data-tab=&quot;create&quot;]'))" class="bg-slate-900 border border-slate-700 p-3 rounded-xl text-cyan-300 font-bold cursor-pointer">🔴 بث مباشر</button>
-                    <button id="opInboxBtn" onclick="switchTab('inbox', document.querySelector('[data-tab=&quot;inbox&quot;]'))" class="bg-slate-900 border border-slate-700 p-3 rounded-xl text-cyan-300 font-bold cursor-pointer">💬 المراسلة</button>
+                    <button id="opLiveBtn" onclick="switchTab('create', document.querySelector('button[onclick*=\'create\']')); startRoyalLiveStream();" class="bg-slate-900 border border-slate-700 p-3 rounded-xl text-cyan-300 font-bold cursor-pointer">🔴 بث مباشر</button>
+                    <button id="opInboxBtn" onclick="switchTab('inbox', document.querySelector('button[onclick*=\'inbox\']'))" class="bg-slate-900 border border-slate-700 p-3 rounded-xl text-cyan-300 font-bold cursor-pointer">💬 المراسلة</button>
                     <button id="opMapBtn" onclick="toggleOfflineMap()" class="bg-slate-900 border border-slate-700 p-3 rounded-xl text-cyan-300 font-bold cursor-pointer">🗺️ خريطة Offline</button>
                     <button id="opQrBtn" onclick="generateOperationsQR()" class="bg-slate-900 border border-slate-700 p-3 rounded-xl text-cyan-300 font-bold cursor-pointer">🧾 ختم QR</button>
                 </div>
@@ -102,7 +94,6 @@
             </div>
         </div>
 
-        <!-- 3. إنشاء (ومنه البث المباشر LIVE) -->
         <div id="tab-create" class="tab-content hidden space-y-4">
             <div class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
                 <h3 class="text-sm font-black text-cyan-400">✨ محطة الإنشاء السيادي</h3>
@@ -123,13 +114,12 @@
                     <button type="button" onclick="selectTextPostMode()" class="bg-slate-900 border border-slate-700 py-2.5 rounded-xl text-cyan-300 font-bold cursor-pointer">📄 منشور نص</button>
                 </div>
 
-                <textarea id="postContentInput" placeholder="اكتب وصف للمنشور..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white h-24 resize-none text-right focus:outline-none focus:border-cyan-400"></textarea>
+                <textarea id="postContentInput" placeholder="اكتب وصف للمنشور..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white h-24 resize-none text-right focus:outline-none"></textarea>
                 
                 <button type="button" id="publishTextBtn" onclick="publishInstantPost()" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl text-xs shadow-lg hover:bg-cyan-400 transition cursor-pointer">📢 نشر فوري</button>
             </div>
         </div>
 
-        <!-- 4. الوارد -->
         <div id="tab-inbox" class="tab-content hidden space-y-4">
             <div class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
                 <h3 class="text-sm font-black text-cyan-400">💬 صندوق الوارد الآمن</h3>
@@ -138,12 +128,11 @@
                 </div>
                 <div class="flex gap-2 pt-2">
                     <input id="inboxInputField" type="text" placeholder="اكتب رسالتك السيادية..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-right focus:outline-none">
-                    <button onclick="sendSecureMessage()" class="bg-cyan-500 text-black font-bold px-4 py-2 rounded-xl text-xs cursor-pointer">إرسال</button>
+                    <button id="sendInboxMsgBtn" onclick="sendSecureMessage()" class="bg-cyan-500 text-black font-bold px-4 py-2 rounded-xl text-xs cursor-pointer">إرسال</button>
                 </div>
             </div>
         </div>
 
-        <!-- 5. الملفات -->
         <div id="tab-profile" class="tab-content hidden space-y-4">
             <div id="profile-main" class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
                 <div class="flex justify-between items-center">
@@ -164,7 +153,7 @@
                     <p class="text-[11px] text-slate-400 font-bold">أدوات الحساب</p>
                     <div onclick="showToast('💳 رصيد OKX الملكي آمن ومحمي')" class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center cursor-pointer"><span>💳 رصيد OKX (الملكي) - 0</span><span class="text-cyan-400">فتح ←</span></div>
                     <div onclick="showToast('🏛️ مركز الأنشطة السيادية جاهز')" class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center cursor-pointer"><span>🏛️ مركز الأنشطة</span><span class="text-cyan-400">فتح ←</span></div>
-                    <div onclick="showToast('📹 وضع الأوفلاين مفعل')" class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center cursor-pointer"><span>📹 فيديوهات دون اتصال</span><span class="text-cyan-400">فتح ←</span></div>
+                    <div onclick="showToast('📹 فيديوهات دون اتصال مفعلة')" class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center cursor-pointer"><span>📹 فيديوهات دون اتصال</span><span class="text-cyan-400">فتح ←</span></div>
                     <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center cursor-pointer" onclick="showSubPage('qr-page')"><span>🌐 رمز QR لديك</span><span class="text-cyan-400">عرض ←</span></div>
                     
                     <p class="text-[11px] text-slate-400 font-bold pt-2">أدوات الابداع والاعمال</p>
@@ -177,35 +166,34 @@
                     <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center cursor-pointer" onclick="showSubPage('security-settings')"><span>🔒 الخصوصية والامان</span><span class="text-cyan-400">←</span></div>
                     <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center cursor-pointer" onclick="showSubPage('bg-settings')"><span>🎨 تغير خلفية المستخدم</span><span class="text-cyan-400">تغيير ←</span></div>
                     <div onclick="shareProfileLink()" class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center cursor-pointer"><span>🔗 مشاركة ملف الشخصي</span><span class="text-cyan-400">مشاركة ←</span></div>
-                    <a href="/privacy.html" class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center cursor-pointer block"><span>📜 السياسة والخصوصية</span><span class="text-cyan-400">فتح ←</span></a>
+                    <div onclick="window.location.href='/privacy.html'" class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center cursor-pointer"><span>📜 السياسة والخصوصية</span><span class="text-cyan-400">فتح ←</span></div>
 
                     <button type="button" onclick="lockCastleAgain()" class="w-full bg-rose-500/20 border border-rose-500/50 text-rose-300 py-2.5 rounded-xl font-bold mt-3 cursor-pointer">🚪 تسجيل الخروج</button>
                 </div>
             </div>
 
-            <!-- الصفحات الفرعية للملف الشخصي -->
             <div id="sub-promo-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4 border border-cyan-500/40">
                 <button type="button" onclick="backToProfile()" class="text-xs text-cyan-400 font-bold mb-2 cursor-pointer">← رجوع</button>
-                <h3 class="text-sm font-black text-cyan-400">📢 الترويج والاعلانات</h3>
-                <p class="text-xs text-slate-300">اختر هدفك السيادي: المزيد من المتابعين / المشاهدات / الإعجابات عبر WhatsApp و Meta Ads.</p>
+                <h3 class="text-sm font-black text-cyan-400">📢 الترويج</h3>
+                <p class="text-xs text-slate-300">اختر هدفك: المزيد من المتابعين / المشاهدات / الإعجابات</p>
             </div>
 
             <div id="sub-security-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4 border border-cyan-500/40">
                 <button type="button" onclick="backToProfile()" class="text-xs text-cyan-400 font-bold mb-2 cursor-pointer">← رجوع</button>
                 <h3 class="text-sm font-black text-cyan-400">🔒 الخصوصية والامان</h3>
-                <p class="text-xs text-slate-300">جميع البيانات مشفرة بـ AES-256، وحساب الملك AL محمي تماماً.</p>
+                <p class="text-xs text-slate-300">البيانات مشفرة بـ AES-256 وحساب الملك AL محمي تماماً.</p>
             </div>
 
             <div id="sub-account-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4 border border-cyan-500/40">
                 <button type="button" onclick="backToProfile()" class="text-xs text-cyan-400 font-bold mb-2 cursor-pointer">← رجوع</button>
-                <h3 class="text-sm font-black text-cyan-400">👤 إعدادات الحساب</h3>
-                <p class="text-xs text-slate-300">اسم المستخدم: @AL | الدولة: اليمن - حضرموت - تريم.</p>
+                <h3 class="text-sm font-black text-cyan-400">👤 الحساب</h3>
+                <p class="text-xs text-slate-300">اسم المستخدم النشط: @AL - تريم حضرموت.</p>
             </div>
 
             <div id="sub-bg-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4 border border-cyan-500/40">
                 <button type="button" onclick="backToProfile()" class="text-xs text-cyan-400 font-bold mb-2 cursor-pointer">← رجوع</button>
                 <h3 class="text-sm font-black text-cyan-400">🎨 تغير خلفية المستخدم</h3>
-                <p class="text-xs text-slate-300">الوضع الليلي الإمبراطوري (#030B1A) مفعل وثابت.</p>
+                <p class="text-xs text-slate-300">الوضع الليلي الإمبراطوري السيادي مفعل وثابت.</p>
             </div>
 
             <div id="sub-qr-page" class="sub-page hidden glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
@@ -217,10 +205,23 @@
 
     </main>
 
-    <!-- شريط التنقل السفلي -->
     <nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 px-4 py-2 flex justify-around items-center z-40">
-        <button data-tab="home" onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px] cursor-pointer"><span class="text-xl">🏰</span>الرئيسية</button>
-        <button data-tab="operations" onclick="switchTab('operations', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">⚡</span>العمليات</button>
-        <button data-tab="create" onclick="switchTab('create', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">➕</span>إنشاء</button>
-        <button data-tab="inbox" onclick="switchTab('inbox', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">💬</span>الوارد</button>
-        <button data-tab="profile" onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[1
+        <button onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px] cursor-pointer"><span class="text-xl">🏰</span>الرئيسية</button>
+        <button onclick="switchTab('operations', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">⚡</span>العمليات</button>
+        <button onclick="switchTab('create', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">➕</span>إنشاء</button>
+        <button onclick="switchTab('inbox', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">💬</span>الوارد</button>
+        <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">👤</span>الملفات</button>
+    </nav>
+
+    <script>
+        function showToast(msg) {
+            const box = document.getElementById('toastBox');
+            if (!box) return;
+            const el = document.createElement('div');
+            el.className = "bg-cyan-500 text-black font-bold text-xs px-4 py-2 rounded-xl shadow-lg mt-2 transition-all opacity-90 text-center";
+            el.innerText = msg;
+            box.appendChild(el);
+            setTimeout(() => { el.remove(); }, 3000);
+        }
+
+        function forceUnlockCast
