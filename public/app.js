@@ -1,6 +1,6 @@
 /**
- * TARIM OS - app.js السيادي المستقر - V1.0 Beta
- * الملك: AL 👑 - تريم
+ * TARIM OS - app.js السيادي الموحد والشامل (V1.0 Beta)
+ * الملك: AL 👑 - تريم حضرموت
  */
 
 let socket = null;
@@ -19,7 +19,7 @@ let mapInstance = null;
 let currentUser = localStorage.getItem('tarim_user') || null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // فتح التطبيق فوراً إذا كان المستخدم مسجلاً مسبقاً
+  // 1. فحص المصادقة وفتح القلعة تلقائياً إذا كان مسجلاً
   if (currentUser) {
     const gate = document.getElementById('authGate');
     if (gate) {
@@ -35,38 +35,35 @@ document.addEventListener('DOMContentLoaded', () => {
   
   loadFeed();
 
-  // ربط أزرار الدخول بأمان
-  const loginBtn = document.getElementById('tabLoginBtn');
-  const regBtn = document.getElementById('tabRegBtn');
-  if(loginBtn) loginBtn.addEventListener('click', () => switchAuthTab('login'));
-  if(regBtn) regBtn.addEventListener('click', () => switchAuthTab('register'));
+  // 2. ربط أزرار الدخول
+  document.getElementById('tabLoginBtn')?.addEventListener('click', () => switchAuthTab('login'));
+  document.getElementById('tabRegBtn')?.addEventListener('click', () => switchAuthTab('register'));
 
-  // العمليات والأزرار التفاعلية
-  const opLiveBtn = document.getElementById('opLiveBtn');
-  if(opLiveBtn) opLiveBtn.addEventListener('click', () => { 
+  // 3. أزرار العمليات (بث، مراسلة، خريطة، QR)
+  document.getElementById('opLiveBtn')?.addEventListener('click', () => { 
     switchTab('create', document.querySelectorAll('.nav-btn')[2]); 
     startRoyalLiveStream();
   });
+  document.getElementById('opInboxBtn')?.addEventListener('click', () => { switchTab('inbox', document.querySelectorAll('.nav-btn')[3]); });
+  document.getElementById('opMapBtn')?.addEventListener('click', toggleMapOffline);
+  document.getElementById('opQrBtn')?.addEventListener('click', generateOperationsQR);
 
-  const opInboxBtn = document.getElementById('opInboxBtn');
-  if(opInboxBtn) opInboxBtn.addEventListener('click', () => { switchTab('inbox', document.querySelectorAll('.nav-btn')[3]); });
+  // 4. أزرار النشر والرسائل
+  document.getElementById('publishTextBtn')?.addEventListener('click', publishPost);
+  document.getElementById('sendInboxMsgBtn')?.addEventListener('click', sendInboxMessage);
 
-  const opMapBtn = document.getElementById('opMapBtn');
-  if(opMapBtn) opMapBtn.addEventListener('click', toggleMapOffline);
-
-  const opQrBtn = document.getElementById('opQrBtn');
-  if(opQrBtn) opQrBtn.addEventListener('click', generateOperationsQR);
-
-  const publishBtn = document.getElementById('publishTextBtn');
-  if(publishBtn) publishBtn.addEventListener('click', publishPost);
-
-  const sendMsgBtn = document.getElementById('sendInboxMsgBtn');
-  if(sendMsgBtn) sendMsgBtn.addEventListener('click', sendInboxMessage);
+  // 5. ربط أزرار الهيدر (عين الذكاء وفريق الدعم مباشرة من هنا بدون ملفات إضافية)
+  document.getElementById('openAiEyeBtn')?.addEventListener('click', () => {
+    showAiEyeModal();
+  });
+  document.getElementById('openSupportBtn')?.addEventListener('click', () => {
+    showSupportModal();
+  });
 
   generateInitialQR();
 });
 
-// ===== فتح القلعة فوراً عند الضغط (إصلاح مشكلة التوقف) =====
+// ===== فتح القلعة ودخول النظام =====
 function forceUnlockCastle() {
   const userField = document.getElementById('userPhoneOrEmail')?.value.trim() || 'AL';
   currentUser = userField;
@@ -88,6 +85,7 @@ function forceUnlockCastle() {
 function lockCastleAgain() {
   if (confirm("هل تريد تسجيل الخروج من القلعة؟")) { 
     localStorage.removeItem('tarim_user'); 
+    localStorage.removeItem('tarim_token');
     location.reload(); 
   } 
 }
@@ -151,7 +149,7 @@ function backToProfile() {
     if (profileMain) profileMain.classList.remove('hidden');
 }
 
-// ===== إدارة الفيد والمنشورات بأمان تام =====
+// ===== إدارة الفيد والمنشورات =====
 async function loadFeed() {
   try {
     const r = await fetch('/api/feed/home'); 
@@ -166,9 +164,7 @@ async function loadFeed() {
         <div class="text-xs mt-2 text-white">${p.text}</div>
       </div>
     `).join('');
-  } catch(e) {
-    // تجاوز أي خطأ بصمت لكي لا يتوقف التطبيق
-  }
+  } catch(e) {}
 }
 
 async function publishPost() {
@@ -191,7 +187,15 @@ async function publishPost() {
   switchTab('home', document.querySelectorAll('.nav-btn')[0]);
 }
 
-// ===== العمليات المساعدة =====
+// ===== الأدوات الإضافية (عين الذكاء، الدعم، الخريطة، QR) =====
+function showAiEyeModal() {
+    showToast("👁️ عين الذكاء السيادي: جميع أنظمة القلعة تعمل بكفاءة مطلقة!");
+}
+
+function showSupportModal() {
+    showToast("🛡️ فريق الدعم الفني: نحن في خدمة الإمبراطور على مدار الساعة.");
+}
+
 function startRoyalLiveStream() {
     showToast("🔴 جاري فتح غرفة البث المباشر السيادي (8 دقائق)...");
 }
