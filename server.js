@@ -15,7 +15,7 @@ app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ربط الملفات الثابتة من مجلد public
+// قراءة الملفات الثابتة حصرياً من مجلد public
 app.use(express.static(path.join(__dirname, 'public')));
 
 // محاولة استدعاء الروتر المخصص إن وجد
@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
     });
 });
 
-// توجيه باقي المسارات لملف الواجهة الرئيسي
+// توجيه باقي المسارات لملف الواجهة الرئيسي داخل مجلد public
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
