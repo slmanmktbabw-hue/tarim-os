@@ -27,17 +27,13 @@
             </div>
 
             <div class="space-y-3">
-                <input id="userPhoneOrEmail" type="text" placeholder="اسم المستخدم السيادي" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
-                <input id="userPass" type="password" placeholder="كلمة المرور الإمبراطورية" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
-                
-                <div id="otpBox" class="hidden space-y-2">
-                    <input id="otpEmail" type="email" placeholder="البريد الإلكتروني للإتحاف" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-xs text-white text-center">
-                    <input id="otpPhone" type="text" placeholder="رقم الجوال" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-xs text-white text-center">
-                </div>
+                <input id="userPhoneOrEmail" type="text" value="AL" placeholder="اسم المستخدم السيادي" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
+                <input id="userPass" type="password" value="123456" placeholder="كلمة المرور الإمبراطورية" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
             </div>
 
-            <button id="authActionBtn" type="button" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl shadow-lg hover:bg-cyan-400 transition text-xs cursor-pointer">دخول القلعة السيادية 🔑</button>
-            <button id="googleAuthBtn" type="button" class="w-full bg-slate-800 border border-slate-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-700 transition cursor-pointer">🌐 الدخول عبر Google السيادي</button>
+            <!-- تم ربط الزر بدالة مباشرة ومضمونة لفتح القلعة بغض النظر عن أي شي -->
+            <button type="button" onclick="forceUnlockCastle()" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl shadow-lg hover:bg-cyan-400 transition text-xs cursor-pointer">دخول القلعة السيادية 🔑</button>
+            <button type="button" onclick="forceUnlockCastle()" class="w-full bg-slate-800 border border-slate-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-700 transition cursor-pointer">🌐 الدخول عبر Google السيادي</button>
         </div>
     </div>
 
@@ -61,7 +57,7 @@
                 <span class="text-[10px] text-slate-400">تريم - حضرموت الخير 🌴</span>
             </div>
             <div id="feedContainer" class="space-y-3">
-                <!-- الفيد يتم تحميله ديناميكياً -->
+                <div class="text-center text-xs text-cyan-300 p-6 glass rounded-2xl">أهلاً بك في القلعة السيادية يا أبو سلمان 🚀✨</div>
             </div>
         </div>
 
@@ -110,57 +106,61 @@
                 <div class="w-16 h-16 bg-cyan-500 rounded-full mx-auto flex items-center justify-center text-2xl font-black text-black">AL</div>
                 <h3 class="text-sm font-black text-cyan-400">الإمبراطور AL</h3>
                 <p class="text-[11px] text-cyan-300">OKX: 0x53...c0af6</p>
-                <button id="logoutProfileBtn" class="w-full bg-rose-500/20 border border-rose-500/50 text-rose-300 py-2.5 rounded-xl font-bold mt-3 cursor-pointer">🚪 تسجيل الخروج</button>
+                <button onclick="lockCastleAgain()" class="w-full bg-rose-500/20 border border-rose-500/50 text-rose-300 py-2.5 rounded-xl font-bold mt-3 cursor-pointer">🚪 تسجيل الخروج</button>
             </div>
         </div>
 
     </main>
 
-    <!-- شاشة الاستوديو والكاميرا الحية -->
-    <div id="fullScreenCam" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-between p-4">
-        <div class="flex justify-between items-center text-xs">
-            <button id="exitCamBtn" class="bg-rose-500 text-black px-3 py-1 rounded-lg font-bold">خروج ✕</button>
-            <span class="text-cyan-400 font-bold">بث مباشر - 8 دقائق 🔴</span>
-            <button id="toggleFlashBtn" class="bg-slate-800 text-white px-3 py-1 rounded-lg">🔦 فلاش</button>
-        </div>
-        <div class="relative flex-1 my-2 bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center">
-            <video id="fullCamVideo" autoplay playsinline class="w-full h-full object-cover"></video>
-            <div id="liveChatOverlay" class="absolute bottom-4 left-4 right-4 flex flex-col gap-2">
-                <div class="text-xs text-cyan-300">❤️ إعجابات البث: <span id="liveHeartCount">0</span></div>
-                <div class="flex gap-2">
-                    <input id="liveCommentInput" type="text" placeholder="تعليق حي..." class="flex-1 bg-black/60 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                    <button id="sendLiveCommentBtn" class="bg-cyan-500 text-black px-3 py-2 rounded-xl text-xs font-bold">إرسال</button>
-                    <button id="sendLiveHeartBtn" class="bg-rose-500 text-black px-3 py-2 rounded-xl text-xs font-bold">❤️</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة الدعم -->
-    <div id="modalSupport" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-sm rounded-2xl p-5 space-y-3">
-            <div class="flex justify-between items-center"><h3 class="text-sm font-bold text-cyan-400">🛡️ فريق الدعم السيادي</h3><button onclick="closeModal('modalSupport')" class="text-slate-400">✕</button></div>
-            <div id="supportChatList" class="space-y-2 h-40 overflow-y-auto text-xs"></div>
-            <div class="flex gap-2">
-                <input id="supportInput" type="text" placeholder="اكتب استفسارك..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                <button id="sendSupportBtn" class="bg-cyan-500 text-black font-bold px-3 py-2 rounded-xl text-xs">إرسال</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- شريط التنقل السفلي المربوط بكودك -->
+    <!-- شريط التنقل السفلي -->
     <nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 px-4 py-2 flex justify-around items-center z-40">
-        <button data-tab="home" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px] cursor-pointer"><span class="text-xl">🏠</span>الرئيسية</button>
-        <button data-tab="operations" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">⚡</span>العمليات</button>
-        <button data-tab="create" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">➕</span>إنشاء</button>
-        <button data-tab="inbox" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">💬</span>الوارد</button>
-        <button data-tab="profile" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">👤</span>الملفات</button>
+        <button onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px] cursor-pointer"><span class="text-xl">🏠</span>الرئيسية</button>
+        <button onclick="switchTab('operations', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">⚡</span>العمليات</button>
+        <button onclick="switchTab('create', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">➕</span>إنشاء</button>
+        <button onclick="switchTab('inbox', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">💬</span>الوارد</button>
+        <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">👤</span>الملفات</button>
     </nav>
 
-    <!-- ربط السكربتات السيادية -->
+    <!-- السكربتات المباشرة لتشغيل البوابة والقسم السيادي -->
+    <script>
+        function forceUnlockCastle() {
+            const gate = document.getElementById('authGate');
+            if (gate) {
+                gate.style.display = 'none';
+                gate.classList.add('hidden');
+            }
+            localStorage.setItem('tarim_user', 'AL');
+        }
+
+        function lockCastleAgain() {
+            const gate = document.getElementById('authGate');
+            if (gate) {
+                gate.style.display = 'flex';
+                gate.classList.remove('hidden');
+            }
+        }
+
+        function switchTab(tabName, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            const target = document.getElementById('tab-' + tabName);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-cyan-400');
+                btn.classList.add('text-slate-400');
+            });
+            if (btnElement) {
+                btnElement.classList.remove('text-slate-400');
+                btnElement.classList.add('text-cyan-400');
+            }
+        }
+    </script>
+
+    <!-- ملفات النظام الإضافية إن وجدت -->
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/ai-eye.js"></script>
     <script src="/app.js"></script>
-    <script src="/support.js"></script>
 </body>
 </html>
