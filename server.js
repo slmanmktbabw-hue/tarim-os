@@ -11,7 +11,7 @@ const io = new Server(server, {
     cors: { origin: "*" }
 });
 
-// إتاحة الـ io عالمياً لكي تستخدمه ملفات الراوتر (مثل router.js و settings.js)
+// إتاحة الـ io عالمياً لكي تستخدمه ملفات الراوتر
 global.io = io;
 
 app.use(cors({ origin: "*" }));
