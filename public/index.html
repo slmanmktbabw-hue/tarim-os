@@ -1,135 +1,173 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TARIM OS - تريم</title>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#00F0FF">
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="/socket.io/socket.io.js"></script>
-<style>
-body{font-family:system-ui;background:#030B1A;color:#fff;margin:0}
-.glass{background:rgba(15,23,42,0.95);backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,0.2)}
-input,textarea{background:#0f172a!important;color:#fff!important;border:1px solid #334155!important;border-radius:12px!important;padding:12px!important;width:100%!important;box-sizing:border-box!important;display:block!important;margin-bottom:8px!important;font-size:13px!important}
-button{cursor:pointer}
-#authGate input{width:100%!important;display:block!important;float:none!important}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARIM OS - النظام السيادي المتقدم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+     .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 240, 255, 0.2); }
+        body { font-family: 'Cairo', sans-serif; background: #030B1A; }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+        #fullScreenCam { position: fixed; inset: 0; background: black; z-index: 60; }
+        #liveFilter { position: absolute; inset: 0; mix-blend-mode: overlay; transition: 0.3s; }
+      .service-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(0, 240, 255, 0.15); padding: 12px 16px; border-radius: 12px; color: #E0F2FE; font-size: 14px; font-weight: 600; }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col pb-24">
+<body class="text-white min-h-screen flex-col justify-between select-none pb-24">
 
-<div id="authGate" class="fixed inset-0 z-[100] bg-[#030B1A] flex items-center justify-center p-4">
-  <div class="glass w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-cyan-500/40 text-center space-y-3">
-    <h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑</h1>
-    <p class="text-xs text-slate-400">بوابة القلعة - تريم - حضرموت</p>
-    <div class="flex justify-center gap-6 border-b border-slate-800 pb-2">
-      <button id="tabLoginBtn" class="text-xs font-bold text-cyan-400 border-b-2 border-cyan-400 pb-1">تسجيل الدخول</button>
-      <button id="tabRegBtn" class="text-xs text-slate-400 pb-1">حساب جديد</button>
+    <!-- الاشعارات -->
+    <div id="toastBox" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex-col items-center pointer-events-none"></div>
+
+    <!-- الهيدر -->
+    <header class="w-full p-3 flex justify-between items-center glass border-b border-cyan-500/20">
+        <button onclick="showToast('عين الذكاء: مراقبة نشطة')" class="text-xs text-cyan-400 flex items-center gap-1">👁️ عين الذكاء</button>
+        <h2 class="font-bold text-cyan-400 tracking-wider">TARIM OS</h2>
+        <button onclick="showToast('فريق الدعم السيادي متصل')" class="text-xs text-yellow-400 flex items-center gap-1">فريق الدعم 🛡️</button>
+    </header>
+
+    <!-- المحتوى -->
+    <div class="flex-1 w-full max-w-md mx-auto overflow-y-auto">
+
+        <!-- الرئيسية -->
+        <main id="tab-home" class="space-y-4 text-right p-4">
+            <div class="flex justify-between items-start mt-2">
+                <!-- اليمين: الاسم -->
+                <div>
+                    <p id="homeUsername" class="font-bold text-lg">AL@</p>
+                    <p class="text-xs text-slate-400">TARIM OS النظام السيادي</p>
+                </div>
+                <!-- اليسار: الصورة -->
+                <div id="profileAvatar" class="w-12 h-12 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center font-bold text-lg">AL</div>
+            </div>
+            <!-- الاعجابات -->
+            <div class="flex justify-start items-center gap-2 text-red-400">
+                <span>❤️</span> <span id="homeLikes">120</span>
+            </div>
+        </main>
+
+        <!-- العمليات -->
+        <main id="tab-operations" class="hidden space-y-4 text-right p-4">
+            <h3 class="text-center text-cyan-400 font-bold">قسم العمليات السيادية ⚡</h3>
+            <button onclick="startLive()" class="service-btn"><span>← بدء</span><span>بت مباشر سيادي (8 دقائق) 🔴</span></button>
+            <button onclick="showToast('المراسلة الامنة قريباً')" class="service-btn"><span>← فتح</span><span>المراسلة الامنة 💬</span></button>
+            <button onclick="openMap()" class="service-btn"><span>← عرض</span><span>خريطة حضرموت Offline 🗺️</span></button>
+            <button onclick="generateQR()" class="service-btn"><span>← إصدار</span><span>الختم الميداني QR 🧾</span></button>
+            <div id="qrcode" class="flex justify-center mt-4"></div>
+            <div id="mapContainer" class="hidden mt-4 h-48 rounded-xl overflow-hidden border-cyan-500/30"><div id="map" class="w-full h-full"></div></div>
+        </main>
+
+        <!-- الإنشاء -->
+        <main id="tab-create" class="hidden space-y-4 text-right p-4">
+            <h3 class="text-center text-cyan-400 font-bold">محطة الانشاء السيادي ✨</h3>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="showToast('تبديل الكاميرا')" class="glass p-2 rounded-xl text-xs">تبديل 📷</button>
+                <button onclick="changeBackground()" class="glass p-2 rounded-xl text-xs">خلفية 🖼️</button>
+                <button onclick="switchCamera()" class="glass p-2 rounded-xl text-xs">امية 🤳</button>
+                <button onclick="showToast('رفع صورة قريباً')" class="glass p-2 rounded-xl text-xs">رفع صورة 🖼️</button>
+                <button onclick="showToast('رفع فيديو قريباً')" class="glass p-2 rounded-xl text-xs">رفع فيديو 📹</button>
+                <button onclick="startLive()" class="glass p-2 rounded-xl text-xs text-red-400">LIVE 🔴</button>
+            </div>
+            <button onclick="publishPost()" class="w-full glass p-2 rounded-xl text-xs">منشور نص 📄</button>
+            <textarea id="postDescInput" placeholder="اكتب وصف للمنشور..." class="w-full bg-slate-900/80 border-cyan-500/20 rounded-xl p-3 text-xs text-cyan-300 h-24"></textarea>
+            <button onclick="publishPost()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl">نشر فوري</button>
+        </main>
+
+        <!-- الوارد -->
+        <main id="tab-inbox" class="hidden space-y-4 text-right p-4">
+            <h3 class="text-center text-cyan-400 font-bold">صندوق الوارد 💬</h3>
+            <div class="glass p-2 rounded-xl flex gap-2">
+                <button onclick="sendInboxMsg()" class="bg-cyan-500 text-black px-4 rounded-xl font-bold">إرسال</button>
+                <input id="inboxInput" type="text" placeholder="رسالتك..." class="flex-1 bg-transparent outline-none text-xs">
+            </div>
+        </main>
+
+        <!-- الملفات -->
+        <main id="tab-profile" class="hidden space-y-4 text-right p-4">
+            <div class="glass p-4 rounded-2xl border border-cyan-500/30 flex-col items-center relative">
+                <button onclick="showToast('تعديل الملف')" class="absolute top-2 left-2 text-xs bg-slate-800 px-2 py-1 rounded">تعديل</button>
+                <div id="profileAvatarBig" class="w-16 h-16 rounded-full bg-cyan-500/20 border-2 border-cyan-500 flex items-center justify-center text-cyan-300 font-bold text-xl mb-2">AL</div>
+                <h3 id="profileName" class="font-bold text-cyan-300">الامبراطور AL</h3>
+                <p class="text-xs text-cyan-500">OKX: 0x53...c0af6</p>
+                <p class="text-[10px] text-slate-400 flex items-center gap-1">ملكي 🌍</p>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="glass p-2 rounded"><div id="statFollowers">0</div><div class="text-[10px]">متابع</div></div>
+                <div class="glass p-2 rounded"><div id="statLikes">0</div><div class="text-[10px]">يتابع</div></div>
+                <div class="glass p-2 rounded"><div id="statPosts">0</div><div class="text-[10px]">اعجاب</div></div>
+            </div>
+
+            <h4 class="text-cyan-400 text-xs font-bold mt-2">ادوات الحساب</h4>
+            <button onclick="openOKKI()" class="service-btn"><span>← فتح</span><span>رصيد OKX الملكي - 0 🪙</span></button>
+            <button onclick="openActivity()" class="service-btn"><span>← فتح</span><span>مركز الانشطة 📊</span></button>
+            <button onclick="openOfflineVideos()" class="service-btn"><span>← فتح</span><span>فيديوهات دون اتصال 📁</span></button>
+            <button onclick="generateQR()" class="service-btn"><span>← عرض</span><span>رمز QR لديك 🧾</span></button>
+
+            <h4 class="text-cyan-400 text-xs font-bold mt-2">ادوات الابداع والاعمال</h4>
+            <button onclick="openBusiness()" class="service-btn"><span>← فتح</span><span>المجموعة التجارية 🏢</span></button>
+            <button onclick="openAds()" class="service-btn"><span>← فتح</span><span>الترويج والاعلانات 📢</span></button>
+            <button onclick="openPosts()" class="service-btn"><span>← ادارة</span><span>ادارة المنشورات 📄</span></button>
+
+            <h4 class="text-cyan-400 text-xs font-bold mt-2">الاعدادات والخصوصية</h4>
+            <button onclick="openAccount()" class="service-btn"><span>←</span><span>الحساب 👤</span></button>
+            <button onclick="openPrivacy()" class="service-btn"><span>←</span><span>الخصوصية والامان 🔒</span></button>
+            <button onclick="changeBG()" class="service-btn"><span>← تغير</span><span>تغير خلفية المستخدم 🎨</span></button>
+            <button onclick="shareProfile()" class="service-btn"><span>← مشاركة</span><span>مشاركة ملف الشخصي 🔗</span></button>
+            <button onclick="openPolicy()" class="service-btn"><span>← فتح</span><span>السياسة والخصوصية 📜</span></button>
+            <button onclick="logout()" class="service-btn text-red-400"><span>←</span><span>تسجيل الخروج 🚪</span></button>
+        </main>
     </div>
-    <div class="space-y-2">
-      <input id="userPhoneOrEmail" type="text" placeholder="اسم المستخدم">
-      <input id="otpEmail" type="email" placeholder="الإيميل (للجديد)">
-      <input id="otpPhone" type="text" placeholder="رقم الجوال (اختياري)">
-      <input id="userPass" type="password" placeholder="كلمة المرور">
-      <div id="otpBox" class="hidden"><p class="text-[10px] text-cyan-300">سيُطلب كود 6 أرقام</p></div>
+
+    <!-- شاشة البث الكامل -->
+    <div id="fullScreenCam" class="hidden">
+        <video id="fullCamVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+        <div id="liveFilter" class="opacity-0"></div>
+        <div class="absolute top-4 left-4 glass px-3 py-1 rounded-full text-xs">🔴 <span id="liveTimer">00:00</span> | <span id="liveViewers">1</span> مشاهد</div>
+        <div class="absolute bottom-4 left-0 right-0 px-4">
+            <div id="liveComments" class="h-32 overflow-y-auto mb-2 space-y-1"></div>
+            <div class="flex gap-2">
+                <input id="liveCommentIn" type="text" placeholder="اكتب تعليق..." class="flex-1 bg-slate-900/80 rounded-xl px-3 py-2 text-xs">
+                <button onclick="sendLiveComment()" class="bg-cyan-500 px-4 rounded-xl text-xs text-black">ارسال</button>
+            </div>
+            <div class="flex justify-around mt-3">
+                <button onclick="likeLive()" class="text-2xl">❤️ <span id="liveLikes">0</span></button>
+                <button onclick="sendGift()" class="text-2xl">🎁</button>
+                <button onclick="switchCamera()" class="text-2xl">🔄</button>
+                <button onclick="changeBackground()" class="text-2xl">🎨</button>
+                <button onclick="exitFullScreen()" class="text-2xl">❌</button>
+            </div>
+        </div>
+        <div id="preLiveOverlay" class="absolute inset-0 bg-black/80 flex items-center justify-center">
+            <button onclick="confirmStartLive()" class="bg-cyan-500 text-black font-bold px-6 py-3 rounded-xl">ابدأ البث الآن</button>
+        </div>
     </div>
-    <p id="authMsg" class="text-xs text-rose-400 font-bold min-h-[16px]"></p>
-    <button id="authActionBtn" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl text-xs">دخول القلعة السيادية 🔑</button>
-    <button id="googleAuthBtn" class="w-full bg-slate-800 border border-slate-700 text-white py-2.5 rounded-xl text-xs">🌐 دخول Google السيادي</button>
-    <p class="text-[10px] text-slate-500">الملك AL: AL / Gooaz@$&-#</p>
-  </div>
-</div>
 
-<div id="toastBox" class="fixed top-4 left-1/2 -translate-x-1/2 z-[99] flex flex-col items-center pointer-events-none w-11/12 max-w-xs"></div>
+    <!-- شريط التنقل السفلي - مرتب من اليمين -->
+    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 flex justify-around p-2 z-30">
+        <!-- 1. الرئيسية - اليمين -->
+        <button onclick="openTab('home', event)" class="flex flex-col items-center text-cyan-400 text-[10px]">
+            <span class="text-2xl">🏠</span>الرئيسية
+        </button>
+        <!-- 2. العمليات -->
+        <button onclick="openTab('operations', event)" class="flex flex-col items-center text-gray-400 text-[10px]">
+            <span class="text-2xl">⚡</span>العمليات
+        </button>
+        <!-- 3. زر الانشاء في الوسط -->
+        <button onclick="openTab('create', event)" class="w-14 h-14 bg-cyan-500 text-black rounded-full flex items-center justify-center font-bold text-3xl shadow-lg shadow-cyan-500/40 -mt-4">＋</button>
+        <!-- 4. الوارد -->
+        <button onclick="openTab('inbox', event)" class="flex flex-col items-center text-gray-400 text-[10px]">
+            <span class="text-2xl">💬</span>الوارد
+        </button>
+        <!-- 5. الملفات - اليسار -->
+        <button onclick="openTab('profile', event)" class="flex flex-col items-center text-gray-400 text-[10px]">
+            <span class="text-2xl">👤</span>الملفات
+        </button>
+    </nav>
 
-<div class="w-full max-w-md mx-auto flex justify-between items-center p-4">
-  <span id="homeUsernameDisplay" class="text-xs font-bold text-cyan-400">@AL 👑</span>
-  <div class="flex gap-2">
-    <button id="openAiEyeBtn" class="bg-purple-600 px-3 py-1.5 rounded-full text-[10px]">👁️ عين AI</button>
-    <button id="openSupportBtn" class="bg-slate-800 px-3 py-1.5 rounded-full text-[10px]">🛠️ دعم</button>
-  </div>
-</div>
-
-<main class="flex-1 w-full max-w-md mx-auto px-4 space-y-4">
-  <div id="tab-home" class="space-y-3">
-    <h3 class="text-xs text-slate-500">فيد تريم المباشر</h3>
-    <div id="feedContainer" class="space-y-3"></div>
-    <div id="feed" class="hidden"></div>
-  </div>
-  <div id="tab-operations" class="hidden space-y-3">
-    <div class="glass p-4 rounded-2xl space-y-3">
-      <h3 class="text-sm font-black text-cyan-400 text-center">العمليات السيادية ⚡</h3>
-      <button id="opLiveBtn" class="w-full bg-red-600 py-3 rounded-xl text-xs font-bold">🔴 بث مباشر 8 دقائق</button>
-      <button id="opInboxBtn" class="w-full bg-slate-900 p-3 rounded-xl text-xs border">💬 الوارد</button>
-      <button id="opMapBtn" class="w-full bg-slate-900 p-3 rounded-xl text-xs border">🗺️ خريطة حضرموت Offline</button>
-      <div id="mapContainer" class="hidden w-full h-72 rounded-xl"></div>
-      <div id="map" class="hidden"></div>
-      <button id="opQrBtn" class="w-full bg-slate-900 p-3 rounded-xl text-xs border">🧾 ختم ميداني QR</button>
-      <div id="operationsQrBox" class="hidden flex justify-center p-3 bg-white rounded-xl"></div>
-      <div id="qrBox" class="hidden"></div>
-    </div>
-  <div id="tab-create" class="hidden space-y-3">
-    <div class="glass p-4 rounded-2xl space-y-3">
-      <h3 class="text-sm font-black text-cyan-400 text-center">النشر السيادي ➕</h3>
-      <textarea id="postContentInput" placeholder="اكتب منشورك السيادي..." class="h-28"></textarea>
-      <div class="flex gap-2">
-        <button id="openCamStudioBtn" class="flex-1 bg-slate-800 py-3 rounded-xl text-xs">📷 كاميرا</button>
-        <button id="startLiveStudioBtn" class="flex-1 bg-red-600 py-3 rounded-xl text-xs">🔴 LIVE</button>
-      </div>
-      <button id="publishTextBtn" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl text-xs">نشر فوري 📢</button>
-    </div>
-  </div>
-  <div id="tab-inbox" class="hidden">
-    <div class="glass p-4 rounded-2xl space-y-3">
-      <h3 class="text-sm font-black text-cyan-400 text-center">الوارد 💬</h3>
-      <div id="inboxMessagesList" class="space-y-2 text-xs min-h-[100px]">لا رسائل - النظام آمن</div>
-      <div class="flex gap-2"><input id="inboxInputField" placeholder="رسالة..."><button id="sendInboxMsgBtn" class="bg-cyan-500 text-black px-4 rounded-xl text-xs">إرسال</button></div>
-    </div>
-  </div>
-  <div id="tab-profile" class="hidden">
-    <div class="glass p-4 rounded-2xl text-center space-y-3">
-      <div class="w-16 h-16 bg-cyan-500 rounded-full mx-auto flex items-center justify-center text-2xl">👑</div>
-      <h3 class="text-sm font-black text-cyan-400">الملك AL</h3>
-      <button id="logoutProfileBtn" class="w-full bg-red-600/20 py-2.5 rounded-xl text-xs">خروج</button>
-    </div>
-  </div>
-</main>
-
-<div id="fullScreenCam" class="hidden fixed inset-0 z-[80] bg-black">
-  <video id="fullCamVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
-  <div class="absolute top-4 left-4 right-4 flex justify-between">
-    <button id="exitCamBtn" class="bg-black/60 px-4 py-2 rounded-full text-xs">✕</button>
-    <div class="bg-red-600 px-3 py-1 rounded-full text-xs">🔴 LIVE <span id="liveHeartCount">0</span></div>
-    <button id="toggleFlashBtn" class="bg-black/60 px-3 py-2 rounded-full text-xs">🔦</button>
-  </div>
-  <div class="absolute bottom-4 left-2 right-2 flex gap-2">
-    <input id="liveCommentInput" placeholder="تعليق..."><button id="sendLiveCommentBtn" class="bg-cyan-500 text-black px-5 rounded-full text-xs">إرسال</button><button id="sendLiveHeartBtn" class="bg-pink-600 px-4 rounded-full">❤️</button>
-  </div>
-  <button id="closeCamStudioBtn" class="hidden"></button>
-</div>
-
-<div id="modalSupport" class="hidden fixed inset-0 z-[90] bg-black/80 flex items-center justify-center p-4">
-  <div class="glass w-full max-w-sm rounded-2xl p-4 space-y-3">
-    <h3 class="text-sm font-bold text-center">🛠️ دعم</h3>
-    <div id="supportChatList" class="bg-slate-900 rounded-xl p-3 h-48 overflow-y-auto text-xs"></div>
-    <div class="flex gap-2"><input id="supportInput" placeholder="مشكلتك..."><button id="sendSupportBtn" class="bg-cyan-500 text-black px-4 rounded-xl text-xs">إرسال</button></div>
-    <button onclick="document.getElementById('modalSupport').classList.add('hidden')" class="w-full bg-slate-800 py-2 rounded-xl text-xs">إغلاق</button>
-  </div>
-</div>
-
-<nav class="fixed bottom-0 left-0 right-0 glass border-t px-2 py-2 flex justify-around z-40 max-w-md mx-auto rounded-t-2xl">
-  <button data-tab="home" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px]">🏠 الرئيسية</button>
-  <button data-tab="operations" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">⚡ العمليات</button>
-  <button data-tab="create" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">➕ نشر</button>
-  <button data-tab="inbox" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">💬 الوارد</button>
-  <button data-tab="profile" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">👤 ملف</button>
-</nav>
-
-<script src="/ai-eye.js"></script>
-<script src="/support.js"></script>
-<script src="/app.js"></script>
+    <script src="/script.js"></script>
 </body>
-                                                                               </html>
+              </html>
