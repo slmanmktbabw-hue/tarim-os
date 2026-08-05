@@ -31,7 +31,6 @@
                 <input id="userPass" type="password" value="123456" placeholder="كلمة المرور الإمبراطورية" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
             </div>
 
-            <!-- تم ربط الزر بدالة مباشرة ومضمونة لفتح القلعة بغض النظر عن أي شي -->
             <button type="button" onclick="forceUnlockCastle()" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl shadow-lg hover:bg-cyan-400 transition text-xs cursor-pointer">دخول القلعة السيادية 🔑</button>
             <button type="button" onclick="forceUnlockCastle()" class="w-full bg-slate-800 border border-slate-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-700 transition cursor-pointer">🌐 الدخول عبر Google السيادي</button>
         </div>
@@ -44,7 +43,7 @@
     <header class="w-full glass border-b border-cyan-500/20 px-4 py-3 flex justify-between items-center text-xs z-40">
         <span id="openAiEyeBtn" class="text-cyan-400 font-bold flex items-center gap-1 cursor-pointer">👁️ عين الذكاء</span>
         <span class="font-black text-cyan-300 tracking-wider">TARIM OS</span>
-        <span id="openSupportBtn" class="text-slate-300 font-bold flex items-center gap-1 cursor-pointer">🛡️ الدعم</span>
+        <span id="openSupportBtn" class="text-slate-300 font-bold flex items-center gap-1 cursor-pointer">🛡️ فريق الدعم</span>
     </header>
 
     <!-- المحتوى الرئيسي للقلعة -->
@@ -100,14 +99,98 @@
             </div>
         </div>
 
-        <!-- 5. الملفات -->
+        <!-- 5. الملفات (كامل الإعدادات والأقسام) -->
         <div id="tab-profile" class="tab-content hidden space-y-4">
-            <div class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
+            
+            <!-- الصفحة الرئيسة للملف الشخصي -->
+            <div id="profile-main" class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
+                <div class="flex justify-between items-center">
+                    <button type="button" onclick="showSubPage('edit-profile')" class="text-[11px] bg-slate-900 border border-slate-700 px-3 py-1 rounded-lg text-cyan-300">تعديل</button>
+                    <span class="text-xs text-slate-400">🌐 عالي</span>
+                </div>
                 <div class="w-16 h-16 bg-cyan-500 rounded-full mx-auto flex items-center justify-center text-2xl font-black text-black">AL</div>
                 <h3 class="text-sm font-black text-cyan-400">الإمبراطور AL</h3>
                 <p class="text-[11px] text-cyan-300">OKX: 0x53...c0af6</p>
-                <button onclick="lockCastleAgain()" class="w-full bg-rose-500/20 border border-rose-500/50 text-rose-300 py-2.5 rounded-xl font-bold mt-3 cursor-pointer">🚪 تسجيل الخروج</button>
+
+                <div class="grid grid-cols-3 gap-2 py-2 text-xs border-y border-slate-800">
+                    <div><span class="block font-bold text-cyan-400">0</span>متابع</div>
+                    <div><span class="block font-bold text-cyan-400">0</span>يتابع</div>
+                    <div><span class="block font-bold text-cyan-400">0</span>إعجاب</div>
+                </div>
+
+                <div class="space-y-2 text-xs text-right">
+                    <p class="text-[11px] text-slate-400 font-bold">أدوات الحساب</p>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center"><span>💳 رصيد OKX (الملكي) - 0</span><span class="text-cyan-400 cursor-pointer">فتح ←</span></div>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center"><span>🏛️ مركز الأنشطة</span><span class="text-cyan-400 cursor-pointer">فتح ←</span></div>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center"><span>📹 فيديوهات دون اتصال</span><span class="text-cyan-400 cursor-pointer">فتح ←</span></div>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center" onclick="showSubPage('qr-page')"><span>🌐 رمز QR لديك</span><span class="text-cyan-400 cursor-pointer">عرض ←</span></div>
+                    
+                    <p class="text-[11px] text-slate-400 font-bold pt-2">أدوات الابداع والاعمال</p>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center"><span>👥 المجموعة التجارية</span><span class="text-cyan-400 cursor-pointer">فتح ←</span></div>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center" onclick="showSubPage('promo-page')"><span>📢 الترويج والاعلانات</span><span class="text-cyan-400 cursor-pointer">فتح ←</span></div>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center"><span>📊 ادارة المنشورات</span><span class="text-cyan-400 cursor-pointer">ادارة ←</span></div>
+
+                    <p class="text-[11px] text-slate-400 font-bold pt-2">الاعدادات والخصوصية</p>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center" onclick="showSubPage('account-settings')"><span>👤 الحساب</span><span class="text-cyan-400 cursor-pointer">←</span></div>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center" onclick="showSubPage('security-settings')"><span>🔒 الخصوصية والامان</span><span class="text-cyan-400 cursor-pointer">←</span></div>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center" onclick="showSubPage('bg-settings')"><span>🎨 تغير خلفية المستخدم</span><span class="text-cyan-400 cursor-pointer">تغيير ←</span></div>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center"><span>🔗 مشاركة ملف الشخصي</span><span class="text-cyan-400 cursor-pointer">مشاركة ←</span></div>
+                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center"><span>📜 السياسة والخصوصية</span><span class="text-cyan-400 cursor-pointer">فتح ←</span></div>
+
+                    <button type="button" onclick="lockCastleAgain()" class="w-full bg-rose-500/20 border border-rose-500/50 text-rose-300 py-2.5 rounded-xl font-bold mt-3 cursor-pointer">🚪 تسجيل الخروج</button>
+                </div>
             </div>
+
+            <!-- صفحة فرعية: الترويج والإعلانات -->
+            <div id="sub-promo-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4 border border-cyan-500/40">
+                <button type="button" onclick="backToProfile()" class="text-xs text-cyan-400 font-bold mb-2">← رجوع</button>
+                <h3 class="text-sm font-black text-cyan-400">📢 الترويج</h3>
+                <p class="text-xs text-slate-300">اختر هدفك: المزيد من المتابعين / المشاهدات / الإعجابات</p>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs">ترويج منشور سيادي الآن 🚀</div>
+            </div>
+
+            <!-- صفحة فرعية: الخصوصية والأمان -->
+            <div id="sub-security-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4 border border-cyan-500/40">
+                <button type="button" onclick="backToProfile()" class="text-xs text-cyan-400 font-bold mb-2">← رجوع</button>
+                <h3 class="text-sm font-black text-cyan-400">🔒 الخصوصية والامان</h3>
+                <div class="space-y-2 text-xs">
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center"><span>حساب خاص</span><span>🔒</span></div>
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center"><span>الحسابات المحظورة</span><span>🚫</span></div>
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center"><span>التعليقات</span><span>💬</span></div>
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center"><span>الرسائل الخاصة</span><span>📥</span></div>
+                </div>
+            </div>
+
+            <!-- صفحة فرعية: إعدادات الحساب -->
+            <div id="sub-account-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4 border border-cyan-500/40">
+                <button type="button" onclick="backToProfile()" class="text-xs text-cyan-400 font-bold mb-2">← رجوع</button>
+                <h3 class="text-sm font-black text-cyan-400">👤 الحساب</h3>
+                <div class="space-y-2 text-xs">
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center"><span>معلومات الحساب</span><span>←</span></div>
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center"><span>كلمة السر</span><span>←</span></div>
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center"><span>التحقق بخطوتين</span><span>←</span></div>
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center"><span>تبديل الى حساب شخصي</span><span>←</span></div>
+                </div>
+            </div>
+
+            <!-- صفحة فرعية: تغيير الخلفية -->
+            <div id="sub-bg-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4 border border-cyan-500/40">
+                <button type="button" onclick="backToProfile()" class="text-xs text-cyan-400 font-bold mb-2">← رجوع</button>
+                <h3 class="text-sm font-black text-cyan-400">🎨 تغير خلفية المستخدم</h3>
+                <div class="grid grid-cols-3 gap-2 pt-2">
+                    <div class="h-16 bg-slate-950 rounded-xl border border-cyan-500/50 cursor-pointer"></div>
+                    <div class="h-16 bg-slate-900 rounded-xl border border-slate-700 cursor-pointer"></div>
+                    <div class="h-16 bg-blue-950 rounded-xl border border-slate-700 cursor-pointer"></div>
+                </div>
+            </div>
+
+            <!-- صفحة فرعية: رمز QR -->
+            <div id="sub-qr-page" class="sub-page hidden glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
+                <button type="button" onclick="backToProfile()" class="text-xs text-cyan-400 font-bold mb-2 text-right block">← رجوع</button>
+                <h3 class="text-sm font-black text-cyan-400">🌐 رمز QR الخاص بك</h3>
+                <div id="qrcode" class="flex justify-center py-4 bg-white p-4 rounded-xl w-fit mx-auto"></div>
+            </div>
+
         </div>
 
     </main>
@@ -121,7 +204,7 @@
         <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">👤</span>الملفات</button>
     </nav>
 
-    <!-- السكربتات المباشرة لتشغيل البوابة والقسم السيادي -->
+    <!-- السكربتات المباشرة للتنقل والتحكم -->
     <script>
         function forceUnlockCastle() {
             const gate = document.getElementById('authGate');
@@ -156,11 +239,39 @@
                 btnElement.classList.remove('text-slate-400');
                 btnElement.classList.add('text-cyan-400');
             }
+            if(tabName === 'profile') {
+                backToProfile();
+            }
+        }
+
+        function showSubPage(pageId) {
+            const profileMain = document.getElementById('profile-main');
+            if (profileMain) profileMain.classList.add('hidden');
+            
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
+            
+            const target = document.getElementById('sub-' + pageId);
+            if(target) {
+                target.classList.remove('hidden');
+                if(pageId === 'qr-page') {
+                    const qrContainer = document.getElementById('qrcode');
+                    if (qrContainer) {
+                        qrContainer.innerHTML = "";
+                        new QRCode(qrContainer, {
+                            text: "https://tarimos.org/user/AL",
+                            width: 128,
+                            height: 128
+                        });
+                    }
+                }
+            }
+        }
+
+        function backToProfile() {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
+            const profileMain = document.getElementById('profile-main');
+            if (profileMain) profileMain.classList.remove('hidden');
         }
     </script>
-
-    <!-- ملفات النظام الإضافية إن وجدت -->
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/app.js"></script>
 </body>
 </html>
