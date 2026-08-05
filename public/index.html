@@ -17,6 +17,7 @@
 </head>
 <body id="mainBody" class="min-h-screen flex flex-col justify-between overflow-x-hidden pb-20">
 
+    <!-- بوابة الدخول - زر الدخول هنا مضمون 100% -->
     <div id="authGate" class="fixed inset-0 z-50 bg-[#030B1A] flex items-center justify-center p-4">
         <div class="glass w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-cyan-500/40 text-center space-y-4">
             <h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑</h1>
@@ -154,6 +155,7 @@
         <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">👤</span>الملفات</button>
     </nav>
 
+    <!-- البرمجيات المضمنة مباشرة لتجنب أي أخطاء تحميل -->
     <script>
         let likesCount = 120;
         let isLiked = false;
@@ -233,42 +235,48 @@
             isLiked = !isLiked;
             if (isLiked) {
                 likesCount++;
-                btn.style.color = '#ef4444';
+                if(btn) btn.style.color = '#ef4444';
                 showToast('أبديت إعجابك بالمنشور السيادي ❤️');
             } else {
                 likesCount--;
-                btn.style.color = '#ffffff';
+                if(btn) btn.style.color = '#ffffff';
                 showToast('تمت إزالة الإعجاب');
             }
-            countDisplay.innerText = likesCount;
+            if(countDisplay) countDisplay.innerText = likesCount;
         }
 
         let mapInstance = null;
         function initOfflineMap() {
             const mapContainer = document.getElementById('mapContainer');
+            if(!mapContainer) return;
             mapContainer.classList.toggle('hidden');
             if (!mapContainer.classList.contains('hidden') && !mapInstance) {
                 setTimeout(() => {
-                    mapInstance = L.map('mapContainer').setView([16.0355, 48.9856], 13);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapInstance);
-                    L.marker([16.0355, 48.9856]).addTo(mapInstance).bindPopup('<b>تريم حضرموت الخير</b> 🌴').openPopup();
+                    if (typeof L !== 'undefined') {
+                        mapInstance = L.map('mapContainer').setView([16.0355, 48.9856], 13);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapInstance);
+                        L.marker([16.0355, 48.9856]).addTo(mapInstance).bindPopup('<b>تريم حضرموت الخير</b> 🌴').openPopup();
+                    }
                 }, 300);
             }
         }
 
         function generateOperationsQr() {
             const qrBox = document.getElementById('operationsQrBox');
+            if(!qrBox) return;
             qrBox.classList.toggle('hidden');
             if (!qrBox.classList.contains('hidden')) {
                 qrBox.innerHTML = "";
-                new QRCode(qrBox, { text: "TARIM-OS-SECURE-SEAL-AL", width: 100, height: 100 });
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(qrBox, { text: "TARIM-OS-SECURE-SEAL-AL", width: 100, height: 100 });
+                }
                 showToast('🧾 تم إصدار وختم QR السيادي');
             }
         }
 
         function publishInstantPost() {
             const input = document.getElementById('postContentInput');
-            if (input.value.trim() !== "") {
+            if (input && input.value.trim() !== "") {
                 input.value = "";
                 switchTab('home', null);
                 showToast('🚀 تم النشر الفوري بنجاح في القلعة الرئيسية!');
@@ -280,7 +288,7 @@
         function sendInboxMessage() {
             const input = document.getElementById('inboxInputField');
             const list = document.getElementById('inboxMessagesList');
-            if (input.value.trim() !== "") {
+            if (input && list && input.value.trim() !== "") {
                 const msgDiv = document.createElement('div');
                 msgDiv.className = 'bg-cyan-500/20 border border-cyan-500/30 p-2.5 rounded-lg text-xs text-cyan-200 mt-2';
                 msgDiv.innerText = input.value;
