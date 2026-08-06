@@ -1,5 +1,5 @@
 // public/sw.js - TARIM OS Service Worker
-const CACHE_NAME = 'tarim-os-v1';
+const CACHE_NAME = 'tarim-os-v2'; // غيرت الرقم عشان يتحدث الكاش
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -7,10 +7,15 @@ const ASSETS_TO_CACHE = [
     '/ai-eye.js',
     '/support.js',
     '/manifest.json',
-    '/privacy.html'
+    '/privacy.html',
+    '/icon.png', // ضيف الايقونة
+    // المكتبات الخارجية عشان الخريطة والتصميم يشتغل بدون نت
+    'https://cdn.tailwindcss.com',
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
 ];
 
-// تثبيت الكاش وحفظ الملفات للعمل بدون نت
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
@@ -20,7 +25,6 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// تفعيل الكاش وتنظيف النسخ القديمة
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) => {
@@ -36,11 +40,16 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// اعتراض الطلبات وخدمتها من الكاش مباشرة عند انقطاع الإنترنت
 self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            return cachedResponse || fetch(event.request).catch(() => {
+            // لو موجود في الكاش رجعه، لو لا جيبه من النت وخزنه
+            return cachedResponse || fetch(event.request).then((response) => {
+                return caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, response.clone());
+                    return response;
+                });
+            }).catch(() => {
                 if (event.request.mode === 'navigate') {
                     return caches.match('/index.html');
                 }
