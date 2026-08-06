@@ -208,57 +208,9 @@
         <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] cursor-pointer"><span class="text-xl">👤</span>الملفات</button>
     </nav>
 
-    <script>
-        function forceUnlockCastle() {
-            const gate = document.getElementById('authGate');
-            if (gate) { gate.style.display = 'none'; gate.classList.add('hidden'); }
-            localStorage.setItem('tarim_user', 'AL');
-        }
-
-        function lockCastleAgain() {
-            const gate = document.getElementById('authGate');
-            if (gate) { gate.style.display = 'flex'; gate.classList.remove('hidden'); }
-        }
-
-        function switchTab(tabName, btnElement) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            const target = document.getElementById('tab-' + tabName);
-            if (target) target.classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-cyan-400');
-                btn.classList.add('text-slate-400');
-            });
-            if (btnElement) {
-                btnElement.classList.remove('text-slate-400');
-                btnElement.classList.add('text-cyan-400');
-            }
-            if(tabName === 'profile') backToProfile();
-        }
-
-        function showSubPage(pageId) {
-            const profileMain = document.getElementById('profile-main');
-            if (profileMain) profileMain.classList.add('hidden');
-            document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
-            
-            const target = document.getElementById('sub-' + pageId);
-            if(target) {
-                target.classList.remove('hidden');
-                if(pageId === 'qr-page') {
-                    const qrContainer = document.getElementById('qrcode');
-                    if (qrContainer) {
-                        qrContainer.innerHTML = "";
-                        new QRCode(qrContainer, { text: "https://tarimos.org/user/AL", width: 128, height: 128 });
-                    }
-                }
-            }
-        }
-
-        function backToProfile() {
-            document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
-            const profileMain = document.getElementById('profile-main');
-            if (profileMain) profileMain.classList.remove('hidden');
-        }
-    </script>
+    <script src="app.js"></script>
+    <script src="ai-eye.js"></script>
+    <script src="support.js"></script>
 </body>
-</html>
+                                                                                                                                                           </html>
+                                                                                                                                                           
