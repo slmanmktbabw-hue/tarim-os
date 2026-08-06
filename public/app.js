@@ -1,201 +1,280 @@
+/**
+ * TARIM OS - النظام السيادي الإمبراطوري
+ * ملف الجافاسكريبت الرئيسي: public/app.js
+ */
+
 let currentStream = null;
-let liveStream = null;
-let facingMode = "environment";
-let timerInterval = null;
-let posts = JSON.parse(localStorage.getItem('tarim_posts') || '[]');
+let useFrontCamera = false;
+let mapInstance = null;
+let likeCount = 120;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // تشغيل الكاميرا تلقائياً إذا كان المستخدم في تبويب الإنشاء عند التحميل
-    const createTab = document.getElementById('tab-create');
-    if (createTab && createTab.classList.contains('active')) {
-        initCamera();
+    const user = localStorage.getItem('tarim_user');
+    const authGate = document.getElementById('authGate');
+    if (user === 'AL' && authGate) {
+        authGate.style.display = 'none';
+        authGate.classList.add('hidden');
     }
+    initCameraStream();
+    loadFeeds();
+    loadInboxMessages();
+    initOperationalTools();
 });
 
-function showToast(msg){
+function showToast(msg) {
     const box = document.getElementById('toastBox');
-    if(!box) return;
+    if (!box) return;
     const t = document.createElement('div');
-    t.className = 'bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-lg mb-2 text-center';
-    t.innerText = msg; 
+    t.className = 'bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-lg mb-2 text-center animate-bounce';
+    t.innerText = msg;
     box.appendChild(t);
     setTimeout(() => t.remove(), 2500);
 }
 
-function switchTab(tab, btn){
-    if(currentStream) { currentStream.getTracks().forEach(t => t.stop()); currentStream = null; }
-    if(liveStream) { liveStream.getTracks().forEach(t => t.stop()); liveStream = null; }
-    clearInterval(timerInterval);
+function forceUnlockCastle() {
+    const gate = document.getElementById('authGate');
+    if (gate) { 
+        gate.style.display = 'none'; 
+        gate.classList.add('hidden'); 
+    }
+    localStorage.setItem('tarim_user', 'AL');
+    showToast('👑 أهلاً بك يا أبو سلمان في القلعة السيادية');
+}
 
-    document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
-    const targetTab = document.getElementById('tab-' + tab);
-    if(targetTab) targetTab.classList.add('active');
+function lockCastleAgain() {
+    const gate = document.getElementById('authGate');
+    if (gate) { 
+        gate.style.display = 'flex'; 
+        gate.classList.remove('hidden'); 
+    }
+    localStorage.removeItem('tarim_user');
+    showToast('🚪 تم إقفال القلعة بنجاح');
+}
 
-    document.querySelectorAll('.nav-btn').forEach(x => {
-        const span = x.querySelector('span:not(.text-2xl)');
-        if(span) span.classList.remove('text-cyan-400');
+function switchTab(tabName, btnElement) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+    const target = document.getElementById('tab-' + tabName);
+    if (target) target.classList.remove('hidden');
+    
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('text-cyan-400');
+        btn.classList.add('text-slate-400');
     });
+    if (btnElement) {
+        btnElement.classList.remove('text-slate-400');
+        btnElement.classList.add('text-cyan-400');
+    }
+    if (tabName === 'profile') backToProfile();
     
-    if(btn) {
-        const span = btn.querySelector('span:not(.text-2xl)');
-        if(span) span.classList.add('text-cyan-400');
-    }
-
-    if(tab === 'create') initCamera();
-    if(tab === 'home') renderFeed();
-}
-
-// الكاميرا المصغرة
-async function initCamera(){
-    const box = document.getElementById('cameraBox');
-    if(!box) return;
-    box.innerHTML = `<video id="cameraPreview" autoplay playsinline muted class="w-full h-full object-cover"></video>`;
-    try{
-        currentStream = await navigator.mediaDevices.getUserMedia({video:{facingMode: facingMode === 'env' ? 'environment' : 'user'}});
-        const preview = document.getElementById('cameraPreview');
-        if(preview) preview.srcObject = currentStream;
-    }catch(e){ 
-        console.error(e);
-        showToast('⚠️ فشل تشغيل الكاميرا (تحقق من الصلاحيات أو HTTPS)'); 
+    if (tabName === 'create') {
+        initCameraStream();
+    } else {
+        stopCameraStream();
     }
 }
 
-const switchCamBtn = document.getElementById('switchCamBtn');
-if(switchCamBtn) {
-    switchCamBtn.onclick = () => { 
-        facingMode = facingMode === 'env' ? 'user' : 'env'; 
-        initCamera(); 
-        showToast(facingMode === 'user' ? '📷 كاميرا أمامية' : '📷 كاميرا خلفية');
-    };
-}
-
-const filterBtn = document.getElementById('filterBtn');
-if(filterBtn) filterBtn.onclick = () => { showToast('✨ فلتر تجميل مفعل'); };
-
-const lightBtn = document.getElementById('lightBtn');
-if(lightBtn) lightBtn.onclick = () => { showToast('💡 إضاءة مفعلة'); };
-
-// النشر - يحفظ في الرئيسية
-const publishBtn = document.getElementById('publishBtn');
-if(publishBtn) {
-    publishBtn.onclick = () => {
-        const input = document.getElementById('postContentInput');
-        if(!input) return;
-        const txt = input.value.trim();
-        if(txt){
-            posts.unshift({id: Date.now(), text: txt, likes: 0, comments: []});
-            localStorage.setItem('tarim_posts', JSON.stringify(posts));
-            input.value = '';
-            showToast('🚀 تم النشر بنجاح');
-            
-            // التوجيه تلقائياً للرئيسية
-            const homeNavBtn = document.querySelectorAll('.nav-btn')[4];
-            switchTab('home', homeNavBtn);
-        } else { 
-            showToast('⚠️ يرجى كتابة وصف للمنشور أولاً'); 
+async function initCameraStream() {
+    const videoEl = document.getElementById('liveCameraFeed');
+    if (!videoEl) return;
+    try {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
         }
-    };
+        const constraints = {
+            video: { facingMode: useFrontCamera ? "user" : "environment" },
+            audio: true
+        };
+        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoEl.srcObject = currentStream;
+    } catch (err) {
+        console.log("تشغيل الكاميرا الافتراضي نشط:", err);
+    }
 }
 
-// عرض الفيديوهات والمنشورات في الرئيسية
-function renderFeed(){
-    const feed = document.getElementById('feed');
-    if(!feed) return;
+function stopCameraStream() {
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+    }
+}
+
+function switchCameraFacing() {
+    useFrontCamera = !useFrontCamera;
+    initCameraStream();
+    showToast(useFrontCamera ? "🔄 تم التبديل للكاميرا الأمامية" : "🔄 تم التبديل للكاميرا الخلفية");
+}
+
+function applyFilter(filterClass) {
+    const videoEl = document.getElementById('liveCameraFeed');
+    if (!videoEl) return;
+    videoEl.className = "w-full h-full object-cover " + filterClass;
+    showToast('✨ تم تطبيق الفلتر الإمبراطوري بنجاح');
+}
+
+function openGiftsPanel() {
+    showToast('🎁 أرسل الإمبراطور هدية: تاج سيادي 👑 (+500 نقطة رصيد)');
+}
+
+function startLiveBroadcast() {
+    const badge = document.getElementById('liveBadge');
+    if (badge) badge.classList.remove('hidden');
+    switchTab('create', document.querySelectorAll('.nav-btn')[2]);
+    showToast('🔴 بدأ البث المباشر السيادي بشاشة كاملة');
+}
+
+function triggerLike() {
+    likeCount++;
+    const display = document.getElementById('likeCountDisplay');
+    const profileLikes = document.getElementById('profileLikes');
+    if (display) display.innerText = likeCount;
+    if (profileLikes) profileLikes.innerText = likeCount;
+    showToast('❤️ تم الإعجاب بالفيديو السيادي');
+}
+
+function openCommentModal() {
+    switchTab('inbox', document.querySelectorAll('.nav-btn')[3]);
+    showToast('💬 انتقلت لصندوق التعليقات والردود الآمنة');
+}
+
+function saveCurrentVideo() {
+    showToast('⭐ تم حفظ الفيديو في قائمة الفيديوهات المفضلة دون اتصال');
+}
+
+function publishPostDirectly() {
+    const input = document.getElementById('postContentInput');
+    const text = input ? input.value.trim() : "فيديو وكاميرا سيادية مباشرة";
     
-    if(posts.length === 0){
-        feed.innerHTML = `<div class="text-center text-slate-400 py-10"><div class="text-4xl mb-2">🎬</div><p class="text-xs">لم تنشر أي فيديوهات بعد</p><p class="text-[10px]">انشر أول بث مباشر أو منشور من زر +</p></div>`;
+    let feeds = JSON.parse(localStorage.getItem('tarim_feeds') || '[]');
+    feeds.unshift({
+        caption: text,
+        time: new Date().toLocaleTimeString(),
+        author: '@AL 👑'
+    });
+    localStorage.setItem('tarim_feeds', JSON.stringify(feeds));
+    
+    if (input) input.value = '';
+    showToast('🚀 تم النشر بنجاح وحفظه في القائمة الرئيسية');
+    loadFeeds();
+    switchTab('home', document.querySelectorAll('.nav-btn')[0]);
+}
+
+function loadFeeds() {
+    const placeholder = document.getElementById('homeDefaultPlaceholder');
+    const list = document.getElementById('dynamicFeedsList');
+    if (!list) return;
+
+    let feeds = JSON.parse(localStorage.getItem('tarim_feeds') || '[]');
+    if (feeds.length === 0) {
+        if (placeholder) placeholder.classList.remove('hidden');
+        list.classList.add('hidden');
         return;
     }
-    feed.innerHTML = posts.map(p => `
-        <div class="glass p-3 rounded-2xl border border-cyan-500/20 space-y-2">
-            <p class="text-xs text-white">${p.text}</p>
-            <div class="flex gap-4 text-xs pt-1 border-t border-slate-800">
-                <button onclick="likePost(${p.id})" class="text-cyan-400 hover:scale-105 transition">❤️ ${p.likes}</button>
-                <span class="text-slate-400">💬 ${p.comments.length} تعليقات</span>
+
+    if (placeholder) placeholder.classList.add('hidden');
+    list.classList.remove('hidden');
+
+    list.innerHTML = feeds.map(f => `
+        <div class="bg-slate-900 border border-cyan-500/30 p-3 rounded-xl space-y-2 text-right shadow-md">
+            <div class="flex justify-between items-center text-[10px] text-cyan-400">
+                <span>${f.author}</span>
+                <span class="text-slate-500">${f.time}</span>
+            </div>
+            <p class="text-xs text-white">${f.caption}</p>
+            <div class="w-full h-32 bg-slate-950 rounded-lg flex items-center justify-center text-slate-500 text-xs border border-slate-800">
+                📹 بث / فيديو سيادي محفوظ
             </div>
         </div>
     `).join('');
 }
 
-function likePost(id){
-    posts = posts.map(p => p.id === id ? {...p, likes: p.likes + 1} : p);
-    localStorage.setItem('tarim_posts', JSON.stringify(posts));
-    renderFeed();
-}
-
-// البث المباشر السيادي (8 دقائق)
-async function startLiveStream() {
-    const liveScreen = document.getElementById('liveScreen');
-    if(liveScreen) liveScreen.classList.remove('hidden');
-    
-    try {
-        liveStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-        const liveVideo = document.getElementById('liveVideo');
-        if(liveVideo) liveVideo.srcObject = liveStream;
-        startTimer(480); // 8 دقائق
-        showToast('🔴 بدأ البث المباشر السيادي بنجاح');
-    } catch(err) {
-        console.error(err);
-        showToast('⚠️ تعذر تشغيل البث، تحقق من إذن الكاميرا والميكروفون');
-        if(liveScreen) liveScreen.classList.add('hidden');
+function sendInboxMessage() {
+    const input = document.getElementById('inboxInputField');
+    if (input && input.value.trim() !== '') {
+        let msgs = JSON.parse(localStorage.getItem('tarim_inbox') || '[]');
+        msgs.push({ sender: 'الإمبراطور AL', text: input.value.trim(), time: new Date().toLocaleTimeString() });
+        localStorage.setItem('tarim_inbox', JSON.stringify(msgs));
+        input.value = '';
+        loadInboxMessages();
+        showToast('💬 تم إرسال الرسالة أو التعليق السيادي');
+    } else {
+        showToast('⚠️ يرجى كتابة نص الرسالة أولاً');
     }
 }
 
-const liveBtn = document.getElementById('liveBtn');
-if(liveBtn) liveBtn.onclick = startLiveStream;
-
-const liveOpBtn = document.getElementById('liveOpBtn');
-if(liveOpBtn) liveOpBtn.onclick = startLiveStream;
-
-function endLive(){
-    if(liveStream) liveStream.getTracks().forEach(t => t.stop());
-    clearInterval(timerInterval);
-    const liveScreen = document.getElementById('liveScreen');
-    if(liveScreen) liveScreen.classList.add('hidden');
-    showToast('⏰ انتهى البث المباشر');
+function loadInboxMessages() {
+    const list = document.getElementById('inboxMessagesList');
+    if (!list) return;
+    let msgs = JSON.parse(localStorage.getItem('tarim_inbox') || '[]');
+    if (msgs.length === 0) {
+        list.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-4">صندوق الوارد والتعليقات آمن وجاهز.</p>`;
+        return;
+    }
+    list.innerHTML = msgs.map(m => `
+        <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl text-xs space-y-1">
+            <div class="flex justify-between text-[10px] text-cyan-400">
+                <span>${m.sender}</span>
+                <span class="text-slate-500">${m.time}</span>
+            </div>
+            <p class="text-white">${m.text}</p>
+        </div>
+    `).join('');
 }
 
-const endLiveBtn = document.getElementById('endLiveBtn');
-if(endLiveBtn) endLiveBtn.onclick = endLive;
-
-function startTimer(s){
-    let time = s;
-    timerInterval = setInterval(() => {
-        let m = Math.floor(time / 60).toString().padStart(2, '0');
-        let sec = (time % 60).toString().padStart(2, '0');
-        const timerDisplay = document.getElementById('liveTimer');
-        if(timerDisplay) timerDisplay.innerText = `${m}:${sec}`;
-        
-        if(time <= 0){ 
-            endLive(); 
-        }
-        time--;
-    }, 1000);
-}
-
-// تفاعلات شاشة البث
-const likeLiveBtn = document.getElementById('likeBtn');
-if(likeLiveBtn) likeLiveBtn.onclick = () => { showToast('❤️ تفاعل إعجاب سيادي'); };
-
-const giftBtn = document.getElementById('giftBtn');
-if(giftBtn) giftBtn.onclick = () => { showToast('🎁 تم إرسال هدية إمبراطورية!'); };
-
-const beautyBtn = document.getElementById('beautyBtn');
-if(beautyBtn) beautyBtn.onclick = () => { showToast('✨ فلتر التجميل مفعل'); };
-
-const commentInput = document.getElementById('commentInput');
-if(commentInput){
-    commentInput.addEventListener('keypress', (e) => {
-        if(e.key === 'Enter' && e.target.value.trim() !== ''){
-            const commentsContainer = document.getElementById('comments');
-            if(commentsContainer){
-                const c = document.createElement('div');
-                c.className = 'bg-black/60 px-2.5 py-1 rounded-lg mb-1 text-xs text-cyan-200 border border-cyan-500/20';
-                c.innerText = 'AL: ' + e.target.value;
-                commentsContainer.appendChild(c);
-                commentsContainer.scrollTop = commentsContainer.scrollHeight;
+function initOperationalTools() {
+    const opQrBtn = document.getElementById('opQrBtn');
+    if (opQrBtn) {
+        opQrBtn.addEventListener('click', () => {
+            const qrBox = document.getElementById('operationsQrBox');
+            if (qrBox && typeof QRCode !== 'undefined') {
+                qrBox.classList.toggle('hidden');
+                qrBox.innerHTML = "";
+                if (!qrBox.classList.contains('hidden')) {
+                    new QRCode(qrBox, { text: "https://tarimos.org/operations/qr", width: 100, height: 100 });
+                    showToast('🧾 تم إصدار ختم QR السيادي');
+                }
             }
-            e.target.value = '';
+        });
+    }
+
+    const opMapBtn = document.getElementById('opMapBtn');
+    if (opMapBtn) {
+        opMapBtn.addEventListener('click', () => {
+            const mapContainer = document.getElementById('mapContainer');
+            if (mapContainer) {
+                mapContainer.classList.toggle('hidden');
+                if (!mapContainer.classList.contains('hidden') && !mapInstance && typeof L !== 'undefined') {
+                    mapInstance = L.map('mapContainer').setView([16.0608, 48.9814], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: 'TARIM OS Offline Map'
+                    }).addTo(mapInstance);
+                    L.marker([16.0608, 48.9814]).addTo(mapInstance).bindPopup('قلعة تريم السيادية - أبو سلمان').openPopup();
+                    showToast('🗺️ خريطة تريم Offline مفعلة');
+                }
+            }
+        });
+    }
+}
+
+function showSubPage(pageId) {
+    const profileMain = document.getElementById('profile-main');
+    if (profileMain) profileMain.classList.add('hidden');
+    document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
+    
+    const target = document.getElementById('sub-' + pageId);
+    if (target) {
+        target.classList.remove('hidden');
+        if (pageId === 'qr-page') {
+            const qrContainer = document.getElementById('qrcode');
+            if (qrContainer && typeof QRCode !== 'undefined') {
+                qrContainer.innerHTML = "";
+                new QRCode(qrContainer, { text: "https://tarimos.org/user/AL", width: 128, height: 128 });
+            }
         }
-    });
-                    }
+    }
+}
+
+function backToProfile() {
+    document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
+    const profileMain = document.getElementById('profile-main');
+    if (profileMain) profileMain.classList.remove('hidden');
+}
