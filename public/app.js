@@ -31,11 +31,6 @@ function forceUnlockCastle() {
     }
     localStorage.setItem('tarim_user', 'AL');
     showToast('أهلاً بك يا أبو سلمان في القلعة السيادية 👑');
-    
-    // إعادة تحميل خفيفة لتجاوز الـ Cache وفتح القلعة فوراً
-    setTimeout(() => {
-        window.location.reload();
-    }, 400);
 }
 
 function lockCastleAgain() {
@@ -251,4 +246,5 @@ function changeUserBackground() {
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     document.body.style.backgroundColor = randomColor;
     showToast('🎨 تم تغيير خلفية النظام الإمبراطوري بنجاح');
-}
+                                          }
+    
