@@ -1,5 +1,5 @@
 // public/sw.js - TARIM OS Service Worker
-const CACHE_NAME = 'tarim-os-v1';
+const CACHE_NAME = 'tarim-os-v2';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
