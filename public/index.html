@@ -38,9 +38,9 @@
     <div id="toastBox" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none w-11/12 max-w-xs"></div>
 
     <header class="w-full glass border-b border-cyan-500/20 px-4 py-3 flex justify-between items-center text-xs z-40">
-        <span id="openAiEyeBtn" class="text-cyan-400 font-bold flex items-center gap-1 cursor-pointer">👁️ عين الذكاء</span>
+        <span id="openAiEyeBtn" onclick="showToast('👁️ عين الذكاء: تعمل بكفاءة Offline لحماية النظام')" class="text-cyan-400 font-bold flex items-center gap-1 cursor-pointer">👁️ عين الذكاء</span>
         <span class="font-black text-cyan-300 tracking-wider">TARIM OS</span>
-        <span id="openSupportBtn" class="text-slate-300 font-bold flex items-center gap-1 cursor-pointer">🛡️ فريق الدعم</span>
+        <span id="openSupportBtn" onclick="showToast('🛡️ فريق الدعم السيادي في خدمتك يا أبو سلمان')" class="text-slate-300 font-bold flex items-center gap-1 cursor-pointer">🛡️ فريق الدعم</span>
     </header>
 
     <main class="flex-1 w-full max-w-md mx-auto p-4 relative">
@@ -128,7 +128,7 @@
                 </div>
 
                 <textarea id="postContentInput" placeholder="اكتب وصف للمنشور أو البث..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white h-20 resize-none text-right"></textarea>
-                <button type="button" id="publishTextBtn" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl text-xs shadow-lg hover:bg-cyan-400 transition cursor-pointer">📢 نشر فوري</button>
+                <button type="button" id="publishTextBtn" onclick="showToast('📢 تم النشر الفوري بنجاح في القلعة')" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl text-xs shadow-lg hover:bg-cyan-400 transition cursor-pointer">📢 نشر فوري</button>
             </div>
         </div>
 
@@ -159,7 +159,7 @@
                 <div id="inboxMessagesList" class="space-y-2 text-right max-h-48 overflow-y-auto"></div>
                 <div class="flex gap-2 pt-2">
                     <input id="inboxInputField" type="text" placeholder="اكتب رسالتك السيادية..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-right">
-                    <button id="sendInboxMsgBtn" class="bg-cyan-500 text-black font-bold px-4 py-2 rounded-xl text-xs cursor-pointer">إرسال</button>
+                    <button id="sendInboxMsgBtn" onclick="showToast('💬 تم إرسال الرسالة السيادية بنجاح')" class="bg-cyan-500 text-black font-bold px-4 py-2 rounded-xl text-xs cursor-pointer">إرسال</button>
                 </div>
             </div>
         </div>
@@ -219,6 +219,4 @@
                 <h3 class="text-sm font-black text-cyan-400">👤 الحساب</h3>
             </div>
 
-            <div id="sub-bg-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4 border border-cyan-500/40">
-                <button type="button" onclick="backToProfile()" class="text-xs text-cyan-400 font-bold mb-2 cursor-pointer">← رجوع</button>
-           
+            <div id="sub-b
