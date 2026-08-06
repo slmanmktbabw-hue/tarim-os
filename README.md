@@ -4,7 +4,7 @@
 
 ## ✨ مميزات النظام:
 * 🏰 **الرئيسية**: فيديو ملء الشاشة + لايكات + تعليقات + حفظ المنشورات.
-* ⚡ **العمليات**: بث LIVE حقيقي 8 دقائق شاشة كاملة + كاميرات أمامية/خلفية + خريطة Offline + ختم QR السيادي.
+* ⚡ **العمليات**: بث LIVE حقي 8 دقائق شاشة كاملة + كاميرات أمامية/خلفية + خريطة Offline + ختم QR السيادي.
 * ➕ **الإنشاء**: محطة إنشاء المنشورات + رفع وصور وفيديو + نشر فوري.
 * 💬 **الوارد**: صندوق مراسلة آمن ومشفر.
 * 👤 **الملفات**: محفظة OKX مبسطة + رمز QR + إعدادات الحساب والأمان والخصوصية.
@@ -16,15 +16,15 @@
 ```text
 tarim-os/
 ├── public/
-│   ├── index.html
-│   ├── app.js
-│   ├── ai-eye.js
-│   ├── support.js
-│   ├── manifest.json
-│   ├── privacy.html
-│   └── sw.js
-├── .env.example
-├── .gitignore
+│ ├── index.html
+│ ├── app.js
+│ ├── ai-eye.js
+│ ├── support.js
+│ ├── manifest.json
+│ ├── privacy.html
+│ └── sw.js
+├──.env.example
+├──.gitignore
 ├── database.js
 ├── package.json
 ├── router.js
@@ -32,4 +32,3 @@ tarim-os/
 ├── server.js
 ├── settings.js
 └── README.md
-
