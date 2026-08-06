@@ -6,7 +6,9 @@
 let currentStream = null;
 let liveStream = null;
 let facingMode = "environment";
+let flashLightOn = false;
 let timerInterval = null;
+let liveLikes = 0;
 let posts = JSON.parse(localStorage.getItem('tarim_posts') || '[]');
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -54,18 +56,22 @@ function switchTab(tab, btn){
     if(tab === 'home') renderFeed();
 }
 
-// الكاميرا المصغرة في تبويب الإنشاء
+// تشغيل وتدوير الكاميرا في محطة الإنشاء
 async function initCamera(){
-    const box = document.getElementById('cameraBox');
-    if(!box) return;
-    box.innerHTML = `<video id="cameraPreview" autoplay playsinline muted class="w-full h-full object-cover"></video>`;
+    const preview = document.getElementById('cameraPreview');
+    if(!preview) return;
     try{
-        currentStream = await navigator.mediaDevices.getUserMedia({video:{facingMode: facingMode === 'env' ? 'environment' : 'user'}});
-        const preview = document.getElementById('cameraPreview');
-        if(preview) preview.srcObject = currentStream;
+        if(currentStream) {
+            currentStream.getTracks().forEach(t => t.stop());
+        }
+        currentStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: facingMode === 'env' ? 'environment' : 'user' },
+            audio: true
+        });
+        preview.srcObject = currentStream;
     }catch(e){ 
         console.error(e);
-        showToast('⚠️ فشل تشغيل الكاميرا (تحقق من الصلاحيات أو HTTPS)'); 
+        showToast('⚠️ يرجى السماح بصلاحيات الكاميرا والميكروفون'); 
     }
 }
 
@@ -74,17 +80,64 @@ if(switchCamBtn) {
     switchCamBtn.onclick = () => { 
         facingMode = facingMode === 'env' ? 'user' : 'env'; 
         initCamera(); 
-        showToast(facingMode === 'user' ? '📷 كاميرا أمامية' : '📷 كاميرا خلفية');
+        showToast(facingMode === 'user' ? '🔄 تم التبديل للكاميرا الأمامية' : '🔄 تم التبديل للكاميرا الخلفية');
+    };
+}
+
+// التحكم بالفلاش (الإضاءة)
+const lightBtn = document.getElementById('lightBtn');
+if(lightBtn) {
+    lightBtn.onclick = async () => {
+        if(!currentStream) return;
+        const track = currentStream.getVideoTracks()[0];
+        try {
+            const capabilities = track.getCapabilities();
+            if (capabilities.torch) {
+                flashLightOn = !flashLightOn;
+                await track.applyConstraints({ advanced: [{ torch: flashLightOn }] });
+                showToast(flashLightOn ? '💡 تم تشغيل الفلاش' : '💡 تم إيقاف الفلاش');
+            } else {
+                showToast('⚠️ الفلاش غير مدعوم في هذا الجهاز أو الكاميرا');
+            }
+        } catch (err) {
+            showToast('⚠️ تعذر التحكم بالفلاش');
+        }
     };
 }
 
 const filterBtn = document.getElementById('filterBtn');
-if(filterBtn) filterBtn.onclick = () => { showToast('✨ فلتر تجميل مفعل'); };
+if(filterBtn) filterBtn.onclick = () => { showToast('✨ فلتر التجميل السيادي مفعل'); };
 
-const lightBtn = document.getElementById('lightBtn');
-if(lightBtn) lightBtn.onclick = () => { showToast('💡 إضاءة مفعلة'); };
+// رفع فيديو أو صورة وإضافتها للرئيسية مباشرة
+const uploadVideo = document.getElementById('uploadVideo');
+if(uploadVideo) {
+    uploadVideo.onchange = (e) => {
+        const file = e.target.files[0];
+        if(file) {
+            const url = URL.createObjectURL(file);
+            posts.unshift({id: Date.now(), text: '📹 فيديو مرفوع: ' + file.name, videoUrl: url, likes: 0, comments: []});
+            localStorage.setItem('tarim_posts', JSON.stringify(posts));
+            showToast('🚀 تم رفع الفيديو ونشره في الرئيسية');
+            switchTab('home', document.querySelectorAll('.nav-btn')[0]);
+        }
+    };
+}
 
-// النشر - يحفظ في الرئيسية تلقائياً
+const uploadImage = document.getElementById('uploadImage');
+if(uploadImage) {
+    uploadImage.onchange = (e) => {
+        const file = e.target.files[0];
+        if(file) {
+            const url = URL.createObjectURL(file);
+            posts.unshift({id: Date.now(), text: '🖼️ صورة مرفوعة: ' + file.name, imageUrl: url, likes: 0, comments: []});
+            localStorage.setItem('tarim_posts', JSON.stringify(posts));
+            showToast('🚀 تم رفع الصورة ونشرها في الرئيسية');
+            switchTab('home', document.querySelectorAll('.nav-btn')[0]);
+        }
+    };
+}
+
+// النشر النصي الفوري
 const publishBtn = document.getElementById('publishBtn');
 if(publishBtn) {
     publishBtn.onclick = () => {
@@ -96,17 +149,14 @@ if(publishBtn) {
             localStorage.setItem('tarim_posts', JSON.stringify(posts));
             input.value = '';
             showToast('🚀 تم النشر بنجاح');
-            
-            // الانتقال التلقائي إلى الرئيسية (أول زر)
-            const homeNavBtn = document.querySelectorAll('.nav-btn')[0];
-            switchTab('home', homeNavBtn);
+            switchTab('home', document.querySelectorAll('.nav-btn')[0]);
         } else { 
             showToast('⚠️ يرجى كتابة وصف للمنشور أولاً'); 
         }
     };
 }
 
-// عرض الفيديوهات والمنشورات في الرئيسية
+// عرض المنشورات في الرئيسية
 function renderFeed(){
     const feed = document.getElementById('feed');
     if(!feed) return;
@@ -118,6 +168,8 @@ function renderFeed(){
     feed.innerHTML = posts.map(p => `
         <div class="glass p-3 rounded-2xl border border-cyan-500/20 space-y-2 text-right">
             <p class="text-xs text-white">${p.text}</p>
+            ${p.videoUrl ? `<video src="${p.videoUrl}" controls class="w-full h-40 object-cover rounded-xl mt-2"></video>` : ''}
+            ${p.imageUrl ? `<img src="${p.imageUrl}" class="w-full h-40 object-cover rounded-xl mt-2">` : ''}
             <div class="flex gap-4 text-xs pt-1 border-t border-slate-800 justify-end">
                 <button onclick="likePost(${p.id})" class="text-cyan-400 hover:scale-105 transition cursor-pointer">❤️ ${p.likes}</button>
                 <span class="text-slate-400">💬 ${p.comments.length} تعليقات</span>
@@ -132,22 +184,32 @@ function likePost(id){
     renderFeed();
 }
 
-// البث المباشر السيادي (8 دقائق)
+// شاشة البث المباشر الكاملة والتحكم بها
 async function startLiveStream() {
     const liveScreen = document.getElementById('liveScreen');
+    const readyBox = document.getElementById('readyToBroadcastBox');
     if(liveScreen) liveScreen.classList.remove('hidden');
+    if(readyBox) readyBox.style.display = 'block';
     
     try {
         liveStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
         const liveVideo = document.getElementById('liveVideo');
         if(liveVideo) liveVideo.srcObject = liveStream;
-        startTimer(480); // 8 دقائق
-        showToast('🔴 بدأ البث المباشر السيادي بنجاح');
     } catch(err) {
         console.error(err);
-        showToast('⚠️ تعذر تشغيل البث، تحقق من إذن الكاميرا والميكروفون');
-        if(liveScreen) liveScreen.classList.add('hidden');
+        showToast('⚠️ تعذر تشغيل الكاميرا للبث');
     }
+}
+
+// زر البدء الفعلي بعد ظهور شاشة "البث السيادي جاهز"
+const confirmStartLive = document.getElementById('confirmStartLive');
+if(confirmStartLive) {
+    confirmStartLive.onclick = () => {
+        const readyBox = document.getElementById('readyToBroadcastBox');
+        if(readyBox) readyBox.style.display = 'none';
+        startTimer(480); // 8 دقائق
+        showToast('🔴 بدأ البث المباشر السيادي بشاشة كاملة بنجاح');
+    };
 }
 
 const liveBtn = document.getElementById('liveBtn');
@@ -161,7 +223,7 @@ function endLive(){
     clearInterval(timerInterval);
     const liveScreen = document.getElementById('liveScreen');
     if(liveScreen) liveScreen.classList.add('hidden');
-    showToast('⏰ انتهى البث المباشر');
+    showToast('⏰ انتهى البث المباشر السيادي');
 }
 
 const endLiveBtn = document.getElementById('endLiveBtn');
@@ -174,38 +236,57 @@ function startTimer(s){
         let sec = (time % 60).toString().padStart(2, '0');
         const timerDisplay = document.getElementById('liveTimer');
         if(timerDisplay) timerDisplay.innerText = `${m}:${sec}`;
-        
-        if(time <= 0){ 
-            endLive(); 
-        }
+        if(time <= 0){ endLive(); }
         time--;
     }, 1000);
 }
 
-// تفاعلات شاشة البث المباشر
+// التفاعلات داخل شاشة البث (لايك، هدايا، تعليقات)
 const likeLiveBtn = document.getElementById('likeBtn');
-if(likeLiveBtn) likeLiveBtn.onclick = () => { showToast('❤️ تفاعل إعجاب سيادي'); };
-
-const giftBtn = document.getElementById('giftBtn');
-if(giftBtn) giftBtn.onclick = () => { showToast('🎁 تم إرسال هدية إمبراطورية!'); };
-
-const beautyBtn = document.getElementById('beautyBtn');
-if(beautyBtn) beautyBtn.onclick = () => { showToast('✨ فلتر التجميل مفعل'); };
-
-const commentInput = document.getElementById('commentInput');
-if(commentInput){
-    commentInput.addEventListener('keypress', (e) => {
-        if(e.key === 'Enter' && e.target.value.trim() !== ''){
-            const commentsContainer = document.getElementById('comments');
-            if(commentsContainer){
-                const c = document.createElement('div');
-                c.className = 'bg-black/60 px-2.5 py-1 rounded-lg mb-1 text-xs text-cyan-200 border border-cyan-500/20 text-right';
-                c.innerText = 'AL: ' + e.target.value;
-                commentsContainer.appendChild(c);
-                commentsContainer.scrollTop = commentsContainer.scrollHeight;
-            }
-            e.target.value = '';
-        }
-    });
+if(likeLiveBtn) {
+    likeLiveBtn.onclick = () => {
+        liveLikes++;
+        const countSpan = document.getElementById('liveLikeCount');
+        if(countSpan) countSpan.innerText = liveLikes;
+        showToast('❤️ تم الإعجاب بالبث');
+    };
 }
 
+const giftBtn = document.getElementById('giftBtn');
+if(giftBtn) {
+    giftBtn.onclick = () => {
+        showToast('🎁 تم إرسال هدية إمبراطورية فاخرة للبث!');
+    };
+}
+
+const beautyBtn = document.getElementById('beautyBtn');
+if(beautyBtn) {
+    beautyBtn.onclick = () => {
+        showToast('✨ تم تفعيل فلتر التجميل المتقدم للبث');
+    };
+}
+
+const sendCommentBtn = document.getElementById('sendCommentBtn');
+const commentInput = document.getElementById('commentInput');
+
+function handleSendComment() {
+    if(commentInput && commentInput.value.trim() !== ''){
+        const commentsContainer = document.getElementById('comments');
+        if(commentsContainer){
+            const c = document.createElement('div');
+            c.className = 'bg-black/70 px-3 py-1.5 rounded-xl mb-1 text-xs text-cyan-200 border border-cyan-500/30 text-right';
+            c.innerText = 'AL: ' + commentInput.value.trim();
+            commentsContainer.appendChild(c);
+            commentsContainer.scrollTop = commentsContainer.scrollHeight;
+        }
+        commentInput.value = '';
+        showToast('💬 تم إرسال التعليق');
+    }
+}
+
+if(sendCommentBtn) sendCommentBtn.onclick = handleSendComment;
+if(commentInput){
+    commentInput.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') handleSendComment();
+    });
+                  }
