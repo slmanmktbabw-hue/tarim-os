@@ -15,10 +15,8 @@ app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// قراءة الملفات الثابتة حصرياً من مجلد public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// محاولة استدعاء الروتر المخصص إن وجد
 try {
     const router = require('./router');
     app.use('/api', router);
@@ -26,7 +24,6 @@ try {
     console.log('Using built-in royal routes');
 }
 
-// مسار تسجيل الدخول المباشر لضمان فتح القلعة فوراً
 app.post('/api/auth/login', (req, res) => {
     res.json({ ok: true, msg: 'تم فتح القلعة بنجاح', token: 'KING_TOKEN_' + Date.now() });
 });
@@ -44,7 +41,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// توجيه باقي المسارات لملف الواجهة الرئيسي داخل مجلد public
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
