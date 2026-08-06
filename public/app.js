@@ -1,67 +1,127 @@
-// public/app.js - نسخة تعمل مع واجهتك الحالية
 let currentStream = null;
-let facingMode = "environment";
+let facingMode = "environment"; // env = خلفية, user = امامية
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🏰 TARIM OS Started');
-    if(localStorage.getItem('tarim_user')) document.getElementById('authGate').style.display='none';
+    if(localStorage.getItem('tarim_user')) {
+        const authGate = document.getElementById('authGate');
+        if(authGate) authGate.style.display = 'none';
+        initCamera();
+    }
 });
 
-// Toast
 function showToast(msg){
-    const box = document.getElementById('toastBox') || document.body;
+    const box = document.getElementById('toastBox');
+    if(!box) return;
     const t = document.createElement('div');
-    t.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold z-50';
-    t.innerText = msg; box.appendChild(t);
-    setTimeout(()=>t.remove(),2000);
+    t.className = 'bg-cyan-500 text-black px-4 py-2 rounded-xl mb-2 text-xs font-bold text-center shadow-lg';
+    t.innerText = msg; 
+    box.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
 }
 
 function forceUnlockCastle(){
-    document.getElementById('authGate').style.display='none';
+    const authGate = document.getElementById('authGate');
+    if(authGate) authGate.style.display = 'none';
     localStorage.setItem('tarim_user','AL');
     showToast('أهلاً بك يا أبو سلمان 👑');
+    initCamera();
 }
 
-function lockCastleAgain(){
-    document.getElementById('authGate').style.display='flex';
-    localStorage.removeItem('tarim_user');
-}
-
-function switchTab(tab,btn){
-    if(currentStream){ currentStream.getTracks().forEach(t=>t.stop()); currentStream=null; }
-    document.querySelectorAll('.tab-content').forEach(x=>x.classList.add('hidden'));
-    document.getElementById('tab-'+tab).classList.remove('hidden');
-    document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('text-cyan-400'));
-    btn.classList.add('text-cyan-400');
-    if(tab==='create') setTimeout(initCamera,300);
-}
-
-async function initCamera(){
-    let box = document.getElementById('cameraBox');
-    if(!box){
-        // ننشئ مكان للكاميرا اول مرة
-        const createDiv = document.getElementById('tab-create').querySelector('.glass');
-        box = document.createElement('div'); box.id='cameraBox';
-        createDiv.prepend(box);
+function switchTab(tab, btn){
+    if(currentStream){ 
+        currentStream.getTracks().forEach(t => t.stop()); 
+        currentStream = null; 
     }
+    document.querySelectorAll('.tab-content').forEach(x => x.classList.add('hidden'));
+    const targetTab = document.getElementById('tab-' + tab);
+    if(targetTab) targetTab.classList.remove('hidden');
+
+    document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('text-cyan-400'));
+    if(btn) btn.classList.add('text-cyan-400');
+    
+    if(tab === 'create') initCamera();
+}
+
+// ===== كود الكاميرا =====
+async function initCamera(){
+    const box = document.getElementById('cameraBox');
+    if(!box) return;
+    
     if(!document.getElementById('cameraPreview')){
-        box.innerHTML = `<video id="cameraPreview" autoplay playsinline muted class="w-full h-64 bg-black rounded-xl mb-3 border-cyan-500/40"></video>`;
+        box.innerHTML = `<video id="cameraPreview" autoplay playsinline muted class="w-full h-full object-cover"></video>`;
     }
     const video = document.getElementById('cameraPreview');
-    if(currentStream) currentStream.getTracks().forEach(t=>t.stop());
-    try{
-        currentStream = await navigator.mediaDevices.getUserMedia({video:{facingMode: facingMode==='env'?'environment':'user'}});
-        video.srcObject = currentStream;
-    }catch(e){ showToast('⚠️ ارفضت الكاميرا') }
+    if(currentStream) currentStream.getTracks().forEach(t => t.stop());
+    
+    try {
+        // تصحيح معامل facingMode ليتوافق مع الـ API بشكل صحيح
+        const constraints = {
+            video: { facingMode: facingMode === 'env' ? { exact: 'environment' } : 'user' }
+        };
+        
+        // محاولة البدء بالوضع المحدد، وفي حال فشل الـ exact يتم العرض بشكل مرن
+        try {
+            currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch(err) {
+            currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode === 'env' ? 'environment' : 'user' } });
+        }
+        
+        if(video) {
+            video.srcObject = currentStream;
+        }
+    } catch(e) {
+        console.error(e);
+        showToast('⚠️ تم رفض صلاحية الكاميرا أو أن الاتصال ليس HTTPS');
+    }
 }
 
-// نربط الازرار بالنص
-document.addEventListener('click', e=>{
-    const txt = e.target.innerText;
-    if(txt.includes('تبديل')){ facingMode = facingMode==='env'?'user':'env'; initCamera(); }
-    if(txt.includes('امامية')){ facingMode='user'; initCamera(); }
-    if(txt.includes('خلفية')){ facingMode='env'; initCamera(); }
-    if(txt.includes('LIVE')){ showToast('🔴 البث 8 دقايق بيشتغل قريب') }
-    if(txt.includes('نشر فوري')){ showToast('🚀 تم النشر بنجاح') }
-    if(txt.includes('رفع صورة')){ showToast('🖼️ رفع الصورة قادم') }
-})
+// ربط الأزرار والأحداث البرمجية للتطبيق
+document.addEventListener('DOMContentLoaded', () => {
+    const switchBtn = document.getElementById('switchCamBtn');
+    if(switchBtn) {
+        switchBtn.addEventListener('click', () => {
+            facingMode = facingMode === 'env' ? 'user' : 'env'; 
+            initCamera();
+            showToast(facingMode === 'user' ? '📷 كاميرا أمامية' : '📷 كاميرا خلفية');
+        });
+    }
+
+    const frontBtn = document.getElementById('frontCamBtn');
+    if(frontBtn) {
+        frontBtn.addEventListener('click', () => {
+            facingMode = 'user'; 
+            initCamera();
+            showToast('📷 كاميرا أمامية');
+        });
+    }
+
+    const backBtn = document.getElementById('backCamBtn');
+    if(backBtn) {
+        backBtn.addEventListener('click', () => {
+            facingMode = 'env'; 
+            initCamera();
+            showToast('📷 كاميرا خلفية');
+        });
+    }
+
+    const liveBtn = document.getElementById('liveBtn');
+    if(liveBtn) {
+        liveBtn.addEventListener('click', () => {
+            showToast('🔴 البث 8 دقائق قادم قريبًا');
+        });
+    }
+
+    const publishBtn = document.getElementById('publishBtn');
+    if(publishBtn) {
+        publishBtn.addEventListener('click', () => {
+            const input = document.getElementById('postContentInput');
+            if(input && input.value.trim() !== ""){
+                showToast('🚀 تم النشر بنجاح في القلعة');
+                input.value = "";
+            } else {
+                showToast('⚠️ يرجى كتابة وصف أولاً');
+            }
+        });
+    }
+});
+
