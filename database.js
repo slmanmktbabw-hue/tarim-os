@@ -1,21 +1,18 @@
-// database.js - TARIM OS V1.0 Beta - قاعدة البيانات السيادية - الذاكرة المؤقتة
-const fs=require('fs');
+// database.js - Mock Database for TARIM OS
+const fs = require('fs');
+const path = require('path');
 
-let FeedDB={posts:[],follows:{},likes:{},users:[]};
+const dbPath = path.join(__dirname, 'data.json');
 
-try{
-  if(fs.existsSync('./feed-database.json')){
-    FeedDB=JSON.parse(fs.readFileSync('./feed-database.json','utf8'));
-    console.log('📦 تم تحميل قاعدة البيانات:', FeedDB.posts.length, 'فيديو');
-  }
-}catch(e){
-  console.log('📦 قاعدة بيانات جديدة - تريم تنزل الميدان');
+function getData() {
+    if (!fs.existsSync(dbPath)) {
+        fs.writeFileSync(dbPath, JSON.stringify({ users: [], posts: [] }, null, 2));
+    }
+    return JSON.parse(fs.readFileSync(dbPath, 'utf8'));
 }
 
-function saveFeed(){
-  try{
-    fs.writeFileSync('./feed-database.json', JSON.stringify(FeedDB,null,2));
-  }catch(e){ console.log('Save error', e.message); }
+function saveData(data) {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 }
 
-module.exports={FeedDB,saveFeed};
+module.exports = { getData, saveData };
