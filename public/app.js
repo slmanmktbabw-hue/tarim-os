@@ -2,9 +2,10 @@ let currentStream = null;
 let facingMode = "environment"; // env = خلفية, user = امامية
 
 document.addEventListener('DOMContentLoaded', () => {
-    if(localStorage.getItem('tarim_user')) {
+    if(localStorage.getItem('tarim_user') === 'AL') {
         const authGate = document.getElementById('authGate');
         if(authGate) authGate.style.display = 'none';
+        // تشغيل الكاميرا تلقائياً إذا كان المستخدم مسجلاً مسبقاً وكان في تبويب الإنشاء
         initCamera();
     }
 });
@@ -13,8 +14,8 @@ function showToast(msg){
     const box = document.getElementById('toastBox');
     if(!box) return;
     const t = document.createElement('div');
-    t.className = 'bg-cyan-500 text-black px-4 py-2 rounded-xl mb-2 text-xs font-bold text-center shadow-lg';
-    t.innerText = msg; 
+    t.className = 'bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-lg';
+    t.innerText = msg;
     box.appendChild(t);
     setTimeout(() => t.remove(), 2500);
 }
@@ -28,100 +29,98 @@ function forceUnlockCastle(){
 }
 
 function switchTab(tab, btn){
-    if(currentStream){ 
-        currentStream.getTracks().forEach(t => t.stop()); 
-        currentStream = null; 
+    // ايقاف الكاميرا الحالية لمنع استهلاك الذاكرة
+    if(currentStream){
+        currentStream.getTracks().forEach(t => t.stop());
+        currentStream = null;
     }
-    document.querySelectorAll('.tab-content').forEach(x => x.classList.add('hidden'));
+    // اخفاء كل التابات
+    document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+    
+    // اظهار التاب المطلوب
     const targetTab = document.getElementById('tab-' + tab);
-    if(targetTab) targetTab.classList.remove('hidden');
-
+    if(targetTab) targetTab.classList.add('active');
+    
+    // تلوين الزر النشط في الشريط السفلي
     document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('text-cyan-400'));
     if(btn) btn.classList.add('text-cyan-400');
     
+    // تشغيل الكاميرا لو كان التاب هو الإنشاء
     if(tab === 'create') initCamera();
 }
 
-// ===== كود الكاميرا =====
+// ===== كود الكاميرا السيادية =====
 async function initCamera(){
     const box = document.getElementById('cameraBox');
     if(!box) return;
     
-    if(!document.getElementById('cameraPreview')){
-        box.innerHTML = `<video id="cameraPreview" autoplay playsinline muted class="w-full h-full object-cover"></video>`;
-    }
+    box.innerHTML = `<video id="cameraPreview" autoplay playsinline muted class="w-full h-full object-cover"></video>`;
     const video = document.getElementById('cameraPreview');
-    if(currentStream) currentStream.getTracks().forEach(t => t.stop());
+    
+    if(currentStream) {
+        currentStream.getTracks().forEach(t => t.stop());
+    }
     
     try {
-        // تصحيح معامل facingMode ليتوافق مع الـ API بشكل صحيح
-        const constraints = {
-            video: { facingMode: facingMode === 'env' ? { exact: 'environment' } : 'user' }
-        };
-        
-        // محاولة البدء بالوضع المحدد، وفي حال فشل الـ exact يتم العرض بشكل مرن
-        try {
-            currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-        } catch(err) {
-            currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode === 'env' ? 'environment' : 'user' } });
-        }
-        
+        currentStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: facingMode === 'env' ? 'environment' : 'user' }
+        });
         if(video) {
             video.srcObject = currentStream;
         }
     } catch(e) {
         console.error(e);
-        showToast('⚠️ تم رفض صلاحية الكاميرا أو أن الاتصال ليس HTTPS');
+        showToast('⚠️ فشل تشغيل الكاميرا. تأكد من إذن الوصول واتصال HTTPS');
     }
 }
 
-// ربط الأزرار والأحداث البرمجية للتطبيق
+// ربط الأزرار بأمان تام بعد تحميل المستند
 document.addEventListener('DOMContentLoaded', () => {
     const switchBtn = document.getElementById('switchCamBtn');
     if(switchBtn) {
-        switchBtn.addEventListener('click', () => {
-            facingMode = facingMode === 'env' ? 'user' : 'env'; 
+        switchBtn.onclick = () => {
+            facingMode = facingMode === 'env' ? 'user' : 'env';
             initCamera();
             showToast(facingMode === 'user' ? '📷 كاميرا أمامية' : '📷 كاميرا خلفية');
-        });
+        };
     }
 
     const frontBtn = document.getElementById('frontCamBtn');
     if(frontBtn) {
-        frontBtn.addEventListener('click', () => {
-            facingMode = 'user'; 
+        frontBtn.onclick = () => {
+            facingMode = 'user';
             initCamera();
             showToast('📷 كاميرا أمامية');
-        });
+        };
     }
 
     const backBtn = document.getElementById('backCamBtn');
     if(backBtn) {
-        backBtn.addEventListener('click', () => {
-            facingMode = 'env'; 
+        backBtn.onclick = () => {
+            facingMode = 'env';
             initCamera();
             showToast('📷 كاميرا خلفية');
-        });
+        };
     }
 
     const liveBtn = document.getElementById('liveBtn');
     if(liveBtn) {
-        liveBtn.addEventListener('click', () => {
-            showToast('🔴 البث 8 دقائق قادم قريبًا');
-        });
+        liveBtn.onclick = () => {
+            showToast('🔴 البث المباشر 8 دقائق - قادم في التحديث القادم');
+        };
     }
 
     const publishBtn = document.getElementById('publishBtn');
     if(publishBtn) {
-        publishBtn.addEventListener('click', () => {
+        publishBtn.onclick = () => {
             const input = document.getElementById('postContentInput');
-            if(input && input.value.trim() !== ""){
-                showToast('🚀 تم النشر بنجاح في القلعة');
-                input.value = "";
+            const txt = input ? input.value.trim() : "";
+            if(txt !== ""){ 
+                showToast('🚀 تم النشر بنجاح في القلعة السيادية');
+                if(input) input.value = "";
             } else {
-                showToast('⚠️ يرجى كتابة وصف أولاً');
+                showToast('⚠️ يرجى كتابة وصف للمنشور أولاً');
             }
-        });
+        };
     }
 });
-
