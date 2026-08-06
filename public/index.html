@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#00F0FF">
     <style>
         body { background: #020617; color: #fff; font-family: system-ui; }
-       .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(0, 240, 255, 0.2); }
+      .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(0, 240, 255, 0.2); }
     </style>
 </head>
 <body class="pb-20">
@@ -26,40 +26,43 @@
 <div id="toastBox" class="fixed top-4 left-1/2 -translate-x-1/2 z-50"></div>
 
 <header class="glass p-3 flex justify-between text-xs">
-    <span id="openSupportBtn">🛡️ فريق الدعم</span>
+    <span>🛡️ فريق الدعم</span>
     <span class="text-cyan-400 font-bold">TARIM OS</span>
-    <span id="openAiEyeBtn">👁️ عين الذكاء</span>
+    <span>👁️ عين الذكاء</span>
 </header>
 
 <main class="p-4 max-w-md mx-auto">
-    <!-- تبويب الإنشاء -->
-    <div id="tab-create" class="tab-content">
-        <div class="glass p-4 rounded-2xl space-y-3">
-            <h2 class="text-cyan-400 text-center font-bold">✨ محطة الإنشاء السيادي</h2>
+    <!-- تبويب الإنشاء - هذا الوحيد -->
+    <div id="tab-create" class="tab-content space-y-4">
+        <div class="glass p-4 rounded-2xl border border-cyan-500/30 space-y-3">
+            <h2 class="text-sm font-bold text-cyan-400 text-center">➕ محطة الإنشاء السيادي</h2>
 
-            <!-- هنا الكاميرا بتطلع تلقائي -->
-            <div id="cameraBox"></div>
+            <!-- مكان الكاميرا -->
+            <div id="cameraBox" class="relative w-full h-64 bg-black rounded-xl overflow-hidden border-cyan-500/40">
+                 <!-- الفيديو بينزل هنا تلقائي -->
+            </div>
 
+            <!-- الازرار -->
             <div class="grid grid-cols-3 gap-2">
-                <button data-cam="user" class="camBtn bg-slate-900 py-2 rounded text-xs">امامية 💡</button>
-                <button data-cam="env" class="camBtn bg-slate-900 py-2 rounded text-xs">خلفية 📷</button>
-                <button id="switchCam" class="bg-slate-900 py-2 rounded text-xs">تبديل 🔄</button>
+                <button id="frontCamBtn" class="bg-slate-900 py-2 rounded text-xs">امية 💡</button>
+                <button id="backCamBtn" class="bg-slate-900 py-2 rounded text-xs">خلفية 📷</button>
+                <button id="switchCamBtn" class="bg-slate-900 py-2 rounded text-xs">تبديل 🔄</button>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <button class="bg-slate-900 py-2 rounded text-xs">رفع صورة 🖼️</button>
-                <button class="bg-slate-900 py-2 rounded text-xs">رفع فيديو 📹</button>
+                <button id="uploadImgBtn" class="bg-slate-900 py-2 rounded text-xs">رفع صورة 🖼️</button>
+                <button id="uploadVidBtn" class="bg-slate-900 py-2 rounded text-xs">رفع فيديو 📹</button>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <button class="bg-slate-900 py-2 rounded text-xs">منشور نص 📄</button>
-                <button id="liveBtn" class="bg-red-500/20 border-red-500 py-2 rounded text-xs text-red-400">LIVE 🔴</button>
+                <button id="textPostBtn" class="bg-slate-900 py-2 rounded text-xs">منشور نص 📄</button>
+                <button id="liveBtn" class="bg-red-500/20 border border-red-500 py-2 rounded text-xs text-red-400">LIVE 🔴</button>
             </div>
 
             <textarea id="postContentInput" placeholder="اكتب وصف للمنشور..." class="w-full bg-slate-900 p-3 rounded h-20 text-xs"></textarea>
-            <button id="publishTextBtn" class="w-full bg-cyan-500 text-black py-3 rounded font-bold">نشر فوري 📢</button>
+            <button id="publishBtn" class="w-full bg-cyan-500 text-black py-3 rounded font-bold">نشر فوري 📢</button>
         </div>
     </div>
 
-    <!-- باقي التابات فاضية -->
+    <!-- باقي التابات -->
     <div id="tab-home" class="tab-content hidden">الرئيسية</div>
     <div id="tab-operations" class="tab-content hidden">العمليات</div>
     <div id="tab-inbox" class="tab-content hidden">الوارد</div>
@@ -75,8 +78,6 @@
 </nav>
 
 <script src="app.js"></script>
-<script src="ai-eye.js"></script>
-<script src="support.js"></script>
 <script>
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js') }
 </script>
