@@ -1,5 +1,5 @@
-// public/sw.js - TARIM OS Service Worker
-const CACHE_NAME = 'tarim-os-v2';
+// public/sw.js - TARIM OS Service Worker (النسخة الإمبراطورية المحدثة)
+const CACHE_NAME = 'tarim-os-v4';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -10,7 +10,7 @@ const ASSETS_TO_CACHE = [
     '/privacy.html'
 ];
 
-// تثبيت الكاش وحفظ الملفات للعمل بدون نت
+// تثبيت الكاش الجديد وتخطي الانتظار فوراً
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
@@ -20,7 +20,7 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// تفعيل الكاش وتنظيف النسخ القديمة
+// تفعيل السيرفيس ونسف الكاش القديم بالكامل لضمان قراءة التحديثات الجديدة
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) => {
@@ -31,19 +31,18 @@ self.addEventListener('activate', (event) => {
                     }
                 })
             );
+        }).then(() => {
+            return self.clients.claim();
         })
     );
-    self.clients.claim();
 });
 
-// اعتراض الطلبات وخدمتها من الكاش مباشرة عند انقطاع الإنترنت
+// اعتراض الطلبات وتحديثها مباشرة من الشبكة أولاً، وإلا فاللجوء للكاش
 self.addEventListener('fetch', (event) => {
     event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
-            return cachedResponse || fetch(event.request).catch(() => {
-                if (event.request.mode === 'navigate') {
-                    return caches.match('/index.html');
-                }
+        fetch(event.request).catch(() => {
+            return caches.match(event.request).then((cachedResponse) => {
+                return cachedResponse || caches.match('/index.html');
             });
         })
     );
