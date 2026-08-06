@@ -98,7 +98,6 @@
             <div class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
                 <h3 class="text-sm font-black text-cyan-400">✨ محطة الإنشاء والبث المباشر السيادي</h3>
                 
-                <!-- ملفات مخفية للرفع الحقيقي -->
                 <input type="file" id="realImageInput" accept="image/*" class="hidden" onchange="handleFileSelected(event, 'image')">
                 <input type="file" id="realVideoInput" accept="video/*" class="hidden" onchange="handleFileSelected(event, 'video')">
 
@@ -133,20 +132,16 @@
             </div>
         </div>
 
-        <!-- نافذة عرض الكاميرا وبث المباشر بملء الشاشة مع الهدايا -->
         <div id="liveStreamModal" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-between p-4">
             <div class="relative w-full h-full flex flex-col justify-between overflow-hidden rounded-2xl">
-                <!-- عنصر الفيديو الحقيقي للكاميرا -->
                 <video id="liveVideoElement" autoplay playsinline class="absolute inset-0 w-full h-full object-cover -z-10"></video>
 
-                <!-- شريط علوي -->
                 <div class="flex justify-between items-center z-10 p-3 bg-black/50 backdrop-blur-md rounded-xl mt-2">
                     <span class="bg-rose-600 text-white text-[10px] font-bold px-3 py-1 rounded-full animate-pulse">🔴 مباشر الآن</span>
                     <span id="giftCounterBadge" class="text-xs text-yellow-300 font-bold bg-black/60 px-3 py-1 rounded-full border border-yellow-500/40">🎁 الهدايا: 0</span>
                     <button onclick="stopLiveStream()" class="bg-rose-500 text-white px-3 py-1 rounded-lg text-xs font-bold cursor-pointer">إيقاف</button>
                 </div>
 
-                <!-- شريط الهدايا التفاعلية في الأسفل -->
                 <div class="z-10 space-y-3 pb-6">
                     <div class="flex justify-center gap-2 overflow-x-auto py-2 bg-black/60 backdrop-blur-md rounded-2xl px-2">
                         <button onclick="sendGift('🌹 وردة سيادية', 10)" class="glass px-3 py-2 rounded-xl text-xs flex flex-col items-center shrink-0 hover:scale-110 transition cursor-pointer"><span>🌹</span><span class="text-[10px] text-cyan-300">10</span></button>
@@ -224,4 +219,6 @@
                 <h3 class="text-sm font-black text-cyan-400">👤 الحساب</h3>
             </div>
 
-            <
+            <div id="sub-bg-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4 border border-cyan-500/40">
+                <button type="button" onclick="backToProfile()" class="text-xs text-cyan-400 font-bold mb-2 cursor-pointer">← رجوع</button>
+           
