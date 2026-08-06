@@ -7,7 +7,6 @@ let currentStream = null;
 let liveStream = null;
 let facingMode = "environment";
 let flashLightOn = false;
-let timerInterval = null;
 let liveLikes = 0;
 let posts = JSON.parse(localStorage.getItem('tarim_posts') || '[]');
 
@@ -32,7 +31,6 @@ function showToast(msg){
 function switchTab(tab, btn){
     if(currentStream) { currentStream.getTracks().forEach(t => t.stop()); currentStream = null; }
     if(liveStream) { liveStream.getTracks().forEach(t => t.stop()); liveStream = null; }
-    clearInterval(timerInterval);
 
     document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
     const targetTab = document.getElementById('tab-' + tab);
@@ -184,7 +182,7 @@ function likePost(id){
     renderFeed();
 }
 
-// شاشة البث المباشر الكاملة والتحكم بها
+// تشغيل شاشة البث المלא
 async function startLiveStream() {
     const liveScreen = document.getElementById('liveScreen');
     const readyBox = document.getElementById('readyToBroadcastBox');
@@ -201,14 +199,13 @@ async function startLiveStream() {
     }
 }
 
-// زر البدء الفعلي بعد ظهور شاشة "البث السيادي جاهز"
+// زر البدء الفعلي وإخفاء زر الجاهزية
 const confirmStartLive = document.getElementById('confirmStartLive');
 if(confirmStartLive) {
     confirmStartLive.onclick = () => {
         const readyBox = document.getElementById('readyToBroadcastBox');
         if(readyBox) readyBox.style.display = 'none';
-        startTimer(480); // 8 دقائق
-        showToast('🔴 بدأ البث المباشر السيادي بشاشة كاملة بنجاح');
+        showToast('🔴 بدأ البث المباشر السيادي بشاشة كاملة');
     };
 }
 
@@ -218,28 +215,16 @@ if(liveBtn) liveBtn.onclick = startLiveStream;
 const liveOpBtn = document.getElementById('liveOpBtn');
 if(liveOpBtn) liveOpBtn.onclick = startLiveStream;
 
+// زر إغلاق البث ❌
 function endLive(){
     if(liveStream) liveStream.getTracks().forEach(t => t.stop());
-    clearInterval(timerInterval);
     const liveScreen = document.getElementById('liveScreen');
     if(liveScreen) liveScreen.classList.add('hidden');
-    showToast('⏰ انتهى البث المباشر السيادي');
+    showToast('⏰ تم إنهاء البث المباشر');
 }
 
 const endLiveBtn = document.getElementById('endLiveBtn');
 if(endLiveBtn) endLiveBtn.onclick = endLive;
-
-function startTimer(s){
-    let time = s;
-    timerInterval = setInterval(() => {
-        let m = Math.floor(time / 60).toString().padStart(2, '0');
-        let sec = (time % 60).toString().padStart(2, '0');
-        const timerDisplay = document.getElementById('liveTimer');
-        if(timerDisplay) timerDisplay.innerText = `${m}:${sec}`;
-        if(time <= 0){ endLive(); }
-        time--;
-    }, 1000);
-}
 
 // التفاعلات داخل شاشة البث (لايك، هدايا، تعليقات)
 const likeLiveBtn = document.getElementById('likeBtn');
@@ -248,21 +233,21 @@ if(likeLiveBtn) {
         liveLikes++;
         const countSpan = document.getElementById('liveLikeCount');
         if(countSpan) countSpan.innerText = liveLikes;
-        showToast('❤️ تم الإعجاب بالبث');
+        showToast('❤️ تم الإعجاب');
     };
 }
 
 const giftBtn = document.getElementById('giftBtn');
 if(giftBtn) {
     giftBtn.onclick = () => {
-        showToast('🎁 تم إرسال هدية إمبراطورية فاخرة للبث!');
+        showToast('🎁 تم إرسال هدية إمبراطورية!');
     };
 }
 
 const beautyBtn = document.getElementById('beautyBtn');
 if(beautyBtn) {
     beautyBtn.onclick = () => {
-        showToast('✨ تم تفعيل فلتر التجميل المتقدم للبث');
+        showToast('✨ فلتر التجميل مفعل');
     };
 }
 
@@ -289,4 +274,4 @@ if(commentInput){
     commentInput.addEventListener('keypress', (e) => {
         if(e.key === 'Enter') handleSendComment();
     });
-                  }
+    }
