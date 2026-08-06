@@ -1,8 +1,7 @@
 // public/app.js - TARIM OS V1 FINAL - STABLE
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🏰 TARIM OS Client Application Initialized - KING AL');
+    console.log('🏰 TARIM OS Client Application Initialized - AL');
     
-    // التحقق من حالة تسجيل الدخول المحفوظة مسبقاً
     const savedUser = localStorage.getItem('tarim_user');
     if (savedUser) {
         const gate = document.getElementById('authGate');
@@ -85,7 +84,6 @@ function backToProfile() {
     if (profileMain) profileMain.classList.remove('hidden');
 }
 
-// تفعيل خريطة Leaflet (تريم - حضرموت)
 let mapInstance = null;
 const mapBtn = document.getElementById('opMapBtn');
 if (mapBtn) {
@@ -105,7 +103,6 @@ if (mapBtn) {
     });
 }
 
-// تفعيل ختم QR في العمليات
 const qrBtn = document.getElementById('opQrBtn');
 if (qrBtn) {
     qrBtn.addEventListener('click', () => {
@@ -122,7 +119,6 @@ if (qrBtn) {
     });
 }
 
-// زر النشر الفوري
 const publishBtn = document.getElementById('publishTextBtn');
 if (publishBtn) {
     publishBtn.addEventListener('click', () => {
@@ -137,7 +133,6 @@ if (publishBtn) {
     });
 }
 
-// صندوق الوارد الآمن
 const sendMsgBtn = document.getElementById('sendInboxMsgBtn');
 if (sendMsgBtn) {
     sendMsgBtn.addEventListener('click', () => {
@@ -152,5 +147,4 @@ if (sendMsgBtn) {
             showToast('✉️ تم إرسال الرسالة السيادية');
         }
     });
-                                           }
-
+                                }
