@@ -19,13 +19,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 try {
     const router = require('./router');
-    app.use('/api', router);
+    app.use('/', router); // تم إزالة /api ليتطابق مع الروابط مباشرة
 } catch (e) {
     console.log('Using built-in royal routes');
 }
 
 app.post('/api/auth/login', (req, res) => {
-    res.json({ ok: true, msg: 'تم فتح القلعة بنجاح', token: 'KING_TOKEN_' + Date.now() });
+    res.json({ ok: true, msg: 'تم فتح القلعة بنجاح', token: 'KING_TOKEN' });
 });
 
 app.get('/api/ping', (req, res) => {
@@ -46,6 +46,6 @@ app.get('*', (req, res) => {
 });
 
 const PORT = process.env.PORT || 10000;
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`🏰 TARIM OS LIVE on port ${PORT} - KING AL`);
+server.listen(PORT, () => {
+    console.log(`🏰 TARIM OS Server running on port ${PORT}`);
 });
