@@ -1,70 +1,91 @@
-// --- تفاعلات الصفحة الرئيسية (Home Feed) ---
-let homeLikesCount = 120;
-function toggleLike() {
-    homeLikesCount++;
-    const display = document.getElementById('likeCountDisplay');
-    if (display) display.innerText = homeLikesCount;
-    showToast('❤️ تم تسجيل الإعجاب السيادي بنجاح');
-}
+let currentStream = null;
+let currentFacingMode = 'user';
+let totalGiftsScore = 0;
+let isFlashOn = false;
 
-function triggerComment() {
-    const comment = prompt('اكتب تعليقك السيادي:');
-    if (comment && comment.trim() !== '') {
-        showToast('💬 تم نشر التعليق بنجاح في القلعة');
+async function startLiveStreamWithCamera(mode) {
+    currentFacingMode = mode || 'user';
+    const modal = document.getElementById('liveStreamModal');
+    const video = document.getElementById('liveVideoElement');
+    if (!modal || !video) return;
+
+    modal.classList.remove('hidden');
+
+    try {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+
+        const constraints = {
+            video: { facingMode: currentFacingMode },
+            audio: true
+        };
+
+        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = currentStream;
+        showToast(`🔴 بدأ البث بالكاميرا الـ ${currentFacingMode === 'user' ? 'أمامية' : 'خلفية'} بنجاح!`);
+    } catch (err) {
+        console.error(err);
+        showToast('⚠️ تعذر تشغيل الكاميرا، يرجى منح الإذن من المتصفح');
+        modal.classList.add('hidden');
     }
 }
 
-function savePost() {
-    showToast('⭐ تمت إضافة المنشور إلى المحفوظات الملكية');
+function stopLiveStream() {
+    const modal = document.getElementById('liveStreamModal');
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+    }
+    if (modal) modal.classList.add('hidden');
+    showToast('⏹️ تم إيقاف البث بنجاح');
 }
 
-// --- تفاعلات العمليات (Operations) ---
-function openOperationsLive() {
-    switchTab('create', document.querySelectorAll('.nav-btn')[2]);
-    startLiveStream();
-}
+async function toggleFlash() {
+    if (!currentStream) {
+        showToast('⚠️ يرجى تشغيل الكاميرا (خلفية) أولاً لتفعيل الفلاش');
+        return;
+    }
+    const track = currentStream.getVideoTracks()[0];
+    const capabilities = track.getCapabilities();
 
-function openOperationsInbox() {
-    switchTab('inbox', document.querySelectorAll('.nav-btn')[3]);
-}
+    if (!capabilities.torch) {
+        showToast('⚠️ الفلاش غير متوفر في هذه الكاميرا');
+        return;
+    }
 
-// --- تفاعلات ملف المستخدم والإعدادات الملكية (Profile Tools) ---
-function openOkxWallet() {
-    showToast('💳 رصيد OKX الملكي: 0.00 USDT (المحفظة مؤمنة بالكامل)');
-}
-
-function openActivityCenter() {
-    showToast('🏛️ مركز الأنشطة: سجل العمليات السيادية نظيف ومؤمن');
-}
-
-function openOfflineVideos() {
-    showToast('📹 فيديوهات دون اتصال: تم تفعيل التخزين المؤقت بنجاح Offline');
-}
-
-function openBusinessGroup() {
-    showToast('👥 المجموعة التجارية: جاهزة لإدارة الحملات والخدمات');
-}
-
-function openPostManagement() {
-    showToast('📊 إدارة المنشورات: لا توجد منشورات محظورة، الكل نشط');
-}
-
-function shareProfileLink() {
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText('https://tarimos.org/user/AL');
-        showToast('🔗 تم نسخ رابط الملف الشخصي السيادي للحافظة');
-    } else {
-        showToast('🔗 رابط الملف: https://tarimos.org/user/AL');
+    try {
+        isFlashOn = !isFlashOn;
+        await track.applyConstraints({
+            advanced: [{ torch: isFlashOn }]
+        });
+        showToast(isFlashOn ? '⚡ تم تشغيل الفلاش' : '⚡ تم إطفاء الفلاش');
+    } catch (err) {
+        console.error(err);
+        showToast('⚠️ تعذر تشغيل الفلاش');
     }
 }
 
-function openPrivacyPolicy() {
-    window.location.href = 'privacy.html';
+function applyFilter(filterValue) {
+    const video = document.getElementById('liveVideoElement');
+    if (video) {
+        video.style.filter = filterValue;
+        showToast('✨ تم تطبيق الفلتر على البث');
+    }
 }
 
-function changeUserBackground() {
-    const colors = ['#030B1A', '#0F172A', '#022338', '#1a0033'];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    document.body.style.backgroundColor = randomColor;
-    showToast('🎨 تم تغيير خلفية النظام الإمبراطوري بنجاح');
+function sendGift(giftName, points) {
+    totalGiftsScore += points;
+    const badge = document.getElementById('giftCounterBadge');
+    if (badge) {
+        badge.innerText = `🎁 الهدايا: ${totalGiftsScore}`;
+    }
+    showToast(`🎁 تم إرسال: ${giftName} (+${points} نقطة)!`);
+}
+
+function handleFileSelected(event, type) {
+    const file = event.target.files[0];
+    if (file) {
+        showToast(`✅ تم اختيار الـ ${type === 'image' ? 'صورة' : 'فيديو'} بنجاح: ${file.name}`);
+    }
 }
