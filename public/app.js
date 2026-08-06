@@ -4,21 +4,18 @@
  */
 
 let currentStream = null;
+let mediaRecorder = null;
+let recordedChunks = [];
 let useFrontCamera = false;
 let mapInstance = null;
 let likeCount = 120;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const user = localStorage.getItem('tarim_user');
-    const authGate = document.getElementById('authGate');
-    if (user === 'AL' && authGate) {
-        authGate.style.display = 'none';
-        authGate.classList.add('hidden');
-    }
     initCameraStream();
     loadFeeds();
     loadInboxMessages();
     initOperationalTools();
+    showToast('👑 أهلاً بك مباشرة في النظام السيادي');
 });
 
 function showToast(msg) {
@@ -29,26 +26,6 @@ function showToast(msg) {
     t.innerText = msg;
     box.appendChild(t);
     setTimeout(() => t.remove(), 2500);
-}
-
-function forceUnlockCastle() {
-    const gate = document.getElementById('authGate');
-    if (gate) { 
-        gate.style.display = 'none'; 
-        gate.classList.add('hidden'); 
-    }
-    localStorage.setItem('tarim_user', 'AL');
-    showToast('👑 أهلاً بك يا أبو سلمان في القلعة السيادية');
-}
-
-function lockCastleAgain() {
-    const gate = document.getElementById('authGate');
-    if (gate) { 
-        gate.style.display = 'flex'; 
-        gate.classList.remove('hidden'); 
-    }
-    localStorage.removeItem('tarim_user');
-    showToast('🚪 تم إقفال القلعة بنجاح');
 }
 
 function switchTab(tabName, btnElement) {
@@ -87,7 +64,7 @@ async function initCameraStream() {
         currentStream = await navigator.mediaDevices.getUserMedia(constraints);
         videoEl.srcObject = currentStream;
     } catch (err) {
-        console.log("تشغيل الكاميرا الافتراضي نشط:", err);
+        console.log("تشغيل الكاميرا المباشر نشط:", err);
     }
 }
 
@@ -101,18 +78,18 @@ function stopCameraStream() {
 function switchCameraFacing() {
     useFrontCamera = !useFrontCamera;
     initCameraStream();
-    showToast(useFrontCamera ? "🔄 تم التبديل للكاميرا الأمامية" : "🔄 تم التبديل للكاميرا الخلفية");
+    showToast(useFrontCamera ? "🔄 التبديل للكاميرا الأمامية" : "🔄 التبديل للكاميرا الخلفية");
 }
 
 function applyFilter(filterClass) {
     const videoEl = document.getElementById('liveCameraFeed');
     if (!videoEl) return;
     videoEl.className = "w-full h-full object-cover " + filterClass;
-    showToast('✨ تم تطبيق الفلتر الإمبراطوري بنجاح');
+    showToast('✨ تم تطبيق الفلتر بنجاح');
 }
 
 function openGiftsPanel() {
-    showToast('🎁 أرسل الإمبراطور هدية: تاج سيادي 👑 (+500 نقطة رصيد)');
+    showToast('🎁 تم إرسال هدية إمبراطورية: تاج سيادي 👑 (+500 نقطة)');
 }
 
 function startLiveBroadcast() {
@@ -122,27 +99,76 @@ function startLiveBroadcast() {
     showToast('🔴 بدأ البث المباشر السيادي بشاشة كاملة');
 }
 
+function triggerRecordVideo() {
+    if (!currentStream) {
+        showToast('⚠️ الكاميرا غير مفعلة');
+        return;
+    }
+    
+    if (!mediaRecorder || mediaRecorder.state === "inactive") {
+        recordedChunks = [];
+        try {
+            mediaRecorder = new MediaRecorder(currentStream);
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) recordedChunks.push(event.data);
+            };
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const videoUrl = URL.createObjectURL(blob);
+                saveRecordedVideoToFeed(videoUrl);
+            };
+            mediaRecorder.start();
+            showToast('🔴 بدأ تسجيل الفيديو السيادي...');
+        } catch (e) {
+            showToast('⚠️ تعذر بدء التسجيل، سيتم النشر المباشر');
+            publishPostDirectly();
+        }
+    } else if (mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        showToast('⏹️ تم إيقاف التسجيل وجاري الحفظ...');
+    }
+}
+
+function saveRecordedVideoToFeed(videoUrl) {
+    const input = document.getElementById('postContentInput');
+    const text = input ? input.value.trim() : "فيديو مسجل عبر كاميرا TARIM OS";
+    
+    let feeds = JSON.parse(localStorage.getItem('tarim_feeds') || '[]');
+    feeds.unshift({
+        caption: text,
+        time: new Date().toLocaleTimeString(),
+        author: '@AL 👑',
+        videoUrl: videoUrl
+    });
+    localStorage.setItem('tarim_feeds', JSON.stringify(feeds));
+    
+    if (input) input.value = '';
+    showToast('🚀 تم حفظ ونشر الفيديو بنجاح');
+    loadFeeds();
+    switchTab('home', document.querySelectorAll('.nav-btn')[0]);
+}
+
 function triggerLike() {
     likeCount++;
     const display = document.getElementById('likeCountDisplay');
     const profileLikes = document.getElementById('profileLikes');
     if (display) display.innerText = likeCount;
     if (profileLikes) profileLikes.innerText = likeCount;
-    showToast('❤️ تم الإعجاب بالفيديو السيادي');
+    showToast('❤️ تم الإعجاب بالفيديو');
 }
 
 function openCommentModal() {
     switchTab('inbox', document.querySelectorAll('.nav-btn')[3]);
-    showToast('💬 انتقلت لصندوق التعليقات والردود الآمنة');
+    showToast('💬 انتقلت لصندوق التعليقات والرسائل');
 }
 
 function saveCurrentVideo() {
-    showToast('⭐ تم حفظ الفيديو في قائمة الفيديوهات المفضلة دون اتصال');
+    showToast('⭐ تم حفظ الفيديو في قائمة المفضلة بنجاح');
 }
 
 function publishPostDirectly() {
     const input = document.getElementById('postContentInput');
-    const text = input ? input.value.trim() : "فيديو وكاميرا سيادية مباشرة";
+    const text = input ? input.value.trim() : "بث مباشر أو فيديو سيادي جديد";
     
     let feeds = JSON.parse(localStorage.getItem('tarim_feeds') || '[]');
     feeds.unshift({
@@ -153,7 +179,7 @@ function publishPostDirectly() {
     localStorage.setItem('tarim_feeds', JSON.stringify(feeds));
     
     if (input) input.value = '';
-    showToast('🚀 تم النشر بنجاح وحفظه في القائمة الرئيسية');
+    showToast('🚀 تم النشر وحفظه في الرئيسية بنجاح');
     loadFeeds();
     switchTab('home', document.querySelectorAll('.nav-btn')[0]);
 }
@@ -180,8 +206,8 @@ function loadFeeds() {
                 <span class="text-slate-500">${f.time}</span>
             </div>
             <p class="text-xs text-white">${f.caption}</p>
-            <div class="w-full h-32 bg-slate-950 rounded-lg flex items-center justify-center text-slate-500 text-xs border border-slate-800">
-                📹 بث / فيديو سيادي محفوظ
+            <div class="w-full h-32 bg-slate-950 rounded-lg flex items-center justify-center text-slate-500 text-xs border border-slate-800 overflow-hidden">
+                ${f.videoUrl ? `<video src="${f.videoUrl}" controls class="w-full h-full object-cover"></video>` : '📹 بث / فيديو سيادي محفوظ'}
             </div>
         </div>
     `).join('');
@@ -195,9 +221,9 @@ function sendInboxMessage() {
         localStorage.setItem('tarim_inbox', JSON.stringify(msgs));
         input.value = '';
         loadInboxMessages();
-        showToast('💬 تم إرسال الرسالة أو التعليق السيادي');
+        showToast('💬 تم إرسال الرسالة أو التعليق');
     } else {
-        showToast('⚠️ يرجى كتابة نص الرسالة أولاً');
+        showToast('⚠️ يرجى كتابة نص الرسالة');
     }
 }
 
@@ -206,7 +232,7 @@ function loadInboxMessages() {
     if (!list) return;
     let msgs = JSON.parse(localStorage.getItem('tarim_inbox') || '[]');
     if (msgs.length === 0) {
-        list.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-4">صندوق الوارد والتعليقات آمن وجاهز.</p>`;
+        list.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-4">صندوق الوارد والتعليقات جاهز ومحفوظ.</p>`;
         return;
     }
     list.innerHTML = msgs.map(m => `
