@@ -1,6 +1,6 @@
 /**
  * TARIM OS - النظام السيادي الإمبراطوري
- * ملف الجافاسكريبت الرئيسي: public/app.js
+ * ملف الجافاسكريبت الرئيسي المحدث: public/app.js
  */
 
 let currentStream = null;
@@ -22,7 +22,7 @@ function showToast(msg) {
     const box = document.getElementById('toastBox');
     if (!box) return;
     const t = document.createElement('div');
-    t.className = 'bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-lg mb-2 text-center animate-bounce';
+    t.className = 'bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-lg mb-2 text-center animate-bounce z-50';
     t.innerText = msg;
     box.appendChild(t);
     setTimeout(() => t.remove(), 2500);
@@ -41,7 +41,10 @@ function switchTab(tabName, btnElement) {
         btnElement.classList.remove('text-slate-400');
         btnElement.classList.add('text-cyan-400');
     }
-    if (tabName === 'profile') backToProfile();
+    
+    if (tabName === 'profile') {
+        backToProfile();
+    }
     
     if (tabName === 'create') {
         initCameraStream();
@@ -101,51 +104,11 @@ function startLiveBroadcast() {
 
 function triggerRecordVideo() {
     if (!currentStream) {
-        showToast('⚠️ الكاميرا غير مفعلة');
+        showToast('⚠️ الكاميرا غير مفعلة، جارٍ النشر الفوري');
+        publishPostDirectly();
         return;
     }
-    
-    if (!mediaRecorder || mediaRecorder.state === "inactive") {
-        recordedChunks = [];
-        try {
-            mediaRecorder = new MediaRecorder(currentStream);
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) recordedChunks.push(event.data);
-            };
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                const videoUrl = URL.createObjectURL(blob);
-                saveRecordedVideoToFeed(videoUrl);
-            };
-            mediaRecorder.start();
-            showToast('🔴 بدأ تسجيل الفيديو السيادي...');
-        } catch (e) {
-            showToast('⚠️ تعذر بدء التسجيل، سيتم النشر المباشر');
-            publishPostDirectly();
-        }
-    } else if (mediaRecorder.state === "recording") {
-        mediaRecorder.stop();
-        showToast('⏹️ تم إيقاف التسجيل وجاري الحفظ...');
-    }
-}
-
-function saveRecordedVideoToFeed(videoUrl) {
-    const input = document.getElementById('postContentInput');
-    const text = input ? input.value.trim() : "فيديو مسجل عبر كاميرا TARIM OS";
-    
-    let feeds = JSON.parse(localStorage.getItem('tarim_feeds') || '[]');
-    feeds.unshift({
-        caption: text,
-        time: new Date().toLocaleTimeString(),
-        author: '@AL 👑',
-        videoUrl: videoUrl
-    });
-    localStorage.setItem('tarim_feeds', JSON.stringify(feeds));
-    
-    if (input) input.value = '';
-    showToast('🚀 تم حفظ ونشر الفيديو بنجاح');
-    loadFeeds();
-    switchTab('home', document.querySelectorAll('.nav-btn')[0]);
+    publishPostDirectly();
 }
 
 function triggerLike() {
@@ -232,7 +195,7 @@ function loadInboxMessages() {
     if (!list) return;
     let msgs = JSON.parse(localStorage.getItem('tarim_inbox') || '[]');
     if (msgs.length === 0) {
-        list.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-4">صندوق الوارد والتعليقات جاهز ومحفوظ.</p>`;
+        list.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-4">لا توجد رسائل جديدة حالياً. النظام آمن ومتصل.</p>`;
         return;
     }
     list.innerHTML = msgs.map(m => `
@@ -294,6 +257,7 @@ function showSubPage(pageId) {
             if (qrContainer && typeof QRCode !== 'undefined') {
                 qrContainer.innerHTML = "";
                 new QRCode(qrContainer, { text: "https://tarimos.org/user/AL", width: 128, height: 128 });
+                showToast('🌐 تم توليد رمز QR الخاص بك بنجاح');
             }
         }
     }
@@ -303,4 +267,5 @@ function backToProfile() {
     document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
     const profileMain = document.getElementById('profile-main');
     if (profileMain) profileMain.classList.remove('hidden');
-}
+                    }
+
