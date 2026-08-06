@@ -26,10 +26,16 @@ function forceUnlockCastle() {
     const gate = document.getElementById('authGate');
     if (gate) { 
         gate.style.display = 'none'; 
-        gate.classList.add('hidden'); 
+        gate.classList.add('hidden');
+        gate.style.visibility = 'hidden';
     }
     localStorage.setItem('tarim_user', 'AL');
     showToast('أهلاً بك يا أبو سلمان في القلعة السيادية 👑');
+    
+    // إعادة تحميل خفيفة لتجاوز الـ Cache وفتح القلعة فوراً
+    setTimeout(() => {
+        window.location.reload();
+    }, 400);
 }
 
 function lockCastleAgain() {
@@ -37,6 +43,7 @@ function lockCastleAgain() {
     if (gate) { 
         gate.style.display = 'flex'; 
         gate.classList.remove('hidden'); 
+        gate.style.visibility = 'visible';
     }
     localStorage.removeItem('tarim_user');
     showToast('تم إقفال القلعة بنجاح 🚪');
