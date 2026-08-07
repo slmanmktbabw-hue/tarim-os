@@ -1,80 +1,111 @@
-// settings.js - عقل الدولة السيادي لـ TARIM OS
-// كل أرقام القلعة السيادية هنا - غير من هنا يطبق في كل المنصة
+// settings.js - TARIM OS Sovereign Brain - PRODUCTION READY - IMMUTABLE
+require('dotenv').config();
 
-module.exports = {
-    // معلومات النظام
-    systemName: "TARIM OS V1.0 Beta",
-    systemFullName: "من تريم إلى العالم",
-    sovereign: "AL",
-    emperorName: "أبو سلمان",
-    version: "1.0.0 Official",
-    
-    // الموقع السيادي - تريم حضرموت
+const crypto = require('crypto');
+
+// دالة تقرأ من.env مع قيمة احتياطية آمنة
+function env(key, fallback) {
+    return process.env[key] || fallback;
+}
+
+const settings = {
+    // 1. معلومات النظام - ثابتة
+    system: {
+        name: "TARIM OS",
+        fullName: "من تريم إلى العالم",
+        version: "1.0.0 Imperial",
+        build: "2026.05.12-Sovereign",
+        sovereign: "AL",
+        emperorName: "أبو سلمان",
+    },
+
+    // 2. الموقع السيادي - تريم حضرموت - ثابت لا يتغير
     location: {
         city: "Tarim",
         region: "Hadhramaut",
-        country: "Yemen",
+        country: "YE",
         coords: [16.0500, 48.9833],
-        lat: 16.0500,
+        lat: 16.05,
         lng: 48.9833
     },
 
-    // إعدادات البث المباشر الملكي
+    // 3. المنصة - تقرأ من.env الآن - لا تضارب
+    platform: {
+        port: parseInt(env('PORT', '10000'), 10),
+        env: env('NODE_ENV', 'production'),
+        domain: env('CORS_ORIGIN', 'https://tarimos.org'),
+        isProduction: env('NODE_ENV', 'production') === 'production'
+    },
+
+    // 4. إعدادات البث المباشر الملكي
     live: {
         maxDurationMinutes: 8,
-        maxDurationSeconds: 480, // 8*60
+        maxDurationSeconds: 8 * 60,
         autoStop: true,
         enableChat: true,
         enableLikes: true,
-        enableGifts: true
+        enableGifts: false // معطل حتى تفعيل الدفع
     },
 
-    // إعدادات الكاميرا السيادية
+    // 5. الكاميرا السيادية
     camera: {
-        defaultFacing: "environment", // env = خلفية، user = أمامية
+        defaultFacing: "environment",
         enableTorch: true,
-        enableFilters: true,
         enableSwitch: true
     },
 
-    // خريطة حضرموت Offline
+    // 6. خريطة حضرموت Offline
     map: {
         provider: "Offline Leaflet",
         defaultZoom: 13,
         defaultCenter: [16.0500, 48.9833],
         offlineCache: true,
-        attribution: "TARIM OS Sovereign Map"
+        tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attribution: "© TARIM OS Sovereign Map | OSM"
     },
 
-    // محفظة OKX الملكية
+    // 7. محفظة OKX
     okx: {
         initialBalance: 1000,
         currency: "TARIM",
-        walletPrefix: "0x53",
-        walletSuffix: "ab96"
+        // توليد محفظة وهمية آمنة عند الطلب
+        generateWallet: () => `0x53${crypto.randomBytes(16).toString('hex').slice(0, 4)}...${crypto.randomBytes(2).toString('hex')}`
     },
 
-    // الأمان السيادي
+    // 8. الأمان السيادي - يقرأ من وزارة الدفاع security.js
     security: {
-        jwtExpiresIn: "7d",
-        rateLimitGlobal: 100,
-        rateLimitLogin: 5,
-        helmetEnabled: true,
-        corsEnabled: true
+        jwtSecret: env('JWT_SECRET', null), // لا يوجد احتياطي - يجب أن يكون في.env
+        jwtExpiresIn: env('JWT_EXPIRES_IN', '7d'),
+        rateLimitGlobal: 300,
+        rateLimitLogin: 10,
+        helmetEnabled: true
     },
 
-    // عين الذكاء الاصطناعي
+    // 9. عين الذكاء الاصطناعي
     aiEye: {
         offline: true,
-        model: "TarimAI v1",
+        model: "TarimAI v1 Sovereign",
         language: "ar",
-        version: "Sovereign"
-    },
-
-    // المنصة
-    platform: {
-        domain: "tarimos.org",
-        port: 10000,
-        env: "production"
+        version: "1.0"
     }
 };
+
+// 10. تحصين العقل - ممنوع التعديل بعد التحميل - Immutable
+// أي محاولة لتغيير settings.system.name = "HACKED" ستفشل
+Object.freeze(settings);
+Object.freeze(settings.system);
+Object.freeze(settings.location);
+Object.freeze(settings.platform);
+Object.freeze(settings.live);
+Object.freeze(settings.security);
+
+// 11. فحص أمني عند الإقلاع
+if (!settings.security.jwtSecret) {
+    console.error('☠️ [TARIM BRAIN] JWT_SECRET مفقود في.env - العقل يرفض العمل بدون مفتاح سيادي');
+    if (settings.platform.isProduction) {
+        // في الإنتاج لا نعمل بدون مفتاح
+        process.exit(1);
+    }
+}
+
+module.exports = settings;
