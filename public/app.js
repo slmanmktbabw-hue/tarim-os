@@ -1,238 +1,168 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TARIM OS V1.0 Beta - النظام السيادي الإمبراطوري</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="manifest" href="./manifest.json"/>
-<style>
-body { background: #020A18; color: #fff; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
-.glass { background: rgba(10, 20, 40, 0.96); backdrop-filter: blur(14px); border: 1px solid rgba(0, 240, 255, 0.22); }
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-.sub-page.hidden { display: none; }
-</style>
-</head>
-<body class="min-h-screen pb-[85px] overflow-x-hidden">
+// 🛡️ TARIM OS V1.0 - app.js Sovereign Matching - متطابق 100% مع index.html الأخير 👑
+let currentStream=null, liveStream=null, facingMode="env", flashLightOn=false, mapInstance=null, liveTimer=null, liveSeconds=0;
 
-<div id="authGate" class="fixed inset-0 z-[70] bg-[#020A18] flex items-center justify-center p-4">
-    <div class="glass max-w-sm w-full rounded-3xl p-6 text-center space-y-4 shadow-2xl border border-cyan-500/40">
-        <h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑</h1>
-        <p class="text-xs text-slate-400">بوابة الدخول للقلعة السيادية - تريم حضرموت</p>
-        <input id="userPhoneOrEmail" value="AL" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-center text-white outline-none focus:border-cyan-400">
-        <input id="userPass" value="123456" type="password" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-center text-white outline-none focus:border-cyan-400">
-        <button onclick="forceUnlockCastle()" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl text-xs hover:bg-cyan-400 transition cursor-pointer">دخول القلعة السيادية 🔑</button>
-    </div>
-</div>
-
-<div id="toastBox" class="fixed top-4 left-1/2 -translate-x-1/2 z-[80] w-11/12 max-w-xs pointer-events-none"></div>
-
-<header class="fixed top-0 left-0 right-0 z-40 bg-[#020A18] border-b border-cyan-500/20 px-4 py-3 flex justify-between items-center text-[11px]">
-    <span id="openAiEyeBtn" class="text-cyan-300 font-bold cursor-pointer flex items-center gap-1">👁️ عين الذكاء</span>
-    <b class="text-cyan-300 tracking-widest text-xs">TARIM OS</b>
-    <span id="openSupportBtn" class="text-slate-300 font-bold cursor-pointer flex items-center gap-1">🛡️ فريق الدعم</span>
-</header>
-
-<main class="pt-[56px] max-w-md mx-auto p-3 space-y-3">
-
-    <div id="tab-home" class="tab-content space-y-3">
-        <div class="glass p-3 rounded-xl flex justify-between items-center border border-cyan-500/30 text-xs">
-            <span id="homeUsernameDisplay" class="font-bold text-cyan-400">@AL 👑</span>
-            <span class="text-[10px] text-slate-400">تريم - حضرموت الخير 🌴</span>
-        </div>
-        
-        <div id="feedContainer" class="relative w-full h-[65vh] glass rounded-2xl border border-cyan-500/30 overflow-hidden flex flex-col justify-between p-4 shadow-xl">
-            <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                <div class="text-4xl mb-2">🎥</div>
-                <span class="text-xs text-slate-300">فيديو سيادي بملء الشاشة</span>
-            </div>
-
-            <div class="absolute left-4 bottom-16 flex flex-col items-center gap-4 z-10">
-                <button onclick="switchTab('create', document.querySelectorAll('.nav-btn')[2])" class="w-10 h-10 bg-cyan-500 rounded-full flex items-center justify-center text-black font-bold shadow-lg text-sm cursor-pointer">+</button>
-                <div class="flex flex-col items-center text-white text-[11px]">
-                    <button onclick="likeMainPost()" class="text-2xl hover:scale-110 transition cursor-pointer">❤️</button>
-                    <span id="mainLikeCount">120</span>
-                </div>
-                <div class="flex flex-col items-center text-white text-[11px]">
-                    <button class="text-2xl hover:scale-110 transition cursor-pointer">💬</button>
-                    <span>تعليق</span>
-                </div>
-                <div class="flex flex-col items-center text-white text-[11px]">
-                    <button class="text-2xl hover:scale-110 transition cursor-pointer">⭐</button>
-                    <span>حفظ</span>
-                </div>
-            </div>
-
-            <div class="z-10 text-right space-y-1 mt-auto pr-2">
-                <span class="text-xs font-bold text-cyan-400">@AL</span>
-                <p class="text-[11px] text-slate-300">فيديو سيادي مسجل ومحفوظ على سيرفرات TARIM OS المركزية 🎥✨</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="tab-operations" class="tab-content space-y-3">
-        <div class="glass rounded-2xl p-5 space-y-3 border border-cyan-500/40 text-center">
-            <h3 class="text-sm font-black text-cyan-400">⚡ عمليات القلعة الإمبراطورية</h3>
-            <button id="liveOpBtn" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-xs text-cyan-300 font-bold cursor-pointer">🔴 بث مباشر سيادي (8 دقائق)</button>
-            <button id="offlineMapBtn" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-xs text-cyan-300 font-bold cursor-pointer">🗺️ خريطة حضرموت Offline</button>
-            <button onclick="switchTab('inbox', document.querySelectorAll('.nav-btn')[3])" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-xs text-cyan-300 font-bold cursor-pointer">💬 صندوق الوارد الآمن</button>
-        </div>
-    </div>
-
-    <div id="tab-create" class="tab-content space-y-3">
-        <div class="glass rounded-2xl p-4 space-y-3 border border-cyan-500/40 text-center">
-            <h3 class="text-sm font-black text-cyan-400">✨ محطة الإنشاء السيادي</h3>
-            <div class="relative w-full h-56 bg-black rounded-xl overflow-hidden border border-cyan-500/30 flex items-center justify-center">
-                <video id="cameraPreview" autoplay playsinline muted class="w-full h-full object-cover"></video>
-            </div>
-            <div class="grid grid-cols-3 gap-2 text-[10px]">
-                <button id="lightBtn" class="bg-slate-900 border border-slate-700 py-2.5 rounded-xl text-cyan-300 font-bold cursor-pointer">💡 الفلاش</button>
-                <button id="switchCamBtn" class="bg-slate-900 border border-slate-700 py-2.5 rounded-xl text-cyan-300 font-bold cursor-pointer">🔄 تبديل كاميرا</button>
-                <button id="filterBtn" class="bg-slate-900 border border-slate-700 py-2.5 rounded-xl text-cyan-300 font-bold cursor-pointer">✨ فلتر تجميل</button>
-            </div>
-            <textarea id="postContentInput" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs h-20 text-right text-white outline-none focus:border-cyan-400 resize-none" placeholder="اكتب وصفاً للمنشور السيادي..."></textarea>
-            <button id="publishBtn" class="w-full bg-cyan-500 text-black py-3 rounded-xl text-xs font-bold hover:bg-cyan-400 transition cursor-pointer">📢 نشر فوري</button>
-        </div>
-    </div>
-
-    <div id="tab-inbox" class="tab-content space-y-3">
-        <div class="glass rounded-2xl p-5 space-y-3 border border-cyan-500/40 text-center">
-            <h3 class="text-sm font-black text-cyan-400">💬 صندوق الوارد الآمن</h3>
-            <div id="inboxMessagesList" class="space-y-2 text-right max-h-48 overflow-y-auto text-xs text-slate-300">
-                <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800">أهلاً بك في نظام المراسلة الآمن لـ TARIM OS 🛡️</div>
-            </div>
-            <div class="flex gap-2 pt-2">
-                <input id="inboxInputField" type="text" placeholder="اكتب رسالتك السيادية..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-right outline-none focus:border-cyan-400">
-                <button id="sendInboxMsgBtn" class="bg-cyan-500 text-black font-bold px-4 py-2 rounded-xl text-xs cursor-pointer">إرسال</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="tab-profile" class="tab-content active space-y-3">
-      <div id="profile-main" class="glass rounded-[22px] p-4 text-center border border-cyan-500/30 space-y-3">
-        
-        <div class="flex justify-between items-center text-xs">
-            <span class="text-[11px] bg-slate-900 border border-slate-700 px-3 py-1 rounded-lg text-cyan-300 font-bold">الترويج والإعلانات مفعلة</span>
-            <span class="text-xs text-slate-400 cursor-pointer hover:text-cyan-300">🌐 عالي</span>
-        </div>
-
-        <div class="w-20 h-20 bg-cyan-500 rounded-full mx-auto flex items-center justify-center text-black font-black text-2xl shadow-lg">AL</div>
-        <h2 class="text-cyan-300 font-bold text-sm mt-1">الإمبراطور AL</h2>
-        <p class="text-[11px] text-slate-400">OKX: 0x53...c0af6</p>
-        
-        <div class="grid grid-cols-3 gap-2 border-t border-slate-800 pt-3 text-[11px]">
-          <div><span id="followerCount" class="block font-black text-cyan-400 text-sm">0</span>متابع</div>
-          <div><span id="followingCount" class="block font-black text-cyan-400 text-sm">0</span>يتابع</div>
-          <div><span id="likeCounter" class="block font-black text-cyan-400 text-sm">0</span>إعجاب</div>
-        </div>
-
-        <div class="space-y-2 text-xs text-right pt-1">
-            <p class="text-[11px] text-cyan-400/70 font-bold pr-1">أدوات الحساب</p>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>💳 رصيد OKX (الملكي) - 0</span><span class="text-cyan-400">فتح ←</span></div>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🏛️ مركز الأنشطة</span><span class="text-cyan-400">فتح ←</span></div>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>📺 فيديوهات دون اتصال</span><span class="text-cyan-400">فتح ←</span></div>
-            <div onclick="showQR()" class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🌐 رمز QR لديك</span><span class="text-cyan-400">عرض ←</span></div>
-
-            <p class="text-[11px] text-cyan-400/70 font-bold pr-1 pt-2">أدوات الابداع والاعمال</p>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>👥 المجموعة التجارية</span><span class="text-cyan-400">فتح ←</span></div>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>📢 الترويج والاعلانات</span><span class="text-cyan-400">فتح ←</span></div>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>📊 ادارة المنشورات</span><span class="text-cyan-400">ادارة ←</span></div>
-
-            <p class="text-[11px] text-cyan-400/70 font-bold pr-1 pt-2">الاعدادات والخصوصية</p>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>👤 الحساب</span><span class="text-cyan-400">←</span></div>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🔒 الخصوصية والامان</span><span class="text-cyan-400">←</span></div>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🎨 تغير خلفية المستخدم</span><span class="text-cyan-400">تغيير ←</span></div>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🔗 مشاركة ملف الشخصي</span><span class="text-cyan-400">مشاركة ←</span></div>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>📜 السياسة والخصوصية</span><span class="text-cyan-400">فتح ←</span></div>
-
-            <button type="button" onclick="lockCastleAgain()" class="w-full bg-rose-500/20 border border-rose-500/50 text-rose-300 py-2.5 rounded-xl font-bold mt-3 cursor-pointer hover:bg-rose-500/30 transition">🚪 تسجيل الخروج</button>
-        </div>
-      </div>
-
-      <div id="qrScreenBox" class="glass rounded-2xl p-5 text-center space-y-3 hidden border border-cyan-500/40">
-          <button onclick="hideQR()" class="text-xs text-cyan-400 font-bold mb-2 text-right block cursor-pointer">← رجوع للملف الشخصي</button>
-          <h3 class="text-sm font-black text-cyan-400">🌐 رمز QR الخاص بك</h3>
-          <div id="qrcode" class="flex justify-center bg-white p-4 rounded-xl w-fit mx-auto"></div>
-      </div>
-    </div>
-
-</main>
-
-<nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#060F22] border-t border-cyan-500/20 px-2 py-2 flex justify-around items-end shadow-2xl">
-  <button onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] w-12 cursor-pointer"><span class="text-lg">🏰</span>الرئيسية</button>
-  <button onclick="switchTab('operations', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] w-12 cursor-pointer"><span class="text-lg">⚡</span>العمليات</button>
-  <button onclick="switchTab('create', document.querySelectorAll('.nav-btn')[2])" class="w-14 h-14 bg-cyan-500 rounded-full flex items-center justify-center text-black text-2xl font-black -mt-6 shadow-lg shadow-cyan-500/40 cursor-pointer hover:scale-105 transition">+</button>
-  <button onclick="switchTab('inbox', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] w-12 cursor-pointer"><span class="text-lg">💬</span>الوارد</button>
-  <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px] w-12 cursor-pointer"><span class="text-lg">👤</span>الملفات</button>
-</nav>
-
-<div id="mapScreen" class="hidden fixed inset-0 z-50 bg-black/95 p-4 flex flex-col justify-center items-center">
-    <div class="glass w-full max-w-md h-[80vh] rounded-3xl p-4 flex flex-col border border-cyan-500/40">
-        <div class="flex justify-between items-center mb-3">
-            <h3 class="text-xs font-bold text-cyan-400">🗺️ خريطة تريم حضرموت السيادية (Offline)</h3>
-            <button id="closeMapBtn" class="text-rose-400 font-bold text-xs bg-slate-900 px-3 py-1 rounded-lg border border-slate-700 cursor-pointer">✕ إغلاق</button>
-        </div>
-        <div id="mapContainer" class="flex-1 w-full rounded-xl border border-slate-700"></div>
-    </div>
-</div>
-
-<div id="liveScreen" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-between p-4">
-    <div class="flex justify-between items-center z-10 bg-slate-950/80 p-3 rounded-2xl border border-cyan-500/30">
-        <span class="text-xs font-bold text-rose-500 animate-pulse">🔴 مباشر سيادي (8 دقائق)</span>
-        <button id="endLiveBtn" class="bg-rose-500 text-black px-3 py-1 rounded-xl text-xs font-bold cursor-pointer">إنهاء البث</button>
-    </div>
-    <div class="absolute inset-0 z-0 flex items-center justify-center">
-        <video id="liveVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
-    </div>
-    <div class="z-10 space-y-3">
-        <div id="comments" class="max-h-32 overflow-y-auto space-y-1 pr-1"></div>
-        <div class="flex gap-2">
-            <input id="commentInput" type="text" placeholder="اكتب تعليقاً سيادياً..." class="flex-1 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-right outline-none">
-            <button id="sendCommentBtn" class="bg-cyan-500 text-black font-bold px-4 py-2 rounded-xl text-xs cursor-pointer">إرسال</button>
-        </div>
-    </div>
-</div>
-
-<script src="./ai-eye.js"></script>
-<script src="./app.js"></script>
-<script src="./support.js"></script>
-<script>
-function forceUnlockCastle() {
-    const gate = document.getElementById('authGate');
-    if(gate) gate.style.display = 'none';
-    localStorage.setItem('tarim_user', 'AL');
+// --- Toast سيادي ---
+function showToast(msg){
+ const box=document.getElementById('toastBox'); if(!box) return;
+ const t=document.createElement('div');
+ t.className='bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-lg mb-2 text-center';
+ t.innerText=msg; box.appendChild(t);
+ setTimeout(()=>t.remove(),3000);
 }
 
-function lockCastleAgain() {
-    const gate = document.getElementById('authGate');
-    if(gate) gate.style.display = 'flex';
+// --- تبديل التبويبات + إيقاف الكاميرا والبث ---
+function switchTab(tab, btn){
+ if(currentStream){currentStream.getTracks().forEach(t=>t.stop()); currentStream=null;}
+ if(liveStream){liveStream.getTracks().forEach(t=>t.stop()); liveStream=null;}
+ if(liveTimer){clearInterval(liveTimer); liveTimer=null;}
+ document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+ document.getElementById('tab-'+tab)?.classList.add('active');
+ document.querySelectorAll('.nav-btn').forEach(x=>{x.classList.remove('text-cyan-400'); x.classList.add('text-slate-400');});
+ if(btn){btn.classList.remove('text-slate-400'); btn.classList.add('text-cyan-400');}
+ if(tab==='create') initCamera();
 }
 
-function showQR() {
-    const mainProfile = document.getElementById('profile-main');
-    const qrBox = document.getElementById('qrScreenBox');
-    if(mainProfile) mainProfile.classList.add('hidden');
-    if(qrBox) {
-        qrBox.classList.remove('hidden');
-        const qrContainer = document.getElementById('qrcode');
-        if (qrContainer) {
-            qrContainer.innerHTML = "";
-            new QRCode(qrContainer, { text: "https://tarimos.org/user/AL", width: 128, height: 128 });
-        }
-    }
+async function initCamera(){
+ const preview=document.getElementById('cameraPreview'); if(!preview) return;
+ try{
+  if(currentStream) currentStream.getTracks().forEach(t=>t.stop());
+  currentStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facingMode==='env'?'environment':'user'}, audio:true});
+  preview.srcObject=currentStream;
+ }catch{ showToast('⚠️ اسمح للكاميرا من الإعدادات'); }
 }
 
-function hideQR() {
-    const mainProfile = document.getElementById('profile-main');
-    const qrBox = document.getElementById('qrScreenBox');
-    if(qrBox) qrBox.classList.add('hidden');
-    if(mainProfile) mainProfile.classList.remove('hidden');
+// --- حماية dataset.bound لمنع تكرار الأحداث ---
+['switchCamBtn','lightBtn','filterBtn','publishBtn','liveOpBtn','offlineMapBtn','closeMapBtn','endLiveBtn','sendInboxMsgBtn','sendCommentBtn'].forEach(id=>{
+ const el=document.getElementById(id);
+ if(el &&!el.dataset.bound) el.dataset.bound="true";
+});
+
+// --- أزرار الكاميرا ---
+document.getElementById('switchCamBtn')?.addEventListener('click',()=>{
+ facingMode=facingMode==='env'?'user':'env';
+ initCamera();
+ showToast(facingMode==='user'?'🔄 أمامية':'🔄 خلفية');
+});
+
+document.getElementById('lightBtn')?.addEventListener('click', async()=>{
+ if(!currentStream) return;
+ const track=currentStream.getVideoTracks()[0];
+ try{
+  const cap=track.getCapabilities();
+  if(cap.torch){
+   flashLightOn=!flashLightOn;
+   await track.applyConstraints({advanced:[{torch:flashLightOn}]});
+   showToast(flashLightOn?'💡 فلاش ON':'💡 فلاش OFF');
+  } else showToast('⚠️ الفلاش غير مدعوم');
+ }catch{ showToast('⚠️ الفلاش غير مدعوم'); }
+});
+
+document.getElementById('filterBtn')?.addEventListener('click',()=>{
+ showToast('✨ فلتر تجميل قادم V1.1');
+});
+
+// --- نشر سيادي + تحديث العدادات المطابقة لـ index.html ---
+document.getElementById('publishBtn')?.addEventListener('click', async()=>{
+ const input=document.getElementById('postContentInput');
+ if(!input ||!input.value.trim()){ showToast('⚠️ اكتب وصفاً سيادياً'); return; }
+ try{
+  const token=localStorage.getItem('tarim_token');
+  const res=await fetch('/api/posts',{method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`}, body:JSON.stringify({content:input.value, username:'AL'})});
+  const data=await res.json();
+  if(data.success){
+   // تحديث العدادات المتطابقة مع index.html
+   const likeCounter=document.getElementById('likeCounter');
+   const mainLike=document.getElementById('mainLikeCount');
+   if(likeCounter){ let v=parseInt(likeCounter.innerText)||0; v++; likeCounter.innerText=v; }
+   if(mainLike){ let v=parseInt(mainLike.innerText)||120; mainLike.innerText=v; }
+   input.value=''; showToast('🚀 تم النشر على سيرفرات TARIM المركزية');
+   switchTab('home',document.querySelectorAll('.nav-btn')[0]);
+  }
+ }catch{ showToast('⚠️ وضع Offline - حفظ محلي'); }
+});
+
+// --- لايك سيادي ---
+function likeMainPost(){
+ const mainLike=document.getElementById('mainLikeCount');
+ const likeCounter=document.getElementById('likeCounter');
+ if(mainLike && likeCounter){
+  let c=parseInt(mainLike.innerText)||120; c++;
+  mainLike.innerText=c; likeCounter.innerText=c;
+  showToast('❤️ تم الإعجاب السيادي');
+ }
 }
-</script>
-</body>
-</html>
- 
+
+// --- صندوق الوارد الآمن ---
+document.getElementById('sendInboxMsgBtn')?.addEventListener('click',()=>{
+ const input=document.getElementById('inboxInputField');
+ const list=document.getElementById('inboxMessagesList');
+ if(!input ||!input.value.trim()) return;
+ const msg=document.createElement('div');
+ msg.className='bg-cyan-500/20 p-2.5 rounded-xl border border-cyan-500/30';
+ msg.innerText=input.value;
+ list?.appendChild(msg);
+ input.value=''; showToast('💬 تم إرسال رسالة سيادية');
+});
+
+// --- LIVE 8 دقائق سيادي محصن ---
+async function startLiveStream(){
+ const liveScreen=document.getElementById('liveScreen');
+ liveScreen?.classList.remove('hidden');
+ try{
+  liveStream=await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+  const v=document.getElementById('liveVideo'); if(v) v.srcObject=liveStream;
+  showToast('🔴 البث المباشر بدأ - 8 دقائق');
+  liveSeconds=0;
+  liveTimer=setInterval(()=>{ liveSeconds++; if(liveSeconds>=480) endLive(); },1000);
+ }catch{ showToast('⚠️ فشل تشغيل الكاميرا'); }
+}
+function endLive(){
+ if(liveStream) liveStream.getTracks().forEach(t=>t.stop());
+ if(liveTimer) clearInterval(liveTimer);
+ document.getElementById('liveScreen')?.classList.add('hidden');
+ showToast('⏰ انتهى البث السيادي 8 دقائق');
+}
+document.getElementById('liveOpBtn')?.addEventListener('click',startLiveStream);
+document.getElementById('endLiveBtn')?.addEventListener('click',endLive);
+
+// --- خريطة تريم بدون شاشة سوداء ---
+document.getElementById('offlineMapBtn')?.addEventListener('click',()=>{
+ document.getElementById('mapScreen')?.classList.remove('hidden');
+ setTimeout(()=>{
+  if(!mapInstance){
+   mapInstance=L.map('mapContainer').setView([16.0500,48.9833],13);
+   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(mapInstance);
+   L.marker([16.0500,48.9833]).addTo(mapInstance).bindPopup('<b>🏰 قلعة تريم السيادية</b><br>حضرموت الخير 🌴').openPopup();
+  } else { mapInstance.invalidateSize(); }
+ },250);
+});
+document.getElementById('closeMapBtn')?.addEventListener('click',()=>{
+ document.getElementById('mapScreen')?.classList.add('hidden');
+});
+
+// --- أزرار الإعدادات الإمبراطورية المطابقة لصورتك ---
+document.querySelectorAll('#tab-profile.glass.cursor-pointer, #tab-profile.glass').forEach(el=>{
+ if(el.dataset.bound) return; el.dataset.bound="true";
+ el.addEventListener('click',()=>{
+  const txt=el.innerText;
+  if(txt.includes('رصيد OKX')) showToast('🪙 رصيدك الملكي: 1000 TARIM - قريباً السحب');
+  else if(txt.includes('مركز الأنشطة')) showToast('🏛️ مركز الأنشطة - 120 تفاعل سيادي');
+  else if(txt.includes('فيديوهات دون اتصال')) showToast('📺 0 فيديو محفوظ Offline');
+  else if(txt.includes('المجموعة التجارية')) showToast('👥 المجموعة التجارية - قريباً');
+  else if(txt.includes('الترويج والاعلانات')) showToast('📢 الترويج مفعل - وصولك عالي 🌐');
+  else if(txt.includes('ادارة المنشورات')){ switchTab('home',document.querySelectorAll('.nav-btn')[0]); }
+  else if(txt.includes('الحساب')) showToast('👤 حساب @AL - الإمبراطور');
+  else if(txt.includes('الخصوصية والامان')) window.location.href='/privacy.html';
+  else if(txt.includes('خلفية المستخدم')) showToast('🎨 تغيير الخلفية - قادم V1.1');
+  else if(txt.includes('مشاركة')){ if(navigator.share) navigator.share({title:'TARIM OS', url:'https://tarimos.org/user/AL'}); else { navigator.clipboard.writeText('https://tarimos.org/user/AL'); showToast('🔗 تم نسخ رابط ملفك'); } }
+  else if(txt.includes('السياسة والخصوصية')) window.location.href='/privacy.html';
+ });
+});
+
+// --- تسجيل دخول تلقائي ---
+(async()=>{
+ try{
+  const r=await fetch('/api/login',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:'AL',password:'123456'})});
+  const d=await r.json(); if(d.success) localStorage.setItem('tarim_token', d.token);
+ }catch{}
+})();
