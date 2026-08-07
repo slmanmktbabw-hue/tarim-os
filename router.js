@@ -1,23 +1,12 @@
-const express = require('express');
-const router = express.Router();
+const db = require('./database');
 
-router.get('/status', (req, res) => {
-    res.json({
-        status: "Online",
-        system: "TARIM OS V1.0 Beta",
-        sovereign: "AL",
-        location: "Tarim, Hadhramaut"
-    });
+// جلب كل المنشورات
+router.get('/posts', (req, res) => {
+    res.json({ success: true, posts: db.getAllPosts() });
 });
 
-router.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    if (username === "AL") {
-        res.json({ success: true, message: "أهلاً بك أيها الإمبراطور في قلعة تريم السيادية" });
-    } else {
-        res.status(401).json({ success: false, message: "بيانات الاعتماد غير مطابقة" });
-    }
+// لايك
+router.post('/posts/:id/like', (req, res) => {
+    const likes = db.likePost(req.params.id);
+    res.json({ success: true, likes });
 });
-
-module.exports = router;
-
