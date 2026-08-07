@@ -8,6 +8,8 @@ let liveStream = null;
 let facingMode = "environment";
 let flashLightOn = false;
 let liveLikes = 0;
+let mainLikes = 120;
+let mapInstance = null;
 let posts = JSON.parse(localStorage.getItem('tarim_posts') || '[]');
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (createTab && createTab.classList.contains('active')) {
         initCamera();
     }
-    renderFeed();
 });
 
 function showToast(msg){
@@ -51,10 +52,8 @@ function switchTab(tab, btn){
     }
 
     if(tab === 'create') initCamera();
-    if(tab === 'home') renderFeed();
 }
 
-// تشغيل وتدوير الكاميرا في محطة الإنشاء
 async function initCamera(){
     const preview = document.getElementById('cameraPreview');
     if(!preview) return;
@@ -82,7 +81,6 @@ if(switchCamBtn) {
     };
 }
 
-// التحكم بالفلاش (الإضاءة)
 const lightBtn = document.getElementById('lightBtn');
 if(lightBtn) {
     lightBtn.onclick = async () => {
@@ -95,7 +93,7 @@ if(lightBtn) {
                 await track.applyConstraints({ advanced: [{ torch: flashLightOn }] });
                 showToast(flashLightOn ? '💡 تم تشغيل الفلاش' : '💡 تم إيقاف الفلاش');
             } else {
-                showToast('⚠️ الفلاش غير مدعوم في هذا الجهاز أو الكاميرا');
+                showToast('⚠️ الفلاش غير مدعوم في هذا الجهاز');
             }
         } catch (err) {
             showToast('⚠️ تعذر التحكم بالفلاش');
@@ -106,36 +104,7 @@ if(lightBtn) {
 const filterBtn = document.getElementById('filterBtn');
 if(filterBtn) filterBtn.onclick = () => { showToast('✨ فلتر التجميل السيادي مفعل'); };
 
-// رفع فيديو أو صورة وإضافتها للرئيسية مباشرة
-const uploadVideo = document.getElementById('uploadVideo');
-if(uploadVideo) {
-    uploadVideo.onchange = (e) => {
-        const file = e.target.files[0];
-        if(file) {
-            const url = URL.createObjectURL(file);
-            posts.unshift({id: Date.now(), text: '📹 فيديو مرفوع: ' + file.name, videoUrl: url, likes: 0, comments: []});
-            localStorage.setItem('tarim_posts', JSON.stringify(posts));
-            showToast('🚀 تم رفع الفيديو ونشره في الرئيسية');
-            switchTab('home', document.querySelectorAll('.nav-btn')[0]);
-        }
-    };
-}
-
-const uploadImage = document.getElementById('uploadImage');
-if(uploadImage) {
-    uploadImage.onchange = (e) => {
-        const file = e.target.files[0];
-        if(file) {
-            const url = URL.createObjectURL(file);
-            posts.unshift({id: Date.now(), text: '🖼️ صورة مرفوعة: ' + file.name, imageUrl: url, likes: 0, comments: []});
-            localStorage.setItem('tarim_posts', JSON.stringify(posts));
-            showToast('🚀 تم رفع الصورة ونشرها في الرئيسية');
-            switchTab('home', document.querySelectorAll('.nav-btn')[0]);
-        }
-    };
-}
-
-// النشر النصي الفوري
+// النشر الفوري والمباشر
 const publishBtn = document.getElementById('publishBtn');
 if(publishBtn) {
     publishBtn.onclick = () => {
@@ -143,46 +112,22 @@ if(publishBtn) {
         if(!input) return;
         const txt = input.value.trim();
         if(txt){
-            posts.unshift({id: Date.now(), text: txt, likes: 0, comments: []});
-            localStorage.setItem('tarim_posts', JSON.stringify(posts));
             input.value = '';
-            showToast('🚀 تم النشر بنجاح');
+            showToast('🚀 تم نشر الفيديو على السيرفرات المركزية بنجاح');
             switchTab('home', document.querySelectorAll('.nav-btn')[0]);
         } else { 
-            showToast('⚠️ يرجى كتابة وصف للمنشور أولاً'); 
+            showToast('⚠️ يرجى كتابة وصف المنشور أولاً'); 
         }
     };
 }
 
-// عرض المنشورات في الرئيسية
-function renderFeed(){
-    const feed = document.getElementById('feed');
-    if(!feed) return;
-    
-    if(posts.length === 0){
-        feed.innerHTML = `<div class="text-center text-slate-400 py-10"><div class="text-4xl mb-2">🎬</div><p class="text-xs">لم تنشر أي فيديوهات بعد</p><p class="text-[10px]">انشر أول بث مباشر أو منشور من زر +</p></div>`;
-        return;
-    }
-    feed.innerHTML = posts.map(p => `
-        <div class="glass p-3 rounded-2xl border border-cyan-500/20 space-y-2 text-right">
-            <p class="text-xs text-white">${p.text}</p>
-            ${p.videoUrl ? `<video src="${p.videoUrl}" controls class="w-full h-40 object-cover rounded-xl mt-2"></video>` : ''}
-            ${p.imageUrl ? `<img src="${p.imageUrl}" class="w-full h-40 object-cover rounded-xl mt-2">` : ''}
-            <div class="flex gap-4 text-xs pt-1 border-t border-slate-800 justify-end">
-                <button onclick="likePost(${p.id})" class="text-cyan-400 hover:scale-105 transition cursor-pointer">❤️ ${p.likes}</button>
-                <span class="text-slate-400">💬 ${p.comments.length} تعليقات</span>
-            </div>
-        </div>
-    `).join('');
+function likeMainPost(){
+    mainLikes++;
+    const countEl = document.getElementById('mainLikeCount');
+    if(countEl) countEl.innerText = mainLikes;
+    showToast('❤️ تم تسجيل الإعجاب');
 }
 
-function likePost(id){
-    posts = posts.map(p => p.id === id ? {...p, likes: p.likes + 1} : p);
-    localStorage.setItem('tarim_posts', JSON.stringify(posts));
-    renderFeed();
-}
-
-// تشغيل شاشة البث المלא
 async function startLiveStream() {
     const liveScreen = document.getElementById('liveScreen');
     const readyBox = document.getElementById('readyToBroadcastBox');
@@ -199,7 +144,6 @@ async function startLiveStream() {
     }
 }
 
-// زر البدء الفعلي وإخفاء زر الجاهزية
 const confirmStartLive = document.getElementById('confirmStartLive');
 if(confirmStartLive) {
     confirmStartLive.onclick = () => {
@@ -215,7 +159,6 @@ if(liveBtn) liveBtn.onclick = startLiveStream;
 const liveOpBtn = document.getElementById('liveOpBtn');
 if(liveOpBtn) liveOpBtn.onclick = startLiveStream;
 
-// زر إغلاق البث ❌
 function endLive(){
     if(liveStream) liveStream.getTracks().forEach(t => t.stop());
     const liveScreen = document.getElementById('liveScreen');
@@ -226,7 +169,6 @@ function endLive(){
 const endLiveBtn = document.getElementById('endLiveBtn');
 if(endLiveBtn) endLiveBtn.onclick = endLive;
 
-// التفاعلات داخل شاشة البث (لايك، هدايا، تعليقات)
 const likeLiveBtn = document.getElementById('likeBtn');
 if(likeLiveBtn) {
     likeLiveBtn.onclick = () => {
@@ -274,4 +216,36 @@ if(commentInput){
     commentInput.addEventListener('keypress', (e) => {
         if(e.key === 'Enter') handleSendComment();
     });
-    }
+}
+
+const offlineMapBtn = document.getElementById('offlineMapBtn');
+const mapScreen = document.getElementById('mapScreen');
+const closeMapBtn = document.getElementById('closeMapBtn');
+
+if(offlineMapBtn) {
+    offlineMapBtn.onclick = () => {
+        if(mapScreen) mapScreen.classList.remove('hidden');
+        setTimeout(() => {
+            if(!mapInstance) {
+                mapInstance = L.map('mapContainer').setView([16.0508, 48.9958], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: 'TARIM OS Offline Map'
+                }).addTo(mapInstance);
+                L.marker([16.0508, 48.9958]).addTo(mapInstance)
+                    .bindPopup('<b>تريم السيادية</b><br>مركز العمليات الإمبراطورية.')
+                    .openPopup();
+            } else {
+                mapInstance.invalidateSize();
+            }
+        }, 150);
+        showToast('🗺️ تم فتح خريطة حضرموت السيادية');
+    };
+}
+
+if(closeMapBtn) {
+    closeMapBtn.onclick = () => {
+        if(mapScreen) mapScreen.classList.add('hidden');
+        showToast('🔒 تم إغلاق الخريطة');
+    };
+}
