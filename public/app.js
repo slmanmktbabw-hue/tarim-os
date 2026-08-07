@@ -23,10 +23,13 @@ function showToast(msg){
     const box = document.getElementById('toastBox');
     if(!box) return;
     const t = document.createElement('div');
-    t.className = 'bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-lg mb-2 text-center';
+    t.className = 'glass bg-cyan-950/90 text-cyan-300 px-4 py-2 rounded-xl text-xs shadow-xl border border-cyan-500/40 mb-2 text-center transition-all duration-300';
     t.innerText = msg; 
     box.appendChild(t);
-    setTimeout(() => t.remove(), 2500);
+    setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 300);
+    }, 2500);
 }
 
 function loginSystem() {
@@ -34,7 +37,7 @@ function loginSystem() {
     if(user.trim() !== '') {
         const authScreen = document.getElementById('authScreen');
         if(authScreen) authScreen.style.display = 'none';
-        showToast('🛡️ تم التحقق بنجاح، أهلاً بك يا إمبراطور AL');
+        showToast('👑 تم التحقق بنجاح، أهلاً بك يا إمبراطور AL');
     } else {
         showToast('⚠️ يرجى إدخال اسم المستخدم');
     }
@@ -46,13 +49,20 @@ function loginWithGoogle() {
     showToast('🌐 تم تسجيل الدخول عبر حساب Google السيادي بنجاح');
 }
 
-function switchTab(tab, btn){
+function switchTab(tabName, btnElement){
     if(currentStream) { currentStream.getTracks().forEach(t => t.stop()); currentStream = null; }
     if(liveStream) { liveStream.getTracks().forEach(t => t.stop()); liveStream = null; }
 
-    document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
-    const targetTab = document.getElementById('tab-' + tab);
-    if(targetTab) targetTab.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(x => {
+        x.classList.remove('active');
+        x.style.display = 'none';
+    });
+
+    const targetTab = document.getElementById('tab-' + tabName);
+    if(targetTab) {
+        targetTab.classList.add('active');
+        targetTab.style.display = 'flex';
+    }
 
     document.querySelectorAll('.nav-btn').forEach(x => {
         const spanText = x.querySelectorAll('span')[1];
@@ -61,14 +71,14 @@ function switchTab(tab, btn){
         x.classList.add('text-slate-400');
     });
     
-    if(btn) {
-        btn.classList.remove('text-slate-400');
-        btn.classList.add('text-cyan-400');
-        const spanText = btn.querySelectorAll('span')[1];
+    if(btnElement) {
+        btnElement.classList.remove('text-slate-400');
+        btnElement.classList.add('text-cyan-400');
+        const spanText = btnElement.querySelectorAll('span')[1];
         if(spanText) spanText.classList.add('text-cyan-400');
     }
 
-    if(tab === 'create') initCamera();
+    if(tabName === 'create') initCamera();
 }
 
 async function initCamera(){
@@ -249,26 +259,28 @@ function sendChatMessage() {
     const chat = document.getElementById('chatMessages');
     if(input && input.value.trim() !== '' && chat) {
         const userMsg = document.createElement('div');
-        userMsg.className = 'bg-slate-800 p-2 rounded-xl text-white max-w-[80%] mr-auto text-left';
+        userMsg.className = 'bg-cyan-950/60 border border-cyan-500/30 p-2 rounded-xl text-slate-100 max-w-[80%] mr-auto text-right';
         userMsg.innerText = input.value;
         chat.appendChild(userMsg);
 
+        const queryText = input.value;
+        input.value = '';
+
         setTimeout(() => {
             const botMsg = document.createElement('div');
-            botMsg.className = 'bg-cyan-950/60 p-2 rounded-xl text-cyan-200 border border-cyan-500/30 max-w-[80%]';
-            botMsg.innerText = '🤖 عين الذكاء: تم استلام رسالتك وتأمين النظام على tarimos.org بنجاح!';
+            botMsg.className = 'bg-slate-900 p-2 rounded-xl text-slate-300 max-w-[80%] text-right';
+            botMsg.innerText = '🤖 عين الذكاء: تم استلام طلبك السيادي بخصوص (' + queryText + ') وجاري تنفيذه عبر سيرفرات تريم.';
             chat.appendChild(botMsg);
             chat.scrollTop = chat.scrollHeight;
         }, 800);
 
-        input.value = '';
         chat.scrollTop = chat.scrollHeight;
     }
 }
 
 function subscribePayPal() {
     const paypalURL = "https://www.paypal.com";
-    showToast('💳 جاري تحويلك إلى بوابة PayPal الآمنة...');
+    showToast('💳 جاري تحويلك إلى بوابة PayPal الآمنة للاشتراك الشهري...');
     setTimeout(() => {
         window.open(paypalURL, '_blank');
     }, 1000);
