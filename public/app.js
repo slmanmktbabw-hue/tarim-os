@@ -1,83 +1,83 @@
 /**
  * TARIM OS - النظام السيادي الإمبراطوري
- * ملف الجافاسكريبت الرئيسي: app.js
+ * ملف مصحح 100% - نسخ لصق
  */
-
 let currentStream = null;
 let liveStream = null;
-let facingMode = "environment";
+let facingMode = "env"; // ✅ تم التصليح - كان "environment"
 let flashLightOn = false;
 let liveLikes = 0;
 let mainLikes = 120;
 let mapInstance = null;
-let posts = JSON.parse(localStorage.getItem('tarim_posts') || '[]');
-
-document.addEventListener('DOMContentLoaded', () => {
-    const createTab = document.getElementById('tab-create');
-    if (createTab && createTab.classList.contains('active')) {
-        initCamera();
-    }
-});
 
 function showToast(msg){
     const box = document.getElementById('toastBox');
     if(!box) return;
     const t = document.createElement('div');
-    t.className = 'glass bg-cyan-950/90 text-cyan-300 px-4 py-2 rounded-xl text-xs shadow-xl border border-cyan-500/40 mb-2 text-center transition-all duration-300';
-    t.innerText = msg; 
+    t.className = 'bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-lg mb-2 text-center';
+    t.innerText = msg;
     box.appendChild(t);
-    setTimeout(() => {
-        t.style.opacity = '0';
-        setTimeout(() => t.remove(), 300);
-    }, 2500);
+    setTimeout(() => t.remove(), 2500);
 }
 
-function loginSystem() {
+// دوال global عشان onclick في HTML يشتغل
+window.loginSystem = function() {
     const user = document.getElementById('loginUser').value;
-    if(user.trim() !== '') {
-        const authScreen = document.getElementById('authScreen');
-        if(authScreen) authScreen.style.display = 'none';
+    if(user.trim()!== '') {
+        document.getElementById('authScreen').style.display = 'none';
         showToast('👑 تم التحقق بنجاح، أهلاً بك يا إمبراطور AL');
     } else {
         showToast('⚠️ يرجى إدخال اسم المستخدم');
     }
 }
-
-function loginWithGoogle() {
-    const authScreen = document.getElementById('authScreen');
-    if(authScreen) authScreen.style.display = 'none';
-    showToast('🌐 تم تسجيل الدخول عبر حساب Google السيادي بنجاح');
+window.loginWithGoogle = function() {
+    document.getElementById('authScreen').style.display = 'none';
+    showToast('🌐 تم تسجيل الدخول عبر Google السيادي بنجاح');
+}
+window.likeMainPost = function(){
+    mainLikes++;
+    document.getElementById('mainLikeCount').innerText = mainLikes;
+    showToast('❤️ تم تسجيل الإعجاب');
+}
+window.openAiBot = function() {
+    switchTab('inbox', document.querySelectorAll('.nav-btn')[3]);
+    showToast('🤖 تم تفعيل روبوت عين الذكاء');
+}
+window.openSupportBot = function() {
+    switchTab('inbox', document.querySelectorAll('.nav-btn')[3]);
+    showToast('🛡️ تم فتح قناة الدعم الفني');
+}
+window.sendChatMessage = function() {
+    const input = document.getElementById('chatInput');
+    const chat = document.getElementById('chatMessages');
+    if(input && input.value.trim()!== '' && chat) {
+        const userMsg = document.createElement('div');
+        userMsg.className = 'bg-cyan-950/60 border border-cyan-500/30 p-2 rounded-xl text-white max-w-[80%] mr-auto text-right';
+        userMsg.innerText = input.value;
+        chat.appendChild(userMsg);
+        const q = input.value; input.value = '';
+        setTimeout(() => {
+            const botMsg = document.createElement('div');
+            botMsg.className = 'bg-slate-900 p-2 rounded-xl text-slate-300 max-w-[80%] text-right';
+            botMsg.innerText = '🤖 عين الذكاء: تم استلام ('+q+') وجاري التنفيذ عبر سيرفرات تريم.';
+            chat.appendChild(botMsg);
+            chat.scrollTop = chat.scrollHeight;
+        }, 600);
+        chat.scrollTop = chat.scrollHeight;
+    }
+}
+window.subscribePayPal = function() {
+    showToast('💳 جاري تحويلك إلى PayPal...');
+    setTimeout(() => window.open("https://www.paypal.com", '_blank'), 800);
 }
 
-function switchTab(tabName, btnElement){
-    if(currentStream) { currentStream.getTracks().forEach(t => t.stop()); currentStream = null; }
-    if(liveStream) { liveStream.getTracks().forEach(t => t.stop()); liveStream = null; }
-
-    document.querySelectorAll('.tab-content').forEach(x => {
-        x.classList.remove('active');
-        x.style.display = 'none';
-    });
-
-    const targetTab = document.getElementById('tab-' + tabName);
-    if(targetTab) {
-        targetTab.classList.add('active');
-        targetTab.style.display = 'flex';
-    }
-
-    document.querySelectorAll('.nav-btn').forEach(x => {
-        const spanText = x.querySelectorAll('span')[1];
-        if(spanText) spanText.classList.remove('text-cyan-400');
-        x.classList.remove('text-cyan-400');
-        x.classList.add('text-slate-400');
-    });
-    
-    if(btnElement) {
-        btnElement.classList.remove('text-slate-400');
-        btnElement.classList.add('text-cyan-400');
-        const spanText = btnElement.querySelectorAll('span')[1];
-        if(spanText) spanText.classList.add('text-cyan-400');
-    }
-
+window.switchTab = function(tabName, btnElement){
+    if(tabName!== 'create' && currentStream) { currentStream.getTracks().forEach(t => t.stop()); currentStream = null; }
+    if(tabName!== 'operations' && tabName!== 'create' && liveStream) { liveStream.getTracks().forEach(t => t.stop()); liveStream = null; document.getElementById('liveScreen')?.classList.add('hidden'); }
+    document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+    document.getElementById('tab-' + tabName)?.classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(x => { x.classList.remove('text-cyan-400'); x.classList.add('text-slate-400'); });
+    if(btnElement) { btnElement.classList.remove('text-slate-400'); btnElement.classList.add('text-cyan-400'); }
     if(tabName === 'create') initCamera();
 }
 
@@ -85,236 +85,104 @@ async function initCamera(){
     const preview = document.getElementById('cameraPreview');
     if(!preview) return;
     try{
-        if(currentStream) {
-            currentStream.getTracks().forEach(t => t.stop());
-        }
+        if(currentStream) currentStream.getTracks().forEach(t => t.stop());
         currentStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: facingMode === 'env' ? 'environment' : 'user' },
-            audio: true
+            video: { facingMode: facingMode === 'env'? 'environment' : 'user' },
+            audio: false
         });
         preview.srcObject = currentStream;
-    }catch(e){ 
-        console.error(e);
-        showToast('⚠️ يرجى السماح بصلاحيات الكاميرا والميكروفون'); 
+    }catch(e){
+        showToast('⚠️ الكاميرا تحتاج HTTPS وسماح من المتصفح');
     }
-}
-
-const switchCamBtn = document.getElementById('switchCamBtn');
-if(switchCamBtn) {
-    switchCamBtn.onclick = () => { 
-        facingMode = facingMode === 'env' ? 'user' : 'env'; 
-        initCamera(); 
-        showToast(facingMode === 'user' ? '🔄 تم التبديل للكاميرا الأمامية' : '🔄 تم التبديل للكاميرا الخلفية');
-    };
-}
-
-const lightBtn = document.getElementById('lightBtn');
-if(lightBtn) {
-    lightBtn.onclick = async () => {
-        if(!currentStream) return;
-        const track = currentStream.getVideoTracks()[0];
-        try {
-            const capabilities = track.getCapabilities();
-            if (capabilities.torch) {
-                flashLightOn = !flashLightOn;
-                await track.applyConstraints({ advanced: [{ torch: flashLightOn }] });
-                showToast(flashLightOn ? '💡 تم تشغيل الفلاش' : '💡 تم إيقاف الفلاش');
-            } else {
-                showToast('⚠️ الفلاش غير مدعوم في هذا الجهاز');
-            }
-        } catch (err) {
-            showToast('⚠️ تعذر التحكم بالفلاش');
-        }
-    };
-}
-
-const filterBtn = document.getElementById('filterBtn');
-if(filterBtn) filterBtn.onclick = () => { showToast('✨ فلتر التجميل السيادي مفعل'); };
-
-const publishBtn = document.getElementById('publishBtn');
-if(publishBtn) {
-    publishBtn.onclick = () => {
-        const input = document.getElementById('postContentInput');
-        if(!input) return;
-        const txt = input.value.trim();
-        if(txt){
-            input.value = '';
-            showToast('🚀 تم نشر الفيديو على السيرفرات المركزية بنجاح');
-            switchTab('home', document.querySelectorAll('.nav-btn')[0]);
-        } else { 
-            showToast('⚠️ يرجى كتابة وصف المنشور أولاً'); 
-        }
-    };
-}
-
-function likeMainPost(){
-    mainLikes++;
-    const countEl = document.getElementById('mainLikeCount');
-    if(countEl) countEl.innerText = mainLikes;
-    showToast('❤️ تم تسجيل الإعجاب');
 }
 
 async function startLiveStream() {
     const liveScreen = document.getElementById('liveScreen');
     const readyBox = document.getElementById('readyToBroadcastBox');
-    if(liveScreen) liveScreen.classList.remove('hidden');
-    if(readyBox) readyBox.style.display = 'block';
-    
+    liveScreen.classList.remove('hidden');
+    liveScreen.classList.add('flex');
+    readyBox.style.display = 'block';
     try {
         liveStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-        const liveVideo = document.getElementById('liveVideo');
-        if(liveVideo) liveVideo.srcObject = liveStream;
+        document.getElementById('liveVideo').srcObject = liveStream;
     } catch(err) {
-        console.error(err);
-        showToast('⚠️ تعذر تشغيل الكاميرا للبث');
+        showToast('⚠️ تعذر تشغيل كاميرا البث');
     }
 }
 
-const confirmStartLive = document.getElementById('confirmStartLive');
-if(confirmStartLive) {
-    confirmStartLive.onclick = () => {
-        const readyBox = document.getElementById('readyToBroadcastBox');
-        if(readyBox) readyBox.style.display = 'none';
-        showToast('🔴 بدأ البث المباشر السيادي بشاشة كاملة');
-    };
-}
-
-const liveBtn = document.getElementById('liveBtn');
-if(liveBtn) liveBtn.onclick = startLiveStream;
-
-const liveOpBtn = document.getElementById('liveOpBtn');
-if(liveOpBtn) liveOpBtn.onclick = startLiveStream;
-
-function endLive(){
-    if(liveStream) liveStream.getTracks().forEach(t => t.stop());
-    const liveScreen = document.getElementById('liveScreen');
-    if(liveScreen) liveScreen.classList.add('hidden');
-    showToast('⏰ تم إنهاء البث المباشر');
-}
-
-const endLiveBtn = document.getElementById('endLiveBtn');
-if(endLiveBtn) endLiveBtn.onclick = endLive;
-
-const likeLiveBtn = document.getElementById('likeBtn');
-if(likeLiveBtn) {
-    likeLiveBtn.onclick = () => {
-        liveLikes++;
-        const countSpan = document.getElementById('liveLikeCount');
-        if(countSpan) countSpan.innerText = liveLikes;
-        showToast('❤️ تم الإعجاب');
-    };
-}
-
-const giftBtn = document.getElementById('giftBtn');
-if(giftBtn) {
-    giftBtn.onclick = () => {
-        showToast('🎁 تم إرسال هدية إمبراطورية!');
-    };
-}
-
-const beautyBtn = document.getElementById('beautyBtn');
-if(beautyBtn) {
-    beautyBtn.onclick = () => {
-        showToast('✨ فلتر التجميل مفعل');
-    };
-}
-
-const sendCommentBtn = document.getElementById('sendCommentBtn');
-const commentInput = document.getElementById('commentInput');
-
-function handleSendComment() {
-    if(commentInput && commentInput.value.trim() !== ''){
-        const commentsContainer = document.getElementById('comments');
-        if(commentsContainer){
-            const c = document.createElement('div');
-            c.className = 'bg-black/70 px-3 py-1.5 rounded-xl mb-1 text-xs text-cyan-200 border border-cyan-500/30 text-right';
-            c.innerText = 'AL: ' + commentInput.value.trim();
-            commentsContainer.appendChild(c);
-            commentsContainer.scrollTop = commentsContainer.scrollHeight;
-        }
-        commentInput.value = '';
-        showToast('💬 تم إرسال التعليق');
-    }
-}
-
-if(sendCommentBtn) sendCommentBtn.onclick = handleSendComment;
-if(commentInput){
-    commentInput.addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') handleSendComment();
+// ✅ كل الأزرار داخل DOMContentLoaded عشان تشتغل 100%
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('switchCamBtn')?.addEventListener('click', () => {
+        facingMode = facingMode === 'env'? 'user' : 'env';
+        initCamera();
+        showToast(facingMode === 'user'? '🔄 أمامية' : '🔄 خلفية');
     });
-}
-
-function openAiBot() {
-    switchTab('inbox', document.querySelectorAll('.nav-btn')[3]);
-    showToast('🤖 تم تفعيل روبوت عين الذكاء المساعد');
-}
-
-function openSupportBot() {
-    switchTab('inbox', document.querySelectorAll('.nav-btn')[3]);
-    showToast('🛡️ تم فتح قناة فريق الدعم الفني السيادي');
-}
-
-function sendChatMessage() {
-    const input = document.getElementById('chatInput');
-    const chat = document.getElementById('chatMessages');
-    if(input && input.value.trim() !== '' && chat) {
-        const userMsg = document.createElement('div');
-        userMsg.className = 'bg-cyan-950/60 border border-cyan-500/30 p-2 rounded-xl text-slate-100 max-w-[80%] mr-auto text-right';
-        userMsg.innerText = input.value;
-        chat.appendChild(userMsg);
-
-        const queryText = input.value;
-        input.value = '';
-
-        setTimeout(() => {
-            const botMsg = document.createElement('div');
-            botMsg.className = 'bg-slate-900 p-2 rounded-xl text-slate-300 max-w-[80%] text-right';
-            botMsg.innerText = '🤖 عين الذكاء: تم استلام طلبك السيادي بخصوص (' + queryText + ') وجاري تنفيذه عبر سيرفرات تريم.';
-            chat.appendChild(botMsg);
-            chat.scrollTop = chat.scrollHeight;
-        }, 800);
-
-        chat.scrollTop = chat.scrollHeight;
-    }
-}
-
-function subscribePayPal() {
-    const paypalURL = "https://www.paypal.com";
-    showToast('💳 جاري تحويلك إلى بوابة PayPal الآمنة للاشتراك الشهري...');
-    setTimeout(() => {
-        window.open(paypalURL, '_blank');
-    }, 1000);
-}
-
-const offlineMapBtn = document.getElementById('offlineMapBtn');
-const mapScreen = document.getElementById('mapScreen');
-const closeMapBtn = document.getElementById('closeMapBtn');
-
-if(offlineMapBtn) {
-    offlineMapBtn.onclick = () => {
-        if(mapScreen) mapScreen.classList.remove('hidden');
+    document.getElementById('lightBtn')?.addEventListener('click', async () => {
+        if(!currentStream) return showToast('⚠️ شغل الكاميرا أولاً');
+        const track = currentStream.getVideoTracks()[0];
+        try {
+            if (track.getCapabilities().torch) {
+                flashLightOn =!flashLightOn;
+                await track.applyConstraints({ advanced: [{ torch: flashLightOn }] });
+                showToast(flashLightOn? '💡 فلاش ON' : '💡 OFF');
+            } else showToast('⚠️ الفلاش غير مدعوم');
+        } catch { showToast('⚠️ تعذر التحكم بالفلاش'); }
+    });
+    document.getElementById('filterBtn')?.addEventListener('click', () => {
+        const v=document.getElementById('cameraPreview');
+        v.style.filter = v.style.filter? '' : 'contrast(1.2) saturate(1.5)';
+        showToast('✨ فلتر مفعل');
+    });
+    document.getElementById('publishBtn')?.addEventListener('click', () => {
+        const input = document.getElementById('postContentInput');
+        if(input.value.trim()){
+            input.value = '';
+            showToast('🚀 تم النشر بنجاح');
+            switchTab('home', document.querySelectorAll('.nav-btn')[0]);
+        } else showToast('⚠️ اكتب وصف أولاً');
+    });
+    document.getElementById('liveBtn')?.addEventListener('click', startLiveStream);
+    document.getElementById('liveOpBtn')?.addEventListener('click', startLiveStream);
+    document.getElementById('confirmStartLive')?.addEventListener('click', () => {
+        document.getElementById('readyToBroadcastBox').style.display = 'none';
+        showToast('🔴 بدأ البث المباشر');
+    });
+    document.getElementById('endLiveBtn')?.addEventListener('click', () => {
+        liveStream?.getTracks().forEach(t => t.stop());
+        document.getElementById('liveScreen').classList.add('hidden');
+        document.getElementById('liveScreen').classList.remove('flex');
+        showToast('⏰ انتهى البث');
+    });
+    document.getElementById('likeBtn')?.addEventListener('click', () => {
+        document.getElementById('liveLikeCount').innerText = ++liveLikes;
+    });
+    document.getElementById('giftBtn')?.addEventListener('click', () => showToast('🎁 هدية إمبراطورية!'));
+    document.getElementById('beautyBtn')?.addEventListener('click', () => showToast('✨ فلتر التجميل مفعل'));
+    document.getElementById('sendCommentBtn')?.addEventListener('click', () => {
+        const inp=document.getElementById('commentInput');
+        if(!inp.value.trim())return;
+        const c=document.createElement('div');
+        c.className='bg-black/70 px-3 py-1.5 rounded-xl mb-1 text-xs text-cyan-200 border border-cyan-500/30';
+        c.innerText='AL: '+inp.value;
+        document.getElementById('comments').appendChild(c);
+        inp.value='';
+    });
+    document.getElementById('offlineMapBtn')?.addEventListener('click', () => {
+        if(typeof L === 'undefined') return showToast('⚠️ Leaflet لم تحمل - تأكد من النت');
+        document.getElementById('mapScreen').classList.remove('hidden');
+        document.getElementById('mapScreen').classList.add('flex');
         setTimeout(() => {
             if(!mapInstance) {
                 mapInstance = L.map('mapContainer').setView([16.0508, 48.9958], 13);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: 'TARIM OS Offline Map'
-                }).addTo(mapInstance);
-                L.marker([16.0508, 48.9958]).addTo(mapInstance)
-                    .bindPopup('<b>تريم السيادية</b><br>مركز العمليات الإمبراطورية.')
-                    .openPopup();
-            } else {
-                mapInstance.invalidateSize();
-            }
-        }, 150);
-        showToast('🗺️ تم فتح خريطة حضرموت السيادية');
-    };
-}
-
-if(closeMapBtn) {
-    closeMapBtn.onclick = () => {
-        if(mapScreen) mapScreen.classList.add('hidden');
-        showToast('🔒 تم إغلاق الخريطة');
-    };
-}
-
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
+                L.marker([16.0508, 48.9958]).addTo(mapInstance).bindPopup('<b>تريم السيادية</b>').openPopup();
+            } else mapInstance.invalidateSize();
+        }, 200);
+    });
+    document.getElementById('closeMapBtn')?.addEventListener('click', () => {
+        document.getElementById('mapScreen').classList.add('hidden');
+        document.getElementById('mapScreen').classList.remove('flex');
+    });
+    document.getElementById('secureChatBtn')?.addEventListener('click', () => { switchTab('inbox', document.querySelectorAll('.nav-btn')[3]); showToast('💬 المراسلة الآمنة مفتوحة'); });
+    document.getElementById('qrSealBtn')?.addEventListener('click', () => showToast('🔐 الختم الميداني قريباً'));
+});
