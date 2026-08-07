@@ -1,5 +1,5 @@
 // public/sw.js - TARIM OS Service Worker (Sovereign Edition)
-const CACHE_NAME = 'tarim-os-v2';
+const CACHE_NAME = 'tarim-os-v3';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -42,10 +42,27 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    // لملفات الـ HTML والصفحات الرئيسية: الشبكة أولاً ثم التخزين المؤقت لضمان ظهور التحديثات
+    if (event.request.mode === 'navigate' || event.request.url.endsWith('.html')) {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    const responseToCache = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseToCache);
+                    });
+                    return response;
+                })
+                .catch(() => caches.match(event.request))
+        );
+        return;
+    }
+
+    // باقي الأصول والمكتبات: التخزين المؤقت أولاً ثم الشبكة
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             return cachedResponse || fetch(event.request).then((response) => {
-                if (!response || response.status !== 200 || response.type !== 'basic' && !event.request.url.startsWith('http')) {
+                if (!response || response.status !== 200 || (response.type !== 'basic' && !event.request.url.startsWith('http'))) {
                     return response;
                 }
                 const responseToCache = response.clone();
@@ -53,10 +70,6 @@ self.addEventListener('fetch', (event) => {
                     cache.put(event.request, responseToCache);
                 });
                 return response;
-            }).catch(() => {
-                if (event.request.mode === 'navigate') {
-                    return caches.match('/index.html');
-                }
             });
         })
     );
