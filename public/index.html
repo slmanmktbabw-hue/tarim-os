@@ -115,40 +115,37 @@ body { background: #020A18; color: #fff; font-family: system-ui, -apple-system, 
     <div id="tab-profile" class="tab-content active space-y-3">
       <div id="profile-main" class="glass rounded-[22px] p-4 text-center border border-cyan-500/30 space-y-3">
         <div class="flex justify-between items-center text-xs">
-            <span class="text-[11px] bg-slate-900 border border-slate-700 px-3 py-1 rounded-lg text-cyan-300 cursor-pointer">تعديل</span>
+            <span class="text-[11px] bg-slate-900 border border-slate-700 px-3 py-1 rounded-lg text-cyan-300 font-bold">الترويج والإعلانات مفعلة</span>
             <span class="text-xs text-slate-400">🌐 عالي</span>
         </div>
         <div class="w-20 h-20 bg-cyan-500 rounded-full mx-auto flex items-center justify-center text-black font-black text-2xl shadow-lg">AL</div>
         <h2 class="text-cyan-300 font-bold text-sm mt-1">الإمبراطور AL</h2>
-        <p class="text-[11px] text-slate-400">tarimos.org | OKX: 0x53...ab96</p>
+        <p class="text-[11px] text-slate-400">OKX: 0x53...c0af6</p>
         
         <div class="grid grid-cols-3 gap-2 border-t border-slate-800 pt-3 text-[11px]">
-          <div><span id="followerCount" class="block font-black text-cyan-400 text-sm">1</span>متابع</div>
+          <div><span id="followerCount" class="block font-black text-cyan-400 text-sm">0</span>متابع</div>
           <div><span id="followingCount" class="block font-black text-cyan-400 text-sm">0</span>يتابع</div>
-          <div><span id="likeCounter" class="block font-black text-cyan-400 text-sm">120</span>إعجاب</div>
-        </div>
-
-        <div class="glass rounded-2xl p-3 flex justify-between items-center text-xs border border-cyan-500/20">
-            <span>💳 PayPal</span>
-            <span class="text-cyan-300 font-bold">اشتراك عين الذكاء</span>
+          <div><span id="likeCounter" class="block font-black text-cyan-400 text-sm">0</span>إعجاب</div>
         </div>
 
         <div class="space-y-2 text-xs text-right pt-1">
             <p class="text-[11px] text-cyan-400/70 font-bold pr-1">أدوات الحساب</p>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🪙 رصيد OKX الملكي - 1000 TARIM</span><span class="text-cyan-400">فتح ←</span></div>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>📊 مركز الأنشطة</span><span class="text-cyan-400">فتح ←</span></div>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>📁 فيديوهات دون اتصال</span><span class="text-cyan-400">فتح ←</span></div>
-            <div onclick="showQR()" class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🧾 رمز QR لديك</span><span class="text-cyan-400">عرض ←</span></div>
+            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>💳 رصيد OKX (الملكي) - 0</span><span class="text-cyan-400">فتح ←</span></div>
+            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🏛️ مركز الأنشطة</span><span class="text-cyan-400">فتح ←</span></div>
+            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>📺 فيديوهات دون اتصال</span><span class="text-cyan-400">فتح ←</span></div>
+            <div onclick="showQR()" class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🌐 رمز QR لديك</span><span class="text-cyan-400">عرض ←</span></div>
 
             <p class="text-[11px] text-cyan-400/70 font-bold pr-1 pt-2">أدوات الابداع والاعمال</p>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🏢 المجموعة التجارية</span><span class="text-cyan-400">فتح ←</span></div>
+            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>👥 المجموعة التجارية</span><span class="text-cyan-400">فتح ←</span></div>
             <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>📢 الترويج والاعلانات</span><span class="text-cyan-400">فتح ←</span></div>
-            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>📄 ادارة المنشورات</span><span class="text-cyan-400">ادارة ←</span></div>
+            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>📊 ادارة المنشورات</span><span class="text-cyan-400">ادارة ←</span></div>
 
             <p class="text-[11px] text-cyan-400/70 font-bold pr-1 pt-2">الاعدادات والخصوصية</p>
             <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>👤 الحساب</span><span class="text-cyan-400">←</span></div>
             <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🔒 الخصوصية والامان</span><span class="text-cyan-400">←</span></div>
             <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🎨 تغير خلفية المستخدم</span><span class="text-cyan-400">تغيير ←</span></div>
+            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>🔗 مشاركة ملف الشخصي</span><span class="text-cyan-400">مشاركة ←</span></div>
+            <div class="glass rounded-xl p-3 flex justify-between items-center hover:border-cyan-500/50 transition cursor-pointer"><span>📜 السياسة والخصوصية</span><span class="text-cyan-400">فتح ←</span></div>
 
             <button type="button" onclick="lockCastleAgain()" class="w-full bg-rose-500/20 border border-rose-500/50 text-rose-300 py-2.5 rounded-xl font-bold mt-3 cursor-pointer hover:bg-rose-500/30 transition">🚪 تسجيل الخروج</button>
         </div>
@@ -192,7 +189,7 @@ body { background: #020A18; color: #fff; font-family: system-ui, -apple-system, 
     <div class="z-10 space-y-3">
         <div id="comments" class="max-h-32 overflow-y-auto space-y-1 pr-1"></div>
         <div class="flex gap-2">
-            <input id="commentInput" type="text" placeholder="اكتب تعليقاً سيادياً..." class="flex1 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-right outline-none">
+            <input id="commentInput" type="text" placeholder="اكتب تعليقاً سيادياً..." class="flex-1 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-right outline-none">
             <button id="sendCommentBtn" class="bg-cyan-500 text-black font-bold px-4 py-2 rounded-xl text-xs cursor-pointer">إرسال</button>
         </div>
     </div>
@@ -235,5 +232,4 @@ function hideQR() {
 }
 </script>
 </body>
-    </html>
-
+</html>
