@@ -15,23 +15,21 @@
 body{background:#020A18;color:#fff;font-family:system-ui;overflow-x:hidden;padding-bottom:80px}
 .glass{background:rgba(10,20,40,.96);backdrop-filter:blur(14px);border:1px solid rgba(0,240,255,.12);border-radius:22px}
 .tab-content{display:none}.tab-content.active{display:block!important}
-.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-0{top:0;left:0;right:0;bottom:0}
+.fixed{position:fixed}.inset-0{top:0;left:0;right:0;bottom:0}
 .flex{display:flex}.hidden{display:none!important}.grid{display:grid}
 .flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.justify-center{justify-content:center}
 .w-full{width:100%}.h-24{height:96px}.h-64{height:256px}.h-full{height:100%}.max-w-md{max-width:448px}.max-w-sm{max-width:384px}.flex-1{flex:1}
-.mx-auto{margin:0 auto}.mt-2{margin-top:8px}
-.p-3{padding:12px}.p-4{padding:16px}.p-5{padding:20px}.p-6{padding:24px}.px-3{padding:0 12px}.pt-\[60px\]{padding-top:60px}.pb-2{padding-bottom:8px}
-.gap-2{gap:8px}.gap-6{gap:24px}.space-y-3>:not(:last-child){margin-bottom:12px}
+.mx-auto{margin:0 auto}.p-3{padding:12px}.p-4{padding:16px}.p-5{padding:20px}.p-6{padding:24px}.px-3{padding:0 12px}.pt-\[60px\]{padding-top:60px}
+.gap-2{gap:8px}.space-y-3>:not(:last-child){margin-bottom:12px}
 .rounded-xl{border-radius:12px}.rounded-2xl{border-radius:16px}.rounded-3xl{border-radius:24px}.rounded-full{border-radius:9999px}
-.border{border:1px solid}.border-b{border-bottom:1px solid}.border-b-2{border-bottom:2px solid}.border-white\/10{border-color:rgba(255,255,255,.1)}.border-slate-700{border-color:#334155}.border-cyan-400{border-color:#22d3ee}
-.bg-black{background:#000}.bg-slate-900{background:#0f172a}.bg-slate-800{background:#1e293b}.bg-cyan-500{background:#06b6d4}.bg-rose-500{background:#f43f5e}.bg-white{background:#fff}
-.text-black{color:#000}.text-cyan-400{color:#22d3ee}.text-cyan-300{color:#67e8f9}.text-slate-400{color:#94a3b8}.text-rose-400{color:#fb7185}.text-rose-500{color:#f43f5e}
-.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[13px\]{font-size:13px}.text-xs{font-size:12px}.text-sm{font-size:14px}.text-xl{font-size:20px}.text-2xl{font-size:24px}.text-4xl{font-size:36px}
+.border{border:1px solid}.border-b{border-bottom:1px solid}.border-b-2{border-bottom:2px solid}.border-white\/10{border-color:rgba(255,255,255,.1)}.border-slate-700{border-color:#334155}
+.bg-black{background:#000}.bg-slate-900{background:#0f172a}.bg-cyan-500{background:#06b6d4}.bg-rose-500{background:#f43f5e}
+.text-black{color:#000}.text-cyan-400{color:#22d3ee}.text-cyan-300{color:#67e8f9}.text-slate-400{color:#94a3b8}.text-rose-400{color:#fb7185}
+.text-\[11px\]{font-size:11px}.text-\[13px\]{font-size:13px}.text-xs{font-size:12px}.text-sm{font-size:14px}.text-xl{font-size:20px}.text-4xl{font-size:36px}
 .font-bold{font-weight:700}.font-black{font-weight:900}.text-center{text-align:center}.text-right{text-align:right}.tracking-widest{letter-spacing:.1em}
-.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.object-cover{object-fit:cover}.resize-none{resize:none}.cursor-pointer{cursor:pointer}.select-none{user-select:none}
-.shadow-lg{box-shadow:0 10px 15px rgba(0,0,0,.3)}.shadow-2xl{box-shadow:0 25px 50px rgba(0,0,0,.5)}.animate-pulse{animation:pulse 2s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.overflow-hidden{overflow:hidden}.object-cover{object-fit:cover}.resize-none{resize:none}.cursor-pointer{cursor:pointer}.select-none{user-select:none}
+.shadow-2xl{box-shadow:0 25px 50px rgba(0,0,0,.5)}.animate-pulse{animation:pulse 2s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 input,textarea{width:100%;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:14px;color:#fff;font-size:14px;text-align:center}
-input::placeholder,textarea::placeholder{color:#64748b}
 button{border:none;cursor:pointer}
 #toastBox{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:80;width:91%;max-width:320px;pointer-events:none}
 main{padding-bottom:90px}
@@ -39,7 +37,6 @@ main{padding-bottom:90px}
 </head>
 <body>
 
-<!-- بوابة الدخول V4 -->
 <div id="authGate" class="fixed inset-0" style="z-index:70;background:#020A18;display:flex;align-items:center;justify-content:center;padding:16px">
   <div class="glass max-w-sm w-full rounded-3xl p-6 text-center space-y-4 shadow-2xl" style="border:1px solid rgba(0,240,255,.15)">
     <div class="text-4xl">👑</div>
@@ -71,18 +68,18 @@ main{padding-bottom:90px}
 <div id="toastBox"></div>
 
 <header class="fixed top-0 left-0 right-0" style="z-index:40;display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(2,10,24,.95);border-bottom:1px solid rgba(6,182,212,.1);font-size:12px">
-  <span class="text-cyan-300 font-bold cursor-pointer select-none">👁️ عين الذكاء</span>
+  <span class="text-cyan-300 font-bold">👁️ عين الذكاء</span>
   <b class="text-cyan-300 tracking-widest">TARIM OS</b>
-  <span class="text-slate-400 font-bold cursor-pointer select-none">🛡️ الدعم</span>
+  <span class="text-slate-400 font-bold">🛡️ الدعم</span>
 </header>
 
 <main class="pt-[60px] max-w-md mx-auto p-3 space-y-3">
   <div id="tab-home" class="tab-content active space-y-3">
     <div class="glass p-3 flex justify-between text-xs"><span class="font-bold text-cyan-400">@AL 👑</span><span class="text-slate-400">حضرموت 🌴</span></div>
-    <div id="postsFeed" class="space-y-3"><div class="glass p-4" style="height:65vh;display:flex;align-items:end"><p class="text-xs text-slate-400">جاري تحميل المنشورات السيادية...</p></div></div>
+    <div id="postsFeed" class="space-y-3"><div class="glass p-4" style="height:65vh;display:flex;align-items:end"><p class="text-xs text-slate-400">جاري تحميل المنشورات...</p></div></div>
   </div>
   <div id="tab-operations" class="tab-content space-y-3">
-    <div class="glass p-5 space-y-3 text-center"><h3 class="text-sm font-black text-cyan-400">⚡ عمليات القلعة</h3><button id="liveOpBtn" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-xs text-cyan-300 font-bold">🔴 بث مباشر 8 دقائق</button><button id="offlineMapBtn" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-xs text-cyan-300 font-bold">🗺️ خريطة حضرموت</button></div>
+    <div class="glass p-5 space-y-3 text-center"><h3 class="text-sm font-black text-cyan-400">⚡ عمليات القلعة</h3><button id="offlineMapBtn" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-xs text-cyan-300 font-bold">🗺️ خريطة حضرموت</button></div>
   </div>
   <div id="tab-create" class="tab-content space-y-3">
     <div class="glass p-4 space-y-3 text-center"><h3 class="text-sm font-black text-cyan-400">✨ محطة الإنشاء</h3><div class="w-full h-64 bg-black rounded-xl overflow-hidden"><video id="cameraPreview" autoplay playsinline muted class="w-full h-full object-cover"></video></div><div class="grid" style="grid-template-columns:repeat(3,1fr);gap:8px"><button id="lightBtn" class="bg-slate-900 border border-slate-700 py-2 rounded-xl text-cyan-300 text-[10px]">💡 فلاش</button><button id="switchCamBtn" class="bg-slate-900 border border-slate-700 py-2 rounded-xl text-cyan-300 text-[10px]">🔄 تبديل</button><button id="filterBtn" class="bg-slate-900 border border-slate-700 py-2 rounded-xl text-cyan-300 text-[10px]">✨ فلتر</button></div><textarea id="postContentInput" maxlength="2000" class="h-24 text-right" placeholder="وصف المنشور..."></textarea><button id="publishBtn" class="w-full bg-cyan-500 text-black py-3 rounded-xl text-sm font-black">📢 نشر فوري</button></div>
@@ -92,17 +89,17 @@ main{padding-bottom:90px}
   </div>
   <div id="tab-profile" class="tab-content space-y-3">
     <div class="glass p-5 text-center"><div class="w-20 h-20 bg-cyan-500 rounded-full mx-auto flex items-center justify-center text-black font-black text-2xl">AL</div><h2 class="text-cyan-300 font-bold text-sm mt-3">الإمبراطور AL</h2><p class="text-[11px] text-slate-400 mt-1">tarimos.org | OKX: 0x53...ab96</p></div>
-    <div class="px-3 pb-24 text-right text-[14px]"><div id="walletBtn" class="py-3 flex justify-between cursor-pointer" style="border-bottom:1px solid rgba(255,255,255,.05)"><span>المحفظة</span><span>💳</span></div><div id="qrBtn" class="py-3 flex justify-between cursor-pointer" style="border-bottom:1px solid rgba(255,255,255,.05)"><span>رمز QR</span><span>🌐</span></div><div id="logoutBtn" class="py-3 flex justify-between cursor-pointer text-rose-400 font-bold"><span>تسجيل الخروج</span><span>💤</span></div></div>
+    <div class="px-3 pb-24 text-right text-[14px]"><div id="logoutBtn" class="py-3 flex justify-between cursor-pointer text-rose-400 font-bold" style="border-bottom:1px solid rgba(255,255,255,.05)"><span>تسجيل الخروج</span><span>💤</span></div></div>
   </div>
 </main>
 
-<!-- القائمة السفلية الوحيدة الصحيحة - مثل الصور -->
-<nav id="mainNav" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0B1120;border-top:1px solid rgba(0,240,255,.15);display:flex;justify-content:space-around;align-items:flex-end;height:70px;padding-bottom:6px">
-  <button data-tab="profile" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">👤</span><span>الملفات</span></button>
-  <button data-tab="inbox" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">💬</span><span>الوارد</span></button>
-  <button data-tab="create" class="nav-btn" style="background:#00B4D8;border:none;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:#000;margin-bottom:18px;box-shadow:0 0 20px rgba(0,180,216,.5)">+</button>
-  <button data-tab="operations" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">⚡</span><span>العمليات</span></button>
+<!-- القائمة السفلية - الرئيسية على اليمين -->
+<nav id="mainNav" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0B1120;border-top:1px solid rgba(0,240,255,.15);display:flex;justify-content:space-around;align-items:flex-end;height:70px;padding-bottom:6px;direction:rtl">
   <button data-tab="home" class="nav-btn" style="background:none;border:none;color:#22d3ee;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">🏰</span><span>الرئيسية</span></button>
+  <button data-tab="operations" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">⚡</span><span>العمليات</span></button>
+  <button data-tab="create" class="nav-btn" style="background:#00B4D8;border:none;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:#000;margin-bottom:18px;box-shadow:0 0 20px rgba(0,180,216,.5)">+</button>
+  <button data-tab="inbox" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">💬</span><span>الوارد</span></button>
+  <button data-tab="profile" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">👤</span><span>الملفات</span></button>
 </nav>
 
 <div id="mapScreen" class="hidden fixed inset-0" style="z-index:50;padding:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,.95)"><div class="glass w-full max-w-md p-4 flex flex-col" style="height:80vh"><div class="flex justify-between" style="margin-bottom:12px"><h3 class="text-xs font-bold text-cyan-400">🗺️ خريطة تريم</h3><button id="closeMapBtn" class="text-rose-400 text-xs bg-slate-900 px-3 py-1 rounded-lg">إغلاق</button></div><div id="mapContainer" class="flex-1 w-full rounded-xl" style="background:#0f172a"></div></div></div>
