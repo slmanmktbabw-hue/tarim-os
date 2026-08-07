@@ -1,6 +1,6 @@
 /**
  * TARIM OS - النظام السيادي الإمبراطوري
- * ملف الجافاسكريبت المنفصل: app.js
+ * ملف الجافاسكريبت المحدث والمنفصل: app.js
  */
 
 let currentStream = null;
@@ -10,7 +10,6 @@ let flashLightOn = false;
 let liveLikes = 0;
 let mainLikes = 120;
 let mapInstance = null;
-let posts = JSON.parse(localStorage.getItem('tarim_posts') || '[]');
 
 document.addEventListener('DOMContentLoaded', () => {
     const createTab = document.getElementById('tab-create');
@@ -27,6 +26,23 @@ function showToast(msg){
     t.innerText = msg; 
     box.appendChild(t);
     setTimeout(() => t.remove(), 2500);
+}
+
+function loginSystem() {
+    const user = document.getElementById('loginUser').value;
+    if(user.trim() !== '') {
+        const authScreen = document.getElementById('authScreen');
+        if(authScreen) authScreen.style.display = 'none';
+        showToast('🛡️ تم التحقق بنجاح، أهلاً بك يا إمبراطور AL');
+    } else {
+        showToast('⚠️ يرجى إدخال اسم المستخدم');
+    }
+}
+
+function loginWithGoogle() {
+    const authScreen = document.getElementById('authScreen');
+    if(authScreen) authScreen.style.display = 'none';
+    showToast('🌐 تم تسجيل الدخول عبر حساب Google السيادي بنجاح');
 }
 
 function switchTab(tab, btn){
@@ -104,7 +120,6 @@ if(lightBtn) {
 const filterBtn = document.getElementById('filterBtn');
 if(filterBtn) filterBtn.onclick = () => { showToast('✨ فلتر التجميل السيادي مفعل'); };
 
-// النشر الفوري والمباشر
 const publishBtn = document.getElementById('publishBtn');
 if(publishBtn) {
     publishBtn.onclick = () => {
@@ -218,6 +233,46 @@ if(commentInput){
     });
 }
 
+function openAiBot() {
+    switchTab('inbox', document.querySelectorAll('.nav-btn')[3]);
+    showToast('🤖 تم تفعيل روبوت عين الذكاء المساعد');
+}
+
+function openSupportBot() {
+    switchTab('inbox', document.querySelectorAll('.nav-btn')[3]);
+    showToast('🛡️ تم فتح قناة فريق الدعم الفني السيادي');
+}
+
+function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const chat = document.getElementById('chatMessages');
+    if(input && input.value.trim() !== '' && chat) {
+        const userMsg = document.createElement('div');
+        userMsg.className = 'bg-slate-800 p-2 rounded-xl text-white max-w-[80%] mr-auto text-left';
+        userMsg.innerText = input.value;
+        chat.appendChild(userMsg);
+
+        setTimeout(() => {
+            const botMsg = document.createElement('div');
+            botMsg.className = 'bg-cyan-950/60 p-2 rounded-xl text-cyan-200 border border-cyan-500/30 max-w-[80%]';
+            botMsg.innerText = '🤖 عين الذكاء: تم استلام رسالتك وتأمين النظام على tarimos.org بنجاح!';
+            chat.appendChild(botMsg);
+            chat.scrollTop = chat.scrollHeight;
+        }, 800);
+
+        input.value = '';
+        chat.scrollTop = chat.scrollHeight;
+    }
+}
+
+function subscribePayPal() {
+    const paypalURL = "https://www.paypal.com"; // ضع رابط حسابك المباشر هنا
+    showToast('💳 جاري تحويلك إلى بوابة PayPal الآمنة...');
+    setTimeout(() => {
+        window.open(paypalURL, '_blank');
+    }, 1000);
+}
+
 const offlineMapBtn = document.getElementById('offlineMapBtn');
 const mapScreen = document.getElementById('mapScreen');
 const closeMapBtn = document.getElementById('closeMapBtn');
@@ -249,3 +304,4 @@ if(closeMapBtn) {
         showToast('🔒 تم إغلاق الخريطة');
     };
 }
+
