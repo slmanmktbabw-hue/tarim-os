@@ -1,4 +1,4 @@
-// public/app.js - TARIM OS V7 FINAL - كل الأزرار شغالة - اليمن على اليمين
+// public/app.js - TARIM OS V7 CLEAN - كل الأزرار شغالة
 "use strict";
 (function () {
   let currentStream=null,liveStream=null,facingMode="environment",mapInstance=null,currentChatWith=null,filterIdx=0,liveSec=0,liveTimerInt=null;
@@ -19,13 +19,15 @@
     box.appendChild(d); setTimeout(()=>d.remove(),3000);
   }
   function sanitize(s){return String(s||'').substring(0,2000).replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-  function stopAllStreams(){if(currentStream) currentStream.getTracks().forEach(t=>t.stop()); currentStream=null; if(liveStream) liveStream.getTracks().forEach(t=>t.stop()); liveStream=null;}
+  function stopAllStreams(){
+    if(currentStream) currentStream.getTracks().forEach(t=>t.stop()); currentStream=null;
+    if(liveStream) liveStream.getTracks().forEach(t=>t.stop()); liveStream=null;
+  }
 
-  // الرئيسية تيك توك
   function loadFeed(){
     const sess=localStorage.getItem('tarim_session')||'AL'; if(!postsFeed) return;
     const likes=localStorage.getItem('tarim_likes_'+sess)||'120';
-    postsFeed.innerHTML=`<div class="tiktok-card"><div class="tiktok-top"><span style="color:#22d3ee;font-weight:700">👑 @${sanitize(sess)}</span><span>🌴 تريم - حضرموت</span></div><div class="tiktok-center"><div style="font-size:60px">🎥</div><p style="color:#67e8f9;font-size:13px">فيديو سيادي يملئ الشاشة</p></div><div class="tiktok-actions"><div class="tiktok-act" onclick="likePost(this)"><b style="font-size:26px">❤️</b><span class="likeCount">${likes}</span></div><div class="tiktok-act" onclick="switchTab('inbox', document.querySelector('#mainNav.nav-btn[data-tab=inbox]'))"><b style="font-size:22px">💬</b><span>45</span></div><div class="tiktok-act" onclick="showToast('تم نسخ الرابط 🚀')"><b>🚀</b><span>مشاركة</span></div><div class="tiktok-act" onclick="showToast('تم الحفظ 🔖')"><b>🔖</b><span>حفظ</span></div></div><div class="tiktok-bottom">@ ${sess.toLowerCase()}mktbabw@gmail.com</div></div>`;
+    postsFeed.innerHTML=`<div class="tiktok-card"><div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#22d3ee;font-weight:700">👑 @${sanitize(sess)}</span><span>🌴 تريم - حضرموت</span></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><div style="font-size:60px">🎥</div><p style="color:#67e8f9;font-size:13px">فيديو سيادي يملئ الشاشة</p></div><div class="tiktok-actions"><div class="tiktok-act" onclick="likePost(this)"><b style="font-size:26px">❤️</b><span class="likeCount">${likes}</span></div><div class="tiktok-act" onclick="switchTab('inbox', document.querySelector('#mainNav.nav-btn[data-tab=inbox]'))"><b style="font-size:22px">💬</b><span>45</span></div><div class="tiktok-act" onclick="showToast('تم نسخ الرابط 🚀')"><b>🚀</b><span>مشاركة</span></div><div class="tiktok-act" onclick="showToast('تم الحفظ 🔖')"><b>🔖</b><span>حفظ</span></div></div><div style="border-top:1px solid rgba(255,255,255,.08);padding-top:8px;font-size:11px;color:#22d3ee;text-align:left;direction:ltr">@ ${sess.toLowerCase()}mktbabw@gmail.com</div></div>`;
   }
   window.likePost=function(el){const c=el.querySelector('.likeCount'); let n=parseInt(c.textContent)||0; if(el.classList.contains('liked')){n--;el.classList.remove('liked');el.style.color='#fff'}else{n++;el.classList.add('liked');el.style.color='#f43f5e'} c.textContent=n; const sess=localStorage.getItem('tarim_session')||'AL'; localStorage.setItem('tarim_likes_'+sess,n);};
   function openApp(username){authGate.classList.add('hidden');authGate.style.display='none';localStorage.setItem('tarim_session',username);showToast(`أهلاً بك يا ${sanitize(username)} 👑`);loadFeed();}
@@ -39,11 +41,9 @@
   passIn?.addEventListener('keydown',e=>{if(e.key==='Enter') loginBtn.click()});
   const sess=localStorage.getItem('tarim_session'); if(sess){authGate.classList.add('hidden');authGate.style.display='none';loadFeed();}
 
-  // التنقل - مصحح - اليمن على اليمين
   window.switchTab=function(tab,btn){
     stopAllStreams(); document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active')); const target=document.getElementById('tab-'+tab); if(target) target.classList.add('active');
-    document.querySelectorAll('#mainNav.nav-btn').forEach(x=>{if(x.getAttribute('data-tab')!=='create') x.style.color='#94a3b8';});
-    if(btn && btn.getAttribute('data-tab')!=='create') btn.style.color='#22d3ee';
+    document.querySelectorAll('#mainNav.nav-btn').forEach(x=>{if(x.getAttribute('data-tab')!=='create') x.style.color='#94a3b8'}); if(btn && btn.getAttribute('data-tab')!=='create') btn.style.color='#22d3ee';
     if(tab==='create') initCamera(); if(tab==='inbox'){renderUserList();renderMessages();}
   };
   document.querySelectorAll('#mainNav.nav-btn').forEach(btn=>{btn.addEventListener('click',()=>{const tab=btn.getAttribute('data-tab'); if(tab) window.switchTab(tab,btn);})});
@@ -59,10 +59,10 @@
   $('liveOpBtn')?.addEventListener('click',()=>$('startLiveBtn')?.click());
 
   function openMap(){const ms=$('mapScreen'); if(!ms) return; ms.classList.remove('hidden'); ms.style.display='flex'; setTimeout(()=>{if(!mapInstance){mapInstance=L.map('mapContainer').setView([16.05,48.9833],13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(mapInstance); L.marker([16.05,48.9833]).addTo(mapInstance).bindPopup('<b>قلعة تريم السيادية</b>').openPopup();} else mapInstance.invalidateSize();},300);}
-  $('opsMapBtn')?.addEventListener('click',()=>openMap());
+  $('opsMapBtn')?.addEventListener('click',()=>openMap()); $('offlineMapBtn')?.addEventListener('click',()=>openMap());
   $('closeMapBtn')?.addEventListener('click',()=>{const ms=$('mapScreen'); if(ms){ms.classList.add('hidden'); ms.style.display='none';}});
 
-  function openQr(){const sess=localStorage.getItem('tarim_session')||'AL'; const qs=$('qrScreen'),qb=$('qrBox'),qt=$('qrText'); if(!qs){showToast('QR: '+sess+' ✅'); return;} qs.classList.remove('hidden'); qs.style.display='flex'; qb.innerHTML=''; if(qt) qt.textContent=sess+'@tarim-os'; new QRCode(qb,{text:location.origin+'?u='+sess,width:160,height:160});}
+  function openQr(){const sess=localStorage.getItem('tarim_session')||'AL'; const qs=$('qrScreen'), qb=$('qrBox'), qt=$('qrText'); if(!qs||!qb) return; qs.classList.remove('hidden'); qs.style.display='flex'; qb.innerHTML=''; qt.textContent=sess+'@tarim-os'; new QRCode(qb,{text:location.origin+'?u='+sess,width:160,height:160});}
   $('qrBtn')?.addEventListener('click',()=>openQr()); $('opsQrBtn')?.addEventListener('click',()=>openQr());
   $('closeQrBtn')?.addEventListener('click',()=>{const qs=$('qrScreen'); if(qs){qs.classList.add('hidden'); qs.style.display='none';}});
 
@@ -76,40 +76,31 @@
   window.openChat=function(user){currentChatWith=user; renderUserList(); renderMessages();};
   $('sendInboxMsgBtn')?.addEventListener('click',()=>{const input=$('inboxInputField'); if(!input||!input.value.trim()) return; const me=localStorage.getItem('tarim_session')||'AL'; if(!currentChatWith){showToast('اختر مستخدم أولاً','err');return} const key=[me,currentChatWith].sort().join('_'); const msgs=getMessages(); if(!msgs[key]) msgs[key]=[]; msgs[key].push({from:me,text:input.value.trim(),time:Date.now()}); saveMessages(msgs); input.value=''; renderMessages(); if(currentChatWith==='الدعم'){setTimeout(()=>{const m=getMessages(); m[key].push({from:'الدعم',text:'تم الاستلام يا إمبراطور 🛡️',time:Date.now()}); saveMessages(m); renderMessages();},800);}});
 
-  // عين الذكاء + الدعم
-  function aiReply(t){t=t.toLowerCase(); if(t.includes('تريم')||t.includes('قلعة')) return 'أنا عين الذكاء من تريم حضرموت 🐉👑 القلعة تعمل Offline.'; if(t.includes('بث')) return 'لبدء البث: العمليات > بث مباشر > بدء 🔴'; if(t.includes('محفظة')) return 'المحفظة في الملفات > المحفظة 💳'; return 'تم يا إمبراطور AL 🤖 النظام سيادي 100%.';}
+  // عين الذكاء + الدعم AI
+  function aiReply(t){t=t.toLowerCase(); if(t.includes('تريم')||t.includes('قلعة')) return 'أنا عين الذكاء السيادية من تريم حضرموت 🐉👑 القلعة تعمل 100% Offline.'; if(t.includes('بث')) return 'لبدء البث: العمليات > بث مباشر > بدء 🔴'; if(t.includes('محفظة')) return 'المحفظة في الملفات > المحفظة 💳'; return 'تم يا إمبراطور AL 🤖 النظام سيادي 100% من حضرموت.';}
   function addMsg(boxId,who,txt){const box=$(boxId); if(!box) return; const isMe=who==='me'; const d=document.createElement('div'); d.style.cssText=`align-self:${isMe?'flex-end':'flex-start'};max-width:78%;background:${isMe?'#00B4D8':'#0f172a'};color:${isMe?'#000':'#fff'};padding:10px 14px;border-radius:16px;font-size:13px`; d.textContent=txt; box.appendChild(d); box.scrollTop=box.scrollHeight;}
   $('openAiEyeBtn')?.addEventListener('click',()=>{const s=$('aiEyeScreen'); s.classList.remove('hidden'); s.style.display='flex'; if($('aiEyeChat').children.length===0) addMsg('aiEyeChat','ai','أهلاً يا إمبراطور AL 👁️ أنا عين الذكاء، كيف أخدم القلعة؟');});
   $('closeAiEye')?.addEventListener('click',()=>{const s=$('aiEyeScreen'); s.classList.add('hidden'); s.style.display='none';});
   $('sendAiEye')?.addEventListener('click',()=>{const i=$('aiEyeInput'); if(!i.value.trim()) return; addMsg('aiEyeChat','me',i.value); const q=i.value; i.value=''; setTimeout(()=>addMsg('aiEyeChat','ai',aiReply(q)),600);});
-  $('openSupportBtn')?.addEventListener('click',()=>{const s=$('supportScreen'); s.classList.remove('hidden'); s.style.display='flex'; if($('supportChat').children.length===0) addMsg('supportChat','ai','أهلاً يا إمبراطور AL 🛡️ فريق الدعم AI جاهز؟');});
+  $('openSupportBtn')?.addEventListener('click',()=>{const s=$('supportScreen'); s.classList.remove('hidden'); s.style.display='flex'; if($('supportChat').children.length===0) addMsg('supportChat','ai','أهلاً يا إمبراطور AL 🛡️ فريق الدعم AI جاهز، ما المشكلة؟');});
   $('closeSupport')?.addEventListener('click',()=>{const s=$('supportScreen'); s.classList.add('hidden'); s.style.display='none';});
   $('sendSupport')?.addEventListener('click',()=>{const i=$('supportInput'); if(!i.value.trim()) return; addMsg('supportChat','me',i.value); const q=i.value; i.value=''; setTimeout(()=>addMsg('supportChat','ai',aiReply(q)+' ✅'),700);});
 
-  // الملفات - كل الأزرار - بالـ ID الجديد
-  const profileActions = {
-    changeBgBtn: ()=>{document.body.style.background=document.body.style.background==='rgb(20, 10, 30)'?'#020A18':'rgb(20, 10, 30)'; showToast('تم تغير الخلفية 🎨');},
-    walletBtn: ()=>showToast('💳 المحفظة: قريباً PayPal + OKX'),
-    activityBtn: ()=>showToast('⚙️ مركز الانشطة: سجل نشاطك'),
-    offlineVideosBtn: ()=>showToast('🎞️ الفيديوهات دون اتصال: قريباً'),
-    qrBtn: ()=>openQr(),
-    creativeBtn: ()=>{window.switchTab('create', document.querySelector('#mainNav.nav-btn[data-tab=create]')); showToast('ادوات الابداع ✨');},
-    businessBtn: ()=>showToast('👫 المجموعة التجارية: قريباً'),
-    adsBtn: ()=>showToast('🚀 الترويج: قريباً'),
-    managePostsBtn: ()=>{window.switchTab('home', document.querySelector('#mainNav.nav-btn[data-tab=home]')); showToast('📊 ادارة المنشورات');},
-    settingsBtn: ()=>showToast('الاعدادات والخصوصية ⚙️'),
-    accountBtn: ()=>showToast('🚹 الحساب: '+(localStorage.getItem('tarim_session')||'AL')),
-    privacyBtn: ()=>showToast('🔐 الخصوصية والامان: مشفر 100%'),
-    shareProfileBtn: ()=>{if(navigator.share) navigator.share({title:'TARIM OS',url:location.href}); else showToast('💱 تم نسخ رابط ملفك');},
-    policyBtn: ()=>showToast('📄 السياسية والخصوصية: تريم حضرموت'),
-    payBtn: ()=>showToast('💳 PayPal: قريباً يا إمبراطور')
-  };
-  Object.keys(profileActions).forEach(id=>{$(id)?.addEventListener('click', profileActions[id]);});
+  // الملفات - كل الأزرار
+  $('changeBgBtn')?.addEventListener('click',()=>{document.body.style.background=document.body.style.background==='rgb(20, 10, 30)'?'#020A18':'rgb(20, 10, 30)'; showToast('تم تغير الخلفية 🎨');});
+  $('walletBtn')?.addEventListener('click',()=>showToast('💳 المحفظة: قريباً PayPal + OKX'));
+  $('activityBtn')?.addEventListener('click',()=>showToast('⚙️ مركز الأنشطة: سجل نشاطك'));
+  $('offlineVideosBtn')?.addEventListener('click',()=>showToast('🎞️ الفيديوهات دون اتصال: قريباً'));
+  $('creativeBtn')?.addEventListener('click',()=>showToast('ادوات الابداع: محطة الإنشاء ✨'));
+  $('businessBtn')?.addEventListener('click',()=>showToast('👫 المجموعة التجارية: قريباً'));
+  $('adsBtn')?.addEventListener('click',()=>showToast('🚀 الترويج: قريباً'));
+  $('managePostsBtn')?.addEventListener('click',()=>{window.switchTab('home', document.querySelector('#mainNav.nav-btn[data-tab=home]')); showToast('📊 ادارة المنشورات');});
+  $('settingsBtn')?.addEventListener('click',()=>showToast('الاعدادات والخصوصية ⚙️'));
+  $('accountBtn')?.addEventListener('click',()=>showToast('🚹 الحساب: '+(localStorage.getItem('tarim_session')||'AL')));
+  $('privacyBtn')?.addEventListener('click',()=>showToast('🔐 الخصوصية والامان: مشفر 100%'));
+  $('shareProfileBtn')?.addEventListener('click',()=>{if(navigator.share) navigator.share({title:'TARIM OS',url:location.href}); else showToast('💱 تم نسخ رابط ملفك');});
+  $('policyBtn')?.addEventListener('click',()=>showToast('📄 السياسية والخصوصية: تريم حضرموت'));
+  $('payBtn')?.addEventListener('click',()=>showToast('💳 PayPal: قريباً يا إمبراطور'));
 
-  // دعم الأزرار القديمة بدون ID (للأمان)
-  document.querySelectorAll('#tab-profile.py-3').forEach(el=>{
-    if(!el.id) el.addEventListener('click', ()=>{const t=el.textContent; if(t.includes('المحفظة')) showToast('💳 المحفظة'); else if(t.includes('انشطة')) showToast('⚙️ الانشطة'); else if(t.includes('دون اتصال')) showToast('🎞️ دون اتصال'); else showToast(t.trim()+' قريباً');});
-  });
-
-  console.log('[TARIM OS] V7 FINAL - كل الأزرار شغالة - اليمن على اليمين 👑');
+  console.log('[TARIM OS] V7 - كل الأزرار شغالة - اليمن على اليمين 👑');
 })();
