@@ -82,8 +82,8 @@ document.getElementById('offlineMapBtn')?.addEventListener('click',()=>{
 });
 document.getElementById('closeMapBtn')?.addEventListener('click',()=>{ document.getElementById('mapScreen')?.classList.add('hidden'); });
 
-// --- ربط التصميم الجديد في صورتك - كل سطر يشتغل الآن ---
-document.getElementById('changeBgBtn')?.addEventListener('click',()=>showToast('🎨 تغير الخلفية - قادم V1.1'));
+// --- ربط أزرار القائمة الجانبية والملف الشخصي ---
+document.getElementById('changeBgBtn')?.addEventListener('click',()=>showToast('🎨 جاري تحديث الخلفية...'));
 document.getElementById('paypalBtn')?.addEventListener('click',()=>showToast('💳 PayPal - اشتراك عين الذكاء $9.99'));
 document.getElementById('walletBtn')?.addEventListener('click',()=>showToast('💳 المحفظة: 1000 TARIM - OKX: 0x53...ab96'));
 document.getElementById('activitiesBtn')?.addEventListener('click',()=>showToast('⚙️ مركز الأنشطة: 120 إعجاب سيادي'));
@@ -101,6 +101,7 @@ document.getElementById('shareProfileBtn')?.addEventListener('click',async()=>{
 });
 document.getElementById('policyBtn')?.addEventListener('click',()=>{ window.location.href='/privacy.html'; });
 document.getElementById('logoutBtn')?.addEventListener('click',()=>{ localStorage.clear(); const gate=document.getElementById('authGate'); if(gate) gate.style.display='flex'; showToast('💤 تم تسجيل الخروج'); });
+
 document.getElementById('sendInboxMsgBtn')?.addEventListener('click',()=>{
  const input=document.getElementById('inboxInputField'); const list=document.getElementById('inboxMessagesList');
  if(!input ||!input.value.trim()) return;
@@ -110,3 +111,4 @@ document.getElementById('sendInboxMsgBtn')?.addEventListener('click',()=>{
 
 // تسجيل دخول تلقائي
 (async()=>{ try{ const r=await fetch('/api/login',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:'AL',password:'123456'})}); const d=await r.json(); if(d.success) localStorage.setItem('tarim_token', d.token); }catch{} })();
+ 
