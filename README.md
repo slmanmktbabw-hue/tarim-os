@@ -16,15 +16,15 @@
 ```text
 tarim-os/
 ├── public/
-│ ├── index.html
-│ ├── app.js
-│ ├── ai-eye.js
-│ ├── support.js
-│ ├── manifest.json
-│ ├── privacy.html
-│ └── sw.js
-├──.env.example
-├──.gitignore
+│   ├── index.html
+│   ├── app.js
+│   ├── ai-eye.js
+│   ├── support.js
+│   ├── manifest.json
+│   ├── privacy.html
+│   └── sw.js
+├── .env.example
+├── .gitignore
 ├── database.js
 ├── package.json
 ├── router.js
