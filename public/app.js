@@ -1,6 +1,6 @@
 /**
  * TARIM OS - النظام السيادي الإمبراطوري
- * ملف الجافاسكريبت المحدث والمنفصل: app.js
+ * ملف الجافاسكريبت الرئيسي: app.js
  */
 
 let currentStream = null;
@@ -175,6 +175,7 @@ const liveOpBtn = document.getElementById('liveOpBtn');
 if(liveOpBtn) liveOpBtn.onclick = startLiveStream;
 
 function endLive(){
+    if(liveStream) liveStream.getTracks().format(t => t.stop()); // Safeguard
     if(liveStream) liveStream.getTracks().forEach(t => t.stop());
     const liveScreen = document.getElementById('liveScreen');
     if(liveScreen) liveScreen.classList.add('hidden');
@@ -266,7 +267,7 @@ function sendChatMessage() {
 }
 
 function subscribePayPal() {
-    const paypalURL = "https://www.paypal.com"; // ضع رابط حسابك المباشر هنا
+    const paypalURL = "https://www.paypal.com"; // ضع رابط حسابك الحقيقي هنا
     showToast('💳 جاري تحويلك إلى بوابة PayPal الآمنة...');
     setTimeout(() => {
         window.open(paypalURL, '_blank');
@@ -304,4 +305,4 @@ if(closeMapBtn) {
         showToast('🔒 تم إغلاق الخريطة');
     };
 }
-
+    
