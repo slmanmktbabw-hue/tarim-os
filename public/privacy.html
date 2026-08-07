@@ -3,40 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سياسة الخصوصية | TARIM OS</title>
+    <meta name="theme-color" content="#020A18">
+    <title>سياسة الخصوصية والسيادة الرقمية | TARIM OS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; background-color: #020A18; color: #ffffff; user-select: none; }
-        .glass { background: rgba(10, 20, 40, 0.96); backdrop-filter: blur(14px); border: 1px solid rgba(0, 240, 255, 0.22); }
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: #020A18; color: #e2e8f0; line-height: 1.8; }
+       .glass { background: rgba(10, 20, 40, 0.96); backdrop-filter: blur(14px); border: 1px solid rgba(0, 240, 255, 0.15); }
     </style>
 </head>
-<body class="min-h-screen p-6 flex flex-col justify-between">
-    <div class="max-w-2xl mx-auto w-full space-y-6">
-        <div class="glass p-6 rounded-3xl space-y-4 border border-cyan-500/40 shadow-2xl">
-            <h1 class="text-xl font-black text-cyan-400 text-center">🛡️ سياسة الخصوصية السيادية - TARIM OS</h1>
-            
-            <div class="space-y-3 text-xs text-slate-300 leading-relaxed text-right">
-                <p>نحن في نظام <strong>TARIM OS</strong> نؤمن بحق المستخدم في السيادة التامة على بياناته وأنشطته الرقمية من قلب تريم حضرموت إلى العالم.</p>
-                
-                <h2 class="text-cyan-300 font-bold text-sm pt-2">1. جمع البيانات والحماية</h2>
-                <p>لا نقوم بجمع أو مشاركة أي بيانات حساسة مع أطراف ثالثة. جميع الأنشطة والعمليات تتم بتشفير سيادي عالي المستوى ومحمي عبر معايير الأمان المتقدمة.</p>
-
-                <h2 class="text-cyan-300 font-bold text-sm pt-2">2. العمل بدون إنترنت (Offline)</h2>
-                <p>النظام مصمم ليدعم العمل محلياً مع خريطة حضرموت والبيانات الأساسية دون الحاجة الدائمة للاتصال بالشبكة لضمان استمرارية القلعة.</p>
-
-                <h2 class="text-cyan-300 font-bold text-sm pt-2">3. الأمان والتشفير</h2>
-                <p>نستخدم بروتوكولات حماية متطورة وتوقيعات رقمية (JWT & Security Headers) لضمان عدم اختراق القلعة السيادية أو التجسس عليها بأي شكل من الأشكال.</p>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-3xl mx-auto w-full space-y-6">
+        <div class="glass p-6 md:p-8 rounded-3xl space-y-6 shadow-2xl">
+            <div class="text-center border-b border-white/10 pb-6">
+                <h1 class="text-2xl font-black text-cyan-400 tracking-widest">TARIM OS</h1>
+                <h2 class="text-lg font-bold text-white mt-2">سياسة الخصوصية والسيادة الرقمية</h2>
+                <p class="text-[11px] text-slate-400 mt-2">آخر تحديث: 12 مايو 2026 - تريم، حضرموت</p>
             </div>
 
-            <div class="pt-4 text-center">
-                <a href="/" class="inline-block bg-cyan-500 text-black font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg hover:bg-cyan-400 transition cursor-pointer">العودة إلى القلعة الرئيسية 🏰</a>
+            <div class="space-y-6 text-[13px] text-slate-300 text-right leading-8">
+                <p>نحن في نظام <strong class="text-cyan-300">TARIM OS - من تريم إلى العالم</strong> نؤمن بأن السيادة الرقمية حق مقدس لكل إنسان. هذه الوثيقة توضح كيف نحمي بياناتك بمعايير إمبراطورية لا تُخترق.</p>
+
+                <div class="space-y-2">
+                    <h2 class="text-cyan-300 font-black text-sm">1. مبدأ السيادة: بياناتك ملكك وحدك</h2>
+                    <p>لا نبيع، لا نشارك، ولا نتاجر بأي بيانة من بياناتك مع أي طرف ثالث، حكومة كانت أو شركة. بياناتك تُحفظ في خوادم TARIM OS المركزية بتشفير AES-256 ولا يطلع عليها إلا أنت.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-cyan-300 font-black text-sm">2. ما الذي نجمعه ولماذا؟</h2>
+                    <ul class="list-disc pr-5 space-y-1 text-slate-400">
+                        <li><strong>اسم المستخدم وكلمة السر المشفرة:</strong> للدخول إلى القلعة فقط.</li>
+                        <li><strong>المنشورات والفيديوهات:</strong> التي تنشرها بإرادتك على المنصة.</li>
+                        <li><strong>الموقع التقريبي:</strong> فقط عند استخدامك لخريطة حضرموت Offline، ولا يتم حفظه إلا إذا وافقت.</li>
+                        <li><strong>سجل البث المباشر:</strong> مدة البث 8 دقائق لا تُحفظ إلا إذا اخترت حفظها.</li>
+                    </ul>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-cyan-300 font-black text-sm">3. العمل بدون إنترنت (Offline First)</h2>
+                    <p>النظام مصمم ليعمل في صحراء حضرموت بدون شبكة. خريطة تريم والكاميرا وعين الذكاء AI Eye تعمل 100% Offline ولا ترسل أي شيء للسيرفر. عندما يعود الإنترنت، يتم مزامنة منشوراتك فقط.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-cyan-300 font-black text-sm">4. الأمان والتشفير السيادي</h2>
+                    <p>نستخدم: تشفير JWT للتوثيق، Helmet لحماية المتصفح، Rate Limiting ضد هجمات DDoS، وحفظ آمن بـ hash SHA256 لكلمات السر. لا يوجد أي كود تتبع خارجي (No Google Analytics, No Facebook Pixel).</p>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-cyan-300 font-black text-sm">5. حقوقك السيادية</h2>
+                    <p>لك الحق الكامل في: حذف حسابك ومنشوراتك نهائياً في أي لحظة من الإعدادات، تصدير كل بياناتك بملف JSON، وطلب عدم تتبع موقعك. راسلنا على: <span class="text-cyan-300 font-mono">sovereign@tarimos.org</span></p>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-cyan-300 font-black text-sm">6. الأطفال</h2>
+                    <p>المنصة غير مخصصة لمن هم دون 13 سنة. لا نجمع بيانات أطفال عمداً.</p>
+                </div>
+
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-white/5 text-[11px] text-slate-500">
+                    <p>هذه السياسة هي عقد شرف حضرمي. أي خرق لها يعتبر خيانة للسيادة. للاستفسار القانوني: تريم - حضرموت - اليمن.</p>
+                </div>
+            </div>
+
+            <div class="pt-6 text-center flex gap-3 justify-center">
+                <a href="/" class="bg-cyan-500 hover:bg-cyan-400 text-black font-black px-8 py-3 rounded-xl text-sm shadow-lg transition">العودة إلى القلعة الرئيسية</a>
+                <a href="mailto:sovereign@tarimos.org" class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl text-sm border border-white/10 transition">تواصل معنا</a>
             </div>
         </div>
-    </div>
 
-    <footer class="text-center text-[10px] text-slate-500 pt-4">
-        جميع الحقوق محفوظة © TARIM OS - الكيان السيادي الإمبراطوري 👑
-    </footer>
+        <footer class="text-center text-[10px] text-slate-500 pb-8">
+            <p>جميع الحقوق محفوظة © 2026 TARIM OS - الكيان السيادي الإمبراطوري</p>
+            <p class="mt-1">من تريم حضرموت إلى العالم - بُني ببركة الحق</p>
+        </footer>
+    </div>
 </body>
 </html>
-
