@@ -1,34 +1,39 @@
 const express = require('express');
-const helmet = require('helmet');
+const cors = require('cors');
 const path = require('path');
 const router = require('./router');
+const royalSecurity = require('./security');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
-// ✅ إصلاح 1: Helmet معدل - يسمح للكاميرا و Leaflet و Tailwind
-app.use(helmet({
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false,
-    crossOriginOpenerPolicy: false,
-}));
+// تفعيل CORS لربط النطاق السيادي tarimos.org
+app.use(cors());
+
+// تفعيل الدرع السيادي الأمني (Helmet + Rate-Limit) مباشرة
+royalSecurity(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ إصلاح 2: ربط مجلد الواجهة
+// ربط مجلد الواجهة العامة public
 app.use(express.static(path.join(__dirname, 'public')));
 
 // مسارات النظام السيادي API
 app.use('/api', router);
 
-// ✅ إصلاح 3: هذا أهم سطر - يخلي كل التبويبات تشتغل حتى لو حدثت الصفحة
-// بدونه زر الرجوع والعمليات يعلق
+// مسار الفحص السريع للحالة السيادية
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: "OK", system: "TARIM OS Sovereign Server" });
+);
+
+// مسار التوجيه الشامل لضمان عمل كافة التبويبات بسلاسة
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`👑 TARIM OS Server is running on port ${PORT}`);
-    console.log(`🌴 http://localhost:${PORT}`);
+// التشغيل على كافة واجهات الشبكة لضمان الاستجابة السريعة على Render
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`👑 TARIM OS Sovereign Server is running smoothly on port ${PORT}`);
+    console.log(`🌴 Powered by Emperor AL - Tarim, Hadhramaut`);
 });
