@@ -27,6 +27,16 @@ async function initCamera(){
  }catch(e){ showToast('⚠️ اسمح للكاميرا'); }
 }
 
+// --- نظام العدادات الملكية وتفاعل الإعجاب ---
+function likeMainPost(){
+    mainLikes++;
+    const mainLikeEl = document.getElementById('mainLikeCount');
+    const profileLikeEl = document.getElementById('likeCounter');
+    if(mainLikeEl) mainLikeEl.innerText = mainLikes;
+    if(profileLikeEl) profileLikeEl.innerText = mainLikes;
+    showToast('❤️ تم تسجيل إعجابك السيادي');
+}
+
 // --- أزرار محصنة بـ dataset.bound ---
 ['switchCamBtn','lightBtn','filterBtn','publishBtn','liveBtn','liveOpBtn','endLiveBtn','likeBtn','giftBtn','beautyBtn','sendCommentBtn','offlineMapBtn','closeMapBtn','confirmStartLive'].forEach(id=>{
  const el=document.getElementById(id); if(el &&!el.dataset.bound){ el.dataset.bound="true"; }
@@ -84,3 +94,4 @@ document.getElementById('closeMapBtn')?.addEventListener('click',()=>{ document.
 
 // تسجيل دخول تلقائي للإمبراطور
 (async()=>{ try{ const r=await fetch('/api/login',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:'AL',password:'123456'})}); const d=await r.json(); if(d.success) localStorage.setItem('tarim_token', d.token); }catch{} })();
+
