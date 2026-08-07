@@ -1,12 +1,11 @@
-// public/app.js - TARIM OS V3 Sovereign - CLEAN & ORGANIZED - PRODUCTION READY
+// public/app.js - TARIM OS V4 Imperial - FINAL CLEAN - 100% OFFLINE
 "use strict";
 (function () {
 
   // ===== 1. المتغيرات السيادية =====
-  let currentStream = null, liveStream = null, facingMode = "environment", mapInstance = null, liveTimer = null, liveSeconds = 0;
+  let currentStream = null, liveStream = null, facingMode = "environment", mapInstance = null, liveTimer = null;
   const $ = (id) => document.getElementById(id);
 
-  // عناصر DOM
   const authGate = $('authGate'), loginBtn = $('loginBtn'), userIn = $('userPhoneOrEmail'), passIn = $('userPass'), err = $('loginError'), postsFeed = $('postsFeed');
   const tabLoginBtn = $('tabLoginBtn'), tabSignupBtn = $('tabSignupBtn'), loginForm = $('loginForm'), signupForm = $('signupForm');
 
@@ -16,14 +15,13 @@
   let users = getUsers();
   if (!users['AL']) { users['AL'] = '123456'; saveUsers(users); }
 
-  // ===== 3. أدوات مساعدة =====
+  // ===== 3. أدوات =====
   function showToast(msg, type = 'ok') {
     const box = $('toastBox'); if (!box) return;
     const d = document.createElement('div');
     d.textContent = msg;
     d.style.cssText = `background:${type === 'err'? '#f43f5e' : '#06b6d4'};color:#000;padding:12px 16px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center`;
-    box.appendChild(d);
-    setTimeout(() => d.remove(), 3000);
+    box.appendChild(d); setTimeout(() => d.remove(), 3000);
   }
   function sanitize(s) { return String(s || '').substring(0, 2000).replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   function stopAllStreams() {
@@ -46,31 +44,27 @@
     }
   }
 
-  // ===== 5. التبويب: دخول / حساب جديد =====
+  // ===== 5. تبويب دخول / حساب جديد =====
   tabLoginBtn?.addEventListener('click', () => {
     loginForm.classList.remove('hidden'); signupForm.classList.add('hidden');
-    tabLoginBtn.className = 'text-cyan-400 font-bold border-b-2 border-cyan-400 pb-1';
-    tabSignupBtn.className = 'text-slate-400 pb-1';
+    tabLoginBtn.style.cssText = 'color:#22d3ee;font-weight:700;border-bottom:2px solid #22d3ee;padding-bottom:4px';
+    tabSignupBtn.style.cssText = 'color:#94a3b8;padding-bottom:4px';
   });
   tabSignupBtn?.addEventListener('click', () => {
     signupForm.classList.remove('hidden'); loginForm.classList.add('hidden');
-    tabSignupBtn.className = 'text-cyan-400 font-bold border-b-2 border-cyan-400 pb-1';
-    tabLoginBtn.className = 'text-slate-400 pb-1';
+    tabSignupBtn.style.cssText = 'color:#22d3ee;font-weight:700;border-bottom:2px solid #22d3ee;padding-bottom:4px';
+    tabLoginBtn.style.cssText = 'color:#94a3b8;padding-bottom:4px';
   });
 
   // ===== 6. تسجيل الدخول =====
   loginBtn?.addEventListener('click', () => {
     const u = (userIn.value || '').trim(), p = (passIn.value || '').trim();
     if (!u ||!p) { err.textContent = 'اكتب الاسم وكلمة السر'; err.classList.remove('hidden'); return; }
-    err.classList.add('hidden');
-    users = getUsers();
+    err.classList.add('hidden'); users = getUsers();
     if (users[u]) {
       if (users[u]!== p) { err.textContent = 'كلمة السر خطأ'; err.classList.remove('hidden'); showToast('كلمة السر خطأ', 'err'); return; }
       openApp(u);
-    } else {
-      users[u] = p; saveUsers(users);
-      showToast(`تم إنشاء حساب جديد: ${u} ✅`); openApp(u);
-    }
+    } else { users[u] = p; saveUsers(users); showToast(`تم إنشاء حساب: ${u} ✅`); openApp(u); }
   });
 
   // ===== 7. إنشاء حساب جديد =====
@@ -79,40 +73,42 @@
     const sErr = $('signupError');
     if (!u ||!p) { sErr.textContent = 'اكمل البيانات'; sErr.classList.remove('hidden'); return; }
     if (p!== c) { sErr.textContent = 'كلمة السر غير متطابقة'; sErr.classList.remove('hidden'); return; }
-    users = getUsers();
-    if (users[u]) { sErr.textContent = 'الاسم موجود'; sErr.classList.remove('hidden'); return; }
-    users[u] = p; saveUsers(users);
-    localStorage.setItem('tarim_session', u); location.reload();
+    users = getUsers(); if (users[u]) { sErr.textContent = 'الاسم موجود'; sErr.classList.remove('hidden'); return; }
+    users[u] = p; saveUsers(users); localStorage.setItem('tarim_session', u); location.reload();
   });
 
-  // ===== 8. دخول Google السيادي (Offline وهمي) =====
+  // ===== 8. Google السيادي =====
   $('googleLoginBtn')?.addEventListener('click', () => {
     const name = 'Google_' + Math.floor(Math.random() * 999);
     localStorage.setItem('tarim_session', name); location.reload();
   });
-  $('googleSignupBtn')?.addEventListener('click', () => { $('googleLoginBtn')?.click(); });
-
-  // Enter للدخول
+  $('googleSignupBtn')?.addEventListener('click', () => $('googleLoginBtn')?.click());
   passIn?.addEventListener('keydown', e => { if (e.key === 'Enter') loginBtn.click(); });
 
   // استعادة الجلسة
   const sess = localStorage.getItem('tarim_session');
   if (sess) { authGate.classList.add('hidden'); authGate.style.display = 'none'; loadFeed(); }
 
-  // ===== 9. التنقل بين التبويبات =====
+  // ===== 9. التنقل - القائمة السفلية مثل الصور بالضبط =====
   window.switchTab = function (tab, btn) {
     stopAllStreams();
     document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
     const target = document.getElementById('tab-' + tab); if (target) target.classList.add('active');
-    document.querySelectorAll('.nav-btn').forEach(x => x.style.color = '#94a3b8');
-    if (btn) btn.style.color = '#22d3ee';
+    // تصحيح الألوان - مثل الصور
+    document.querySelectorAll('#mainNav.nav-btn').forEach(x => {
+      if (x.getAttribute('data-tab')!== 'create') x.style.color = '#94a3b8';
+    });
+    if (btn && btn.getAttribute('data-tab')!== 'create') btn.style.color = '#22d3ee';
     if (tab === 'create') initCamera();
   };
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => { const tab = btn.getAttribute('data-tab'); if (tab) window.switchTab(tab, btn); });
+
+  document.querySelectorAll('#mainNav.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-tab'); if (tab) window.switchTab(tab, btn);
+    });
   });
 
-  // ===== 10. الكاميرا والخريطة =====
+  // ===== 10. الكاميرا والخريطة والنشر =====
   async function initCamera() {
     const preview = $('cameraPreview'); if (!preview) return;
     try { stopAllStreams(); currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode === 'environment'? 'environment' : 'user' }, audio: true }); preview.srcObject = currentStream; } catch { showToast('الكاميرا مرفوضة', 'err'); }
@@ -130,8 +126,11 @@
   });
   $('closeMapBtn')?.addEventListener('click', () => $('mapScreen')?.classList.add('hidden'));
   $('logoutBtn')?.addEventListener('click', () => { localStorage.removeItem('tarim_session'); location.reload(); });
-  $('publishBtn')?.addEventListener('click', () => { const v = $('postContentInput'); if (!v ||!v.value.trim()) { showToast('اكتب وصفاً أولاً', 'err'); return; } showToast('تم النشر السيادي ✅'); v.value = ''; window.switchTab('home', document.querySelector('[data-tab="home"]')); loadFeed(); });
+  $('publishBtn')?.addEventListener('click', () => {
+    const v = $('postContentInput'); if (!v ||!v.value.trim()) { showToast('اكتب وصفاً أولاً', 'err'); return; }
+    showToast('تم النشر السيادي ✅'); v.value = '';
+    window.switchTab('home', document.querySelector('#mainNav [data-tab="home"]')); loadFeed();
+  });
 
-  console.log('[TARIM OS] V3 Clean Loaded - Sovereign');
-
+  console.log('[TARIM OS] V4 Imperial - Menu Fixed Like Screenshots');
 })();
