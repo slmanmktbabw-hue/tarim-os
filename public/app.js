@@ -1,15 +1,15 @@
-// public/app.js - TARIM OS V4 Imperial - FINAL CLEAN - 100% OFFLINE
+// public/app.js - TARIM OS V5 FINAL - الرئيسية على اليمين - CLEAN
 "use strict";
 (function () {
 
-  // ===== 1. المتغيرات السيادية =====
+  // ===== 1. المتغيرات =====
   let currentStream = null, liveStream = null, facingMode = "environment", mapInstance = null, liveTimer = null;
   const $ = (id) => document.getElementById(id);
 
   const authGate = $('authGate'), loginBtn = $('loginBtn'), userIn = $('userPhoneOrEmail'), passIn = $('userPass'), err = $('loginError'), postsFeed = $('postsFeed');
   const tabLoginBtn = $('tabLoginBtn'), tabSignupBtn = $('tabSignupBtn'), loginForm = $('loginForm'), signupForm = $('signupForm');
 
-  // ===== 2. قاعدة البيانات المحلية =====
+  // ===== 2. قاعدة بيانات محلية =====
   function getUsers() { try { return JSON.parse(localStorage.getItem('tarim_users') || '{}'); } catch { return {}; } }
   function saveUsers(u) { localStorage.setItem('tarim_users', JSON.stringify(u)); }
   let users = getUsers();
@@ -67,7 +67,7 @@
     } else { users[u] = p; saveUsers(users); showToast(`تم إنشاء حساب: ${u} ✅`); openApp(u); }
   });
 
-  // ===== 7. إنشاء حساب جديد =====
+  // ===== 7. إنشاء حساب =====
   $('signupBtn')?.addEventListener('click', () => {
     const u = ($('newUsername').value || '').trim(), p = ($('newPass').value || '').trim(), c = ($('confirmPass').value || '').trim();
     const sErr = $('signupError');
@@ -77,11 +77,8 @@
     users[u] = p; saveUsers(users); localStorage.setItem('tarim_session', u); location.reload();
   });
 
-  // ===== 8. Google السيادي =====
-  $('googleLoginBtn')?.addEventListener('click', () => {
-    const name = 'Google_' + Math.floor(Math.random() * 999);
-    localStorage.setItem('tarim_session', name); location.reload();
-  });
+  // ===== 8. Google =====
+  $('googleLoginBtn')?.addEventListener('click', () => { const name = 'Google_' + Math.floor(Math.random()*999); localStorage.setItem('tarim_session', name); location.reload(); });
   $('googleSignupBtn')?.addEventListener('click', () => $('googleLoginBtn')?.click());
   passIn?.addEventListener('keydown', e => { if (e.key === 'Enter') loginBtn.click(); });
 
@@ -89,12 +86,12 @@
   const sess = localStorage.getItem('tarim_session');
   if (sess) { authGate.classList.add('hidden'); authGate.style.display = 'none'; loadFeed(); }
 
-  // ===== 9. التنقل - القائمة السفلية مثل الصور بالضبط =====
+  // ===== 9. التنقل - الرئيسية على اليمين =====
   window.switchTab = function (tab, btn) {
     stopAllStreams();
     document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
     const target = document.getElementById('tab-' + tab); if (target) target.classList.add('active');
-    // تصحيح الألوان - مثل الصور
+    // تصحيح الألوان - كل الأزرار رمادي إلا النشط سماوي
     document.querySelectorAll('#mainNav.nav-btn').forEach(x => {
       if (x.getAttribute('data-tab')!== 'create') x.style.color = '#94a3b8';
     });
@@ -115,7 +112,7 @@
   }
   $('switchCamBtn')?.addEventListener('click', () => { facingMode = facingMode === 'environment'? 'user' : 'environment'; initCamera(); });
   $('offlineMapBtn')?.addEventListener('click', () => {
-    $('mapScreen')?.classList.remove('hidden');
+    const ms = $('mapScreen'); if(!ms) return; ms.classList.remove('hidden'); ms.style.display='flex';
     setTimeout(() => {
       if (!mapInstance) {
         mapInstance = L.map('mapContainer').setView([16.05, 48.9833], 13);
@@ -124,13 +121,14 @@
       } else mapInstance.invalidateSize();
     }, 300);
   });
-  $('closeMapBtn')?.addEventListener('click', () => $('mapScreen')?.classList.add('hidden'));
+  $('closeMapBtn')?.addEventListener('click', () => { const ms=$('mapScreen'); if(ms){ ms.classList.add('hidden'); ms.style.display='none'; } });
   $('logoutBtn')?.addEventListener('click', () => { localStorage.removeItem('tarim_session'); location.reload(); });
   $('publishBtn')?.addEventListener('click', () => {
     const v = $('postContentInput'); if (!v ||!v.value.trim()) { showToast('اكتب وصفاً أولاً', 'err'); return; }
     showToast('تم النشر السيادي ✅'); v.value = '';
-    window.switchTab('home', document.querySelector('#mainNav [data-tab="home"]')); loadFeed();
+    const homeBtn = document.querySelector('#mainNav [data-tab="home"]');
+    window.switchTab('home', homeBtn); loadFeed();
   });
 
-  console.log('[TARIM OS] V4 Imperial - Menu Fixed Like Screenshots');
+  console.log('[TARIM OS] V5 - الرئيسية على اليمن - جاهز');
 })();
