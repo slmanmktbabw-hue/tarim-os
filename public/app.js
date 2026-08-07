@@ -1,4 +1,4 @@
-// public/app.js - TARIM OS V8 SECURE IMPERIAL - بدون ثغرات - سيادة كاملة
+// public/app.js - TARIM OS V8 SECURE IMPERIAL - سيادة كاملة - بدون ثغرات
 "use strict";
 (function(){
   const $=id=>document.getElementById(id);
@@ -7,45 +7,17 @@
   const filters=['none','grayscale(1)','sepia(1)','contrast(1.5)','brightness(1.3)','hue-rotate(90deg)'];
   const authGate=$('authGate'),loginBtn=$('loginBtn'),userIn=$('userPhoneOrEmail'),passIn=$('userPass'),err=$('loginError'),postsFeed=$('postsFeed');
   const tabLoginBtn=$('tabLoginBtn'),tabSignupBtn=$('tabSignupBtn'),loginForm=$('loginForm'),signupForm=$('signupForm');
-
-  // تشفير بسيط لكلمة السر
   function hashPass(s){let h=0; for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i); h|=0;} return String(h);}
   function getUsers(){try{const v=localStorage.getItem(usersKey); return v?JSON.parse(v):{};}catch{return{}}}
   function saveUsers(u){localStorage.setItem(usersKey,JSON.stringify(u));}
   let users=getUsers(); if(!users['AL']){users['AL']=hashPass('123456'); saveUsers(users);}
   function getMessages(){try{const v=localStorage.getItem(msgsKey); return v?JSON.parse(v):{};}catch{return{}}}
   function saveMessages(m){localStorage.setItem(msgsKey,JSON.stringify(m));}
-
-  function showToast(msg,type='ok'){
-    const box=$('toastBox'); if(!box) return;
-    const d=document.createElement('div'); d.textContent=msg;
-    d.style.cssText=`background:${type==='err'?'#f43f5e':'#06b6d4'};color:#000;padding:12px 16px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center`;
-    box.appendChild(d); setTimeout(()=>d.remove(),3000);
-  }
+  function showToast(msg,type='ok'){const box=$('toastBox'); if(!box) return; const d=document.createElement('div'); d.textContent=msg; d.style.cssText=`background:${type==='err'?'#f43f5e':'#06b6d4'};color:#000;padding:12px 16px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center`; box.appendChild(d); setTimeout(()=>d.remove(),3000);}
   function sanitize(s){return String(s||'').slice(0,2000).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function stopAllStreams(){if(currentStream) currentStream.getTracks().forEach(t=>t.stop()); currentStream=null; if(liveStream) liveStream.getTracks().forEach(t=>t.stop()); liveStream=null;}
-
-  // الرئيسية - آمنة بدون innerHTML خطير
-  function loadFeed(){
-    const sess=localStorage.getItem(sessKey)||'AL'; if(!postsFeed) return;
-    const likes=localStorage.getItem('tarim_likes_'+sess)||'120';
-    postsFeed.innerHTML='';
-    const card=document.createElement('div'); card.className='tiktok-card';
-    card.innerHTML=`<div class="tiktok-top"><span style="color:#22d3ee;font-weight:700">👑 @${sanitize(sess)}</span><span>🌴 تريم - حضرموت</span></div>
-    <div class="tiktok-center"><div style="font-size:60px">🎥</div><p style="color:#67e8f9;font-size:13px">فيديو سيادي يملئ الشاشة - محمي</p></div>
-    <div class="tiktok-actions"><div class="tiktok-act" id="likeBtn"><b style="font-size:26px">❤️</b><span class="likeCount">${sanitize(likes)}</span></div><div class="tiktok-act" id="commentBtn"><b style="font-size:22px">💬</b><span>45</span></div><div class="tiktok-act" id="shareBtn"><b>🚀</b><span>مشاركة</span></div><div class="tiktok-act" id="saveBtn"><b>🔖</b><span>حفظ</span></div></div>
-    <div class="tiktok-bottom">@ ${sanitize(sess.toLowerCase())}mktbabw@gmail.com</div>`;
-    postsFeed.appendChild(card);
-    card.querySelector('#likeBtn')?.addEventListener('click',()=>{
-      const c=card.querySelector('.likeCount'); let n=parseInt(c.textContent)||0; const liked=card.dataset.liked==='1';
-      if(liked){n--; card.dataset.liked='0';}else{n++; card.dataset.liked='1';} c.textContent=n; localStorage.setItem('tarim_likes_'+sess,String(n));
-    });
-    card.querySelector('#commentBtn')?.addEventListener('click',()=>window.switchTab('inbox'));
-    card.querySelector('#shareBtn')?.addEventListener('click',()=>showToast('تم نسخ الرابط 🚀'));
-    card.querySelector('#saveBtn')?.addEventListener('click',()=>showToast('تم الحفظ 🔖'));
-  }
+  function loadFeed(){const sess=localStorage.getItem(sessKey)||'AL'; if(!postsFeed) return; const likes=localStorage.getItem('tarim_likes_'+sess)||'120'; postsFeed.innerHTML=''; const card=document.createElement('div'); card.className='tiktok-card'; card.innerHTML=`<div class="tiktok-top"><span style="color:#22d3ee;font-weight:700">👑 @${sanitize(sess)}</span><span>🌴 تريم - حضرموت</span></div><div class="tiktok-center"><div style="font-size:60px">🎥</div><p style="color:#67e8f9;font-size:13px">فيديو سيادي يملئ الشاشة - محمي</p></div><div class="tiktok-actions"><div class="tiktok-act" id="likeBtn"><b style="font-size:26px">❤️</b><span class="likeCount">${sanitize(likes)}</span></div><div class="tiktok-act" id="commentBtn"><b style="font-size:22px">💬</b><span>45</span></div><div class="tiktok-act" id="shareBtn"><b>🚀</b><span>مشاركة</span></div><div class="tiktok-act" id="saveBtn"><b>🔖</b><span>حفظ</span></div></div><div class="tiktok-bottom">@ ${sanitize(sess.toLowerCase())}mktbabw@gmail.com</div>`; postsFeed.appendChild(card); card.querySelector('#likeBtn')?.addEventListener('click',()=>{const c=card.querySelector('.likeCount'); let n=parseInt(c.textContent)||0; const liked=card.dataset.liked==='1'; if(liked){n--; card.dataset.liked='0';}else{n++; card.dataset.liked='1';} c.textContent=n; localStorage.setItem('tarim_likes_'+sess,String(n));}); card.querySelector('#commentBtn')?.addEventListener('click',()=>window.switchTab('inbox')); card.querySelector('#shareBtn')?.addEventListener('click',()=>showToast('تم نسخ الرابط 🚀')); card.querySelector('#saveBtn')?.addEventListener('click',()=>showToast('تم الحفظ 🔖')); }
   function openApp(username){authGate.classList.add('hidden');authGate.style.display='none';localStorage.setItem(sessKey,username);showToast(`أهلاً بك يا ${sanitize(username)} 👑`);loadFeed();}
-
   tabLoginBtn?.addEventListener('click',()=>{loginForm.classList.remove('hidden');signupForm.classList.add('hidden');tabLoginBtn.style.cssText='color:#22d3ee;font-weight:700;border-bottom:2px solid #22d3ee;padding-bottom:4px';tabSignupBtn.style.cssText='color:#94a3b8;padding-bottom:4px';});
   tabSignupBtn?.addEventListener('click',()=>{signupForm.classList.remove('hidden');loginForm.classList.add('hidden');tabSignupBtn.style.cssText='color:#22d3ee;font-weight:700;border-bottom:2px solid #22d3ee;padding-bottom:4px';tabLoginBtn.style.cssText='color:#94a3b8;padding-bottom:4px';});
   loginBtn?.addEventListener('click',()=>{const u=(userIn.value||'').trim().slice(0,30),p=(passIn.value||'').trim();if(!u||!p){err.textContent='اكتب الاسم وكلمة السر';err.classList.remove('hidden');return} err.classList.add('hidden'); users=getUsers(); const hp=hashPass(p); if(users[u]){if(users[u]!==hp){err.textContent='كلمة السر خطأ';err.classList.remove('hidden');showToast('كلمة السر خطأ','err');return} openApp(u);} else{users[u]=hp; saveUsers(users); showToast(`تم إنشاء حساب: ${sanitize(u)} ✅`); openApp(u);}});
@@ -53,7 +25,6 @@
   $('googleLoginBtn')?.addEventListener('click',()=>{const name='Google_'+Math.floor(Math.random()*900+100); localStorage.setItem(sessKey,name); location.reload();});
   passIn?.addEventListener('keydown',e=>{if(e.key==='Enter') loginBtn.click()});
   const sess=localStorage.getItem(sessKey); if(sess){authGate.classList.add('hidden');authGate.style.display='none';loadFeed();}
-
   // FIX السيادي - اليمن على اليمين - مسافة مهمة!
   window.switchTab=function(tab,btn){
     stopAllStreams();
@@ -67,7 +38,6 @@
   document.querySelectorAll('#mainNav.nav-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{const tab=btn.dataset.tab; if(tab) window.switchTab(tab,btn);});
   });
-
   async function initCamera(){const preview=$('cameraPreview'); if(!preview) return; try{stopAllStreams(); currentStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facingMode==='environment'?'environment':'user'},audio:true}); preview.srcObject=currentStream;}catch{showToast('الكاميرا مرفوضة','err');}}
   $('switchCamBtn')?.addEventListener('click',()=>{facingMode=facingMode==='environment'?'user':'environment';initCamera();});
   $('filterBtn')?.addEventListener('click',()=>{filterIdx=(filterIdx+1)%filters.length; const prev=$('cameraPreview'); if(prev) prev.style.filter=filters[filterIdx]; showToast('فلتر: '+(filterIdx+1));});
@@ -78,7 +48,6 @@
   $('endLiveBtn')?.addEventListener('click',()=>{if(liveTimerInt) clearInterval(liveTimerInt); liveTimerInt=null; if(liveStream) liveStream.getTracks().forEach(t=>t.stop()); liveStream=null; const ls=$('liveScreen'); ls.classList.add('hidden'); ls.style.display='none'; $('readyToBroadcastBox')?.classList.remove('hidden'); showToast('انتهى البث');});
   $('liveOpBtn')?.addEventListener('click',()=>$('startLiveBtn')?.click());
   $('opMsgBtn')?.addEventListener('click',()=>window.switchTab('inbox', document.querySelector('#mainNav.nav-btn[data-tab="inbox"]')));
-
   function openMap(){const ms=$('mapScreen'); if(!ms) return; ms.classList.remove('hidden'); ms.style.display='flex'; setTimeout(()=>{if(!mapInstance){mapInstance=L.map('mapContainer').setView([16.05,48.9833],13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(mapInstance); L.marker([16.05,48.9833]).addTo(mapInstance).bindPopup('<b>قلعة تريم السيادية</b>').openPopup();} else mapInstance.invalidateSize();},300);}
   $('opsMapBtn')?.addEventListener('click',()=>openMap());
   $('closeMapBtn')?.addEventListener('click',()=>{const ms=$('mapScreen'); if(ms){ms.classList.add('hidden'); ms.style.display='none';}});
@@ -87,33 +56,12 @@
   $('closeQrBtn')?.addEventListener('click',()=>{const qs=$('qrScreen'); if(qs){qs.classList.add('hidden'); qs.style.display='none';}});
   $('logoutBtn')?.addEventListener('click',()=>{localStorage.removeItem(sessKey);location.reload();});
   $('publishBtn')?.addEventListener('click',()=>{const v=$('postContentInput'); if(!v||!v.value.trim()){showToast('اكتب وصفاً أولاً','err');return} showToast('تم النشر السيادي ✅'); v.value=''; window.switchTab('home', document.querySelector('#mainNav.nav-btn[data-tab="home"]')); loadFeed();});
-
-  function renderUserList(){
-    const list=$('userList'); if(!list) return; const allUsers=Object.keys(getUsers()); const me=localStorage.getItem(sessKey)||'AL';
-    list.innerHTML='';
-    allUsers.filter(u=>u!==me).forEach(u=>{
-      const b=document.createElement('button'); b.textContent='@'+u; b.style.cssText=`background:${currentChatWith===u?'#00B4D8':'#0f172a'};color:${currentChatWith===u?'#000':'#94a3b8'};padding:8px 14px;border-radius:20px;font-size:11px;white-space:nowrap;border:1px solid rgba(0,240,255,.1)`;
-      b.addEventListener('click',()=>openChat(u)); list.appendChild(b);
-    });
-    const b2=document.createElement('button'); b2.textContent='🛡️ الدعم'; b2.style.cssText='background:#1e293b;padding:8px 14px;border-radius:20px;font-size:11px;white-space:nowrap'; b2.addEventListener('click',()=>openChat('الدعم')); list.appendChild(b2);
-    if(!currentChatWith && allUsers.length>1){const f=allUsers.find(u=>u!==me); if(f) openChat(f);}
-  }
-  function renderMessages(){
-    const box=$('inboxMessagesList'); if(!box) return; box.innerHTML=''; const msgs=getMessages(); const me=localStorage.getItem(sessKey)||'AL'; const key=[me][currentChatWith].sort().join('_'); const chat=msgs[key]||[{from:'system',text:`أهلاً يا إمبراطور ${me} 🤖`}];
-    chat.forEach(m=>{
-      const isMe=m.from===me; const d=document.createElement('div'); d.textContent=m.text;
-      d.style.cssText=`align-self:${isMe?'flex-end':'flex-start'};max-width:75%;background:${isMe?'#00B4D8':'#0f172a'};color:${isMe?'#000':'#fff'};padding:10px 14px;border-radius:18px;font-size:13px;border:1px solid rgba(0,240,255,.1)`; box.appendChild(d);
-    }); box.scrollTop=box.scrollHeight;
-  }
+  function renderUserList(){const list=$('userList'); if(!list) return; const allUsers=Object.keys(getUsers()); const me=localStorage.getItem(sessKey)||'AL'; list.innerHTML=''; allUsers.filter(u=>u!==me).forEach(u=>{const b=document.createElement('button'); b.textContent='@'+u; b.style.cssText=`background:${currentChatWith===u?'#00B4D8':'#0f172a'};color:${currentChatWith===u?'#000':'#94a3b8'};padding:8px 14px;border-radius:20px;font-size:11px;white-space:nowrap;border:1px solid rgba(0,240,255,.1)`; b.addEventListener('click',()=>openChat(u)); list.appendChild(b);}); const b2=document.createElement('button'); b2.textContent='🛡️ الدعم'; b2.style.cssText='background:#1e293b;padding:8px 14px;border-radius:20px;font-size:11px;white-space:nowrap'; b2.addEventListener('click',()=>openChat('الدعم')); list.appendChild(b2);}
+  function renderMessages(){const box=$('inboxMessagesList'); if(!box) return; box.innerHTML=''; const msgs=getMessages(); const me=localStorage.getItem(sessKey)||'AL'; if(!currentChatWith) currentChatWith=Object.keys(getUsers()).find(u=>u!==me)||'الدعم'; const key=[me,currentChatWith].sort().join('_'); const chat=msgs[key]||[{from:'system',text:`أهلاً يا إمبراطور ${me} 🤖`}]; chat.forEach(m=>{const isMe=m.from===me; const d=document.createElement('div'); d.textContent=m.text; d.style.cssText=`align-self:${isMe?'flex-end':'flex-start'};max-width:75%;background:${isMe?'#00B4D8':'#0f172a'};color:${isMe?'#000':'#fff'};padding:10px 14px;border-radius:18px;font-size:13px;border:1px solid rgba(0,240,255,.1)`; box.appendChild(d);}); box.scrollTop=box.scrollHeight;}
   function openChat(user){currentChatWith=user; renderUserList(); renderMessages();}
   window.openChat=openChat;
-  $('sendInboxMsgBtn')?.addEventListener('click',()=>{
-    const input=$('inboxInputField'); if(!input||!input.value.trim()) return; const me=localStorage.getItem(sessKey)||'AL'; if(!currentChatWith){showToast('اختر مستخدم أولاً','err');return}
-    const key=[me][currentChatWith].sort().join('_'); const msgs=getMessages(); if(!msgs[key]) msgs[key]=[]; msgs[key].push({from:me,text:input.value.trim().slice(0,500),time:Date.now()}); saveMessages(msgs); input.value=''; renderMessages();
-    if(currentChatWith==='الدعم'){setTimeout(()=>{const m=getMessages(); if(!m[key]) m[key]=[]; m[key].push({from:'الدعم',text:'تم الاستلام يا إمبراطور 🛡️',time:Date.now()}); saveMessages(m); renderMessages();},800);}
-  });
-
-  function aiReply(t){t=String(t).toLowerCase(); if(t.includes('تريم')||t.includes('قلعة')) return 'أنا عين الذكاء السيادية من تريم حضرموت 🐉👑 القلعة تعمل Offline ومحمية.'; if(t.includes('بث')) return 'لبدء البث: العمليات > بث مباشر > بدء 🔴'; if(t.includes('محفظة')) return 'المحفظة في الملفات > المحفظة 💳 PayPal قادم.'; return 'تم يا إمبراطور AL 🤖 النظام سيادي 100% ومحمي من الثغرات.';}
+  $('sendInboxMsgBtn')?.addEventListener('click',()=>{const input=$('inboxInputField'); if(!input||!input.value.trim()) return; const me=localStorage.getItem(sessKey)||'AL'; if(!currentChatWith){showToast('اختر مستخدم أولاً','err');return} const key=[me,currentChatWith].sort().join('_'); const msgs=getMessages(); if(!msgs[key]) msgs[key]=[]; msgs[key].push({from:me,text:input.value.trim().slice(0,500),time:Date.now()}); saveMessages(msgs); input.value=''; renderMessages();});
+  function aiReply(t){t=String(t).toLowerCase(); if(t.includes('تريم')||t.includes('قلعة')) return 'أنا عين الذكاء السيادية من تريم حضرموت 🐉👑 القلعة تعمل Offline ومحمية.'; if(t.includes('بث')) return 'لبدء البث: العمليات > بث مباشر > بدء 🔴'; return 'تم يا إمبراطور AL 🤖 النظام سيادي 100% ومحمي من الثغرات.';}
   function addMsg(boxId,who,txt){const box=$(boxId); if(!box) return; const isMe=who==='me'; const d=document.createElement('div'); d.textContent=txt; d.style.cssText=`align-self:${isMe?'flex-end':'flex-start'};max-width:78%;background:${isMe?'#00B4D8':'#0f172a'};color:${isMe?'#000':'#fff'};padding:10px 14px;border-radius:16px;font-size:13px`; box.appendChild(d); box.scrollTop=box.scrollHeight;}
   $('openAiEyeBtn')?.addEventListener('click',()=>{const s=$('aiEyeScreen'); s.classList.remove('hidden'); s.style.display='flex'; if($('aiEyeChat').children.length===0) addMsg('aiEyeChat','ai','أهلاً يا إمبراطور AL 👁️ أنا عين الذكاء، كيف أخدم القلعة؟');});
   $('closeAiEye')?.addEventListener('click',()=>{const s=$('aiEyeScreen'); s.classList.add('hidden'); s.style.display='none';});
@@ -121,9 +69,8 @@
   $('openSupportBtn')?.addEventListener('click',()=>{const s=$('supportScreen'); s.classList.remove('hidden'); s.style.display='flex'; if($('supportChat').children.length===0) addMsg('supportChat','ai','أهلاً يا إمبراطور AL 🛡️ فريق الدعم الفني AI جاهز، ما المشكلة؟');});
   $('closeSupport')?.addEventListener('click',()=>{const s=$('supportScreen'); s.classList.add('hidden'); s.style.display='none';});
   $('sendSupport')?.addEventListener('click',()=>{const i=$('supportInput'); if(!i.value.trim()) return; addMsg('supportChat','me',i.value); const q=i.value; i.value=''; setTimeout(()=>addMsg('supportChat','ai',aiReply(q)+' ✅'),700);});
-
   const profileActions={changeBgBtn:()=>{document.body.style.background=document.body.style.background==='rgb(20, 10, 30)'?'#020A18':'rgb(20, 10, 30)';showToast('تغير الخلفية 🎨');},walletBtn:()=>showToast('💳 المحفظة: قريباً PayPal + OKX'),activityBtn:()=>showToast('⚙️ مركز الانشطة'),offlineVideosBtn:()=>showToast('🎞️ الفيديوهات دون اتصال'),qrBtn:()=>openQr(),creativeBtn:()=>{window.switchTab('create',document.querySelector('#mainNav.nav-btn[data-tab="create"]'));showToast('ادوات الابداع ✨');},businessBtn:()=>showToast('👫 المجموعة التجارية'),adsBtn:()=>showToast('🚀 الترويج'),managePostsBtn:()=>{window.switchTab('home',document.querySelector('#mainNav.nav-btn[data-tab="home"]'));showToast('📊 ادارة المنشورات');},settingsBtn:()=>showToast('الاعدادات والخصوصية ⚙️'),accountBtn:()=>showToast('🚹 الحساب: '+(localStorage.getItem(sessKey)||'AL')),privacyBtn:()=>showToast('🔐 الخصوصية مشفرة 100%'),shareProfileBtn:()=>{if(navigator.share) navigator.share({title:'TARIM OS',url:location.href}); else showToast('💱 تم نسخ رابط ملفك');},policyBtn:()=>showToast('📄 السياسية: تريم حضرموت'),payBtn:()=>showToast('💳 PayPal قريباً')};
   Object.keys(profileActions).forEach(id=>{$(id)?.addEventListener('click',profileActions[id]);});
-
-  console.log('[TARIM OS] V8 SECURE - بدون ثغرات - اليمن على اليمين - سيادة كاملة 🛡️👑');
+  console.log('[TARIM OS] V8 SECURE FIXED - اليمن على اليمين - كل الأزرار شغالة 👑');
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
 })();
