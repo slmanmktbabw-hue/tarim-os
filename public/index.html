@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="theme-color" content="#020A18">
-<title>TARIM OS V1.0 Imperial</title>
+<title>TARIM OS V7 Imperial</title>
 <link rel="manifest" href="./manifest.json"/>
 <link rel="icon" href="./icons/icon-192.png"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -17,54 +17,41 @@ body{background:#020A18;color:#fff;font-family:system-ui;overflow-x:hidden;paddi
 .tab-content{display:none}.tab-content.active{display:block!important}
 .fixed{position:fixed}.inset-0{top:0;left:0;right:0;bottom:0}
 .flex{display:flex}.hidden{display:none!important}.grid{display:grid}
-.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.justify-center{justify-content:center}
-.w-full{width:100%}.h-24{height:96px}.h-64{height:256px}.h-full{height:100%}.max-w-md{max-width:448px}.max-w-sm{max-width:384px}.flex-1{flex:1}
-.mx-auto{margin:0 auto}.p-3{padding:12px}.p-4{padding:16px}.p-5{padding:20px}.p-6{padding:24px}.pt-\[60px\]{padding-top:60px}
-.gap-2{gap:8px}.space-y-3>:not(:last-child){margin-bottom:12px}
+.w-full{width:100%}.h-24{height:96px}.h-full{height:100%}.max-w-md{max-width:448px}.max-w-sm{max-width:384px}.flex-1{flex:1}
+.mx-auto{margin:0 auto}.p-3{padding:12px}.p-4{padding:16px}.p-5{padding:20px}.pt-\[60px\]{padding-top:60px}
 .rounded-xl{border-radius:12px}.rounded-2xl{border-radius:16px}.rounded-3xl{border-radius:24px}.rounded-full{border-radius:9999px}
 .bg-black{background:#000}.bg-slate-900{background:#0f172a}.bg-cyan-500{background:#06b6d4}
 .text-black{color:#000}.text-cyan-400{color:#22d3ee}.text-cyan-300{color:#67e8f9}.text-slate-400{color:#94a3b8}.text-rose-400{color:#fb7185}
 .text-\[11px\]{font-size:11px}.text-sm{font-size:14px}.text-xl{font-size:20px}.text-4xl{font-size:36px}
-.font-bold{font-weight:700}.font-black{font-weight:900}.text-center{text-align:center}.text-right{text-align:right}.tracking-widest{letter-spacing:.1em}
-.overflow-hidden{overflow:hidden}.object-cover{object-fit:cover}.resize-none{resize:none}.cursor-pointer{cursor:pointer}
-.shadow-2xl{box-shadow:0 25px 50px rgba(0,0,0,.5)}.animate-pulse{animation:pulse 2s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.font-bold{font-weight:700}.font-black{font-weight:900}.text-center{text-align:center}.tracking-widest{letter-spacing:.1em}
+.overflow-hidden{overflow:hidden}.object-cover{object-fit:cover}.cursor-pointer{cursor:pointer}
+.animate-pulse{animation:pulse 2s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 input,textarea{width:100%;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:14px;color:#fff;font-size:14px;text-align:center}
 button{border:none;cursor:pointer}
-#toastBox{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:80;width:91%;max-width:320px;pointer-events:none}
-main{padding-bottom:90px}
-/* تيك توك */
+#toastBox{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:90;width:91%;max-width:320px;pointer-events:none}
 .tiktok-card{position:relative;width:100%;height:72vh;background:#0A1428;border-radius:22px;overflow:hidden;border:1px solid rgba(0,240,255,.12);display:flex;flex-direction:column;justify-content:space-between;padding:12px}
-.tiktok-top{display:flex;justify-content:space-between;font-size:12px}
-.tiktok-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
 .tiktok-actions{position:absolute;left:12px;bottom:80px;display:flex;flex-direction:column;gap:16px;align-items:center}
 .tiktok-act{display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;cursor:pointer}
-.tiktok-act b{font-size:22px}
-.tiktok-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:10px;font-size:12px;color:#22d3ee;text-align:left;direction:ltr}
 </style>
 </head>
 <body>
 
-<!-- بوابة الدخول -->
 <div id="authGate" class="fixed inset-0" style="z-index:70;background:#020A18;display:flex;align-items:center;justify-content:center;padding:16px">
-  <div class="glass max-w-sm w-full rounded-3xl p-6 text-center space-y-4 shadow-2xl">
-    <div class="text-4xl">👑</div>
-    <h1 class="text-xl font-black text-cyan-400 tracking-widest">TARIM OS</h1>
+  <div class="glass max-w-sm w-full rounded-3xl p-5 text-center space-y-4 shadow-2xl">
+    <div class="text-4xl">👑</div><h1 class="text-xl font-black text-cyan-400 tracking-widest">TARIM OS</h1>
     <p class="text-[11px] text-slate-400">بوابة الدخول للقلعة السيادية</p>
     <div class="flex justify-center gap-6 text-[13px] border-b border-white/10 pb-2">
       <button id="tabLoginBtn" style="color:#22d3ee;font-weight:700;border-bottom:2px solid #22d3ee;padding-bottom:4px">تسجيل الدخول</button>
       <button id="tabSignupBtn" style="color:#94a3b8;padding-bottom:4px">حساب جديد</button>
     </div>
     <div id="loginForm" class="space-y-3">
-      <input id="userPhoneOrEmail" placeholder="اسم المستخدم">
-      <input id="userPass" placeholder="كلمة السر" type="password">
+      <input id="userPhoneOrEmail" placeholder="اسم المستخدم"><input id="userPass" placeholder="كلمة السر" type="password">
       <button id="loginBtn" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-sm" style="padding:14px">🔑 دخول القلعة</button>
       <button id="googleLoginBtn" class="w-full bg-slate-900 text-cyan-300 font-bold py-3 rounded-xl text-sm" style="padding:14px;border:1px solid rgba(6,182,212,.2)">🌐 Google السيادي</button>
       <p id="loginError" class="text-[11px] text-rose-400 hidden"></p>
     </div>
     <div id="signupForm" class="space-y-3 hidden">
-      <input id="newUsername" placeholder="اختر اسم مستخدم">
-      <input id="newPass" placeholder="كلمة سر قوية" type="password">
-      <input id="confirmPass" placeholder="تأكيد كلمة السر" type="password">
+      <input id="newUsername" placeholder="اختر اسم مستخدم"><input id="newPass" placeholder="كلمة سر قوية" type="password"><input id="confirmPass" placeholder="تأكيد كلمة السر" type="password">
       <button id="signupBtn" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-sm" style="padding:14px">👑 إنشاء القلعة</button>
       <p id="signupError" class="text-[11px] text-rose-400 hidden"></p>
     </div>
@@ -73,7 +60,6 @@ main{padding-bottom:90px}
 
 <div id="toastBox"></div>
 
-<!-- هيدر - عين الذكاء + الدعم AI -->
 <header class="fixed top-0 left-0 right-0" style="z-index:40;display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(2,10,24,.95);border-bottom:1px solid rgba(6,182,212,.1);font-size:12px">
   <span id="openAiEyeBtn" style="color:#22d3ee;font-weight:700;cursor:pointer">👁️ عين الذكاء</span>
   <b class="tracking-widest" style="color:#22d3ee">TARIM OS</b>
@@ -81,25 +67,20 @@ main{padding-bottom:90px}
 </header>
 
 <main class="pt-[60px] max-w-md mx-auto p-3 space-y-3">
-  <!-- الرئيسية - تيك توك -->
-  <div id="tab-home" class="tab-content active space-y-3">
-    <div id="postsFeed" class="space-y-3"><div class="glass p-4" style="height:65vh;display:flex;align-items:end"><p class="text-xs text-slate-400">جاري تحميل المنشورات السيادية...</p></div></div>
-  </div>
+  <div id="tab-home" class="tab-content active space-y-3"><div id="postsFeed" class="space-y-3"><div class="glass p-4" style="height:65vh;display:flex;align-items:end"><p class="text-xs text-slate-400">جاري تحميل...</p></div></div></div>
 
-  <!-- العمليات -->
   <div id="tab-operations" class="tab-content space-y-3">
     <h3 class="text-center text-cyan-400 text-sm font-bold mt-2">⚡ قسم العمليات السيادية</h3>
     <div id="liveOpBtn" class="glass p-4 flex justify-between items-center rounded-2xl cursor-pointer" style="border:1px solid rgba(244,63,94,.3)"><div class="flex items-center gap-2 text-rose-400 text-sm"><span style="width:10px;height:10px;background:#f43f5e;border-radius:50%;display:inline-block;animation:pulse 1s infinite"></span> بث مباشر سيادي</div><span class="text-xs">بدء ←</span></div>
-    <div class="glass p-4 flex justify-between items-center rounded-2xl cursor-pointer" onclick="switchTab('inbox', document.querySelector('[data-tab=inbox]'))"><div class="flex items-center gap-2 text-sm">💬 المراسلة الآمنة</div><span class="text-xs">فتح ←</span></div>
+    <div id="opMsgBtn" class="glass p-4 flex justify-between items-center rounded-2xl cursor-pointer"><div class="flex items-center gap-2 text-sm">💬 المراسلة الآمنة</div><span class="text-xs">فتح ←</span></div>
     <div id="opsMapBtn" class="glass p-4 flex justify-between items-center rounded-2xl cursor-pointer"><div class="flex items-center gap-2 text-sm">🗺️ خريطة حضرموت</div><span class="text-xs">عرض ←</span></div>
     <div id="opsQrBtn" class="glass p-4 flex justify-between items-center rounded-2xl cursor-pointer"><div class="flex items-center gap-2 text-sm">🔐 الختم QR</div><span class="text-xs">عرض ←</span></div>
   </div>
 
-  <!-- الإنشاء -->
   <div id="tab-create" class="tab-content space-y-3">
-    <div class="glass p-4 space-y-3" style="border:1px solid rgba(0,240,255,.12)">
+    <div class="glass p-4 space-y-3">
       <h3 class="text-center text-cyan-400 text-sm">✨ محطة الإنشاء السيادي</h3>
-      <div class="w-full rounded-2xl overflow-hidden bg-black" style="height:38vh;position:relative"><video id="cameraPreview" autoplay playsinline muted class="w-full h-full object-cover"></video><div id="filterOverlay" class="absolute inset-0 pointer-events-none"></div></div>
+      <div class="w-full rounded-2xl overflow-hidden bg-black" style="height:38vh;position:relative"><video id="cameraPreview" autoplay playsinline muted class="w-full h-full object-cover"></video></div>
       <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:8px"><button id="switchCamBtn" class="bg-slate-900 p-3 rounded-xl text-xs" style="border:1px solid rgba(0,240,255,.15)">🔄 تبديل</button><button id="filterBtn" class="bg-slate-900 p-3 rounded-xl text-xs" style="border:1px solid rgba(0,240,255,.15)">🎨 فلاتر</button><button id="lightBtn" class="bg-slate-900 p-3 rounded-xl text-xs" style="border:1px solid rgba(0,240,255,.15)">💡 إضاءة</button></div>
       <div class="grid" style="grid-template-columns:1fr 1fr;gap:8px"><button id="textPostBtn" class="bg-slate-900 p-3 rounded-xl text-xs" style="border:1px solid rgba(0,240,255,.15)">📄 منشور نصي</button><button id="startLiveBtn" class="p-3 rounded-xl text-xs font-bold" style="background:rgba(244,63,94,.15);border:1px solid #f43f5e;color:#f43f5e">🔴 LIVE</button></div>
       <textarea id="postContentInput" maxlength="2000" class="h-24 text-right p-3" placeholder="نصي فيديو صور..."></textarea>
@@ -107,42 +88,36 @@ main{padding-bottom:90px}
     </div>
   </div>
 
-  <!-- الوارد - مراسلة آمنة -->
   <div id="tab-inbox" class="tab-content space-y-3">
     <div class="glass p-3 space-y-3" style="min-height:75vh;display:flex;flex-direction:column">
       <div id="userList" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.08)"></div>
       <div id="inboxMessagesList" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:10px 0;max-height:55vh"></div>
-      <div style="display:flex;gap:8px;align-items:center;margin-top:auto">
-        <button id="sendInboxMsgBtn" style="background:#00B4D8;color:#000;padding:12px 20px;border-radius:22px;font-weight:700;font-size:13px">إرسال</button>
-        <input id="inboxInputField" placeholder="رسالتك..." style="flex:1;background:#0B1428;border:1px solid rgba(0,240,255,.15);border-radius:22px;padding:12px;text-align:right;color:#fff;font-size:13px">
-      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:auto"><button id="sendInboxMsgBtn" style="background:#00B4D8;color:#000;padding:12px 20px;border-radius:22px;font-weight:700;font-size:13px">إرسال</button><input id="inboxInputField" placeholder="رسالتك..." style="flex:1;background:#0B1428;border:1px solid rgba(0,240,255,.15);border-radius:22px;padding:12px;text-align:right;color:#fff;font-size:13px"></div>
     </div>
   </div>
 
-  <!-- الملفات -->
   <div id="tab-profile" class="tab-content space-y-3">
-    <div class="glass p-5 text-center relative"><span style="position:absolute;top:12px;right:14px;font-size:11px;color:#94a3b8">تغير الخلفية</span><div class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-black font-black text-2xl" style="background:#00B4D8">AL</div><h2 class="text-cyan-300 font-bold text-sm mt-3">الإمبراطور AL</h2><p class="text-[11px] text-slate-400 mt-1">tarimos.org | OKX: 0x53...ab96</p></div>
-    <div class="glass p-3 flex justify-between items-center"><span class="text-[13px]">اشتراك عين الذكاء</span><button style="background:#00B4D8;color:#000;padding:8px 18px;border-radius:12px;font-size:12px;font-weight:700">💳 PayPal</button></div>
+    <div class="glass p-5 text-center relative"><span id="changeBgBtn" style="position:absolute;top:12px;right:14px;font-size:11px;color:#94a3b8;cursor:pointer">تغير الخلفية</span><div class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-black font-black text-2xl" style="background:#00B4D8">AL</div><h2 class="text-cyan-300 font-bold text-sm mt-3">الإمبراطور AL</h2><p class="text-[11px] text-slate-400 mt-1">tarimos.org | OKX: 0x53...ab96</p></div>
+    <div class="glass p-3 flex justify-between items-center"><span class="text-[13px]">اشتراك عين الذكاء</span><button id="payBtn" style="background:#00B4D8;color:#000;padding:8px 18px;border-radius:12px;font-size:12px;font-weight:700">💳 PayPal</button></div>
     <div class="px-2 pb-24 text-right text-[15px]" style="line-height:2.2">
-      <div class="py-3 flex justify-between border-b border-white/5"><span>💳 المحفظة</span><span>›</span></div>
-      <div class="py-3 flex justify-between border-b border-white/5"><span>⚙️ مركز الانشطة</span><span>›</span></div>
-      <div class="py-3 flex justify-between border-b border-white/5"><span>🎞️ الفيديوهات دون اتصال</span><span>›</span></div>
-      <div id="qrBtn" class="py-3 flex justify-between border-b border-white/5"><span>🌐 رمز QR لديك</span><span>›</span></div>
-      <div class="py-3 flex justify-between border-b border-white/5"><span>ادوات الابداع والاعمال</span><span>›</span></div>
-      <div class="py-3 flex justify-between border-b border-white/5"><span>👫 المجموعة التجارية</span><span>›</span></div>
-      <div class="py-3 flex justify-between border-b border-white/5"><span>🚀 الترويج الاعلانات</span><span>›</span></div>
-      <div class="py-3 flex justify-between border-b border-white/5"><span>📊 ادارة المنشورات</span><span>›</span></div>
-      <div class="py-3 flex justify-between border-b border-white/5"><span>الاعدادات والخصوصية</span><span>›</span></div>
-      <div class="py-3 flex justify-between border-b border-white/5"><span>🚹 الحساب</span><span>›</span></div>
-      <div class="py-3 flex justify-between border-b border-white/5"><span>🔐 الخصوصية والامان</span><span>›</span></div>
-      <div class="py-3 flex justify-between border-b border-white/5"><span>💱 مشاركة ملف الشخصي</span><span>›</span></div>
-      <div class="py-3 flex justify-between border-b border-white/5"><span>📄 السياسية والخصوصية</span><span>›</span></div>
-      <div id="logoutBtn" class="py-4 flex justify-between text-rose-400 font-bold"><span>💤 تسجيل الخروج</span><span>›</span></div>
+      <div id="walletBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>💳 المحفظة</span><span>›</span></div>
+      <div id="activityBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>⚙️ مركز الانشطة</span><span>›</span></div>
+      <div id="offlineVideosBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>🎞️ الفيديوهات دون اتصال</span><span>›</span></div>
+      <div id="qrBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>🌐 رمز QR لديك</span><span>›</span></div>
+      <div id="creativeBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>ادوات الابداع والاعمال</span><span>›</span></div>
+      <div id="businessBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>👫 المجموعة التجارية</span><span>›</span></div>
+      <div id="adsBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>🚀 الترويج الاعلانات</span><span>›</span></div>
+      <div id="managePostsBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>📊 ادارة المنشورات</span><span>›</span></div>
+      <div id="settingsBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>الاعدادات والخصوصية</span><span>›</span></div>
+      <div id="accountBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>🚹 الحساب</span><span>›</span></div>
+      <div id="privacyBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>🔐 الخصوصية والامان</span><span>›</span></div>
+      <div id="shareProfileBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>💱 مشاركة ملف الشخصي</span><span>›</span></div>
+      <div id="policyBtn" class="py-3 flex justify-between border-b border-white/5 cursor-pointer"><span>📄 السياسية والخصوصية</span><span>›</span></div>
+      <div id="logoutBtn" class="py-4 flex justify-between text-rose-400 font-bold cursor-pointer"><span>💤 تسجيل الخروج</span><span>›</span></div>
     </div>
   </div>
 </main>
 
-<!-- القائمة السفلية - الرئيسية على اليمن (اليمين) -->
 <nav id="mainNav" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0B1120;border-top:1px solid rgba(0,240,255,.15);display:flex;justify-content:space-around;align-items:flex-end;height:72px;padding-bottom:6px;direction:rtl">
   <button data-tab="home" class="nav-btn" style="background:none;border:none;color:#22d3ee;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">🏰</span><span>الرئيسية</span></button>
   <button data-tab="operations" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">⚡</span><span>العمليات</span></button>
@@ -151,18 +126,12 @@ main{padding-bottom:90px}
   <button data-tab="profile" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">👤</span><span>الملفات</span></button>
 </nav>
 
-<!-- شاشات -->
 <div id="mapScreen" class="hidden fixed inset-0" style="z-index:50;padding:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,.95)"><div class="glass w-full max-w-md p-4 flex flex-col" style="height:80vh"><div class="flex justify-between" style="margin-bottom:12px"><h3 class="text-xs font-bold text-cyan-400">🗺️ خريطة تريم</h3><button id="closeMapBtn" class="text-rose-400 text-xs bg-slate-900 px-3 py-1 rounded-lg">إغلاق</button></div><div id="mapContainer" class="flex-1 w-full rounded-xl" style="background:#0f172a"></div></div></div>
+<div id="qrScreen" class="hidden fixed inset-0" style="z-index:50;padding:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,.95)"><div class="glass w-full max-w-sm p-6 text-center space-y-4"><h3 class="text-sm font-bold text-cyan-400">🌐 رمز QR لديك</h3><div id="qrBox" style="background:#fff;padding:16px;border-radius:16px;display:inline-block"></div><p id="qrText" class="text-[11px] text-slate-400"></p><button id="closeQrBtn" class="w-full bg-slate-900 p-3 rounded-xl text-xs">إغلاق</button></div></div>
 
-<div id="liveScreen" class="hidden fixed inset-0" style="z-index:80;background:#000;display:flex;flex-direction:column">
-  <video id="liveVideo" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
-  <div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:12px;background:linear-gradient(to bottom, rgba(0,0,0,.6), transparent)"><span style="background:rgba(244,63,94,.9);padding:4px 10px;border-radius:20px;font-size:11px;color:#fff">🔴 LIVE</span><span id="liveTimer" style="color:#fff;font-size:11px;font-family:monospace">00:00</span><button id="endLiveBtn" style="background:#fff;color:#000;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700">إغلاق ✕</button></div>
-  <div style="position:absolute;right:12px;bottom:120px;z-index:2;display:flex;flex-direction:column;gap:18px;align-items:center;color:#fff"><div class="tiktok-act"><b style="font-size:24px">❤️</b><span style="font-size:10px">لايكات</span></div><div class="tiktok-act"><b style="font-size:24px">💬</b><span style="font-size:10px">تعليق</span></div><div class="tiktok-act"><b style="font-size:24px">🎁</b><span style="font-size:10px">هدايا</span></div></div>
-  <div id="readyToBroadcastBox" style="position:relative;z-index:2;margin-top:auto;background:rgba(10,20,40,.9);backdrop-filter:blur(10px);border-top:1px solid rgba(0,240,255,.15);padding:16px;border-radius:22px 22px 0 0"><p style="text-align:center;color:#fff;font-size:12px;margin-bottom:12px">جاهز للبث السيادي من تريم؟</p><button id="confirmStartLive" style="width:100%;background:#f43f5e;color:#fff;padding:14px;border-radius:12px;font-weight:900">ابدأ البث الآن 🔴</button></div>
-</div>
+<div id="liveScreen" class="hidden fixed inset-0" style="z-index:80;background:#000;display:flex;flex-direction:column"><video id="liveVideo" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video><div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:12px;background:linear-gradient(to bottom, rgba(0,0,0,.6), transparent)"><span style="background:rgba(244,63,94,.9);padding:4px 10px;border-radius:20px;font-size:11px;color:#fff">🔴 LIVE</span><span id="liveTimer" style="color:#fff;font-size:11px;font-family:monospace">00:00</span><button id="endLiveBtn" style="background:#fff;color:#000;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700">إغلاق ✕</button></div><div id="readyToBroadcastBox" style="position:relative;z-index:2;margin-top:auto;background:rgba(10,20,40,.9);backdrop-filter:blur(10px);border-top:1px solid rgba(0,240,255,.15);padding:16px;border-radius:22px 22px 0 0"><p style="text-align:center;color:#fff;font-size:12px;margin-bottom:12px">جاهز للبث السيادي من تريم؟</p><button id="confirmStartLive" style="width:100%;background:#f43f5e;color:#fff;padding:14px;border-radius:12px;font-weight:900">ابدأ البث الآن 🔴</button></div></div>
 
 <div id="aiEyeScreen" class="hidden fixed inset-0" style="z-index:65;background:rgba(2,10,24,.98);padding:16px;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;padding:12px"><b class="text-cyan-400 text-sm">👁️ عين الذكاء الاصطناعي</b><button id="closeAiEye" style="color:#f43f5e;background:#0f172a;padding:6px 12px;border-radius:10px;font-size:12px">إغلاق</button></div><div id="aiEyeChat" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:10px 0"></div><div style="display:flex;gap:8px"><input id="aiEyeInput" placeholder="اسأل عين الذكاء..." style="flex:1;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:12px;color:#fff;font-size:13px;text-align:right"><button id="sendAiEye" style="background:#00B4D8;color:#000;padding:12px 18px;border-radius:12px;font-weight:700">إرسال</button></div></div>
-
 <div id="supportScreen" class="hidden fixed inset-0" style="z-index:65;background:rgba(2,10,24,.98);padding:16px;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;padding:12px"><b class="text-cyan-400 text-sm">🛡️ فريق الدعم الفني AI</b><button id="closeSupport" style="color:#f43f5e;background:#0f172a;padding:6px 12px;border-radius:10px;font-size:12px">إغلاق</button></div><div id="supportChat" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:10px 0"></div><div style="display:flex;gap:8px"><input id="supportInput" placeholder="اكتب مشكلتك..." style="flex:1;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:12px;color:#fff;font-size:13px;text-align:right"><button id="sendSupport" style="background:#00B4D8;color:#000;padding:12px 18px;border-radius:12px;font-weight:700">إرسال</button></div></div>
 
 <script src="./app.js"></script>
