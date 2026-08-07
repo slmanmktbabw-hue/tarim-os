@@ -12,52 +12,48 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#020A18;color:#fff;font-family:system-ui;overflow-x:hidden;padding-bottom:90px}
+body{background:#020A18;color:#fff;font-family:system-ui;overflow-x:hidden;padding-bottom:80px}
 .glass{background:rgba(10,20,40,.96);backdrop-filter:blur(14px);border:1px solid rgba(0,240,255,.12);border-radius:22px}
 .tab-content{display:none}.tab-content.active{display:block!important}
-.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}
-.inset-0{top:0;left:0;right:0;bottom:0}.top-0{top:0}.bottom-0{bottom:0}
-.z-40{z-index:40}.z-50{z-index:50}.z-\[60\]{z-index:60}.z-\[65\]{z-index:65}.z-\[70\]{z-index:70}.z-\[80\]{z-index:80}
-.flex{display:flex}.hidden{display:none!important}.block{display:block}.grid{display:grid}
+.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-0{top:0;left:0;right:0;bottom:0}
+.flex{display:flex}.hidden{display:none!important}.grid{display:grid}
 .flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.justify-center{justify-content:center}
-.w-full{width:100%}.w-12{width:48px}.w-14{width:56px}.w-20{width:80px}.h-14{height:56px}.h-20{height:80px}.h-24{height:96px}.h-64{height:256px}.h-full{height:100%}.min-h-screen{min-height:100vh}.max-w-md{max-width:448px}.max-w-sm{max-width:384px}.flex-1{flex:1}
-.mx-auto{margin:0 auto}.mt-1{margin-top:4px}.mt-2{margin-top:8px}.mt-3{margin-top:12px}.-mt-6{margin-top:-24px}
-.p-2{padding:8px}.p-3{padding:12px}.p-4{padding:16px}.p-5{padding:20px}.p-6{padding:24px}.px-3{padding:0 12px}.px-5{padding:0 20px}.py-1{padding:4px 0}.py-3{padding:12px 0}.pt-\[60px\]{padding-top:60px}.pb-24{padding-bottom:96px}.pb-2{padding-bottom:8px}.pb-1{padding-bottom:4px}
-.gap-2{gap:8px}.gap-6{gap:24px}.space-y-3>:not(:last-child){margin-bottom:12px}.space-y-4>:not(:last-child){margin-bottom:16px}
+.w-full{width:100%}.h-24{height:96px}.h-64{height:256px}.h-full{height:100%}.max-w-md{max-width:448px}.max-w-sm{max-width:384px}.flex-1{flex:1}
+.mx-auto{margin:0 auto}.mt-2{margin-top:8px}
+.p-3{padding:12px}.p-4{padding:16px}.p-5{padding:20px}.p-6{padding:24px}.px-3{padding:0 12px}.pt-\[60px\]{padding-top:60px}.pb-2{padding-bottom:8px}
+.gap-2{gap:8px}.gap-6{gap:24px}.space-y-3>:not(:last-child){margin-bottom:12px}
 .rounded-xl{border-radius:12px}.rounded-2xl{border-radius:16px}.rounded-3xl{border-radius:24px}.rounded-full{border-radius:9999px}
-.border{border:1px solid}.border-b{border-bottom:1px solid}.border-t{border-top:1px solid}.border-b-2{border-bottom:2px solid}.border-white\/5{border-color:rgba(255,255,255,.05)}.border-white\/10{border-color:rgba(255,255,255,.1)}.border-slate-700{border-color:#334155}.border-cyan-500\/20{border-color:rgba(6,182,212,.2)}.border-cyan-400{border-color:#22d3ee}
+.border{border:1px solid}.border-b{border-bottom:1px solid}.border-b-2{border-bottom:2px solid}.border-white\/10{border-color:rgba(255,255,255,.1)}.border-slate-700{border-color:#334155}.border-cyan-400{border-color:#22d3ee}
 .bg-black{background:#000}.bg-slate-900{background:#0f172a}.bg-slate-800{background:#1e293b}.bg-cyan-500{background:#06b6d4}.bg-rose-500{background:#f43f5e}.bg-white{background:#fff}
-.text-black{color:#000}.text-cyan-400{color:#22d3ee}.text-cyan-300{color:#67e8f9}.text-slate-400{color:#94a3b8}.text-slate-300{color:#cbd5e1}.text-rose-400{color:#fb7185}.text-rose-500{color:#f43f5e}
+.text-black{color:#000}.text-cyan-400{color:#22d3ee}.text-cyan-300{color:#67e8f9}.text-slate-400{color:#94a3b8}.text-rose-400{color:#fb7185}.text-rose-500{color:#f43f5e}
 .text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[13px\]{font-size:13px}.text-xs{font-size:12px}.text-sm{font-size:14px}.text-xl{font-size:20px}.text-2xl{font-size:24px}.text-4xl{font-size:36px}
-.font-bold{font-weight:700}.font-black{font-weight:900}.font-mono{font-family:monospace}
-.text-center{text-align:center}.text-right{text-align:right}.tracking-widest{letter-spacing:.1em}
-.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.object-cover{object-fit:cover}.resize-none{resize:none}
-.cursor-pointer{cursor:pointer}.select-none{user-select:none}.pointer-events-none{pointer-events:none}
-.shadow-lg{box-shadow:0 10px 15px rgba(0,0,0,.3)}.shadow-2xl{box-shadow:0 25px 50px rgba(0,0,0,.5)}
-.animate-pulse{animation:pulse 2s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.font-bold{font-weight:700}.font-black{font-weight:900}.text-center{text-align:center}.text-right{text-align:right}.tracking-widest{letter-spacing:.1em}
+.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.object-cover{object-fit:cover}.resize-none{resize:none}.cursor-pointer{cursor:pointer}.select-none{user-select:none}
+.shadow-lg{box-shadow:0 10px 15px rgba(0,0,0,.3)}.shadow-2xl{box-shadow:0 25px 50px rgba(0,0,0,.5)}.animate-pulse{animation:pulse 2s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 input,textarea{width:100%;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:14px;color:#fff;font-size:14px;text-align:center}
 input::placeholder,textarea::placeholder{color:#64748b}
 button{border:none;cursor:pointer}
 #toastBox{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:80;width:91%;max-width:320px;pointer-events:none}
+main{padding-bottom:90px}
 </style>
 </head>
 <body>
 
-<!-- ========== بوابة الدخول السيادية V3 ========== -->
-<div id="authGate" class="fixed inset-0 z-[70] bg-[#020A18] flex items-center justify-center p-4">
+<!-- بوابة الدخول V4 -->
+<div id="authGate" class="fixed inset-0" style="z-index:70;background:#020A18;display:flex;align-items:center;justify-content:center;padding:16px">
   <div class="glass max-w-sm w-full rounded-3xl p-6 text-center space-y-4 shadow-2xl" style="border:1px solid rgba(0,240,255,.15)">
     <div class="text-4xl">👑</div>
     <h1 class="text-xl font-black text-cyan-400 tracking-widest">TARIM OS</h1>
     <p class="text-[11px] text-slate-400">بوابة الدخول للقلعة السيادية - أبو سلمان</p>
     <div class="flex justify-center gap-6 text-[13px] border-b border-white/10 pb-2 mt-2">
-      <button id="tabLoginBtn" class="text-cyan-400 font-bold border-b-2 border-cyan-400 pb-1">تسجيل الدخول</button>
-      <button id="tabSignupBtn" class="text-slate-400 pb-1">حساب جديد</button>
+      <button id="tabLoginBtn" style="color:#22d3ee;font-weight:700;border-bottom:2px solid #22d3ee;padding-bottom:4px">تسجيل الدخول</button>
+      <button id="tabSignupBtn" style="color:#94a3b8;padding-bottom:4px">حساب جديد</button>
     </div>
     <div id="loginForm" class="space-y-3">
       <input id="userPhoneOrEmail" placeholder="اسم المستخدم">
       <input id="userPass" placeholder="كلمة السر" type="password">
       <button id="loginBtn" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-sm" style="padding:14px">🔑 دخول القلعة السيادية</button>
-      <button id="googleLoginBtn" class="w-full bg-slate-800 border border-cyan-500/20 text-cyan-300 font-bold py-3 rounded-xl text-sm" style="padding:14px">🌐 الدخول عبر Google السيادي</button>
+      <button id="googleLoginBtn" class="w-full bg-slate-800 text-cyan-300 font-bold py-3 rounded-xl text-sm" style="padding:14px;border:1px solid rgba(6,182,212,.2)">🌐 الدخول عبر Google السيادي</button>
       <p id="loginError" class="text-[11px] text-rose-400 hidden"></p>
     </div>
     <div id="signupForm" class="space-y-3 hidden">
@@ -66,7 +62,7 @@ button{border:none;cursor:pointer}
       <input id="newPass" placeholder="كلمة سر قوية" type="password">
       <input id="confirmPass" placeholder="تأكيد كلمة السر" type="password">
       <button id="signupBtn" class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl text-sm" style="padding:14px">👑 إنشاء القلعة الخاصة بي</button>
-      <button id="googleSignupBtn" class="w-full bg-slate-800 border border-cyan-500/20 text-cyan-300 font-bold py-3 rounded-xl text-sm" style="padding:14px">🌐 التسجيل عبر Google</button>
+      <button id="googleSignupBtn" class="w-full bg-slate-800 text-cyan-300 font-bold py-3 rounded-xl text-sm" style="padding:14px;border:1px solid rgba(6,182,212,.2)">🌐 التسجيل عبر Google</button>
       <p id="signupError" class="text-[11px] text-rose-400 hidden"></p>
     </div>
   </div>
@@ -74,10 +70,10 @@ button{border:none;cursor:pointer}
 
 <div id="toastBox"></div>
 
-<header class="fixed top-0 left-0 right-0 z-40 flex justify-between items-center text-[12px] p-3" style="background:rgba(2,10,24,.95);border-bottom:1px solid rgba(6,182,212,.1)">
-  <span id="openAiEyeBtn" class="text-cyan-300 font-bold cursor-pointer select-none">👁️ عين الذكاء</span>
+<header class="fixed top-0 left-0 right-0" style="z-index:40;display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(2,10,24,.95);border-bottom:1px solid rgba(6,182,212,.1);font-size:12px">
+  <span class="text-cyan-300 font-bold cursor-pointer select-none">👁️ عين الذكاء</span>
   <b class="text-cyan-300 tracking-widest">TARIM OS</b>
-  <span id="openSupportBtn" class="text-slate-300 font-bold cursor-pointer select-none">🛡️ الدعم</span>
+  <span class="text-slate-400 font-bold cursor-pointer select-none">🛡️ الدعم</span>
 </header>
 
 <main class="pt-[60px] max-w-md mx-auto p-3 space-y-3">
@@ -96,20 +92,20 @@ button{border:none;cursor:pointer}
   </div>
   <div id="tab-profile" class="tab-content space-y-3">
     <div class="glass p-5 text-center"><div class="w-20 h-20 bg-cyan-500 rounded-full mx-auto flex items-center justify-center text-black font-black text-2xl">AL</div><h2 class="text-cyan-300 font-bold text-sm mt-3">الإمبراطور AL</h2><p class="text-[11px] text-slate-400 mt-1">tarimos.org | OKX: 0x53...ab96</p></div>
-    <div class="px-3 pb-24 space-y-0 text-right text-[14px]"><div id="walletBtn" class="py-3 flex justify-between cursor-pointer" style="border-bottom:1px solid rgba(255,255,255,.05)"><span>المحفظة</span><span>💳</span></div><div id="qrBtn" class="py-3 flex justify-between cursor-pointer" style="border-bottom:1px solid rgba(255,255,255,.05)"><span>رمز QR</span><span>🌐</span></div><div id="logoutBtn" class="py-3 flex justify-between cursor-pointer text-rose-400 font-bold"><span>تسجيل الخروج</span><span>💤</span></div></div>
+    <div class="px-3 pb-24 text-right text-[14px]"><div id="walletBtn" class="py-3 flex justify-between cursor-pointer" style="border-bottom:1px solid rgba(255,255,255,.05)"><span>المحفظة</span><span>💳</span></div><div id="qrBtn" class="py-3 flex justify-between cursor-pointer" style="border-bottom:1px solid rgba(255,255,255,.05)"><span>رمز QR</span><span>🌐</span></div><div id="logoutBtn" class="py-3 flex justify-between cursor-pointer text-rose-400 font-bold"><span>تسجيل الخروج</span><span>💤</span></div></div>
   </div>
 </main>
 
-<nav class="fixed bottom-0 left-0 right-0 z-40 flex justify-around items-end px-2 py-2" style="background:#060F22;border-top:1px solid rgba(6,182,212,.1)">
-  <button data-tab="home" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px] w-12">🏰 الرئيسية</button>
-  <button data-tab="operations" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] w-12">⚡ العمليات</button>
-  <button data-tab="create" class="nav-btn w-14 h-14 bg-cyan-500 rounded-full flex items-center justify-center text-black text-2xl font-black -mt-6 shadow-lg">+</button>
-  <button data-tab="inbox" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] w-12">💬 الوارد</button>
-  <button data-tab="profile" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] w-12">👤 الملفات</button>
+<!-- القائمة السفلية الوحيدة الصحيحة - مثل الصور -->
+<nav id="mainNav" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0B1120;border-top:1px solid rgba(0,240,255,.15);display:flex;justify-content:space-around;align-items:flex-end;height:70px;padding-bottom:6px">
+  <button data-tab="profile" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">👤</span><span>الملفات</span></button>
+  <button data-tab="inbox" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">💬</span><span>الوارد</span></button>
+  <button data-tab="create" class="nav-btn" style="background:#00B4D8;border:none;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:#000;margin-bottom:18px;box-shadow:0 0 20px rgba(0,180,216,.5)">+</button>
+  <button data-tab="operations" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">⚡</span><span>العمليات</span></button>
+  <button data-tab="home" class="nav-btn" style="background:none;border:none;color:#22d3ee;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:18px">🏰</span><span>الرئيسية</span></button>
 </nav>
 
-<div id="mapScreen" class="hidden fixed inset-0 z-50 p-4 flex flex-col justify-center items-center" style="background:rgba(0,0,0,.95)"><div class="glass w-full max-w-md p-4 flex flex-col" style="height:80vh"><div class="flex justify-between" style="margin-bottom:12px"><h3 class="text-xs font-bold text-cyan-400">🗺️ خريطة تريم</h3><button id="closeMapBtn" class="text-rose-400 text-xs bg-slate-900 px-3 py-1 rounded-lg">إغلاق</button></div><div id="mapContainer" class="flex-1 w-full rounded-xl" style="background:#0f172a"></div></div></div>
-<div id="liveScreen" class="hidden fixed inset-0 z-[60] bg-black flex flex-col justify-between p-4"><div class="flex justify-between p-3 rounded-2xl" style="background:rgba(2,6,23,.8)"><span class="text-xs font-bold text-rose-500 animate-pulse">🔴 مباشر 8 دقائق</span><span id="liveTimer" class="text-xs text-white font-mono">0:00 / 8:00</span><button id="endLiveBtn" class="bg-rose-500 text-black px-3 py-1 rounded-xl text-xs font-bold">إنهاء</button></div><video id="liveVideo" autoplay playsinline muted class="w-full h-full object-cover absolute inset-0" style="z-index:-1"></video><div id="readyToBroadcastBox" class="glass p-4 rounded-2xl text-center space-y-3"><p class="text-sm">جاهز للبث السيادي؟</p><button id="confirmStartLive" class="w-full bg-rose-500 text-white py-3 rounded-xl text-sm font-bold">ابدأ البث الآن</button></div></div>
+<div id="mapScreen" class="hidden fixed inset-0" style="z-index:50;padding:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,.95)"><div class="glass w-full max-w-md p-4 flex flex-col" style="height:80vh"><div class="flex justify-between" style="margin-bottom:12px"><h3 class="text-xs font-bold text-cyan-400">🗺️ خريطة تريم</h3><button id="closeMapBtn" class="text-rose-400 text-xs bg-slate-900 px-3 py-1 rounded-lg">إغلاق</button></div><div id="mapContainer" class="flex-1 w-full rounded-xl" style="background:#0f172a"></div></div></div>
 
 <script src="./app.js"></script>
 </body>
