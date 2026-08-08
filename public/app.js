@@ -288,37 +288,37 @@
   }
 
   $('openAiEyeBtn')?.addEventListener('click',()=>{
-    const scr = $('aiEyeScreen');
-    if(scr){ scr.classList.remove('hidden'); scr.style.display='flex'; }
-    addMsg('aiEyeChat', 'bot', 'أهلاً بك يا إمبراطور AL في عين الذكاء السيادية 👁️ كيف أخدمك اليوم؟');
+    const scr=$('aiEyeScreen'); if(!scr) return;
+    scr.classList.remove('hidden'); scr.style.display='flex';
+    addMsg('aiEyeChat','bot','👁️ في عين الذكاء السيادية 🦅 كيف أخدمك اليوم يا إمبراطور؟');
   });
   $('closeAiEye')?.addEventListener('click',()=>{
-    const scr = $('aiEyeScreen');
-    if(scr){ scr.classList.add('hidden'); scr.style.display='none'; }
+    const scr=$('aiEyeScreen'); if(!scr) return;
+    scr.classList.add('hidden'); scr.style.display='none';
   });
   $('sendAiEye')?.addEventListener('click',()=>{
-    const inp = $('aiEyeInput'); if(!inp) return;
-    const txt = sanitize(inp.value); if(!txt) return;
-    addMsg('aiEyeChat', 'me', txt); inp.value='';
-    setTimeout(()=>{ addMsg('aiEyeChat', 'bot', aiReply(txt)); }, 600);
+    const inp=$('aiEyeInput'); if(!inp) return;
+    const txt=sanitize(inp.value); if(!txt) return;
+    addMsg('aiEyeChat','me',txt); inp.value='';
+    setTimeout(()=>addMsg('aiEyeChat','bot',aiReply(txt)),600);
   });
-  $('aiEyeInput')?.addEventListener('keydown', e=>{ if(e.key==='Enter') $('sendAiEye')?.click(); });
+  $('aiEyeInput')?.addEventListener('keydown',e=>{ if(e.key==='Enter') $('sendAiEye').click(); });
 
   $('openSupportBtn')?.addEventListener('click',()=>{
-    const scr = $('supportScreen');
-    if(scr){ scr.classList.remove('hidden'); scr.style.display='flex'; }
-    addMsg('supportChat', 'bot', 'مرحباً بك في الدعم الفني السيادي لـ TARIM OS 🛡️ نحن هنا لحمايتك ودعمك.');
+    const scr=$('supportScreen'); if(!scr) return;
+    scr.classList.remove('hidden'); scr.style.display='flex';
+    addMsg('supportChat','bot','🛡️ نحن هنا لحمايتك ودعمك 🤝 TARIM OS مرجعيّة بند في الدعم الفني السيادي.');
   });
   $('closeSupport')?.addEventListener('click',()=>{
-    const scr = $('supportScreen');
-    if(scr){ scr.classList.add('hidden'); scr.style.display='none'; }
+    const scr=$('supportScreen'); if(!scr) return;
+    scr.classList.add('hidden'); scr.style.display='none';
   });
   $('sendSupport')?.addEventListener('click',()=>{
-    const inp = $('supportInput'); if(!inp) return;
-    const txt = sanitize(inp.value); if(!txt) return;
-    addMsg('supportChat', 'me', txt); inp.value='';
-    setTimeout(()=>{ addMsg('supportChat', 'bot', 'تم استلام بلاغك في الدعم الفني بنجاح 🛡️ سيتم المعالجة فوراً.'); }, 800);
+    const inp=$('supportInput'); if(!inp) return;
+    const txt=sanitize(inp.value); if(!txt) return;
+    addMsg('supportChat','me',txt); inp.value='';
+    setTimeout(()=>addMsg('supportChat','bot','🛡️ تم استلام بلاغك في الدعم الفني بنجاح 🤝 سيتم المعالجة فوراً.'),800);
   });
-  $('supportInput')?.addEventListener('keydown', e=>{ if(e.key==='Enter') $('sendSupport')?.click(); });
+  $('supportInput')?.addEventListener('keydown',e=>{ if(e.key==='Enter') $('sendSupport').click(); });
 
 })();
