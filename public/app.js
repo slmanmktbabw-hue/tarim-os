@@ -59,20 +59,27 @@
   passIn?.addEventListener("keydown",e=>{if(e.key==="Enter")loginBtn.click()});
   const sess=localStorage.getItem(sessKey);if(sess){authGate.classList.add("hidden");authGate.style.display="none";loadFeed()}
 
-  // ✅ FIX النهائي - بمسافة - اليمن على اليمين
   window.switchTab=function(tab,btn){
     stopAllStreams();
     document.querySelectorAll(".tab-content").forEach(x=>x.classList.remove("active"));
     const target=document.getElementById("tab-"+tab);
     if(target)target.classList.add("active");
-    document.querySelectorAll("#mainNav.nav-btn").forEach(x=>{if(x.dataset.tab!=="create")x.style.color="#94a3b8"});
-    if(btn&&btn.dataset.tab!=="create")btn.style.color="#22d3ee";
+    
+    document.querySelectorAll("#mainNav .nav-btn").forEach(x=>{
+      if(x.dataset.tab!=="create") x.style.color="#94a3b8";
+    });
+    if(btn&&btn.dataset.tab!=="create"){
+      btn.style.color="#22d3ee";
+    } else if(!btn) {
+      const activeNavBtn = document.querySelector(`#mainNav .nav-btn[data-tab="${tab}"]`);
+      if(activeNavBtn && activeNavBtn.dataset.tab!=="create") activeNavBtn.style.color="#22d3ee";
+    }
+    
     if(tab==="create")initCamera();
     if(tab==="inbox"){renderUserList();renderMessages()}
   };
 
-  // ✅ بمسافة
-  document.querySelectorAll("#mainNav.nav-btn").forEach(btn=>{
+  document.querySelectorAll("#mainNav .nav-btn").forEach(btn=>{
     btn.addEventListener("click",()=>{
       const tab=btn.dataset.tab;
       if(tab)window.switchTab(tab,btn);
@@ -88,7 +95,7 @@
   $("confirmStartLive")?.addEventListener("click",()=>{$("readyToBroadcastBox")?.classList.add("hidden");liveSec=0;if(liveTimerInt)clearInterval(liveTimerInt);liveTimerInt=setInterval(()=>{liveSec++;const m=Math.floor(liveSec/60),s=liveSec%60;const el=$("liveTimer");if(el)el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;if(liveSec>=480){clearInterval(liveTimerInt);$("endLiveBtn")?.click()}},1000)});
   $("endLiveBtn")?.addEventListener("click",()=>{if(liveTimerInt)clearInterval(liveTimerInt);liveTimerInt=null;if(liveStream)liveStream.getTracks().forEach(t=>t.stop());liveStream=null;const ls=$("liveScreen");ls.classList.add("hidden");ls.style.display="none";$("readyToBroadcastBox")?.classList.remove("hidden")});
   $("liveOpBtn")?.addEventListener("click",()=>$("startLiveBtn")?.click());
-  $("opMsgBtn")?.addEventListener("click",()=>window.switchTab("inbox",document.querySelector('#mainNav.nav-btn[data-tab="inbox"]')));
+  $("opMsgBtn")?.addEventListener("click",()=>window.switchTab("inbox",document.querySelector('#mainNav .nav-btn[data-tab="inbox"]')));
   function openMap(){const ms=$("mapScreen");if(!ms)return;ms.classList.remove("hidden");ms.style.display="flex";setTimeout(()=>{if(!mapInstance){mapInstance=L.map("mapContainer").setView([16.05,48.9833],13);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(mapInstance);L.marker([16.05,48.9833]).addTo(mapInstance).bindPopup("<b>قلعة تريم السيادية</b>").openPopup()}else mapInstance.invalidateSize()},300))}
   $("opsMapBtn")?.addEventListener("click",()=>openMap());
   $("closeMapBtn")?.addEventListener("click",()=>{const ms=$("mapScreen");if(ms){ms.classList.add("hidden");ms.style.display="none"}});
@@ -96,7 +103,7 @@
   $("qrBtn")?.addEventListener("click",()=>openQr());$("opsQrBtn")?.addEventListener("click",()=>openQr());
   $("closeQrBtn")?.addEventListener("click",()=>{const qs=$("qrScreen");if(qs){qs.classList.add("hidden");qs.style.display="none"}});
   $("logoutBtn")?.addEventListener("click",()=>{if(confirm("تأكيد الخروج؟")){localStorage.removeItem(sessKey);location.reload()}});
-  $("publishBtn")?.addEventListener("click",()=>{const v=$("postContentInput");if(!v||!v.value.trim()){showToast("اكتب وصفاً أولاً","err");return}showToast("تم النشر ✅");v.value="";window.switchTab("home",document.querySelector('#mainNav.nav-btn[data-tab="home"]'));loadFeed()});
+  $("publishBtn")?.addEventListener("click",()=>{const v=$("postContentInput");if(!v||!v.value.trim()){showToast("اكتب وصفاً أولاً","err");return}showToast("تم النشر ✅");v.value="";window.switchTab("home",document.querySelector('#mainNav .nav-btn[data-tab="home"]'));loadFeed()});
   function renderUserList(){const list=$("userList");if(!list)return;const allUsers=Object.keys(getUsers());const me=localStorage.getItem(sessKey)||"AL";list.innerHTML="";allUsers.filter(u=>u!==me).forEach(u=>{const b=document.createElement("button");b.textContent="@"+u;b.style.cssText=`background:${currentChatWith===u?"#00B4D8":"#0f172a"};color:${currentChatWith===u?"#000":"#94a3b8"};padding:8px 14px;border-radius:20px;font-size:11px;white-space:nowrap;border:1px solid rgba(0,240,255,.1)`;b.addEventListener("click",()=>openChat(u));list.appendChild(b)});const b2=document.createElement("button");b2.textContent="🛡️ الدعم";b2.style.cssText="background:#1e293b;color:#22d3ee;padding:8px 14px;border-radius:20px;font-size:11px";b2.addEventListener("click",()=>openChat("الدعم"));list.appendChild(b2)}
   function renderMessages(){const box=$("inboxMessagesList");if(!box)return;box.innerHTML="";const msgs=getMessages();const me=localStorage.getItem(sessKey)||"AL";if(!currentChatWith)currentChatWith=Object.keys(getUsers()).find(u=>u!==me)||"الدعم";const key=[me,currentChatWith].sort().join("_");const chat=msgs[key]||[{from:"system",text:`أهلاً يا إمبراطور ${sanitize(me)} 🤖`}];chat.forEach(m=>{const isMe=m.from===me;const d=document.createElement("div");d.textContent=m.text;d.style.cssText=`align-self:${isMe?"flex-end":"flex-start"};max-width:75%;background:${isMe?"#00B4D8":"#0f172a"};color:${isMe?"#000":"#fff"};padding:10px 14px;border-radius:18px;font-size:13px`;box.appendChild(d)});box.scrollTop=box.scrollHeight}
   function openChat(user){currentChatWith=user;renderUserList();renderMessages()}
@@ -110,8 +117,9 @@
   $("openSupportBtn")?.addEventListener("click",()=>{const s=$("supportScreen");s.classList.remove("hidden");s.style.display="flex";if($("supportChat").children.length===0)addMsg("supportChat","ai","أهلاً يا إمبراطور AL 🛡️")});
   $("closeSupport")?.addEventListener("click",()=>{const s=$("supportScreen");s.classList.add("hidden");s.style.display="none"});
   $("sendSupport")?.addEventListener("click",()=>{const i=$("supportInput");if(!i.value.trim())return;addMsg("supportChat","me",i.value);const q=i.value;i.value="";setTimeout(()=>addMsg("supportChat","ai",aiReply(q)+" ✅"),700)});
-  const profileActions={changeBgBtn:()=>{document.body.style.background=document.body.style.background==="rgb(20, 10, 30)"?"#020A18":"rgb(20, 10, 30)";showToast("تغير الخلفية 🎨")},walletBtn:()=>showToast("💳 المحفظة"),activityBtn:()=>showToast("⚙️ الانشطة"),offlineVideosBtn:()=>showToast("🎞️ دون اتصال"),qrBtn:()=>openQr(),creativeBtn:()=>{window.switchTab("create",document.querySelector('#mainNav.nav-btn[data-tab="create"]'))},businessBtn:()=>showToast("👫 التجارية"),adsBtn:()=>showToast("🚀 الترويج"),managePostsBtn:()=>{window.switchTab("home",document.querySelector('#mainNav.nav-btn[data-tab="home"]'))},settingsBtn:()=>showToast("⚙️ الاعدادات"),accountBtn:()=>showToast("🚹 الحساب"),privacyBtn:()=>showToast("🔐 الخصوصية"),shareProfileBtn:()=>{navigator.clipboard?.writeText(location.href);showToast("💱 نسخ الرابط")},policyBtn:()=>showToast("📄 السياسية"),payBtn:()=>showToast("💳 PayPal")};
+  const profileActions={changeBgBtn:()=>{document.body.style.background=document.body.style.background==="rgb(20, 10, 30)"?"#020A18":"rgb(20, 10, 30)";showToast("تغير الخلفية 🎨")},walletBtn:()=>showToast("💳 المحفظة"),activityBtn:()=>showToast("⚙️ الانشطة"),offlineVideosBtn:()=>showToast("🎞️ دون اتصال"),qrBtn:()=>openQr(),creativeBtn:()=>{window.switchTab("create",document.querySelector('#mainNav .nav-btn[data-tab="create"]'))},businessBtn:()=>showToast("👫 التجارية"),adsBtn:()=>showToast("🚀 الترويج"),managePostsBtn:()=>{window.switchTab("home",document.querySelector('#mainNav .nav-btn[data-tab="home"]'))},settingsBtn:()=>showToast("⚙️ الاعدادات"),accountBtn:()=>showToast("🚹 الحساب"),privacyBtn:()=>showToast("🔐 الخصوصية"),shareProfileBtn:()=>{navigator.clipboard?.writeText(location.href);showToast("💱 نسخ الرابط")},policyBtn:()=>showToast("📄 السياسية"),payBtn:()=>showToast("💳 PayPal")};
   Object.keys(profileActions).forEach(id=>{const el=$(id);if(el)el.addEventListener("click",profileActions[id])});
   console.log("[TARIM OS] V9.5 FINAL COMPLETE - بمسافة - كل الأزرار شغالة - اليمن على اليمين 👑");
   if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js").catch(()=>{})}
 })();
+    
