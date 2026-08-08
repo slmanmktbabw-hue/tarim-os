@@ -1,111 +1,136 @@
-// settings.js - TARIM OS Sovereign Brain - PRODUCTION READY - IMMUTABLE
+// settings.js - TARIM OS V7.3 Sovereign Brain - IMMUTABLE FINAL SEAL
 require('dotenv').config();
-
 const crypto = require('crypto');
 
-// دالة تقرأ من.env مع قيمة احتياطية آمنة
-function env(key, fallback) {
-    return process.env[key] || fallback;
+function env(key, fallback = null) {
+    const val = process.env[key];
+    return val!== undefined && val!== ''? val : fallback;
+}
+
+function envInt(key, fallback) {
+    const v = env(key, null);
+    if (v === null) return fallback;
+    const n = parseInt(v, 10);
+    return isNaN(n)? fallback : n;
 }
 
 const settings = {
-    // 1. معلومات النظام - ثابتة
     system: {
         name: "TARIM OS",
         fullName: "من تريم إلى العالم",
-        version: "1.0.0 Imperial",
-        build: "2026.05.12-Sovereign",
+        version: "7.3.0 Imperial Sovereign Final",
+        build: "2026.05.13-V7.3-ESM-SHIELD",
         sovereign: "AL",
         emperorName: "أبو سلمان",
+        seal: "TARIM-OS-V7.3-ESM-SHIELD-ACTIVE"
     },
 
-    // 2. الموقع السيادي - تريم حضرموت - ثابت لا يتغير
     location: {
         city: "Tarim",
         region: "Hadhramaut",
         country: "YE",
-        coords: [16.0500, 48.9833],
+        coords: [16.05, 48.9833],
         lat: 16.05,
         lng: 48.9833
     },
 
-    // 3. المنصة - تقرأ من.env الآن - لا تضارب
     platform: {
-        port: parseInt(env('PORT', '10000'), 10),
+        port: envInt('PORT', 10000),
         env: env('NODE_ENV', 'production'),
-        domain: env('CORS_ORIGIN', 'https://tarimos.org'),
+        domain: (env('CORS_ORIGIN', 'https://tarimos.org').split(',')[0] || 'https://tarimos.org').trim(),
+        allDomains: env('CORS_ORIGIN', 'https://tarimos.org').split(',').map(s => s.trim()),
         isProduction: env('NODE_ENV', 'production') === 'production'
     },
 
-    // 4. إعدادات البث المباشر الملكي
     live: {
         maxDurationMinutes: 8,
         maxDurationSeconds: 8 * 60,
         autoStop: true,
         enableChat: true,
         enableLikes: true,
-        enableGifts: false // معطل حتى تفعيل الدفع
+        enableGifts: false
     },
 
-    // 5. الكاميرا السيادية
     camera: {
         defaultFacing: "environment",
         enableTorch: true,
         enableSwitch: true
     },
 
-    // 6. خريطة حضرموت Offline
     map: {
-        provider: "Offline Leaflet",
+        provider: "Offline Leaflet V7.3",
         defaultZoom: 13,
-        defaultCenter: [16.0500, 48.9833],
+        defaultCenter: [16.05, 48.9833],
         offlineCache: true,
         tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        attribution: "© TARIM OS Sovereign Map | OSM"
+        fallbackTileUrl: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+        attribution: "© TARIM OS V7.3 Sovereign Map | OSM"
     },
 
-    // 7. محفظة OKX
+    // ✅ الإضافة السيادية الجديدة - روابط esm.unpkg.com المحصنة
+    esm: {
+        shield: "esm.unpkg.com",
+        target: "es2022",
+        bundle: true,
+        min: true,
+        // الروابط المحصنة الجاهزة للواجهة
+        imports: {
+            "leaflet": "https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min",
+            "lucide": "https://esm.unpkg.com/lucide@0.400.0?bundle&target=es2022&min",
+            "socket.io-client": "https://esm.unpkg.com/socket.io-client@4.8.1?bundle&target=es2022&min"
+        },
+        css: {
+            "leaflet": "https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min&css"
+        }
+    },
+
     okx: {
         initialBalance: 1000,
         currency: "TARIM",
-        // توليد محفظة وهمية آمنة عند الطلب
         generateWallet: () => `0x53${crypto.randomBytes(16).toString('hex').slice(0, 4)}...${crypto.randomBytes(2).toString('hex')}`
     },
 
-    // 8. الأمان السيادي - يقرأ من وزارة الدفاع security.js
     security: {
-        jwtSecret: env('JWT_SECRET', null), // لا يوجد احتياطي - يجب أن يكون في.env
+        jwtSecret: env('JWT_SECRET', null),
         jwtExpiresIn: env('JWT_EXPIRES_IN', '7d'),
-        rateLimitGlobal: 300,
-        rateLimitLogin: 10,
-        helmetEnabled: true
+        // ✅ موحد مع security.js V7.3
+        rateLimitGlobal: 150,
+        rateLimitLogin: 5,
+        helmetEnabled: true,
+        bcryptRounds: 12
     },
 
-    // 9. عين الذكاء الاصطناعي
     aiEye: {
         offline: true,
-        model: "TarimAI v1 Sovereign",
+        model: "TarimAI v7.3 Sovereign ESM",
         language: "ar",
-        version: "1.0"
+        version: "7.3.0"
     }
 };
 
-// 10. تحصين العقل - ممنوع التعديل بعد التحميل - Immutable
-// أي محاولة لتغيير settings.system.name = "HACKED" ستفشل
-Object.freeze(settings);
-Object.freeze(settings.system);
-Object.freeze(settings.location);
-Object.freeze(settings.platform);
-Object.freeze(settings.live);
-Object.freeze(settings.security);
+// ================= تحصين العقل - Deep Freeze V7.3 - ممنوع التعديل نهائياً =================
+function deepFreeze(obj) {
+    Object.getOwnPropertyNames(obj).forEach(prop => {
+        const value = obj[prop];
+        if (value && typeof value === 'object' &&!Object.isFrozen(value)) {
+            deepFreeze(value);
+        }
+    });
+    return Object.freeze(obj);
+}
+deepFreeze(settings);
 
-// 11. فحص أمني عند الإقلاع
+// ================= فحص أمني عند الإقلاع - لا يعمل بدون مفتاح =================
 if (!settings.security.jwtSecret) {
-    console.error('☠️ [TARIM BRAIN] JWT_SECRET مفقود في.env - العقل يرفض العمل بدون مفتاح سيادي');
+    console.error('☠️ [TARIM BRAIN V7.3] JWT_SECRET مفقود - العقل يرفض العمل');
     if (settings.platform.isProduction) {
-        // في الإنتاج لا نعمل بدون مفتاح
         process.exit(1);
+    } else {
+        console.warn('⚠️ [DEV ONLY] استخدام مفتاح مؤقت - ممنوع في الإنتاج');
+        settings.security.jwtSecret = 'DEV_ONLY_TEMP_KEY_REPLACE_IN_PROD_' + crypto.randomBytes(32).toString('hex');
     }
 }
+
+console.log(`🧠 [TARIM BRAIN V7.3] العقل السيادي محمل - الإصدار ${settings.system.version} - ESM Shield: ${settings.esm.shield}`);
 
 module.exports = settings;
