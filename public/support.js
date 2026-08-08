@@ -1,124 +1,125 @@
-// public/support.js - TARIM OS Sovereign Support - PRODUCTION READY - NO ALERT
+// public/support.js - TARIM OS V7.3.1 FINAL SEAL - ESM SHIELD - NO ALERT
 "use strict";
 
-(function() {
-    let isOpen = false;
+let isOpen = false;
 
-    function createSupportModal() {
-        if (document.getElementById('supportModal')) return;
+function createSupportModal() {
+    if (document.getElementById('supportModal')) return;
 
-        const modal = document.createElement('div');
-        modal.id = 'supportModal';
-        modal.className = 'hidden fixed inset-0 z-[75] bg-black/90 backdrop-blur-sm p-4 items-center justify-center';
-        modal.setAttribute('role', 'dialog');
-        modal.setAttribute('aria-modal', 'true');
+    const modal = document.createElement('div');
+    modal.id = 'supportModal';
+    modal.className = 'hidden fixed inset-0 z-[75] bg-black/90 backdrop-blur-sm p-4 items-center justify-center';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.style.display = 'none';
 
-        const box = document.createElement('div');
-        box.className = 'glass w-full max-w-md rounded-3xl p-6 space-y-5 shadow-2xl border border-cyan-500/20';
+    const box = document.createElement('div');
+    box.className = 'glass w-full max-w-md rounded-3xl p-6 space-y-5 shadow-2xl border border-cyan-500/20';
+    box.style.cssText += ';background:rgba(10,20,40,.96);backdrop-filter:blur(14px);border:1px solid rgba(0,240,255,.15);border-radius:24px;padding:24px';
 
-        // Header
-        const header = document.createElement('div');
-        header.className = 'flex justify-between items-center border-b border-white/10 pb-4';
-        const title = document.createElement('h3');
-        title.className = 'text-sm font-black text-cyan-400';
-        title.textContent = 'فريق الدعم السيادي - TARIM OS';
-        const closeBtn = document.createElement('button');
-        closeBtn.id = 'closeSupportBtn';
-        closeBtn.className = 'text-slate-400 hover:text-white text-xs bg-slate-900 px-3 py-1 rounded-lg';
-        closeBtn.textContent = 'إغلاق';
-        header.appendChild(title);
-        header.appendChild(closeBtn);
+    const header = document.createElement('div');
+    header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:16px;margin-bottom:16px';
+    const title = document.createElement('h3');
+    title.style.cssText = 'font-size:13px;font-weight:900;color:#22d3ee';
+    title.textContent = '🛡️ فريق الدعم السيادي V7.3.1';
+    const closeBtn = document.createElement('button');
+    closeBtn.id = 'closeSupportBtn';
+    closeBtn.style.cssText = 'color:#94a3b8;background:#0f172a;padding:6px 12px;border-radius:10px;font-size:12px;border:1px solid rgba(255,255,255,.08)';
+    closeBtn.textContent = 'إغلاق ✕';
+    header.append(title, closeBtn);
 
-        // Body
-        const body = document.createElement('div');
-        body.className = 'space-y-4 text-right';
+    const body = document.createElement('div');
+    body.style.cssText = 'display:flex;flex-direction:column;gap:16px;text-align:right';
 
-        const info = document.createElement('div');
-        info.className = 'bg-slate-900/70 p-4 rounded-xl border border-white/5 space-y-2';
-        const p1 = document.createElement('p');
-        p1.className = 'text-[13px] text-slate-200';
-        p1.textContent = 'أهلاً بك يا إمبراطور في مركز القيادة من تريم حضرموت.';
-        const p2 = document.createElement('p');
-        p2.className = 'text-[11px] text-slate-400';
-        p2.textContent = 'نعمل 24/7 لحماية سيادة منصتك. متوسط الرد: 8 دقائق.';
-        info.appendChild(p1);
-        info.appendChild(p2);
+    const info = document.createElement('div');
+    info.style.cssText = 'background:rgba(15,23,42,.7);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;gap:8px';
+    const p1 = document.createElement('p');
+    p1.style.cssText = 'font-size:13px;color:#e2e8f0';
+    p1.textContent = 'أهلاً بك يا إمبراطور AL في مركز القيادة من تريم حضرموت V7.3.1 FINAL SEAL.';
+    const p2 = document.createElement('p');
+    p2.style.cssText = 'font-size:11px;color:#94a3b8;line-height:1.8';
+    p2.textContent = 'نعمل 24/7 لحماية سيادة منصتك. ESM Shield • bcrypt 12 • JWT • متوسط الرد 8 دقائق. tarimos.org';
+    info.append(p1, p2);
 
-        // Actions
-        const actions = document.createElement('div');
-        actions.className = 'grid grid-cols-2 gap-2';
+    const actions = document.createElement('div');
+    actions.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px';
 
-        const waBtn = document.createElement('a');
-        waBtn.href = 'https://wa.me/967000000000?text=سلام%20فريق%20TARIM%20OS';
-        waBtn.target = '_blank';
-        waBtn.rel = 'noopener';
-        waBtn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white text-center py-3 rounded-xl text-xs font-bold transition';
-        waBtn.textContent = 'واتساب سيادي';
+    const waBtn = document.createElement('a');
+    waBtn.href = 'https://wa.me/967000000000?text=سلام%20فريق%20TARIM%20OS%20V7.3.1%20FINAL';
+    waBtn.target = '_blank'; 
+    waBtn.rel = 'noopener';
+    waBtn.style.cssText = 'background:#059669;color:#fff;text-align:center;padding:12px;border-radius:12px;font-size:12px;font-weight:700;display:block';
+    waBtn.textContent = '💬 واتساب سيادي';
 
-        const mailBtn = document.createElement('a');
-        mailBtn.href = 'mailto:sovereign@tarimos.org?subject=دعم%20TARIM%20OS';
-        mailBtn.className = 'bg-slate-800 hover:bg-slate-700 text-white text-center py-3 rounded-xl text-xs font-bold border border-white/10 transition';
-        mailBtn.textContent = 'بريد سيادي';
+    const mailBtn = document.createElement('a');
+    mailBtn.href = 'mailto:sovereign@tarimos.org?subject=دعم%20TARIM%20OS%20V7.3.1%20FINAL';
+    mailBtn.style.cssText = 'background:#0f172a;color:#fff;text-align:center;padding:12px;border-radius:12px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.1);display:block';
+    mailBtn.textContent = '✉️ بريد سيادي';
 
-        actions.appendChild(waBtn);
-        actions.appendChild(mailBtn);
+    actions.append(waBtn, mailBtn);
 
-        const footer = document.createElement('p');
-        footer.className = 'text-[10px] text-slate-500 text-center';
-        footer.textContent = 'Tarim, Hadhramaut - من تريم إلى العالم - 2026';
+    const footer = document.createElement('p');
+    footer.style.cssText = 'font-size:10px;color:#64748b;text-align:center;margin-top:8px';
+    footer.textContent = 'Tarim, Hadhramaut 16.05,48.98 • V7.3.1 FINAL SEAL • ESM Shield • من تريم إلى العالم - 2026';
 
-        body.appendChild(info);
-        body.appendChild(actions);
-        body.appendChild(footer);
+    body.append(info, actions, footer);
+    box.append(header, body);
+    modal.appendChild(box);
+    document.body.appendChild(modal);
 
-        box.appendChild(header);
-        box.appendChild(body);
-        modal.appendChild(box);
-        document.body.appendChild(modal);
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+}
 
-        // Events - محصنة
-        closeBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
+function openModal() {
+    createSupportModal(); // التأكد من إنشاء المكون إن لم يكن موجوداً
+    const modal = document.getElementById('supportModal');
+    if (!modal) return;
+    modal.classList.remove('hidden'); 
+    modal.classList.add('flex');
+    modal.style.display = 'flex';
+    isOpen = true;
+    document.body.style.overflow = 'hidden';
+    console.log('[SUPPORT V7.3.1] فتح');
+}
+
+function closeModal() {
+    const modal = document.getElementById('supportModal');
+    if (!modal) return;
+    modal.classList.add('hidden'); 
+    modal.classList.remove('flex');
+    modal.style.display = 'none';
+    isOpen = false;
+    document.body.style.overflow = '';
+}
+
+export function initSupport() {
+    createSupportModal();
+    const supportBtn = document.getElementById('openSupportBtn');
+    if (supportBtn && !supportBtn.dataset.bound) {
+        supportBtn.dataset.bound = 'true';
+        supportBtn.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            openModal(); 
         });
     }
-
-    function openModal() {
-        const modal = document.getElementById('supportModal');
-        if (!modal) return;
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        isOpen = true;
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-        const modal = document.getElementById('supportModal');
-        if (!modal) return;
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        isOpen = false;
-        document.body.style.overflow = '';
-    }
-
-    // تهيئة عند التحميل
-    document.addEventListener('DOMContentLoaded', () => {
-        createSupportModal();
-
-        const supportBtn = document.getElementById('openSupportBtn');
-        if (supportBtn) {
-            supportBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                openModal();
-            });
-        }
-
-        // إغلاق بزر Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && isOpen) closeModal();
-        });
-
-        console.log('[TARIM SUPPORT] Sovereign Support System Loaded - No Alert');
+    
+    document.addEventListener('keydown', (e) => { 
+        if (e.key === 'Escape' && isOpen) closeModal(); 
     });
+    console.log('[TARIM SUPPORT V7.3.1 FINAL] Sovereign Support ESM Loaded - No Alert - ESM Shield');
+}
 
-})();
+// تشغيل تلقائي للتوافق
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSupport);
+    } else {
+        initSupport();
+    }
+}
+
+// توافق مع النظام القديم
+if (typeof window !== 'undefined') {
+    window.TarimSupport = { openModal, closeModal, initSupport };
+}
