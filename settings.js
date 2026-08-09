@@ -4,14 +4,14 @@ const crypto = require('crypto');
 
 function env(key, fallback = null) {
     const val = process.env[key];
-    return val!== undefined && val!== ''? val : fallback;
+    return val !== undefined && val !== '' ? val : fallback;
 }
 
 function envInt(key, fallback) {
     const v = env(key, null);
     if (v === null) return fallback;
     const n = parseInt(v, 10);
-    return isNaN(n)? fallback : n;
+    return isNaN(n) ? fallback : n;
 }
 
 const settings = {
@@ -67,13 +67,11 @@ const settings = {
         attribution: "© TARIM OS V7.3 Sovereign Map | OSM"
     },
 
-    // ✅ الإضافة السيادية الجديدة - روابط esm.unpkg.com المحصنة
     esm: {
         shield: "esm.unpkg.com",
         target: "es2022",
         bundle: true,
         min: true,
-        // الروابط المحصنة الجاهزة للواجهة
         imports: {
             "leaflet": "https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min",
             "lucide": "https://esm.unpkg.com/lucide@0.400.0?bundle&target=es2022&min",
@@ -93,7 +91,6 @@ const settings = {
     security: {
         jwtSecret: env('JWT_SECRET', null),
         jwtExpiresIn: env('JWT_EXPIRES_IN', '7d'),
-        // ✅ موحد مع security.js V7.3
         rateLimitGlobal: 150,
         rateLimitLogin: 5,
         helmetEnabled: true,
@@ -108,11 +105,10 @@ const settings = {
     }
 };
 
-// ================= تحصين العقل - Deep Freeze V7.3 - ممنوع التعديل نهائياً =================
 function deepFreeze(obj) {
     Object.getOwnPropertyNames(obj).forEach(prop => {
         const value = obj[prop];
-        if (value && typeof value === 'object' &&!Object.isFrozen(value)) {
+        if (value && typeof value === 'object' && !Object.isFrozen(value)) {
             deepFreeze(value);
         }
     });
@@ -120,7 +116,6 @@ function deepFreeze(obj) {
 }
 deepFreeze(settings);
 
-// ================= فحص أمني عند الإقلاع - لا يعمل بدون مفتاح =================
 if (!settings.security.jwtSecret) {
     console.error('☠️ [TARIM BRAIN V7.3] JWT_SECRET مفقود - العقل يرفض العمل');
     if (settings.platform.isProduction) {
