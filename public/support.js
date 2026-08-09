@@ -72,7 +72,7 @@ function createSupportModal() {
 }
 
 function openModal() {
-    createSupportModal(); // التأكد من إنشاء المكون إن لم يكن موجوداً
+    createSupportModal();
     const modal = document.getElementById('supportModal');
     if (!modal) return;
     modal.classList.remove('hidden'); 
@@ -110,7 +110,6 @@ export function initSupport() {
     console.log('[TARIM SUPPORT V7.3.1 FINAL] Sovereign Support ESM Loaded - No Alert - ESM Shield');
 }
 
-// تشغيل تلقائي للتوافق
 if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initSupport);
@@ -119,7 +118,6 @@ if (typeof document !== 'undefined') {
     }
 }
 
-// توافق مع النظام القديم
 if (typeof window !== 'undefined') {
     window.TarimSupport = { openModal, closeModal, initSupport };
 }
