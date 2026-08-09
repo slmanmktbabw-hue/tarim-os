@@ -8,13 +8,11 @@ const crypto = require('crypto');
 function checkSovereignKey() {
     if (!process.env.JWT_SECRET) {
         if (process.env.NODE_ENV === 'production') {
-            // في الإنتاج على Render - لا تسقط، ولد مفتاح مؤقت ونبه
             console.warn('⚠️ [TARIM SECURITY WARN] JWT_SECRET غير موجود في Render - توليد مؤقت - ضعه في Environment Variables فوراً!');
             console.warn('⚠️ اذهب إلى Render Dashboard > Environment > JWT_SECRET');
             process.env.JWT_SECRET = crypto.randomBytes(64).toString('base64');
             console.log('🔑 [TARIM SECURITY] تم توليد مفتاح مؤقت - السيرفر سيعمل لكن ضع واحد ثابت!');
         } else {
-            // في التطوير المحلي
             console.warn('⚠️ [DEV] JWT_SECRET غير موجود - استخدام مفتاح تطوير');
             process.env.JWT_SECRET = 'DEV-TARIM-OS-V7-3-1-FINAL-SEAL-LOCAL-ONLY-' + crypto.randomBytes(16).toString('hex');
         }
@@ -56,8 +54,8 @@ const helmetShield = helmet({
             defaultSrc: ["'self'"],
             scriptSrc: [
                 "'self'",
-                "'unsafe-inline'", // Vanilla JS بدون build
-                "https://esm.unpkg.com", // ✅ الدرع السيادي الجديد - bundle&target=es2022&min
+                "'unsafe-inline'",
+                "https://esm.unpkg.com",
                 "https://esm.sh",
                 "blob:"
             ],
