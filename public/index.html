@@ -4,136 +4,148 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#020A18">
-<meta name="description" content="TARIM OS V7.3.1 - من تريم حضرموت إلى العالم - ESM Shield Final Seal">
-<title>TARIM OS V7.3.1 - القلعة السيادية - FINAL SEAL</title>
+<meta name="description" content="TARIM OS V7.3.1 FINAL - كل الأزرار شغالة">
+<title>TARIM OS V7.3.1 FINAL SEAL</title>
 <link rel="manifest" href="./manifest.json">
-<link rel="icon" href="./icons/icon-192.png">
-
-<!-- V7.3.1 ESM Sovereign Shield - FIXED -->
-<script type="importmap">
-{
-  "imports": {
-    "leaflet": "https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min",
-    "socket.io-client": "https://esm.unpkg.com/socket.io-client@4.8.1?bundle&target=es2022&min"
-  }
-}
-</script>
-<!-- ✅ إصلاح الرابط - كان فيه []() -->
+<script type="importmap">{"imports":{"leaflet":"https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min"}}</script>
 <link rel="stylesheet" href="https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min&css" />
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:#020A18;color:#fff;font-family:system-ui;overflow-x:hidden;padding-bottom:90px;direction:rtl}
-.glass{background:rgba(10,20,40,.96);backdrop-filter:blur(14px);border:1px solid rgba(0,240,255,.12);border-radius:22px}
-.tab-content{display:none;animation:fadeIn .25s ease}.tab-content.active{display:block!important}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+body{background:#020A18;color:#fff;font-family:system-ui;padding-bottom:90px;direction:rtl;overflow-x:hidden}
+.glass{background:rgba(10,20,40,.96);border:1px solid rgba(0,240,255,.12);border-radius:22px}
+.tab-content{display:none}.tab-content.active{display:block!important}
 .hidden{display:none!important}
-input,textarea{width:100%;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:14px;color:#fff;font-size:14px;text-align:right;outline:none}
+input,textarea{width:100%;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:14px;color:#fff;outline:none;text-align:right}
 input:focus,textarea:focus{border-color:#00B4D8}
 button{border:none;cursor:pointer}button:active{transform:scale(.97)}
 #toastBox{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99999;width:91%;max-width:320px;pointer-events:none}
-.tiktok-card{position:relative;width:100%;height:68vh;background:linear-gradient(180deg,#0A1428,#020A18);border-radius:22px;overflow:hidden;border:1px solid rgba(0,240,255,.12);display:flex;flex-direction:column;justify-content:space-between;padding:12px}
-.tiktok-act{display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;cursor:pointer;background:rgba(0,0,0,.45);padding:8px;border-radius:20px;backdrop-filter:blur(8px);min-width:52px;border:1px solid rgba(255,255,255,.08)}
-.nav-active{color:#22d3ee!important;filter:drop-shadow(0 0 6px rgba(34,211,238,.6))}
+.nav-active{color:#22d3ee!important}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
 <body>
 
+<!-- بوابة تسجيل الدخول -->
 <div id="authGate" style="position:fixed;inset:0;z-index:70;background:#020A18;display:flex;align-items:center;justify-content:center;padding:16px">
-<div class="glass" style="max-width:384px;width:100%;border-radius:24px;padding:24px;text-align:center">
+<div class="glass" style="max-width:384px;width:100%;padding:24px;text-align:center;border-radius:24px">
 <div style="font-size:42px">👑</div>
-<h1 style="font-size:20px;font-weight:900;color:#22d3ee;letter-spacing:.15em">TARIM OS V7.3.1</h1>
-<p style="font-size:11px;color:#94a3b8">FINAL SEAL • ESM Shield • حضرموت</p>
-<div style="display:flex;justify-content:center;gap:24px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:10px;margin-top:16px">
-<button id="tabLoginBtn" style="color:#22d3ee;font-weight:700;border-bottom:2px solid #22d3ee;padding-bottom:6px;background:none">تسجيل الدخول</button>
-<button id="tabSignupBtn" style="color:#94a3b8;padding-bottom:6px;background:none">حساب جديد</button>
-</div>
-<div id="loginForm" style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+<h1 style="color:#22d3ee;letter-spacing:.15em;font-size:20px;font-weight:900">TARIM OS V7.3.1</h1>
+<p style="font-size:11px;color:#94a3b8;margin-bottom:16px">FINAL SEAL • نظام التشغيل السيادي</p>
 <input id="userPhoneOrEmail" placeholder="AL - الإمبراطور" maxlength="30">
-<input id="userPass" placeholder="كلمة السر" type="password" maxlength="64">
-<button id="loginBtn" style="background:#00B4D8;color:#000;font-weight:900;padding:14px;border-radius:12px;font-size:14px">🔑 دخول سيادي FINAL 👑</button>
-<p id="loginError" style="font-size:11px;color:#fb7185;display:none;background:rgba(244,63,94,.1);padding:8px;border-radius:8px"></p>
-<p style="font-size:10px;color:#64748b">JWT + bcrypt 12 + Helmet V8 + ESM Shield</p>
-</div>
-<div id="signupForm" style="display:none;flex-direction:column;gap:12px;margin-top:16px">
-<input id="newUsername" placeholder="اختر اسم" maxlength="20">
-<input id="newPass" placeholder="كلمة سر" type="password" maxlength="64">
-<input id="confirmPass" placeholder="تأكيد" type="password" maxlength="64">
-<button id="signupBtn" style="background:#334155;color:#fff;padding:14px;border-radius:12px;font-size:13px">التسجيل عبر API - استخدم AL الآن</button>
-<p id="signupError" style="font-size:11px;color:#fb7185;display:none"></p>
-</div>
+<input id="userPass" placeholder="كلمة السر" type="password" style="margin-top:10px">
+<button id="loginBtn" style="background:#00B4D8;color:#000;font-weight:900;padding:14px;border-radius:12px;width:100%;margin-top:12px">🔑 دخول القلعة السيادية 👑</button>
+<p id="loginError" style="font-size:11px;color:#fb7185;display:none;margin-top:8px;background:rgba(244,63,94,.1);padding:8px;border-radius:8px"></p>
 </div>
 </div>
 
 <div id="toastBox"></div>
 
-<header style="position:fixed;top:0;left:0;right:0;z-index:40;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(2,10,24,.97);border-bottom:1px solid rgba(6,182,212,.12);font-size:12px;backdrop-filter:blur(12px)">
-<span id="openAiEyeBtn" style="color:#22d3ee;font-weight:700;cursor:pointer">👁️ عين V7.3.1</span>
-<b style="color:#22d3ee;letter-spacing:.15em">TARIM OS FINAL</b>
-<span id="openSupportBtn" style="color:#22d3ee;font-weight:700;cursor:pointer">🛡️ SEAL</span>
+<!-- الهيدر العلوي -->
+<header style="position:fixed;top:0;left:0;right:0;z-index:40;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(2,10,24,.97);border-bottom:1px solid rgba(6,182,212,.12);font-size:12px">
+<span style="color:#22d3ee">🛡️ الدعم</span>
+<b style="color:#22d3ee">TARIM OS FINAL</b>
+<span style="color:#22d3ee">👁️ عين الذكاء</span>
 </header>
 
-<main style="padding-top:60px;max-width:448px;margin:0 auto;padding-left:12px;padding-right:12px;display:flex;flex-direction:column;gap:12px">
-<div id="tab-home" class="tab-content active"><div id="postsFeed" style="display:flex;flex-direction:column;gap:12px"></div></div>
+<!-- المحتوى الرئيسي -->
+<main style="padding:70px 12px 12px 12px;max-width:448px;margin:0 auto;display:flex;flex-direction:column;gap:12px">
 
+
+<!-- تبويب الرئيسية -->
+<div id="tab-home" class="tab-content active">
+<div id="postsFeed" style="display:flex;flex-direction:column;gap:12px"></div>
+</div>
+
+<!-- تبويب العمليات -->
 <div id="tab-operations" class="tab-content" style="display:flex;flex-direction:column;gap:12px">
-<h3 style="text-align:center;color:#22d3ee;font-size:14px;font-weight:700;margin-top:8px">⚡ العمليات السيادية FINAL</h3>
-<div id="liveOpBtn" class="glass" style="padding:16px;display:flex;justify-content:space-between;align-items:center;border-radius:16px;cursor:pointer;border:1px solid rgba(244,63,94,.35)"><div style="display:flex;align-items:center;gap:8px;color:#fb7185;font-size:14px"><span style="width:10px;height:10px;background:#f43f5e;border-radius:50%;display:inline-block;animation:pulse 1s infinite"></span> بث مباشر سيادي JWT</div><span>بدء ←</span></div>
-<div id="goInboxBtn" class="glass" style="padding:16px;display:flex;justify-content:space-between;align-items:center;border-radius:16px;cursor:pointer"><div>💬 المراسلة الآمنة</div><span>فتح ←</span></div>
-<div id="opsMapBtn" class="glass" style="padding:16px;display:flex;justify-content:space-between;align-items:center;border-radius:16px;cursor:pointer"><div>🗺️ خريطة حضرموت ESM</div><span>عرض ←</span></div>
-<div id="opsQrBtn" class="glass" style="padding:16px;display:flex;justify-content:space-between;align-items:center;border-radius:16px;cursor:pointer"><div>🔐 الختم QR</div><span>عرض ←</span></div>
-<div id="qrDisplay" class="glass hidden" style="padding:16px;text-align:center"><div id="qrcode" style="display:flex;justify-content:center;padding:12px;background:#fff;border-radius:12px;margin:0 auto;width:fit-content;min-height:180px;align-items:center;color:#000;font-size:12px">QR V7.3.1</div><p id="qrText" style="font-size:11px;color:#94a3b8;margin-top:10px"></p></div>
+<h3 style="text-align:center;color:#22d3ee">⚡ قسم العمليات السيادية</h3>
+<div id="liveOpBtn" class="glass" style="padding:16px;display:flex;justify-content:space-between;cursor:pointer;border:1px solid rgba(244,63,94,.3)"><span>🔴 بث مباشر سيادي</span><span>بدء ←</span></div>
+<div id="goInboxBtn" class="glass" style="padding:16px;display:flex;justify-content:space-between;cursor:pointer"><span>💬 المراسلة الآمنة</span><span>فتح ←</span></div>
+<div id="opsMapBtn" class="glass" style="padding:16px;display:flex;justify-content:space-between;cursor:pointer"><span>🗺️ خريطة حضرموت Offline</span><span>عرض ←</span></div>
+<div id="opsQrBtn" class="glass" style="padding:16px;display:flex;justify-content:space-between;cursor:pointer"><span>🔐 QR الختم الميداني</span><span>عرض ←</span></div>
+<div id="qrDisplay" class="glass hidden" style="padding:20px;text-align:center"><div style="background:#fff;color:#000;padding:30px;border-radius:12px">QR TARIM OS FINAL<br><span id="qrText" style="font-size:11px">tarimos.org | OKX: 0x53...ab96</span></div></div>
 </div>
 
+<!-- تبويب الإنشاء -->
 <div id="tab-create" class="tab-content">
-<div class="glass" style="padding:16px;display:flex;flex-direction:column;gap:12px">
-<h3 style="text-align:center;color:#22d3ee;font-size:14px">✨ محطة الإنشاء FINAL + TarimAI</h3>
-<div style="width:100%;border-radius:16px;overflow:hidden;background:#000;height:42vh;position:relative;border:1px solid rgba(0,240,255,.15)"><video id="cameraPreview" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover"></video><div id="lightOverlay" style="position:absolute;inset:0;background:transparent;pointer-events:none"></div></div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><button id="switchCamBtn" style="background:#0f172a;padding:12px;border-radius:12px;font-size:12px;border:1px solid rgba(0,240,255,.15)">🔄 تبديل</button><button id="filterBtn" style="background:#0f172a;padding:12px;border-radius:12px;font-size:12px;border:1px solid rgba(0,240,255,.15)">🎨 فلاتر</button><button id="lightBtn" style="background:#0f172a;padding:12px;border-radius:12px;font-size:12px;border:1px solid rgba(0,240,255,.15)">💡 إضاءة</button></div>
-<textarea id="postContentInput" maxlength="2000" style="height:96px;resize:none" placeholder="اكتب منشورك - TarimAI يفحصه 🛡️"></textarea>
-<button id="publishBtn" style="width:100%;padding:14px;border-radius:12px;font-weight:900;background:#00B4D8;color:#000">🚀 نشر FINAL SEAL V7.3.1</button>
+<div class="glass" style="padding:12px;display:flex;flex-direction:column;gap:10px">
+<h3 style="text-align:center;color:#22d3ee;font-size:14px">✨ محطة الإنشاء</h3>
+<div style="position:relative;width:100%;height:42vh;background:#000;border-radius:16px;overflow:hidden;border:1px solid rgba(0,240,255,.15)">
+<video id="cameraPreview" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover"></video>
+<div id="liveBadge" class="hidden" style="position:absolute;top:10px;left:10px;background:#f43f5e;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px">🔴 LIVE <span id="liveViewers">1</span> • <span id="liveTimer">00:00</span></div>
+<div id="giftAnim" style="position:absolute;bottom:70px;left:0;right:0;text-align:center;font-size:40px;pointer-events:none"></div>
+<div id="lightOverlay" style="position:absolute;inset:0;background:transparent;pointer-events:none"></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+<button onclick="setFilter('none')" style="background:#0f172a;padding:10px;border-radius:12px;font-size:11px">✨ طبيعي</button>
+<button onclick="setFilter('beauty')" style="background:#0f172a;padding:10px;border-radius:12px;font-size:11px;border:1px solid #ec4899">💄 تجميل</button>
+<button onclick="capturePhoto()" style="background:#0f172a;padding:10px;border-radius:12px;font-size:11px">🖼️ صورة</button>
+<button onclick="switchCam()" style="background:#0f172a;padding:10px;border-radius:12px;font-size:11px">🔄 تبديل</button>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+<button onclick="document.getElementById('videoInput').click()" style="background:#1e293b;padding:12px;border-radius:12px;font-size:11px">📹 رفع صورة/فيديو</button>
+<button onclick="startLive()" style="background:#f43f5e;color:#fff;padding:12px;border-radius:12px;font-size:11px">🔴 بدء البث</button>
+</div>
+<input type="file" id="videoInput" accept="image/*,video/*" hidden>
+<textarea id="postContentInput" maxlength="500" placeholder="اكتب وصف... تعليق - #تريم #حضرموت" style="height:70px;resize:none"></textarea>
+<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:6px">
+<button id="publishBtn" style="padding:14px;border-radius:12px;background:#00B4D8;color:#000;font-weight:900">🚀 نشر</button>
+<button onclick="stopLive()" style="background:#1e293b;padding:14px;border-radius:12px;font-size:11px">⏹️ تسكير</button>
+<button onclick="sendGift()" style="background:#1e293b;padding:14px;border-radius:12px">🎁</button>
+<button onclick="likeLive()" style="background:#1e293b;padding:14px;border-radius:12px">❤️ <span id="likeCount">0</span></button>
+</div>
+<div id="liveComments" style="max-height:80px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;font-size:11px"></div>
 </div>
 </div>
 
+<!-- تبويب الوارد -->
 <div id="tab-inbox" class="tab-content">
-<div class="glass" style="padding:12px;min-height:75vh;display:flex;flex-direction:column;gap:12px">
-<div style="display:flex;justify-content:space-between"><h3 style="color:#22d3ee;font-size:13px">💬 الوارد</h3><span style="font-size:10px;color:#22d3ee">V7.3.1 SEAL</span></div>
-<div id="userList" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.08)"></div>
-<div id="inboxMessagesList" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:10px 0;max-height:52vh"></div>
-<div style="display:flex;gap:8px;margin-top:auto"><button id="sendInboxMsgBtn" style="background:#00B4D8;color:#000;padding:12px 20px;border-radius:22px;font-weight:700;font-size:13px">إرسال</button><input id="inboxInputField" placeholder="رسالة مشفرة..." style="flex:1;background:#0B1428;border:1px solid rgba(0,240,255,.15);border-radius:22px;padding:12px;font-size:13px"></div>
+<div class="glass" style="padding:12px;min-height:70vh;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between"><h3 style="color:#22d3ee;font-size:13px">💬 صندوق الوارد</h3><span style="font-size:10px;color:#22d3ee">مشفر 🔒</span></div>
+<div id="userList" style="display:flex;gap:12px;overflow-x:auto;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)">
+<div style="text-align:center;min-width:60px"><div style="width:54px;height:54px;border-radius:50%;background:#0f172a;border:2px dashed #22d3ee;display:flex;align-items:center;justify-content:center">+</div><p style="font-size:9px">إنشاء</p></div>
+<div style="text-align:center;min-width:60px"><div style="width:54px;height:54px;border-radius:50%;border:3px solid #e91e8c;background:#1e293b"></div><p style="font-size:9px">مزنه</p></div>
+<div style="text-align:center;min-width:60px"><div style="width:54px;height:54px;border-radius:50%;border:3px solid #e91e8c;background:#334155"></div><p style="font-size:9px">سمسم</p></div>
+</div>
+<div id="inboxMessagesList" style="flex:1;display:flex;flex-direction:column;gap:10px;max-height:45vh;overflow-y:auto"></div>
+<div style="display:flex;gap:8px"><input id="inboxInputField" placeholder="رسالتك المشفرة..."><button id="sendInboxMsgBtn" style="background:#00B4D8;color:#000;padding:12px 20px;border-radius:22px;font-weight:700">إرسال</button></div>
 </div>
 </div>
 
+<!-- تبويب الملف الشخصي -->
 <div id="tab-profile" class="tab-content">
-<div class="glass" style="padding:20px;text-align:center"><div id="profileAvatar" style="width:80px;height:80px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;background:#00B4D8;color:#000;font-weight:900;font-size:24px">AL</div><h2 id="profileNameDisplay" style="color:#67e8f9;font-weight:700;font-size:14px;margin-top:12px">الإمبراطور AL FINAL</h2><p style="font-size:11px;color:#22d3ee;margin-top:4px">tarimos.org • V7.3.1 FINAL SEAL • ESM Shield</p></div>
-<div style="padding:0 8px 100px 8px;text-align:right;font-size:15px;line-height:2.2;margin-top:8px">
-<div class="profile-item" style="padding:14px 0;display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.05)"><span>💳 المحفظة OKX 0x53...ab96</span><span>›</span></div>
-<div id="qrBtn" class="profile-item" style="padding:14px 0;display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer"><span>🌐 QR سيادي</span><span>›</span></div>
-<div id="logoutBtn" class="profile-item" style="padding:18px 0;display:flex;justify-content:space-between;color:#fb7185;font-weight:700;cursor:pointer"><span>💤 خروج آمن</span><span>›</span></div>
+<div class="glass" style="padding:20px;text-align:center">
+<div id="goAvatar" style="width:80px;height:80px;border-radius:50%;margin:0 auto;background:#00B4D8;color:#000;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;cursor:pointer">GO</div>
+<div id="profileAvatar" style="display:none">AL</div>
+<p id="profileNameDisplay" style="color:#67e8f9;margin-top:10px">الإمبراطور GOOGLE_357</p>
+<p style="font-size:11px;color:#94a3b8">tarimos.org | OKX: 0x53...ab96</p>
+</div>
+<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+<div class="glass" style="padding:14px;display:flex;justify-content:space-between"><span>👥 المجموعة التجارية</span><span>›</span></div>
+<div class="glass" style="padding:14px;display:flex;justify-content:space-between"><span>🚀 الترويج والاعلانات</span><span>›</span></div>
+<div id="qrBtn" class="glass" style="padding:14px;display:flex;justify-content:space-between;cursor:pointer"><span>🔐 QR لديك</span><span>›</span></div>
+<div id="logoutBtn" class="glass" style="padding:14px;display:flex;justify-content:space-between;color:#fb7185;cursor:pointer"><span>💤 تسجيل الخروج</span><span>›</span></div>
 </div>
 </div>
 </main>
 
+<!-- شريط التنقل السفلي -->
 <nav style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0B1120;border-top:1px solid rgba(0,240,255,.15);display:flex;justify-content:space-around;align-items:flex-end;height:76px;padding-bottom:8px">
-<button data-tab="home" class="nav-btn nav-active" style="background:none;border:none;color:#22d3ee;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:20px">🏰</span><span>الرئيسية</span></button>
-<button data-tab="operations" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:20px">⚡</span><span>العمليات</span></button>
-<button data-tab="create" class="nav-btn" style="background:#00B4D8;border:none;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:#000;margin-bottom:18px;box-shadow:0 0 22px rgba(0,180,216,.6)">+</button>
-<button data-tab="inbox" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:20px">💬</span><span>الوارد</span></button>
-<button data-tab="profile" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:20px">👤</span><span>الملفات</span></button>
+<button data-tab="home" class="nav-btn nav-active" style="background:none;border:none;color:#22d3ee;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:20px">🏰</span>الرئيسية</button>
+<button data-tab="operations" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:20px">⚡</span>العمليات</button>
+<button data-tab="create" class="nav-btn" style="background:#00B4D8;border:none;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;color:#000;margin-bottom:18px">+</button>
+<button data-tab="inbox" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:20px">💬</span>الوارد</button>
+<button data-tab="profile" class="nav-btn" style="background:none;border:none;color:#94a3b8;display:flex;flex-direction:column;align-items:center;font-size:11px;gap:4px;width:70px"><span style="font-size:20px">👤</span>الملفات</button>
 </nav>
 
-<div id="mapScreen" class="hidden" style="position:fixed;inset:0;z-index:50;padding:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,.95)"><div class="glass" style="width:100%;max-width:448px;padding:16px;display:flex;flex-direction:column;height:82vh"><div style="display:flex;justify-content:space-between;margin-bottom:12px"><h3 style="font-size:12px;font-weight:700;color:#22d3ee">🗺️ خريطة تريم V7.3.1</h3><button id="closeMapBtn" style="color:#f43f5e;background:#0f172a;padding:6px 12px;border-radius:10px;font-size:12px">إغلاق</button></div><div id="mapContainer" style="flex:1;width:100%;border-radius:12px;background:#0f172a"></div></div></div>
-
-<div id="liveScreen" class="hidden" style="position:fixed;inset:0;z-index:80;background:#000;display:flex;flex-direction:column">
-<video id="liveVideo" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
-<div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:14px;background:linear-gradient(to bottom, rgba(0,0,0,.7), transparent)"><span style="background:rgba(244,63,94,.9);padding:5px 12px;border-radius:20px;font-size:11px;color:#fff">🔴 LIVE FINAL</span><span id="liveTimer" style="color:#fff;font-size:12px;font-family:monospace">00:00</span><button id="endLiveBtn" style="background:#fff;color:#000;padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700">إغلاق ✕</button></div>
-<div id="readyToBroadcastBox" style="position:relative;z-index:2;margin-top:auto;background:rgba(10,20,40,.92);backdrop-filter:blur(12px);border-top:1px solid rgba(0,240,255,.15);padding:18px;border-radius:22px 22px 0 0"><p style="text-align:center;color:#fff;font-size:13px;margin-bottom:12px">جاهز للبث FINAL SEAL؟</p><button id="confirmStartLive" style="width:100%;background:#f43f5e;color:#fff;padding:14px;border-radius:12px;font-weight:900">ابدأ البث الآن 🔴</button></div>
+<!-- نافذة الخريطة -->
+<div id="mapScreen" class="hidden" style="position:fixed;inset:0;z-index:50;padding:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,.95)">
+<div class="glass" style="width:100%;max-width:448px;padding:16px;display:flex;flex-direction:column;height:82vh">
+<div style="display:flex;justify-content:space-between;margin-bottom:12px"><h3 style="color:#22d3ee">🗺️ خريطة تريم</h3><button id="closeMapBtn" style="color:#f43f5e;background:#0f172a;padding:6px 12px;border-radius:10px">إغلاق</button></div>
+<div id="mapContainer" style="flex:1;border-radius:12px;background:#0f172a"></div>
+</div>
 </div>
 
-<!-- ✅ FIXED: ربط العقلين معاً - هذا كان ناقص -->
-<script type="module" src="./ai-eye.js"></script>
 <script type="module" src="./app.js"></script>
-<script type="module" src="./support.js"></script>
 </body>
 </html>
