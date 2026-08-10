@@ -51,7 +51,7 @@ try {
 // --- 4. ملفات الواجهة ---
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- 5. API ROUTES - لازم تكون قبل catch-all و app.get('*') ---
+// --- 5. API ROUTES - لازم تكون قبل app.get('*') ---
 
 // فحص السيرفر
 app.get('/api/status', (req, res) => {
@@ -63,7 +63,7 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// تسجيل الدخول
+// تسجيل الدخول - الإصلاح الحاسم
 app.post('/api/login', (req, res) => {
   try {
     const { username, password } = req.body;
@@ -81,7 +81,7 @@ app.post('/api/login', (req, res) => {
       return res.status(401).json({ success: false, message: 'بيانات الدخول غير صحيحة' });
     }
 
-    // نجاح تسجيل الدخول
+    // نجاح
     return res.json({ 
       success: true, 
       message: 'تم الدخول',
@@ -89,7 +89,7 @@ app.post('/api/login', (req, res) => {
         username: user.username, 
         okki_balance: user.okki_balance || 100,
         followers: user.followers || 0,
-        posts: memoryDB.posts.filter(p => p.username === user.username).length
+        posts: memoryDB.posts.filter(p=>p.username===user.username).length
       }
     });
   } catch(err) {
@@ -98,7 +98,7 @@ app.post('/api/login', (req, res) => {
   }
 });
 
-// إنشاء حساب جديد
+// إنشاء حساب
 app.post('/api/register', (req, res) => {
   try {
     const { username, password } = req.body;
@@ -106,13 +106,13 @@ app.post('/api/register', (req, res) => {
       return res.status(400).json({ success: false, message: 'عبّي الحقول' });
     }
     const cleanUser = String(username).trim();
-    if(!/^[a-zA-Z0-9_]{3,20}$/.test(cleanUser)){
-      return res.status(400).json({ success: false, message: 'اسم المستخدم 3-20 حرف إنجليزي' });
+    if(!/^[a-zA-Z0-9_]{2,20}$/.test(cleanUser)){
+      return res.status(400).json({ success: false, message: 'اسم المستخدم 2-20 حرف إنجليزي' });
     }
     if(String(password).length < 6){
       return res.status(400).json({ success: false, message: 'كلمة المرور 6 أحرف على الأقل' });
     }
-    if(memoryDB.users.find(u => u.username.toLowerCase() === cleanUser.toLowerCase())){
+    if(memoryDB.users.find(u=>u.username.toLowerCase()===cleanUser.toLowerCase())){
       return res.status(409).json({ success: false, message: 'اسم المستخدم موجود' });
     }
 
@@ -121,11 +121,11 @@ app.post('/api/register', (req, res) => {
     
     return res.json({ success: true, message: 'تم إنشاء الحساب', user: newUser });
   } catch(err) {
-    return res.status(500).json({ success: false, message: 'خطأ في الخادم' });
+    return res.status(500).json({ success: false, message: 'خطأ' });
   }
 });
 
-// تحميل الراوتر الخارجي إن وجد
+// تحميل الراوتر الخارجي إن وجد (بعد الروات الأساسية)
 try {
   const router = require('./router');
   app.use('/api', router);
@@ -134,8 +134,8 @@ try {
   console.log('[Router] Using internal routes only');
 }
 
-// --- 6. معالجة أخطاء الـ API (ترجع JSON وليس HTML لمنع خطأ <!DOCTYPE JSON>) ---
-app.use('/api/*', (req, res) => {
+// --- 6. معالجة أخطاء الـ API ترجع JSON وليس HTML ---
+app.use('/api', (req, res) => {
   res.status(404).json({ success: false, message: 'API endpoint not found: ' + req.path });
 });
 
@@ -153,7 +153,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// --- 8. التوجيه الاحتياطي للواجهة الأمامية - يجب أن يكون في النهاية تماماً ---
+// --- 8. صفحة رئيسية - لازم تكون آخر شي ---
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
