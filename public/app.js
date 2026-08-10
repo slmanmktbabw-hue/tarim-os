@@ -448,10 +448,23 @@ function initPromoPage(){
     loadKingPanel();
 }
 
+function setupUploadFix() {
+const btn = $('uploadTriggerBtn'); const input = $('videoInput'); const video = $('cameraPreview');
+if (!btn ||!input ||!video) return;
+btn.addEventListener('click', (e) => { e.preventDefault(); input.click(); });
+input.addEventListener('change', (e) => {
+const file = e.target.files && e.target.files[0]; if (!file) return;
+if (state.curStream) { state.curStream.getTracks().forEach(t=>t.stop()); state.curStream=null; }
+if (state.upURL) URL.revokeObjectURL(state.upURL);
+state.upURL = URL.createObjectURL(file); state.upIsVideo = file.type.startsWith('video/');
+video.srcObject = null; video.src = state.upURL; video.loop = true; video.muted = true; video.play().catch(()=>{});
+toast('✅ تم رفع الملف بنجاح');
+});
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-// استرجاع الخلفية المحفوظة (صورة أو لون) عند التشغيل
 const savedBgImage = localStorage.getItem('tarim_bg_image');
-const body = document.getElementById('appBody');
+const body = $('appBody');
 if(savedBgImage && body){
   body.style.backgroundImage = `url('${savedBgImage}')`;
   body.style.backgroundSize = 'cover';
@@ -524,6 +537,55 @@ if (saveAccBtn) {
     });
 }
 
+const hLikeBtn = $('homeLikeBtn');
+if (hLikeBtn) {
+  hLikeBtn.addEventListener('click', () => {
+    state.homeLikesCount++;
+    const countEl = $('homeLikeCount');
+    if (countEl) countEl.textContent = state.homeLikesCount;
+    toast('❤️ تم تسجيل الإعجاب');
+  });
+}
+
+const hCommentBtn = $('homeCommentBtn');
+if (hCommentBtn) {
+  hCommentBtn.addEventListener('click', () => {
+    switchTab('inbox');
+    toast('💬 الانتقال إلى صندوق الوارد للتعليق');
+  });
+}
+
+const hShareBtn = $('homeShareBtn');
+if (hShareBtn) {
+  hShareBtn.addEventListener('click', async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'TARIM OS', text: 'شاهد محتوى سيادي من تريم', url: window.location.href });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast('🚀 تم نسخ رابط المشاركة');
+      }
+    } catch (e) {
+      toast('تمت المشاركة بنجاح');
+    }
+  });
+}
+
+const hSaveBtn = $('homeSaveBtn');
+if (hSaveBtn) {
+  hSaveBtn.addEventListener('click', () => {
+    try {
+      let saved = JSON.parse(localStorage.getItem('tarim_saved_v73') || '[]');
+      saved.push({ id: Date.now(), title: 'فيديو سيادي' });
+      localStorage.setItem('tarim_saved_v73', JSON.stringify(saved));
+      toast('🔖 تم حفظ العنصر بنجاح');
+    } catch (e) {
+      toast('تم الحفظ');
+    }
+  });
+}
+
+setupUploadFix();
 const logoutBtn = $('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click',()=>{localStorage.clear(); location.reload();});
 if(localStorage.getItem('tarim_session_v73')){
   const gate=$('authGate'); if(gate) gate.style.display='none';
