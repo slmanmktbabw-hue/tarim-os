@@ -29,12 +29,12 @@ body{font-family:system-ui;background:#020617;color:#fff;user-select:none;paddin
 <h1 class="text-[22px] font-black text-cyan-400 tracking-wider">TARIM OS V8.5</h1>
 <p class="text-[11px] text-slate-400 -mt-4">ULTIMATE SECURE - محصن 100%</p>
 <div class="flex justify-between text-[12px] mt-6 border-b border-slate-800 pb-3">
-<button id="tabNew" class="text-slate-500">حساب جديد</button>
-<button id="tabLogin" class="text-cyan-400 border-b-2 border-cyan-400 pb-1 font-bold">تسجيل الدخول</button>
+<button id="tabNew" type="button" class="text-slate-500">حساب جديد</button>
+<button id="tabLogin" type="button" class="text-cyan-400 border-b-2 border-cyan-400 pb-1 font-bold">تسجيل الدخول</button>
 </div>
-<input id="userPhoneOrEmail" type="text" placeholder="اسم المستخدم" autocomplete="username" class="w-full bg-[#0f172a] border border-slate-700 rounded-full px-4 py-4 text-[12px] text-white text-center focus:outline-none focus:border-cyan-400">
-<input id="userPass" type="password" placeholder="كلمة المرور" autocomplete="current-password" class="w-full bg-[#0f172a] border border-slate-700 rounded-full px-4 py-4 text-[12px] text-white text-center focus:outline-none focus:border-cyan-400">
-<button id="loginBtn" type="button" class="w-full bg-cyan-400 text-black font-bold py-4 rounded-full text-[13px] active:scale-95 transition">🔑 دخول القلعة السيادية</button>
+<input id="userPhoneOrEmail" type="text" placeholder="اسم المستخدم (مثال: KING)" autocomplete="username" class="w-full bg-[#0f172a] border border-slate-700 rounded-full px-4 py-4 text-[12px] text-white text-center focus:outline-none focus:border-cyan-400">
+<input id="userPass" type="password" placeholder="كلمة المرور (مثال: TARIM_KING_2026)" autocomplete="current-password" class="w-full bg-[#0f172a] border border-slate-700 rounded-full px-4 py-4 text-[12px] text-white text-center focus:outline-none focus:border-cyan-400">
+<button id="loginBtn" type="button" class="w-full bg-cyan-400 text-black font-bold py-4 rounded-full text-[13px] active:scale-95 transition shadow-lg shadow-cyan-500/20">🔑 دخول القلعة السيادية</button>
 <button id="googleBtn" type="button" class="w-full bg-transparent border border-slate-700 text-cyan-300 py-4 rounded-full text-[12px]">🌐 الدخول عبر Google</button>
 <p id="loginError" class="text-[11px] text-rose-400 hidden bg-rose-500/10 p-2 rounded-lg"></p>
 </div>
@@ -51,7 +51,7 @@ body{font-family:system-ui;background:#020617;color:#fff;user-select:none;paddin
 <main class="flex-1 w-full max-w-md mx-auto p-4 pt-[70px] relative">
 <div id="tab-home" class="tab-content active space-y-4">
 <div class="glass p-5 rounded-2xl relative border border-cyan-500/30 min-h-[440px] flex flex-col justify-between">
-<div class="flex justify-start items-center text-xs text-cyan-400 font-bold mb-6"><span>👑 تريم - حضرموت</span></div>
+<div class="flex justify-start items-center text-xs text-cyan-400 font-bold mb-6"><span id="homeUsernameDisplay">👑 تريم - حضرموت</span></div>
 <div class="flex-1 flex flex-col items-center justify-center text-center py-12"><p class="text-cyan-400 text-xs font-bold">فيديو سيادي يملأ الشاشة - محمي</p></div>
 </div>
 <div id="postsFeed" class="space-y-3"></div>
@@ -79,71 +79,108 @@ body{font-family:system-ui;background:#020617;color:#fff;user-select:none;paddin
 <button data-action="tabProfile" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">👤</span>الملفات</button>
 </nav>
 
-<!-- === حماية شغالة 100% داخل HTML نفسه === -->
+<!-- === كود الحماية والتحقق الفوري المدمج === -->
 <script>
 (function(){
   const $ = id => document.getElementById(id);
+  
   function toast(m){
-    let b=$('toastBox'); if(!b){b=document.createElement('div'); b.id='toastBox'; b.style.cssText='position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99999;width:91%;max-width:320px;'; document.body.appendChild(b);}
-    const e=document.createElement('div'); e.textContent=m; e.style.cssText='background:#00B4D8;color:#000;padding:12px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center;'; b.appendChild(e); setTimeout(()=>e.remove(),3000);
+    let b = $('toastBox'); 
+    if(!b){
+      b = document.createElement('div'); 
+      b.id = 'toastBox'; 
+      b.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99999;width:91%;max-width:320px;pointer-events:none;'; 
+      document.body.appendChild(b);
+    }
+    const e = document.createElement('div'); 
+    e.textContent = m; 
+    e.style.cssText = 'background:#00B4D8;color:#000;padding:12px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);'; 
+    b.appendChild(e); 
+    setTimeout(()=>e.remove(), 3000);
   }
+
   function doLogin(){
-    const uEl=$('userPhoneOrEmail'); const pEl=$('userPass'); const err=$('loginError');
-    const raw=(uEl.value||'').trim(); const pass=(pEl.value||'').trim();
+    const uEl = $('userPhoneOrEmail'); 
+    const pEl = $('userPass'); 
+    const err = $('loginError');
+    const raw = (uEl ? uEl.value : '').trim(); 
+    const pass = (pEl ? pEl.value : '').trim();
+    
     if(err) err.classList.add('hidden');
-    if(!raw){ toast('⚠️ اكتب اسم المستخدم'); uEl.focus(); uEl.style.border='1px solid #ff4444'; return; }
-    if(!pass){ toast('⚠️ اكتب كلمة المرور'); pEl.focus(); pEl.style.border='1px solid #ff4444'; return; }
+    if(!raw){ 
+      toast('⚠️ اكتب اسم المستخدم'); 
+      if(uEl) { uEl.focus(); uEl.style.border='1px solid #ff4444'; } 
+      return; 
+    }
+    if(!pass){ 
+      toast('⚠️ اكتب كلمة المرور'); 
+      if(pEl) { pEl.focus(); pEl.style.border='1px solid #ff4444'; } 
+      return; 
+    }
 
-    // بيانات الملك
-    const KING_KEY='TARIM_KING_2026';
-    const isKingUser = ['KING','AL','slmanmktbabw-hue','king','al'].includes(raw) && pass===KING_KEY;
-    if(isKingUser){ localStorage.setItem('tarim_king_auth',KING_KEY); toast('👑 مرحباً ملك تريم'); }
+    // فحص صلاحيات الملك
+    const KING_KEY = 'TARIM_KING_2026';
+    const isKingUser = ['KING', 'AL', 'slmanmktbabw-hue', 'king', 'al'].includes(raw) && pass === KING_KEY;
+    if(isKingUser){ 
+      localStorage.setItem('tarim_king_auth', KING_KEY); 
+      toast('👑 مرحباً ملك تريم السيادي'); 
+    }
 
-    const u=raw.slice(0,30);
-    const token='tok_'+Date.now()+'_'+Math.random().toString(36).slice(2);
-    const seal='seal_'+btoa(u+token+'TARIM_CASTLE').slice(0,20);
+    const u = raw.slice(0, 30);
+    const token = 'tok_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const seal = 'seal_' + btoa(u + token + 'TARIM_CASTLE').slice(0, 20);
 
-    localStorage.setItem('tarim_session_v73',u);
-    localStorage.setItem('tarim_token_v73',token);
-    localStorage.setItem('tarim_seal_v73',seal);
-    localStorage.setItem('tarim_auth_gate_passed','true');
-    localStorage.setItem('tarim_login_time',Date.now()+'');
+    localStorage.setItem('tarim_session_v73', u);
+    localStorage.setItem('tarim_token_v73', token);
+    localStorage.setItem('tarim_seal_v73', seal);
+    localStorage.setItem('tarim_auth_gate_passed', 'true');
+    localStorage.setItem('tarim_login_time', Date.now() + '');
 
-    const gate=$('authGate'); if(gate) gate.classList.add('gate-passed');
-    toast('✅ تم دخول القلعة - أهلاً '+u+' 👑');
-    setTimeout(()=>{ location.reload(); }, 600);
+    const gate = $('authGate'); 
+    if(gate) gate.classList.add('gate-passed');
+    
+    toast('✅ تم دخول القلعة - أهلاً ' + u + ' 👑');
+    setTimeout(() => { location.reload(); }, 600);
   }
 
-  document.addEventListener('DOMContentLoaded', ()=>{
-    const loginBtn=$('loginBtn'); const googleBtn=$('googleBtn');
-    const uEl=$('userPhoneOrEmail'); const pEl=$('userPass');
-    const gate=$('authGate');
+  document.addEventListener('DOMContentLoaded', () => {
+    const loginBtn = $('loginBtn'); 
+    const googleBtn = $('googleBtn');
+    const uEl = $('userPhoneOrEmail'); 
+    const pEl = $('userPass');
+    const gate = $('authGate');
 
-    // فحص: لو داخل قبل كذا خلاص اخفي البوابة
+    // فحص مسبق للجلسة المخزنة
     try{
-      const s=localStorage.getItem('tarim_session_v73');
-      const seal=localStorage.getItem('tarim_seal_v73');
-      const passed=localStorage.getItem('tarim_auth_gate_passed');
-      if(s && seal && passed==='true'){ if(gate) gate.classList.add('gate-passed'); }
+      const s = localStorage.getItem('tarim_session_v73');
+      const seal = localStorage.getItem('tarim_seal_v73');
+      const passed = localStorage.getItem('tarim_auth_gate_passed');
+      if(s && seal && passed === 'true'){ 
+        if(gate) gate.classList.add('gate-passed'); 
+      }
     }catch(e){}
 
+    // تفعيل الأحداث للزر بشكل مضاعف (Click + TouchEnd) لضمان العمل على الهواتف
     if(loginBtn){
-      loginBtn.addEventListener('click', doLogin);
-      loginBtn.addEventListener('touchend', (e)=>{ e.preventDefault(); doLogin(); });
+      loginBtn.onclick = function(e){ e.preventDefault(); doLogin(); };
+      loginBtn.ontouchend = function(e){ e.preventDefault(); doLogin(); };
     }
-    if(uEl) uEl.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-    if(pEl) pEl.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-    if(googleBtn) googleBtn.addEventListener('click', ()=>{ toast('🌐 Google قريباً - استخدم دخول القلعة'); });
+    
+    if(uEl) uEl.addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
+    if(pEl) pEl.addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
+    if(googleBtn) googleBtn.onclick = () => { toast('🌐 Google قريباً - استخدم دخول القلعة'); };
 
-    const tabNew=$('tabNew'); const tabLogin=$('tabLogin');
-    if(tabNew) tabNew.addEventListener('click', ()=>{ toast('📝 سجل دخول أولاً ثم أنشئ حساب جديد'); });
-    if(tabLogin) tabLogin.addEventListener('click', ()=>{ if(uEl) uEl.focus(); });
+    const tabNew = $('tabNew'); 
+    const tabLogin = $('tabLogin');
+    if(tabNew) tabNew.onclick = () => { toast('📝 سجل دخول أولاً ثم أنشئ حساب جديد'); };
+    if(tabLogin) tabLogin.onclick = () => { if(uEl) uEl.focus(); };
   });
 
-  // خروج
-  document.addEventListener('click', e=>{
-    if(e.target.id==='logoutBtn' || e.target.closest('#logoutBtn')){
-      localStorage.clear(); location.reload();
+  // حدث زر الخروج العام
+  document.addEventListener('click', e => {
+    if(e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn')){
+      localStorage.clear(); 
+      location.reload();
     }
   });
 })();
