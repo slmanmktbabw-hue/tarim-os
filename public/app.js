@@ -26,7 +26,6 @@
     watchTimer: null, currentWatchTime: 0, abortCtrl: null
   };
 
-  // --- محرك Tarim_Fortress UES-Gateway V2.1 SECURE INTEGRATED ---
   function startUesWatchSimulation() {
     if (state.watchTimer) clearInterval(state.watchTimer);
     if (state.abortCtrl) state.abortCtrl.abort();
@@ -38,8 +37,7 @@
       if (state.currentWatchTime >= 20) {
         clearInterval(state.watchTimer);
         try {
-          const username = sanitizeText(localStorage.getItem('tarim_session_v73') || 'AL', 30);
-          const res = await fetch('/get_next_video', { // نسبي - يشتغل على Render + محلي
+          const res = await fetch('/get_next_video', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             signal: state.abortCtrl.signal,
@@ -51,7 +49,6 @@
           if (!res.ok) throw new Error('offline');
           const data = await res.json();
           if (data.action === 'split_screen' && data.video_id) {
-            // فلترة video_id ضد حقن
             const vid = String(data.video_id).replace(/[^a-zA-Z0-9_\-]/g,'').slice(0,50);
             if (['short_funny_01','short_tip_02','ye_cooking_restaurant_001','ye_football_highlights_002'].includes(vid) || vid.startsWith('trending_')) {
               toast('⚡ Tarim_Fortress: ' + vid);
@@ -147,6 +144,14 @@
   document.addEventListener('DOMContentLoaded', () => {
     const map={ startLive, stopLive, switchCam, capturePhoto, filterNone:()=>setFilter('none'), filterBeauty:()=>setFilter('beauty'), tabHome:(b)=>switchTab('home',b), tabOperations:(b)=>switchTab('operations',b), tabCreate:(b)=>switchTab('create',b), tabInbox:(b)=>switchTab('inbox',b), tabProfile:(b)=>switchTab('profile',b), backToProfile, openAccountSettings:()=>showSubPage('account-settings'), openSecurity:()=>showSubPage('security-settings'), openQrPage:()=>showSubPage('qr-page'), openOkx:()=>showSubPage('okx-page'), openActivity:()=>showSubPage('activity-page'), openOffline:()=>showSubPage('offline-page'), openCommerce:()=>showSubPage('commerce-page'), openPromo:()=>showSubPage('promo-page'), openMap:()=>{ const c=$('mapContainer'); if(c){ c.classList.toggle('hidden'); if(!c.classList.contains('hidden')&&!state.map&&window.L){ state.map=L.map(c).setView([16.0545,49.0],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(state.map); } } }, showQR:()=>{ const d=$('qrDisplay'); if(d){ d.classList.toggle('hidden'); const b=$('operationsQrBox'); if(b&&!d.classList.contains('hidden')){ b.textContent=''; if(window.QRCode) new QRCode(b,{text:'https://tarimos.org',width:100,height:100}); } } }, goInbox:()=>switchTab('inbox') };
     document.addEventListener('click',(e)=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const act=btn.getAttribute('data-action'); if(map[act]) map[act](btn); });
+
+    $('supportBtn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (window.TarimSupport && typeof window.TarimSupport.openModal === 'function') {
+            window.TarimSupport.openModal();
+        }
+    });
+
     $('loginBtn')?.addEventListener('click',forceUnlockCastle);
     $('userPass')?.addEventListener('keydown',e=>{if(e.key==='Enter')forceUnlockCastle();});
     $('publishBtn')?.addEventListener('click',publishPost);
