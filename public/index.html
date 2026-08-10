@@ -11,7 +11,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;padding-bottom:80px;direction:rtl;transition:background 0.3s ease}
+body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;padding-bottom:80px;direction:rtl;transition:background 0.3s ease, background-image 0.3s ease}
 .glass{background:rgba(15,23,42,.95);backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,.2)}
 .tab-content{display:none}.tab-content.active{display:block!important}
 .hidden{display:none!important}
@@ -21,7 +21,7 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 .live-controls-full{position:fixed!important;bottom:20px!important;left:0!important;right:0!important;padding:16px;background:linear-gradient(to top,rgba(0,0,0,.9),transparent);z-index:10000!important;}
 </style>
 </head>
-<body id="appBody" class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+<body id="appBody" class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-cover bg-center bg-fixed">
 <div id="authGate" class="fixed inset-0 z-[10000] bg-[#030B1A] flex items-center justify-center p-4">
 <div class="glass w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-cyan-500/40 text-center space-y-4">
 <h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑 V8.6 SECURE</h1>
@@ -173,6 +173,11 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
                 <button onclick="changeBg('#0f172a')" class="bg-slate-900 border border-slate-600 py-2 rounded-lg text-[10px] text-slate-200">رمادي أزرق</button>
                 <button onclick="changeBg('#1e1b4b')" class="bg-indigo-950 border border-indigo-700 py-2 rounded-lg text-[10px] text-indigo-300">نيلي ملكي</button>
             </div>
+            <!-- زر واختيار صورة شخصية كخلفية -->
+            <input type="file" id="customBgInput" accept="image/*" class="hidden" onchange="changeBgImage(event)">
+            <button onclick="document.getElementById('customBgInput').click()" class="w-full bg-slate-900 border border-cyan-500/40 py-3 rounded-xl text-xs text-cyan-400 font-bold mt-2">
+                🖼️ تعيين صورة شخصية خلفية
+            </button>
         </div>
         <div>
             <label class="text-slate-400 block mb-1">البريد أو المعرف الأساسي</label>
@@ -268,14 +273,37 @@ b.appendChild(e);
 setTimeout(() => e.remove(), 4000);
 }
 
-// دالة تغيير وتخزين الخلفية السيادية
+// دالة تغيير وتخزين الخلفية السيادية (ألوان)
 window.changeBg = function(color) {
   const body = $('appBody');
   if(body) {
+    body.style.backgroundImage = 'none';
     body.style.backgroundColor = color;
     localStorage.setItem('tarim_bg_color', color);
+    localStorage.removeItem('tarim_bg_image');
     toast('🎨 تم تحديث خلفية التطبيق بنجاح');
   }
+};
+
+// دالة تعيين صورة شخصية كخلفية سيادية
+window.changeBgImage = function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const body = $('appBody');
+    if(body) {
+      body.style.backgroundImage = `url('${dataUrl}')`;
+      body.style.backgroundSize = 'cover';
+      body.style.backgroundPosition = 'center';
+      body.style.backgroundAttachment = 'fixed';
+      localStorage.setItem('tarim_bg_image', dataUrl);
+      localStorage.removeItem('tarim_bg_color');
+      toast('🖼️ تم تعيين صورتك الشخصية كخلفية بنجاح');
+    }
+  };
+  reader.readAsDataURL(file);
 };
 
 let state = {
@@ -690,9 +718,18 @@ toast('✅ تم رفع الملف بنجاح');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-// استرجاع الخلفية المحفوظة عند التشغيل
-const savedBg = localStorage.getItem('tarim_bg_color');
-if(savedBg){ const b = $('appBody'); if(b) b.style.backgroundColor = savedBg; }
+// استرجاع الخلفية المحفوظة (صورة أو لون) عند التشغيل
+const savedBgImage = localStorage.getItem('tarim_bg_image');
+const body = $('appBody');
+if(savedBgImage && body){
+  body.style.backgroundImage = `url('${savedBgImage}')`;
+  body.style.backgroundSize = 'cover';
+  body.style.backgroundPosition = 'center';
+  body.style.backgroundAttachment = 'fixed';
+} else {
+  const savedBg = localStorage.getItem('tarim_bg_color');
+  if(savedBg && body) body.style.backgroundColor = savedBg;
+}
 
 const map={
 startLive, stopLive, switchCam, capturePhoto,
