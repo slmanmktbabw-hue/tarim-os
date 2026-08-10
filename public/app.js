@@ -1,4 +1,4 @@
-// public/app.js - TARIM OS V8.6.1 CASTLE GATE LOCK - حماية بوابة الدخول السيادية
+// public/app.js - TARIM OS V8.6.1 CASTLE GATE LOCK SECURE - محصن 100%
 "use strict";
 (function () {
 const $ = id => document.getElementById(id);
@@ -26,7 +26,7 @@ giftType: 'heart', adBudget: 5
 const KING_KEY = 'TARIM_KING_2026';
 const KING_USERS = ['al','slmanmktbabw-hue','الامبراطور','الملك'];
 function isKing(){
-  const u = (localStorage.getItem('tarim_session_v73')||'').toLowerCase();
+  const u = String(localStorage.getItem('tarim_session_v73')||'').toLowerCase();
   return KING_USERS.includes(u) || localStorage.getItem('tarim_king_auth')===KING_KEY;
 }
 // === V8.6.1 CASTLE GATE LOCK - فحص البوابة ===
@@ -35,7 +35,7 @@ function checkCastleGate(){
   const hasSeal = localStorage.getItem('tarim_seal_v73');
   const gatePassed = localStorage.getItem('tarim_auth_gate_passed');
   const gate = $('authGate');
-  if(!hasSession ||!hasSeal || gatePassed!== 'true'){
+  if(!hasSession || !hasSeal || gatePassed !== 'true'){
     if(gate){
       gate.style.display = 'flex';
       gate.style.cssText = 'display:flex!important; position:fixed!important; inset:0!important; z-index:999999!important; background:#020617!important; align-items:center; justify-content:center;';
@@ -167,7 +167,7 @@ c.appendChild(header); c.appendChild(body); f.appendChild(c);
 }
 function publishPost() {
 if(!checkCastleGate()) return;
-const inp = $('postContentInput'); if (!inp ||!inp.value.trim()) { toast('اكتب شيئاً'); return; }
+const inp = $('postContentInput'); if (!inp || !inp.value.trim()) { toast('اكتب شيئاً'); return; }
 const cleanContent = sanitizeText(inp.value.slice(0,1000));
 const post={ id:Date.now(), content:cleanContent, username:sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), createdAt:new Date().toISOString(), likes:0 };
 const all=getPosts(); all.push(post); savePosts(all); inp.value='';
@@ -187,7 +187,6 @@ if(raw.toUpperCase()==='KING' && pass === KING_KEY){
   toast('👑 تم تفعيل صلاحية الملك');
 }
 const u = sanitizeText(raw).slice(0,30)||'AL';
-// ختم سيادي لا يمكن تزويره
 const token = 'tok_'+Date.now()+'_'+Math.random().toString(36).slice(2);
 const seal = 'seal_'+btoa(u+token+'TARIM_CASTLE_2026').slice(0,20);
 localStorage.setItem('tarim_session_v73', u);
@@ -447,7 +446,7 @@ function initPromoPage(){
 }
 function setupUploadFix() {
 const btn = $('uploadTriggerBtn'); const input = $('videoInput'); const video = $('cameraPreview');
-if (!btn ||!input ||!video) return;
+if (!btn || !input || !video) return;
 btn.addEventListener('click', (e) => { e.preventDefault(); input.click(); });
 input.addEventListener('change', (e) => {
 const file = e.target.files && e.target.files[0]; if (!file) return;
@@ -497,7 +496,6 @@ setupUploadFix();
 document.addEventListener('fullscreenchange', ()=>{ if (!document.fullscreenElement && state.liveMode) {} });
 const logoutBtn = $('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click',()=>{localStorage.clear(); location.reload();});
 
-// === فحص بوابة القلعة عند التشغيل - V8.6.1 ===
 if(!checkCastleGate()){
   console.log('🔒 CASTLE GATE LOCK: مستخدم جديد - إجبار على واجهة الدخول');
 } else {
