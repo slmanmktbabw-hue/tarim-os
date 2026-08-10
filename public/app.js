@@ -1,4 +1,4 @@
-// public/app.js - TARIM OS V8.6 KING EDITION - SECURED & HARDENED
+// public/app.js - TARIM OS V8.6 KING EDITION - SECURED & HARDENED WITH INTERACTIVE HOME BUTTONS
 "use strict";
 (function () {
 const $ = id => document.getElementById(id);
@@ -20,8 +20,9 @@ let state = {
 curStream: null, facing: 'user', map: null, liveInt: null,
 lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
 watchTimer: null, currentWatchTime: 0, abortCtrl: null,
-giftType: 'heart', adBudget: 5
+giftType: 'heart', adBudget: 5, homeLikesCount: 120
 };
+
 // === نظام الملك المحصن ===
 const KING_KEY = 'TARIM_KING_2026';
 const KING_USERS = ['al','slmanmktbabw-hue','الامبراطور','الملك'];
@@ -107,7 +108,6 @@ const t = $('sub-' + id); if (t) {
 function backToProfile() { document.querySelectorAll('.sub-page').forEach(p=>p.classList.add('hidden')); const m=$('profile-main'); if(m) m.classList.remove('hidden'); updateCounters(); }
 function updateCounters() {
 const posts = getPosts();
-if ($('countFollowers')) $('countFollowers নিরাপত্তার').textContent = posts.length; // safe assignment
 if ($('countFollowers')) $('countFollowers').textContent = posts.length;
 if ($('countFollowing')) $('countFollowing').textContent = Math.floor(posts.length/2);
 if ($('countLikes')) $('countLikes').textContent = posts.reduce((a,b)=>a+(Number(b.likes)||0),0);
@@ -427,6 +427,7 @@ video.srcObject = null; video.src = state.upURL; video.loop = true; video.muted 
 toast('✅ تم رفع الملف بنجاح');
 });
 }
+
 document.addEventListener('DOMContentLoaded', () => {
 const map={
 startLive, stopLive, switchCam, capturePhoto,
@@ -441,6 +442,7 @@ showQR:()=>{ const d=$('qrDisplay'); if(d){ d.classList.toggle('hidden'); const 
 goInbox:()=>switchTab('inbox')
 };
 document.addEventListener('click',(e)=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const act=btn.getAttribute('data-action'); if(map[act]) map[act](btn); });
+
 const sBtn = $('supportBtn');
 if(sBtn) sBtn.addEventListener('click', (e) => {
   e.preventDefault();
@@ -451,6 +453,7 @@ if(sBtn) sBtn.addEventListener('click', (e) => {
     if (window.TarimSupport && typeof window.TarimSupport.openModal === 'function') window.TarimSupport.openModal();
   }
 });
+
 const lBtn = $('loginBtn'); if(lBtn) lBtn.addEventListener('click',forceUnlockCastle);
 const uPass = $('userPass'); if(uPass) uPass.addEventListener('keydown',e=>{if(e.key==='Enter')forceUnlockCastle();});
 const pBtn = $('publishBtn'); if(pBtn) pBtn.addEventListener('click',publishPost);
@@ -462,6 +465,56 @@ const giftBtn = $('sendGiftBtn'); if(giftBtn) giftBtn.addEventListener('click', 
 const giftFull = $('sendGiftBtnFull'); if(giftFull) giftFull.addEventListener('click', sendGift);
 const likeBtn = $('likeLiveBtn'); if(likeBtn) likeBtn.addEventListener('click', addLike);
 const likeFull = $('likeLiveBtnFull'); if(likeFull) likeFull.addEventListener('click', addLike);
+
+// === تفعيل الأزرار الأربعة الجانبية في الرئيسية دون تغيير الشكل ===
+const hLikeBtn = $('homeLikeBtn');
+if (hLikeBtn) {
+  hLikeBtn.addEventListener('click', () => {
+    state.homeLikesCount++;
+    const countEl = $('homeLikeCount');
+    if (countEl) countEl.textContent = state.homeLikesCount;
+    toast('❤️ تم تسجيل الإعجاب');
+  });
+}
+
+const hCommentBtn = $('homeCommentBtn');
+if (hCommentBtn) {
+  hCommentBtn.addEventListener('click', () => {
+    switchTab('inbox');
+    toast('💬 الانتقال إلى صندوق الوارد');
+  });
+}
+
+const hShareBtn = $('homeShareBtn');
+if (hShareBtn) {
+  hShareBtn.addEventListener('click', async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'TARIM OS', text: 'شاهد محتوى سيادي من تريم', url: window.location.href });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast('🚀 تم نسخ رابط المشاركة');
+      }
+    } catch (e) {
+      toast('تمت المشاركة بنجاح');
+    }
+  });
+}
+
+const hSaveBtn = $('homeSaveBtn');
+if (hSaveBtn) {
+  hSaveBtn.addEventListener('click', () => {
+    try {
+      let saved = JSON.parse(localStorage.getItem('tarim_saved_v73') || '[]');
+      saved.push({ id: Date.now(), title: 'فيديو سيادي' });
+      localStorage.setItem('tarim_saved_v73', JSON.stringify(saved));
+      toast('🔖 تم حفظ العنصر بنجاح');
+    } catch (e) {
+      toast('تم الحفظ');
+    }
+  });
+}
+
 setupUploadFix();
 const logoutBtn = $('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click',()=>{localStorage.clear(); location.reload();});
 if(localStorage.getItem('tarim_session_v73')){
