@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.tailwindcss.com; img-src 'self' blob: data: https:; media-src 'self' blob:; connect-src 'self' https:; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TARIM OS | V8.3 ULTIMATE SECURE</title>
+<title>TARIM OS | V8.6 KING EDITION SECURE</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -14,30 +14,37 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 .glass{background:rgba(15,23,42,.95);backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,.2)}
 .tab-content{display:none}.tab-content.active{display:block!important}
 .hidden{display:none!important}
-#toastBox{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;width:91%;max-width:320px;pointer-events:none}
+#toastBox{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99999;width:91%;max-width:320px;pointer-events:none}
 .fullscreen-live{position:fixed!important;inset:0!important;z-index:9998!important;width:100vw!important;height:100dvh!important;background:#000!important}
 .fullscreen-live video{width:100%!important;height:100%!important;object-fit:cover!important}
 @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
-.pop{animation:pop.3s ease}
+.pop{animation:pop .3s ease}
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+<!-- نافذة تسجيل الدخول السيادية -->
 <div id="authGate" class="fixed inset-0 z-[10000] bg-[#030B1A] flex items-center justify-center p-4">
 <div class="glass w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-cyan-500/40 text-center space-y-4">
-<h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑 V8.3 SECURE</h1>
-<p class="text-xs text-slate-400">ULTIMATE - محصن 100%</p>
-<input id="userPhoneOrEmail" type="text" value="AL" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center">
-<input id="userPass" type="password" value="123456" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center">
-<button id="loginBtn" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl text-xs">دخول القلعة السيادية 🔑</button>
+<h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑 V8.6 KING</h1>
+<p class="text-xs text-slate-400">ULTIMATE - محصن وآمن 100%</p>
+<input id="userPhoneOrEmail" type="text" value="AL" placeholder="اسم المستخدم أو الملك" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:border-cyan-500 outline-none">
+<input id="userPass" type="password" value="123456" placeholder="كلمة المرور" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:border-cyan-500 outline-none">
+<button id="loginBtn" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl text-xs hover:bg-cyan-400 transition">دخول القلعة السيادية 🔑</button>
 <p id="loginError" class="text-[11px] text-rose-400 hidden bg-rose-500/10 p-2 rounded-lg"></p>
 </div>
 </div>
+
 <div id="toastBox"></div>
+
+<!-- الهيدر العلوي -->
 <header class="w-full glass border-b border-cyan-500/20 px-4 py-3 flex justify-between items-center text-xs z-40 fixed top-0 left-0 right-0">
-<button id="aiEyeBtn" class="text-cyan-400 font-bold">👁️ عين الذكاء</button>
-<span class="font-black text-cyan-300">TARIM OS V8.3 SECURE</span>
-<button id="supportBtn" class="text-slate-300 font-bold">🛡️ الدعم</button>
+<button id="aiEyeBtn" class="text-cyan-400 font-bold focus:outline-none">👁️ عين الذكاء</button>
+<span class="font-black text-cyan-300">TARIM OS V8.6 KING</span>
+<button id="supportBtn" class="text-slate-300 font-bold focus:outline-none">🛡️ الدعم</button>
 </header>
+
+<!-- المحتوى الرئيسي -->
 <main class="flex-1 w-full max-w-md mx-auto p-4 pt-[70px] relative">
 <div id="tab-home" class="tab-content active space-y-4">
 <div class="glass p-5 rounded-2xl relative border border-cyan-500/30 min-h-[440px] flex flex-col justify-between">
@@ -46,7 +53,8 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
         <svg class="w-16 h-16 mx-auto opacity-50 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
         <p class="text-cyan-400 text-xs font-bold mt-2">فيديو سيادي يملأ الشاشة - محمي</p>
     </div>
-    <!-- الأزرار شغالة 100% الآن -->
+    
+    <!-- الأزرار التفاعلية -->
     <div class="absolute left-5 bottom-24 flex flex-col items-center space-y-5 text-white z-10">
         <button id="btnLike" class="flex flex-col items-center focus:outline-none active:scale-90 transition"><span id="iconLike" class="text-[28px]">❤️</span><span id="countLike" class="text-[11px] font-bold mt-1">120</span></button>
         <button id="btnComment" class="flex flex-col items-center focus:outline-none active:scale-90 transition"><span class="text-[26px]">💬</span><span id="countComment" class="text-[11px] font-bold mt-1">45</span></button>
@@ -58,33 +66,46 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 <div id="postsFeed" class="space-y-3"></div>
 </div>
 </main>
+
+<!-- شريط التنقل السفلي -->
 <nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 px-4 py-2 flex justify-around items-center z-40">
-<button data-action="tabHome" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px]"><span class="text-xl">🏰</span>الرئيسية</button>
-<button data-action="tabOperations" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">⚡</span>العمليات</button>
-<button data-action="tabCreate" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">➕</span>إنشاء</button>
-<button data-action="tabInbox" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">💬</span>الوارد</button>
-<button data-action="tabProfile" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">👤</span>الملفات</button>
+<button data-action="tabHome" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px] focus:outline-none"><span class="text-xl">🏰</span>الرئيسية</button>
+<button data-action="tabOperations" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] focus:outline-none"><span class="text-xl">⚡</span>العمليات</button>
+<button data-action="tabCreate" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] focus:outline-none"><span class="text-xl">➕</span>إنشاء</button>
+<button data-action="tabInbox" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] focus:outline-none"><span class="text-xl">💬</span>الوارد</button>
+<button data-action="tabProfile" class="nav-btn flex flex-col items-center text-slate-400 text-[10px] focus:outline-none"><span class="text-xl">👤</span>الملفات</button>
 </nav>
 
+<!-- ملف المنطق والبرمجة المؤَمّن -->
 <script src="./app.js"></script>
+
 <script>
-// === خدمة الأزرار الأربعة - تعمل بدون ما تلمس app.js ===
+// === خدمة الأزرار التفاعلية (مع التعقيم والحماية) ===
 (function(){
   const $ = id=>document.getElementById(id);
+  function sanitizeHTML(str) {
+    return String(str).replace(/[&<>'"]/g, 
+      tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+    );
+  }
   function toast(m){
     const b=$('toastBox'); if(!b) return;
     const e=document.createElement('div');
-    e.textContent=m; e.style.cssText='background:#00B4D8;color:#000;padding:10px 14px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center';
+    e.textContent=sanitizeHTML(m); 
+    e.style.cssText='background:#00B4D8;color:#000;padding:10px 14px;border-radius:12px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center';
     b.appendChild(e); setTimeout(()=>e.remove(),3000);
   }
-  let likes = parseInt(localStorage.getItem('tarim_home_likes')||'120');
+  let likes = parseInt(localStorage.getItem('tarim_home_likes')||'120', 10);
   let liked = localStorage.getItem('tarim_home_liked')==='1';
-  let comments = parseInt(localStorage.getItem('tarim_home_comments')||'45');
+  let comments = parseInt(localStorage.getItem('tarim_home_comments')||'45', 10);
   let saved = localStorage.getItem('tarim_home_saved')==='1';
 
   function refresh(){
     if($('countLike')) $('countLike').textContent=likes;
-    if($('iconLike')) { $('iconLike').textContent= liked? '💖' : '❤️'; liked? $('iconLike').classList.add('pop') : $('iconLike').classList.remove('pop'); }
+    if($('iconLike')) { 
+      $('iconLike').textContent= liked? '💖' : '❤️'; 
+      liked? $('iconLike').classList.add('pop') : $('iconLike').classList.remove('pop'); 
+    }
     if($('countComment')) $('countComment').textContent=comments;
     if($('iconSave')) $('iconSave').textContent= saved? '✅' : '🔖';
   }
@@ -97,20 +118,32 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
     localStorage.setItem('tarim_home_liked', liked?'1':'0');
     refresh();
   });
+  
   $('btnComment')?.addEventListener('click', ()=>{
-    const c=prompt('اكتب تعليقك 💬:');
-    if(!c) return;
-    comments++; localStorage.setItem('tarim_home_comments', comments);
-    refresh(); toast('💬 تم إرسال تعليقك: '+c.slice(0,20));
+    const rawComment = prompt('اكتب تعليقك 💬:');
+    if(!rawComment || !rawComment.trim()) return;
+    const c = sanitizeHTML(rawComment.trim().slice(0, 150));
+    comments++; 
+    localStorage.setItem('tarim_home_comments', comments);
+    refresh(); 
+    toast('💬 تم إرسال تعليقك: '+ c);
   });
+  
   $('btnShare')?.addEventListener('click', ()=>{
     const url='https://tarimos.org';
-    if(navigator.share){ navigator.share({title:'TARIM OS', text:'فيديو سيادي من تريم 🌴', url}); }
-    else { navigator.clipboard.writeText(url); toast('🚀 تم نسخ رابط القلعة'); }
+    if(navigator.share){ 
+      navigator.share({title:'TARIM OS', text:'فيديو سيادي من تريم 🌴', url}).catch(()=>{}); 
+    } else { 
+      navigator.clipboard.writeText(url); 
+      toast('🚀 تم نسخ رابط القلعة'); 
+    }
   });
+  
   $('btnSave')?.addEventListener('click', ()=>{
-    saved=!saved; localStorage.setItem('tarim_home_saved', saved?'1':'0');
-    refresh(); toast(saved? '🔖 تم الحفظ في ملفاتك' : 'تم إلغاء الحفظ');
+    saved=!saved; 
+    localStorage.setItem('tarim_home_saved', saved?'1':'0');
+    refresh(); 
+    toast(saved? '🔖 تم الحفظ في ملفاتك' : 'تم إلغاء الحفظ');
   });
 })();
 </script>
