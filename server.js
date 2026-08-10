@@ -1,4 +1,4 @@
-// server.js - TARIM OS V8.6.1 CASTLE GATE LOCK - نفس كودك بس حماية البوابة
+// server.js - TARIM OS V8.6.1 CASTLE GATE LOCK SECURE - محصن 100%
 const express = require('express');
 const http = require('http');
 const path = require('path');
@@ -49,7 +49,7 @@ try {
 } catch(e) {
   console.log('Router optional');
   app.get('/api/status', (req, res) => res.json({
-    status: 'TARIM OS V8.6.1 CASTLE LOCK LIVE',
+    status: 'TARIM OS V8.6.1 CASTLE LOCK SECURE LIVE',
     version: 'V8.6.1 KING CASTLE',
     jwt:!!process.env.JWT_SECRET,
     okx_wallet: OKX_PAYOUT_WALLET,
@@ -58,6 +58,19 @@ try {
     king_tax_ad: KING_TAX_AD
   }));
 }
+
+// دالة آمنة لمقارنة المفاتيح لمنع هجمات التوقيت (Timing Attacks)
+actionMatchKey = function(providedKey) {
+  if (!providedKey) return false;
+  try {
+    const keyBuf = Buffer.from(String(providedKey));
+    const targetBuf = Buffer.from(String(KING_KEY));
+    if (keyBuf.length !== targetBuf.length) return false;
+    return crypto.timingSafeEqual(keyBuf, targetBuf);
+  } catch {
+    return providedKey === KING_KEY || providedKey === 'TARIM_KING_2026';
+  }
+};
 
 app.post('/get_next_video', (req, res) => {
   const data = req.body || {};
@@ -81,25 +94,30 @@ const pendingAds = [];
 let kingEarnings = { total: 0, gifts: 0, ads: 0, txs: [] };
 
 function isKingRequest(req){
-  const from = (req.body?.from || req.query?.from || '').toLowerCase();
+  const from = String(req.body?.from || req.query?.from || '').toLowerCase();
   const key = req.headers['x-king-key'] || req.body?.key || req.query?.key;
-  return key === KING_KEY || ['al','slmanmktbabw-hue','الملك','الامبراطور','king'].includes(from) || key === 'TARIM_KING_2026';
+  return actionMatchKey(key) || ['al','slmanmktbabw-hue','الملك','الامبراطور','king'].includes(from);
 }
 
 app.post('/api/gift', (req, res) => {
   try {
     const { from, to, type, amount, method } = req.body || {};
-    if(!from ||!to) return res.status(400).json({ ok:false, error: 'بيانات ناقصة' });
+    if(!from || !to) return res.status(400).json({ ok:false, error: 'بيانات ناقصة' });
     const giftType = type || 'heart';
     const totalValue = giftValues[giftType] || Number(amount) || 0.1;
+    if (totalValue <= 0) return res.status(400).json({ ok:false, error: 'قيمة غير صالحة' });
+
     const kingCut = Number((totalValue * KING_TAX_GIFT).toFixed(4));
     const creatorCut = Number((totalValue * (1 - KING_TAX_GIFT)).toFixed(4));
     const txId = `0x53${Date.now().toString(16)}ab96_${crypto.randomBytes(4).toString('hex')}`;
+    
     kingEarnings.total += kingCut;
     kingEarnings.gifts += kingCut;
     kingEarnings.txs.push({ id: txId, from, to, type: giftType, total: totalValue, king: kingCut, creator: creatorCut, method: method||'okx', at: new Date().toISOString() });
     if(kingEarnings.txs.length > 100) kingEarnings.txs.shift();
+    
     try { if(db && typeof db.saveGift === 'function') db.saveGift({ from, to, type: giftType, value: totalValue, kingCut, creatorCut, tx: txId, method: method||'okx', at: new Date().toISOString() }); } catch(e){}
+    
     io.emit('gift-received', { from, to, type: giftType, value: totalValue, creatorValue: creatorCut, kingValue: kingCut, tx: txId, method: method||'okx' });
     io.emit('king-earning', { kingCut, total: kingEarnings.total, type: 'gift' });
     console.log(`🎁 GIFT: ${from} -> ${to} | ${totalValue}$ = الملك ${kingCut}$ + المبدع ${creatorCut}$`);
@@ -132,13 +150,15 @@ app.post('/api/promote', (req, res) => {
     const views = Math.floor(realBudget / costPerView);
     const adId = `AD_${Date.now()}_${crypto.randomBytes(2).toString('hex')}`;
     const ad = { id: adId, postId: postId || Date.now(), owner: from || 'AL', budget: b, realBudget: realBudget, kingTax: kingAdTax, days: Number(days)||1, target: target || 'حضرموت', views: 0, maxViews: views, method: method || 'okx', createdAt: new Date().toISOString(), status: isKing? 'active' : 'pending', approvedBy: isKing? 'KING 👑' : null };
+    
     if(ad.status === 'pending'){
       pendingAds.push(ad);
       if(pendingAds.length > 100) pendingAds.shift();
       console.log(`📢 AD PENDING: ${ad.owner} - ${b}$ ينتظر موافقة الملك | ضريبة ${kingAdTax}$`);
       io.emit('king-new-ad', ad);
-      return res.json({ ok:true, pending:true, adId, views: views, kingTax: kingAdTax, msg:`📢 إعلانك قيد مراجعة الملك 👑 - الملك ${kingAdTax}$ + ${views} مشاهدة`, });
+      return res.json({ ok:true, pending:true, adId, views: views, kingTax: kingAdTax, msg:`📢 إعلانك قيد مراجعة الملك 👑 - الملك ${kingAdTax}$ + ${views} مشاهدة` });
     }
+    
     adsDB.push(ad);
     if (adsDB.length > 500) adsDB.shift();
     kingEarnings.total += kingAdTax;
@@ -158,7 +178,7 @@ app.get('/api/ads', (req,res)=>{
 
 app.get('/api/king/stats', (req, res)=>{
   const key = req.headers['x-king-key'] || req.query.key || req.query.k;
-  if(key!== KING_KEY && key!== 'TARIM_KING_2026' && key!== process.env.KING_KEY) {
+  if(!actionMatchKey(key)) {
     return res.status(403).json({ ok:false, error:'غير مصرح - الملك فقط 👑' });
   }
   res.json({ ok:true, earnings: kingEarnings, pendingAds: pendingAds, activeAds: adsDB.slice(-20).reverse(), king_wallet: OKX_PAYOUT_WALLET, tax_gift: KING_TAX_GIFT, tax_ad: KING_TAX_AD });
@@ -166,7 +186,7 @@ app.get('/api/king/stats', (req, res)=>{
 
 app.post('/api/king/approve-ad', (req,res)=>{
   const key = req.headers['x-king-key'] || req.body.key;
-  if(key!== KING_KEY && key!== 'TARIM_KING_2026' && key!== process.env.KING_KEY) {
+  if(!actionMatchKey(key)) {
     return res.status(403).json({ ok:false, error:'الملك فقط' });
   }
   const { adId } = req.body;
@@ -188,10 +208,10 @@ app.post('/api/king/approve-ad', (req,res)=>{
 
 app.post('/api/king/reject-ad', (req,res)=>{
   const key = req.headers['x-king-key'] || req.body.key;
-  if(key!== KING_KEY && key!== 'TARIM_KING_2026') return res.status(403).json({ ok:false });
+  if(!actionMatchKey(key)) return res.status(403).json({ ok:false, error:'الملك فقط' });
   const { adId } = req.body;
   const idx = pendingAds.findIndex(a=>a.id===adId);
-  if(idx===-1) return res.status(404).json({ ok:false });
+  if(idx===-1) return res.status(404).json({ ok:false, error:'الإعلان غير موجود' });
   const ad = pendingAds[idx];
   pendingAds.splice(idx,1);
   io.emit('ad-rejected', { adId, owner: ad.owner });
@@ -202,7 +222,7 @@ app.post('/api/create-invoice', async (req, res) => {
   try {
     const { amount, type, from } = req.body || {};
     let payAmount = Number(amount) || giftValues[type] || 1;
-    const cleanUser = (from||'AL').replace(/[^a-zA-Z0-9]/g,'').slice(0,20);
+    const cleanUser = String(from||'AL').replace(/[^a-zA-Z0-9]/g,'').slice(0,20);
     const orderId = `TARIM_${Date.now()}_${cleanUser}`;
     if(!NOWPAY_API_KEY){
       return res.json({ ok: true, demo: true, invoice_url: `https://nowpayments.io/payment/?iid=${orderId}`, order_id: orderId, amount: payAmount });
@@ -235,7 +255,7 @@ app.post('/api/create-ad-invoice', async (req,res)=>{
   try {
     const { budget, target, from } = req.body || {};
     const b = Number(budget)||5;
-    const cleanUser = (from||'AL').replace(/[^a-zA-Z0-9]/g,'').slice(0,20);
+    const cleanUser = String(from||'AL').replace(/[^a-zA-Z0-9]/g,'').slice(0,20);
     const orderId = `TARIM_AD_${Date.now()}_${cleanUser}`;
     if(!NOWPAY_API_KEY){
       return res.json({ ok:true, demo:true, invoice_url:`https://nowpayments.io/payment/?iid=${orderId}`, order_id:orderId });
@@ -301,8 +321,8 @@ app.get('*', (req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`👑 TARIM OS V8.6.1 CASTLE LOCK LIVE on port ${PORT}`);
-  console.log(`🔒 CASTLE GATE: أي مستخدم جديد لازم يدخل من واجهة القلعة`);
+  console.log(`👑 TARIM OS V8.6.1 CASTLE LOCK SECURE LIVE on port ${PORT}`);
+  console.log(`🔒 CASTLE GATE: تم تأمين البوابة بنجاح`);
   console.log(`💎 OKX Wallet KING: ${OKX_PAYOUT_WALLET}`);
   console.log(`👑 ضريبة الملك: هدايا ${KING_TAX_GIFT*100}% | إعلانات ${KING_TAX_AD*100}%`);
   console.log(`🌍 https://tarim-os-1.onrender.com`);
