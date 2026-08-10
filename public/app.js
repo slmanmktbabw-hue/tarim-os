@@ -94,7 +94,20 @@
     if ($('countLikes')) $('countLikes').textContent = posts.reduce((a,b)=>a+(b.likes||0),0);
     if ($('activityPosts')) $('activityPosts').textContent = posts.length;
   }
-  async function initCam() { const v=$('cameraPreview'); if(!v) return; try{ stopStream(); state.curStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facing},audio:true}); v.srcObject=state.curStream; }catch{ toast('الكاميرا تحتاج HTTPS'); } }
+
+  async function initCam() { 
+    const v = $('cameraPreview'); 
+    if(!v) return; 
+    try { 
+      stopStream(); 
+      state.curStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facing},audio:true}); 
+      v.srcObject = state.curStream; 
+      await v.play(); // تم التعديل هنا لضمان عمل البث فوراً
+    } catch { 
+      toast('الكاميرا تحتاج HTTPS'); 
+    } 
+  }
+
   function setFilter(t){ const v=$('cameraPreview'); if(!v) return; v.style.filter=t==='beauty'?'contrast(1.15) brightness(1.15) saturate(1.2)':'none'; toast(t==='beauty'?'💄 تجميل':'✨ طبيعي'); }
   function switchCam(){ state.facing=state.facing==='user'?'environment':'user'; initCam(); }
   function capturePhoto(){ const v=$('cameraPreview'); if(!v) return; const c=document.createElement('canvas'); c.width=v.videoWidth||640; c.height=v.videoHeight||480; c.getContext('2d').drawImage(v,0,0); state.capImg=c.toDataURL('image/jpeg',0.85); toast('📸 تم التقاط صورة'); }
