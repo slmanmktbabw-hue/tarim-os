@@ -1,4 +1,4 @@
-// public/app.js - TARIM OS V8.5.1 ULTIMATE SECURE - TRIPLE-PAY + ADS + NOWPayments + محصن 100%
+// public/app.js - TARIM OS V8.6 KING EDITION - الملك + TRIPLE-PAY + ADS + محصن 100%
 "use strict";
 (function () {
 const $ = id => document.getElementById(id);
@@ -22,6 +22,13 @@ lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
 watchTimer: null, currentWatchTime: 0, abortCtrl: null,
 giftType: 'heart', adBudget: 5
 };
+// === نظام الملك ===
+const KING_KEY = 'TARIM_KING_2026';
+const KING_USERS = ['al','slmanmktbabw-hue','الامبراطور','الملك'];
+function isKing(){
+  const u = (localStorage.getItem('tarim_session_v73')||'').toLowerCase();
+  return KING_USERS.includes(u) || localStorage.getItem('tarim_king_auth')===KING_KEY;
+}
 async function openNativeFullscreen(elem) {
 try {
 if (!elem) return;
@@ -149,11 +156,17 @@ state.capImg=null; renderAllFeeds(); updateCounters(); toast('🚀 تم النش
 }
 function forceUnlockCastle() {
 const el = $('userPhoneOrEmail');
-const u = sanitizeText((el && el.value.trim())||'AL').slice(0,30)||'AL';
+let raw = (el && el.value.trim())||'AL';
+if(raw.toUpperCase()==='KING'){
+  localStorage.setItem('tarim_king_auth', KING_KEY);
+  raw='AL';
+  toast('👑 تم تفعيل صلاحية الملك');
+}
+const u = sanitizeText(raw).slice(0,30)||'AL';
 localStorage.setItem('tarim_session_v73', u); localStorage.setItem('tarim_token_v73','offline_'+Date.now());
 const gate = $('authGate'); if(gate) gate.style.display = 'none';
-const h1=$('homeUsernameDisplay'); if(h1) h1.textContent='@'+u+' 👑';
-const h2=$('profileNameDisplay'); if(h2) h2.textContent='الإمبراطور '+u;
+const h1=$('homeUsernameDisplay'); if(h1) h1.textContent='@'+u+' 👑'+(isKing()?' [الملك]':'');
+const h2=$('profileNameDisplay'); if(h2) h2.textContent='الإمبراطور '+u+(isKing()?' 👑':'');
 renderAllFeeds(); updateCounters(); startUesWatchSimulation(); toast('أهلاً '+u+' 👑');
 }
 async function startLive(){
@@ -195,7 +208,7 @@ const lc = $('likeCount'); if(lc) lc.textContent = state.likes;
 const lf = $('likeCountFull'); if(lf) lf.textContent = state.likes;
 }
 
-// === V8.5.1 TRIPLE-PAY - نافذة الدفع الثلاثية المحصنة ===
+// === V8.6 KING - نافذة الدفع الثلاثية + ضريبة الملك ===
 function openGiftModal() {
   let modal = $('triplePayModal');
   if(modal){ modal.classList.remove('hidden'); return; }
@@ -215,6 +228,7 @@ function openGiftModal() {
         <button data-gift="crown" class="gift-type bg-slate-800 text-white p-2 rounded-lg text-[10px]">👑 1$</button>
         <button data-gift="rocket" class="gift-type bg-slate-800 text-white p-2 rounded-lg text-[10px]">🚀 5$</button>
       </div>
+      <div class="bg-slate-800/50 p-2 rounded text-[10px] text-slate-400 text-center">الملك 10% + المبدع 90% 👑</div>
       <button id="payOKX" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold p-4 rounded-xl flex justify-between items-center">
         <span>💎 OKX - فوري لليمن</span><span class="text-[10px] bg-black/20 px-2 py-1 rounded">مباشر</span>
       </button>
@@ -225,7 +239,7 @@ function openGiftModal() {
         <span>🅿️ PayPal - للأجانب</span><span class="text-[10px] bg-blue-500 text-white px-2 py-1 rounded">PayPal</span>
       </button>
     </div>
-    <p class="text-[10px] text-slate-500 mt-4 text-center">تستلم USDT مباشر على OKX: 0x53...ab96<br>Mastercard عبر NOWPayments - بدون شركة</p>
+    <p class="text-[10px] text-slate-500 mt-4 text-center">تستلم USDT مباشر على OKX: 0x53...ab96<br>الملك: 10% | المبدع: 90%</p>
   </div>`;
   document.body.appendChild(modal);
   $('closeTriplePay').addEventListener('click', closeGiftModal);
@@ -245,19 +259,19 @@ function closeGiftModal(){ const m=$('triplePayModal'); if(m) m.classList.add('h
 async function payWithOKX(){
   const g = $('giftAnim'); if(g){ g.textContent = '👑🎁💖'; setTimeout(()=>{g.textContent='';},2500); }
   const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
-  const currentGift = values[state.giftType] ? state.giftType : 'heart';
+  const currentGift = values[state.giftType]? state.giftType : 'heart';
   try{
     const res = await fetch('/api/gift', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), to:'streamer', type: currentGift, method:'okx', amount: values[currentGift] })
     });
     const data = await res.json();
-    if(data.ok){ toast(`💎 تم ${data.value} USDT عبر OKX - TX:${String(data.tx).slice(0,10)}... 👑`); }
+    if(data.ok){ toast(`💎 ${data.value}$ | الملك ${data.kingCut}$ + المبدع ${data.creatorCut}$ 👑 TX:${String(data.tx).slice(0,8)}`); }
   }catch(e){ toast('💎 تم إرسال الهدية عبر OKX! (Offline) 👑'); }
 }
 async function payWithCard(){
   const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
-  const currentGift = values[state.giftType] ? state.giftType : 'heart';
+  const currentGift = values[state.giftType]? state.giftType : 'heart';
   const amount = values[currentGift];
   toast(`💳 جاري إنشاء فاتورة ${amount}$ ببطاقة...`);
   try{
@@ -268,23 +282,23 @@ async function payWithCard(){
     const data = await res.json();
     if(data.ok && data.invoice_url){
       window.open(data.invoice_url, '_blank');
-      toast(`💳 ادفع ${amount}$ ببطاقتك - يصل USDT لمحفظتك`);
+      toast(`💳 ادفع ${amount}$ - الملك 10%`);
     } else if(data.demo){
       window.open(data.invoice_url, '_blank');
-      toast('💳 DEMO - ضع NOWPAY_API_KEY في Render لتفعيل الحقيقي');
+      toast('💳 DEMO - ضع NOWPAY_API_KEY في Render');
     }
   } catch(e){ toast('خطأ بطاقة - جرب OKX'); }
 }
 function payWithPayPal(){
   const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
-  const currentGift = values[state.giftType] ? state.giftType : 'heart';
+  const currentGift = values[state.giftType]? state.giftType : 'heart';
   const amount = values[currentGift];
   toast(`🅿️ PayPal ${amount}$ - قريباً`);
   window.open(`https://paypal.me/tarimos/${amount}`, '_blank');
 }
 function sendGift(){ openGiftModal(); }
 
-// === نظام الترويج السيادي المحصن ===
+// === V8.6 KING - نظام الترويج + موافقة الملك ===
 function initPromoPage(){
   const container = document.querySelector('#sub-promo-page');
   if(!container) return;
@@ -312,10 +326,11 @@ function initPromoPage(){
           <option value="العالم">🌐 العالم كله</option>
         </select>
       </div>
-      <div id="adPreview" class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-center text-xs text-cyan-400 font-bold">🚀 5$ = 500 مشاهدة في حضرموت</div>
+      <div id="adPreview" class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-center text-xs text-cyan-400 font-bold">🚀 5$ = 500 مشاهدة في حضرموت | ضريبة الملك 20%</div>
       <button id="payAdOKX" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold p-4 rounded-xl">💎 روّج الآن عبر OKX - فوري</button>
       <button id="payAdCard" class="w-full bg-slate-800 border border-yellow-500/50 text-white font-bold p-3 rounded-xl text-xs">💳 ادفع ببطاقة Mastercard - يصل USDT</button>
-      <div class="text-[10px] text-slate-500 text-center leading-4">مثال: مطعم في تريم يدفع 5$ = 500 شخص في تريم يشوف إعلانه اليوم<br>بدون فيسبوك - مباشر</div>
+      <div class="text-[10px] text-slate-500 text-center leading-4">مثال: مطعم في تريم يدفع 5$ = 400 مشاهدة + 1$ للملك<br>بدون فيسبوك - مباشر</div>
+      <div id="kingPanelAds"></div>
     </div>`;
     let selectedBudget = 5;
     box.querySelectorAll('.ad-budget').forEach(b=>{
@@ -324,23 +339,23 @@ function initPromoPage(){
         b.className='ad-budget bg-cyan-500 text-black p-2 rounded-lg text-xs font-bold border-cyan-500';
         selectedBudget = Number(b.dataset.budget) || 5;
         const t = sanitizeText($('adTarget').value);
-        $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${selectedBudget*100} مشاهدة في ${t}`;
+        $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${Math.floor(selectedBudget*0.8*100)} مشاهدة في ${t} | الملك ${ (selectedBudget*0.2).toFixed(1)}$`;
       });
     });
-    $('adTarget').addEventListener('change', ()=>{ 
+    $('adTarget').addEventListener('change', ()=>{
       const t = sanitizeText($('adTarget').value);
-      $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${selectedBudget*100} مشاهدة في ${t}`; 
+      $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${Math.floor(selectedBudget*0.8*100)} مشاهدة في ${t} | الملك ${ (selectedBudget*0.2).toFixed(1)}$`;
     });
     $('payAdOKX').addEventListener('click', async ()=>{
       const target = sanitizeText($('adTarget').value);
       toast(`💎 جاري ترويج ${selectedBudget}$ لـ ${target}...`);
       try{
         const res = await fetch('/api/promote', {
-          method:'POST', headers:{'Content-Type':'application/json'},
+          method:'POST', headers:{'Content-Type':'application/json','x-king-key': isKing()?KING_KEY:''},
           body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), budget: selectedBudget, target, method:'okx' })
         });
         const data = await res.json();
-        if(data.ok){ toast(data.msg); $('adPreview').textContent = '✅ تم الترويج! ID: '+ sanitizeText(data.adId); }
+        if(data.ok){ toast(data.msg); $('adPreview').textContent = data.pending? '⏳ قيد مراجعة الملك' : '✅ تم الترويج! ID: '+ sanitizeText(data.adId); if(isKing()) loadKingPanel(); }
       } catch(e){ toast('تم الترويج Offline - سيظهر قريباً'); }
     });
     $('payAdCard').addEventListener('click', async ()=>{
@@ -352,9 +367,55 @@ function initPromoPage(){
           body: JSON.stringify({ budget: selectedBudget, target, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL') })
         });
         const data = await res.json();
-        if(data.ok && data.invoice_url){ window.open(data.invoice_url, '_blank'); toast(`🚀 ادفع ${selectedBudget}$ بالبطاقة - يصير ${selectedBudget*100} مشاهدة`); }
+        if(data.ok && data.invoice_url){ window.open(data.invoice_url, '_blank'); toast(`🚀 ادفع ${selectedBudget}$ - الملك 20%`); }
       } catch(e){ toast('خطأ - جرب OKX'); }
     });
+
+    // === لوحة الملك ===
+    function loadKingPanel(){
+      const kingDiv = $('kingPanelAds');
+      if(!isKing()){ kingDiv.innerHTML=''; return; }
+      kingDiv.innerHTML = `
+        <div class="bg-yellow-500/10 border-2 border-yellow-500/50 p-4 rounded-xl mt-4">
+          <p class="text-yellow-400 font-bold text-xs mb-2">👑 لوحة الملك - صلاحية نشر الإعلانات والهدايا</p>
+          <div class="grid grid-cols-3 gap-2 mb-3">
+            <div class="bg-slate-900 p-2 rounded text-center"><p class="text-[10px] text-slate-400">إجمالي الملك</p><p id="kingTotal" class="text-yellow-400 font-bold text-xs">0$</p></div>
+            <div class="bg-slate-900 p-2 rounded text-center"><p class="text-[10px] text-slate-400">من الهدايا 10%</p><p id="kingGift" class="text-cyan-400 font-bold text-xs">0$</p></div>
+            <div class="bg-slate-900 p-2 rounded text-center"><p class="text-[10px] text-slate-400">من الإعلانات 20%</p><p id="kingAd" class="text-green-400 font-bold text-xs">0$</p></div>
+          </div>
+          <p class="text-yellow-400 font-bold text-xs">📩 إعلانات تنتظر موافقتك: <span id="pendingCount">0</span></p>
+          <div id="pendingAdsList" class="mt-2 space-y-2 max-h-60 overflow-y-auto"></div>
+          <button id="loadPending" class="w-full bg-yellow-500 text-black p-2 rounded-lg text-xs mt-2 font-bold">🔄 تحديث</button>
+        </div>`;
+      $('loadPending').addEventListener('click', fetchKingStats);
+      fetchKingStats();
+    }
+    async function fetchKingStats(){
+      try{
+        const r = await fetch('/api/king/stats?key='+KING_KEY);
+        const d = await r.json();
+        if(d.ok){
+          $('pendingCount').textContent = d.pendingAds.length;
+          $('kingTotal').textContent = (d.earnings.total||0).toFixed(2)+'$';
+          $('kingGift').textContent = (d.earnings.gifts||0).toFixed(2)+'$';
+          $('kingAd').textContent = (d.earnings.ads||0).toFixed(2)+'$';
+          $('pendingAdsList').innerHTML = d.pendingAds.length? d.pendingAds.map(ad=>`
+            <div class="bg-slate-800 p-2 rounded flex justify-between items-center">
+              <div><p class="text-xs text-white">${sanitizeText(ad.owner)} - ${ad.budget}$</p><p class="text-[10px] text-slate-400">${sanitizeText(ad.target)} - ${ad.maxViews} مشاهدة</p></div>
+              <button onclick="approveAd('${ad.id}')" class="bg-green-500 text-black px-3 py-1 rounded text-[10px] font-bold">موافقة 👑</button>
+            </div>
+          `).join('') : '<p class="text-[10px] text-slate-500 text-center">لا يوجد إعلانات معلقة</p>';
+        }
+      }catch(e){ console.log('king stats error', e.message); }
+    }
+    window.approveAd = async (id)=>{
+      try{
+        const r = await fetch('/api/king/approve-ad', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ adId:id, key:KING_KEY }) });
+        const d = await r.json();
+        if(d.ok){ toast('✅ تمت موافقة الملك - الإعلان الآن نشط'); fetchKingStats(); }
+      }catch(e){ toast('خطأ موافقة'); }
+    };
+    loadKingPanel();
 }
 
 function setupUploadFix() {
@@ -384,7 +445,16 @@ showQR:()=>{ const d=$('qrDisplay'); if(d){ d.classList.toggle('hidden'); const 
 goInbox:()=>switchTab('inbox')
 };
 document.addEventListener('click',(e)=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const act=btn.getAttribute('data-action'); if(map[act]) map[act](btn); });
-const sBtn = $('supportBtn'); if(sBtn) sBtn.addEventListener('click', (e) => { e.preventDefault(); if (window.TarimSupport && typeof window.TarimSupport.openModal === 'function') window.TarimSupport.openModal(); });
+const sBtn = $('supportBtn');
+if(sBtn) sBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  if(isKing()){
+    showSubPage('promo-page');
+    toast('👑 أهلاً ملك تريم - لوحة التحكم في الترويج');
+  } else {
+    if (window.TarimSupport && typeof window.TarimSupport.openModal === 'function') window.TarimSupport.openModal();
+  }
+});
 const lBtn = $('loginBtn'); if(lBtn) lBtn.addEventListener('click',forceUnlockCastle);
 const uPass = $('userPass'); if(uPass) uPass.addEventListener('keydown',e=>{if(e.key==='Enter')forceUnlockCastle();});
 const pBtn = $('publishBtn'); if(pBtn) pBtn.addEventListener('click',publishPost);
@@ -399,6 +469,12 @@ const likeFull = $('likeLiveBtnFull'); if(likeFull) likeFull.addEventListener('c
 setupUploadFix();
 document.addEventListener('fullscreenchange', ()=>{ if (!document.fullscreenElement && state.liveMode) {} });
 const logoutBtn = $('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click',()=>{localStorage.clear(); location.reload();});
-if(localStorage.getItem('tarim_session_v73')){ const gate=$('authGate'); if(gate) gate.style.display='none'; renderAllFeeds(); updateCounters(); startUesWatchSimulation(); }
+if(localStorage.getItem('tarim_session_v73')){
+  const gate=$('authGate'); if(gate) gate.style.display='none';
+  const u = localStorage.getItem('tarim_session_v73');
+  const h1=$('homeUsernameDisplay'); if(h1) h1.textContent='@'+sanitizeText(u)+' 👑'+(isKing()?' [الملك]':'');
+  const h2=$('profileNameDisplay'); if(h2) h2.textContent='الإمبراطور '+sanitizeText(u)+(isKing()?' 👑':'');
+  renderAllFeeds(); updateCounters(); startUesWatchSimulation();
+}
 });
 })();
