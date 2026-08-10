@@ -138,11 +138,87 @@
     const h2=$('profileNameDisplay'); if(h2) h2.textContent='الإمبراطور '+u;
     renderAllFeeds(); updateCounters(); startUesWatchSimulation(); toast('أهلاً '+u+' 👑');
   }
-  function startLive(){ state.liveMode=true; state.likes=0; state.lSec=0; initCam(); $('cameraWrap')?.classList.add('fullscreen-live'); $('liveControlsFull')?.classList.remove('hidden'); $('endLiveTopBtn')?.classList.remove('hidden'); $('normalControls')?.classList.add('hidden'); document.querySelector('header')?.classList.add('hidden'); document.querySelector('nav')?.classList.add('hidden'); toast('🔴 بث ملء الشاشة'); }
-  function stopLive(){ state.liveMode=false; $('cameraWrap')?.classList.remove('fullscreen-live'); $('liveControlsFull')?.classList.add('hidden'); $('endLiveTopBtn')?.classList.add('hidden'); $('normalControls')?.classList.remove('hidden'); document.querySelector('header')?.classList.remove('hidden'); document.querySelector('nav')?.classList.remove('hidden'); stopStream(); toast('⏹️ تم إنهاء البث'); }
+
+  function startLive(){ 
+    state.liveMode = true; 
+    state.likes = 0; 
+    state.lSec = 0; 
+    initCam(); 
+    $('cameraWrap')?.classList.add('fullscreen-live'); 
+    $('liveBadge')?.classList.remove('hidden');
+    $('liveControlsFull')?.classList.remove('hidden'); 
+    $('endLiveTopBtn')?.classList.remove('hidden'); 
+    $('normalControls')?.classList.add('hidden'); 
+    document.querySelector('header')?.classList.add('hidden'); 
+    document.querySelector('nav')?.classList.add('hidden'); 
+
+    if(state.liveInt) clearInterval(state.liveInt);
+    state.liveInt = setInterval(() => {
+      state.lSec++;
+      const m = String(Math.floor(state.lSec / 60)).padStart(2, '0');
+      const s = String(state.lSec % 60).padStart(2, '0');
+      if($('liveTimer')) $('liveTimer').textContent = m + ':' + s;
+    }, 1000);
+
+    toast('🔴 بث ملء الشاشة'); 
+  }
+
+  function stopLive(){ 
+    state.liveMode = false; 
+    if(state.liveInt) { clearInterval(state.liveInt); state.liveInt = null; }
+    $('cameraWrap')?.classList.remove('fullscreen-live'); 
+    $('liveBadge')?.classList.add('hidden');
+    $('liveControlsFull')?.classList.add('hidden'); 
+    $('endLiveTopBtn')?.classList.add('hidden'); 
+    $('normalControls')?.classList.remove('hidden'); 
+    document.querySelector('header')?.classList.remove('hidden'); 
+    document.querySelector('nav')?.classList.remove('hidden'); 
+    stopStream(); 
+    toast('⏹️ تم إنهاء البث'); 
+  }
+
+  function addLike() {
+    state.likes++;
+    if($('likeCount')) $('likeCount').textContent = state.likes;
+    if($('likeCountFull')) $('likeCountFull').textContent = state.likes;
+  }
+
+  function sendGift() {
+    toast('🎁 تم إرسال الهدية بنجاح!');
+    const g = $('giftAnim');
+    if(g) {
+      g.textContent = '👑🎁💖';
+      setTimeout(() => { g.textContent = ''; }, 2000);
+    }
+  }
 
   document.addEventListener('DOMContentLoaded', () => {
-    const map={ startLive, stopLive, switchCam, capturePhoto, filterNone:()=>setFilter('none'), filterBeauty:()=>setFilter('beauty'), tabHome:(b)=>switchTab('home',b), tabOperations:(b)=>switchTab('operations',b), tabCreate:(b)=>switchTab('create',b), tabInbox:(b)=>switchTab('inbox',b), tabProfile:(b)=>switchTab('profile',b), backToProfile, openAccountSettings:()=>showSubPage('account-settings'), openSecurity:()=>showSubPage('security-settings'), openQrPage:()=>showSubPage('qr-page'), openOkx:()=>showSubPage('okx-page'), openActivity:()=>showSubPage('activity-page'), openOffline:()=>showSubPage('offline-page'), openCommerce:()=>showSubPage('commerce-page'), openPromo:()=>showSubPage('promo-page'), openMap:()=>{ const c=$('mapContainer'); if(c){ c.classList.toggle('hidden'); if(!c.classList.contains('hidden')&&!state.map&&window.L){ state.map=L.map(c).setView([16.0545,49.0],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(state.map); } } }, showQR:()=>{ const d=$('qrDisplay'); if(d){ d.classList.toggle('hidden'); const b=$('operationsQrBox'); if(b&&!d.classList.contains('hidden')){ b.textContent=''; if(window.QRCode) new QRCode(b,{text:'https://tarimos.org',width:100,height:100}); } } }, goInbox:()=>switchTab('inbox') };
+    const map={ 
+      startLive, 
+      stopLive, 
+      switchCam, 
+      capturePhoto, 
+      filterNone:()=>setFilter('none'), 
+      filterBeauty:()=>setFilter('beauty'), 
+      tabHome:(b)=>switchTab('home',b), 
+      tabOperations:(b)=>switchTab('operations',b), 
+      tabCreate:(b)=>switchTab('create',b), 
+      tabInbox:(b)=>switchTab('inbox',b), 
+      tabProfile:(b)=>switchTab('profile',b), 
+      backToProfile, 
+      openAccountSettings:()=>showSubPage('account-settings'), 
+      openSecurity:()=>showSubPage('security-settings'), 
+      openQrPage:()=>showSubPage('qr-page'), 
+      openOkx:()=>showSubPage('okx-page'), 
+      openActivity:()=>showSubPage('activity-page'), 
+      openOffline:()=>showSubPage('offline-page'), 
+      openCommerce:()=>showSubPage('commerce-page'), 
+      openPromo:()=>showSubPage('promo-page'), 
+      openMap:()=>{ const c=$('mapContainer'); if(c){ c.classList.toggle('hidden'); if(!c.classList.contains('hidden')&&!state.map&&window.L){ state.map=L.map(c).setView([16.0545,49.0],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(state.map); } } }, 
+      showQR:()=>{ const d=$('qrDisplay'); if(d){ d.classList.toggle('hidden'); const b=$('operationsQrBox'); if(b&&!d.classList.contains('hidden')){ b.textContent=''; if(window.QRCode) new QRCode(b,{text:'https://tarimos.org',width:100,height:100}); } } }, 
+      goInbox:()=>switchTab('inbox') 
+    };
+    
     document.addEventListener('click',(e)=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const act=btn.getAttribute('data-action'); if(map[act]) map[act](btn); });
 
     $('supportBtn')?.addEventListener('click', (e) => {
@@ -159,6 +235,12 @@
     $('stopLiveBtn')?.addEventListener('click',stopLive);
     $('stopLiveBtnFull')?.addEventListener('click',stopLive);
     $('endLiveTopBtn')?.addEventListener('click',stopLive);
+    
+    $('sendGiftBtn')?.addEventListener('click', sendGift);
+    $('sendGiftBtnFull')?.addEventListener('click', sendGift);
+    $('likeLiveBtn')?.addEventListener('click', addLike);
+    $('likeLiveBtnFull')?.addEventListener('click', addLike);
+
     $('logoutBtn')?.addEventListener('click',()=>{localStorage.clear(); location.reload();});
     if(localStorage.getItem('tarim_session_v73')){ if($('authGate')) $('authGate').style.display='none'; renderAllFeeds(); updateCounters(); startUesWatchSimulation(); }
   });
