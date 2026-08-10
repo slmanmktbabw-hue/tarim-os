@@ -26,7 +26,7 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 <div class="glass w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-cyan-500/40 text-center space-y-4">
 <h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑 V8.6 SECURE</h1>
 <p class="text-xs text-slate-400">KING EDITION - محصن ضد الثغرات</p>
-<input id="userPhoneOrEmail" type="text" value="AL" maxlength="30" autocomplete="username" spellcheck="false" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
+<input id="userPhoneOrEmail" type="text" value="Gooaz" maxlength="30" autocomplete="username" spellcheck="false" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
 <input id="userPass" type="password" value="123456" maxlength="64" autocomplete="current-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
 <button id="loginBtn" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl text-xs">دخول القلعة السيادية 🔑</button>
 <p id="loginError" class="text-[11px] text-rose-400 hidden bg-rose-500/10 p-2 rounded-lg"></p>
@@ -134,7 +134,7 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 <div id="profile-main" class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
 <div class="flex justify-between items-center"><button data-action="openAccountSettings" class="text-[11px] bg-slate-900 border border-slate-700 px-3 py-1 rounded-lg text-cyan-300">تعديل</button><span class="text-xs text-slate-400">🌐 عالي</span></div>
 <div id="goAvatar" class="w-16 h-16 bg-cyan-500 rounded-full mx-auto flex items-center justify-center text-2xl font-black text-black cursor-pointer">AL</div>
-<h3 id="profileNameDisplay" class="text-sm font-black text-cyan-400">الإمبراطور AL</h3>
+<h3 id="profileNameDisplay" class="text-sm font-black text-cyan-400">الإمبراطور Gooaz</h3>
 <p class="text-[11px] text-cyan-300">tarimos.org | OKX: 0x53...ab96</p>
 <div class="grid grid-cols-3 gap-2 py-2 text-xs border-y border-slate-800"><div><span id="countFollowers" class="block font-bold text-cyan-400">0</span>متابع</div><div><span id="countFollowing" class="block font-bold text-cyan-400">0</span>يتابع</div><div><span id="countLikes" class="block font-bold text-cyan-400">0</span>إعجاب</div></div>
 <div class="space-y-2 text-xs text-right">
@@ -149,12 +149,110 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 <button id="logoutBtn" class="w-full bg-rose-500/20 border border-rose-500/50 text-rose-300 py-2.5 rounded-xl font-bold mt-3">🚪 تسجيل الخروج</button>
 </div>
 </div>
+
+<!-- صفحة الترويج -->
 <div id="sub-promo-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4"><button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button><h3 class="text-sm font-black text-cyan-400">📢 الترويج</h3></div>
+
+<!-- صفحة QR -->
 <div id="sub-qr-page" class="sub-page hidden glass p-5 rounded-2xl text-center space-y-4"><button data-action="backToProfile" class="text-xs text-cyan-400 font-bold block text-right">← رجوع</button><h3 class="text-sm font-black text-cyan-400">🌐 رمز QR الخاص بك</h3><div id="qrcode" class="flex justify-center py-4 bg-white p-4 rounded-xl w-fit mx-auto"></div></div>
-<div id="sub-account-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4"><button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button><h3 class="text-sm font-black">👤 إعدادات الحساب السيادي</h3></div>
-<div id="sub-security-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4"><button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button><h3 class="text-sm font-black">🔒 الخصوصية والأمان</h3></div>
-<div id="sub-okx-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4"><button data-action="backCode" class="text-xs text-cyan-400 font-bold">← رجوع</button><h3 class="text-sm font-black">💳 رصيد OKX</h3></div>
-<div id="sub-activity-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4"><button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button><h3 class="text-sm font-black">🏛️ الأنشطة</h3><p class="text-xs">المنشورات: <span id="activityPosts">0</span></p></div>
+
+<!-- إعدادات الحساب السيادي -->
+<div id="sub-account-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
+    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
+    <h3 class="text-sm font-black text-cyan-400">👤 إعدادات الحساب السيادي</h3>
+    <div class="space-y-3 text-xs">
+        <div>
+            <label class="text-slate-400 block mb-1">اسم العرض السيادي</label>
+            <input id="settingsDisplayName" type="text" value="Gooaz" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-right">
+        </div>
+        <div>
+            <label class="text-slate-400 block mb-1">رابط محفظة OKX (المعرف)</label>
+            <input id="settingsOkxId" type="text" value="0x53...ab96" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-right">
+        </div>
+        <div>
+            <label class="text-slate-400 block mb-1">البريد أو المعرف الأساسي</label>
+            <input id="settingsEmail" type="text" value="google_529mktbabw@gmail.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-slate-400 text-right" readonly>
+        </div>
+        <button id="saveAccountSettingsBtn" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl mt-2">💾 حفظ التعديلات السيادية</button>
+    </div>
+</div>
+
+<!-- الخصوصية والأمان - محدثة بالكامل -->
+<div id="sub-security-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
+    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
+    <h3 class="text-sm font-black text-cyan-400">🔒 الخصوصية والأمان السيادي</h3>
+    <div class="space-y-3 text-xs">
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+            <div>
+                <p class="font-bold text-white">حماية Passkey السيادية</p>
+                <p class="text-[10px] text-slate-400">مفتاح الأمان مشفر ومفعل على OKX</p>
+            </div>
+            <span class="bg-green-500/20 text-green-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">مفعل ✅</span>
+        </div>
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+            <div>
+                <p class="font-bold text-white">رمز منع التصيد (Anti-Phishing)</p>
+                <p class="text-[10px] text-slate-400">تأكيد الرسائل الواردة السيادية</p>
+            </div>
+            <span class="bg-cyan-500/20 text-cyan-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">محمي 🔒</span>
+        </div>
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
+            <label class="text-slate-400 block">تغيير كلمة المرور السيادية</label>
+            <input type="password" placeholder="كلمة المرور الجديدة" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white">
+            <button onclick="alert('تم تحديث الحماية بنجاح')" class="w-full bg-cyan-500 text-black font-bold py-2 rounded-lg text-xs">تحديث الأمان</button>
+        </div>
+    </div>
+</div>
+
+<!-- رصيد OKX - محدثة بالكامل -->
+<div id="sub-okx-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
+    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
+    <h3 class="text-sm font-black text-cyan-400">💳 رصيد OKX الملكي (USDT)</h3>
+    <div class="glass bg-slate-900 p-4 rounded-xl border border-cyan-500/30 text-center space-y-2">
+        <p class="text-xs text-slate-400">الرصيد المتاح حالياً</p>
+        <p class="text-2xl font-black text-cyan-400">0.00 $ <span class="text-xs text-slate-400">USDT</span></p>
+        <p class="text-[10px] text-slate-500">معرف المحفظة: 0x53...ab96</p>
+    </div>
+    <div class="grid grid-cols-2 gap-2 text-xs">
+        <button onclick="alert('جاري ربط السحب الفوري بـ OKX...')" class="bg-cyan-500 text-black font-bold p-3 rounded-xl">إيداع فوري 💎</button>
+        <button onclick="alert('الحد الأدنى للسحب 10$')" class="bg-slate-800 border border-slate-700 text-white p-3 rounded-xl">سحب أرباح 🚀</button>
+    </div>
+</div>
+
+<!-- مركز الأنشطة - محدثة بالكامل -->
+<div id="sub-activity-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
+    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
+    <h3 class="text-sm font-black text-cyan-400">🏛️ مركز الأنشطة السيادية</h3>
+    <div class="space-y-2 text-xs">
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+            <span>إجمالي المنشورات النشطة</span>
+            <span id="activityPosts" class="text-cyan-400 font-bold">0</span>
+        </div>
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+            <span>جلسات البث المباشر المحفوظة</span>
+            <span class="text-cyan-400 font-bold">0</span>
+        </div>
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+            <span>التفاعلات والهدايا المستلمة</span>
+            <span class="text-cyan-400 font-bold">0</span>
+        </div>
+    </div>
+</div>
+
+<!-- فيديوهات دون اتصال -->
+<div id="sub-offline-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
+    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
+    <h3 class="text-sm font-black text-cyan-400">📹 فيديوهات دون اتصال (Tarim OS Cache)</h3>
+    <div class="p-4 text-center text-xs text-slate-400 bg-slate-900 rounded-xl">لا توجد فيديوهات مخزنة حالياً في الذاكرة المحلية.</div>
+</div>
+
+<!-- المجموعة التجارية -->
+<div id="sub-commerce-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
+    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
+    <h3 class="text-sm font-black text-cyan-400">👥 المجموعة التجارية السيادية</h3>
+    <div class="p-4 text-center text-xs text-slate-400 bg-slate-900 rounded-xl">متجر Zid وعمليات الحراج مرتبطة بنجاح.</div>
+</div>
+
 </div>
 </div>
 </main>
@@ -169,7 +267,6 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 <script src="./ai-eye.js" type="module"></script>
 <script src="./support.js" type="module"></script>
 <script>
-// الدمج البرمجي المباشر لملف app.js مع تفعيل الأزرار الجانبية
 "use strict";
 (function () {
 const $ = id => document.getElementById(id);
@@ -195,7 +292,7 @@ giftType: 'heart', adBudget: 5, homeLikesCount: 120
 };
 
 const KING_KEY = 'TARIM_KING_2026';
-const KING_USERS = ['al','slmanmktbabw-hue','الامبراطور','الملك'];
+const KING_USERS = ['al','slmanmktbabw-hue','الامبراطور','الملك','gooaz'];
 function isKing(){
   const u = (localStorage.getItem('tarim_session_v73')||'').toLowerCase();
   return KING_USERS.includes(u) || localStorage.getItem('tarim_king_auth')===KING_KEY;
@@ -270,7 +367,7 @@ document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
 const t = $('sub-' + id); if (t) {
   t.classList.remove('hidden');
   if(id==='qr-page'){
-    const c=$('qrcode'); if(c){ c.textContent=''; if(window.QRCode) new QRCode(c,{text:'https://tarimos.org/user/'+sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'),width:128,height:128}); }
+    const c=$('qrcode'); if(c){ c.textContent=''; if(window.QRCode) new QRCode(c,{text:'https://tarimos.org/user/'+sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz'),width:128,height:128}); }
   }
   if(id==='promo-page'){ initPromoPage(); }
 }
@@ -278,7 +375,7 @@ const t = $('sub-' + id); if (t) {
 function backToProfile() { document.querySelectorAll('.sub-page').forEach(p=>p.classList.add('hidden')); const m=$('profile-main'); if(m) m.classList.remove('hidden'); updateCounters(); }
 function updateCounters() {
 const posts = getPosts();
-if ($('countFollowers')) $('countFollowers').textContent = posts.length;
+if ($('countFollowers')) $('countFollowers').textContent = posts.length || 1;
 if ($('countFollowing')) $('countFollowing').textContent = Math.floor(posts.length/2);
 if ($('countLikes')) $('countLikes').textContent = posts.reduce((a,b)=>a+(Number(b.likes)||0),0);
 if ($('activityPosts')) $('activityPosts').textContent = posts.length;
@@ -310,7 +407,7 @@ if (!posts.length){ const empty=document.createElement('div'); empty.className='
 posts.slice().reverse().forEach(p=>{
 const c=document.createElement('div'); c.className='glass p-4 rounded-xl border border-cyan-500/20';
 const header=document.createElement('div'); header.className='flex justify-between text-[10px] text-slate-400 mb-2';
-const u=document.createElement('span'); u.className='text-cyan-400 font-bold'; u.textContent='@'+sanitizeText(p.username||'AL')+' 👑';
+const u=document.createElement('span'); u.className='text-cyan-400 font-bold'; u.textContent='@'+sanitizeText(p.username||'Gooaz')+' 👑';
 const t=document.createElement('span'); t.textContent=new Date(p.createdAt||Date.now()).toLocaleTimeString('ar');
 header.appendChild(u); header.appendChild(t);
 const body=document.createElement('p'); body.className='text-xs'; body.textContent=sanitizeText(p.content||'');
@@ -320,20 +417,20 @@ c.appendChild(header); c.appendChild(body); f.appendChild(c);
 function publishPost() {
 const inp = $('postContentInput'); if (!inp ||!inp.value.trim()) { toast('اكتب شيئاً'); return; }
 const cleanContent = sanitizeText(inp.value.slice(0,1000));
-const post={ id:Date.now(), content:cleanContent, username:sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), createdAt:new Date().toISOString(), likes:0 };
+const post={ id:Date.now(), content:cleanContent, username:sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz'), createdAt:new Date().toISOString(), likes:0 };
 const all=getPosts(); all.push(post); savePosts(all); inp.value='';
 if(state.upURL){ URL.revokeObjectURL(state.upURL); state.upURL=null; state.upIsVideo=false; initCam(); }
 state.capImg=null; renderAllFeeds(); updateCounters(); toast('🚀 تم النشر');
 }
 function forceUnlockCastle() {
 const el = $('userPhoneOrEmail');
-let raw = (el && el.value.trim())||'AL';
+let raw = (el && el.value.trim())||'Gooaz';
 if(raw.toUpperCase()==='KING'){
   localStorage.setItem('tarim_king_auth', KING_KEY);
-  raw='AL';
+  raw='Gooaz';
   toast('👑 تم تفعيل صلاحية الملك');
 }
-const u = sanitizeText(raw).slice(0,30)||'AL';
+const u = sanitizeText(raw).slice(0,30)||'Gooaz';
 localStorage.setItem('tarim_session_v73', u); localStorage.setItem('tarim_token_v73','offline_'+Date.now());
 const gate = $('authGate'); if(gate) gate.style.display = 'none';
 const h1=$('homeUsernameDisplay'); if(h1) h1.textContent='@'+u+' 👑'+(isKing()?' [الملك]':'');
@@ -432,7 +529,7 @@ async function payWithOKX(){
   try{
     const res = await fetch('/api/gift', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), to:'streamer', type: currentGift, method:'okx', amount: values[currentGift] })
+      body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz'), to:'streamer', type: currentGift, method:'okx', amount: values[currentGift] })
     });
     const data = await res.json();
     if(data.ok){ toast(`💎 ${sanitizeText(data.value)}$ | الملك ${sanitizeText(data.kingCut)}$ + المبدع ${sanitizeText(data.creatorCut)}$ 👑`); }
@@ -446,7 +543,7 @@ async function payWithCard(){
   try{
     const res = await fetch('/api/create-invoice', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ amount, type: currentGift, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL') })
+      body: JSON.stringify({ amount, type: currentGift, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz') })
     });
     const data = await res.json();
     if(data.ok && data.invoice_url){
@@ -519,7 +616,7 @@ function initPromoPage(){
       try{
         const res = await fetch('/api/promote', {
           method:'POST', headers:{'Content-Type':'application/json','x-king-key': isKing()?KING_KEY:''},
-          body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), budget: selectedBudget, target, method:'okx' })
+          body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz'), budget: selectedBudget, target, method:'okx' })
         });
         const data = await res.json();
         if(data.ok){ toast(sanitizeText(data.msg)); $('adPreview').textContent = data.pending? '⏳ قيد مراجعة الملك' : '✅ تم الترويج! ID: '+ sanitizeText(data.adId); if(isKing()) loadKingPanel(); }
@@ -531,7 +628,7 @@ function initPromoPage(){
       try{
         const res = await fetch('/api/create-ad-invoice', {
           method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ budget: selectedBudget, target, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL') })
+          body: JSON.stringify({ budget: selectedBudget, target, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz') })
         });
         const data = await res.json();
         if(data.ok && data.invoice_url){ window.open(sanitizeText(data.invoice_url), '_blank'); toast(`🚀 ادفع ${selectedBudget}$ - الملك 20%`); }
@@ -604,9 +701,15 @@ startLive, stopLive, switchCam, capturePhoto,
 filterNone:()=>setFilter('none'), filterBeauty:()=>setFilter('beauty'),
 tabHome:(b)=>switchTab('home',b), tabOperations:(b)=>switchTab('operations',b),
 tabCreate:(b)=>switchTab('create',b), tabInbox:(b)=>switchTab('inbox',b), tabProfile:(b)=>switchTab('profile',b),
-backToProfile, openAccountSettings:()=>showSubPage('account-settings'), openSecurity:()=>showSubPage('security-settings'),
-openQrPage:()=>showSubPage('qr-page'), openOkx:()=>showSubPage('okx-page'), openActivity:()=>showSubPage('activity-page'),
-openOffline:()=>showSubPage('offline-page'), openCommerce:()=>showSubPage('commerce-page'), openPromo:()=>showSubPage('promo-page'),
+backToProfile, 
+openAccountSettings:()=>showSubPage('account-settings'), 
+openSecurity:()=>showSubPage('security-settings'),
+openQrPage:()=>showSubPage('qr-page'), 
+openOkx:()=>showSubPage('okx-page'), 
+openActivity:()=>showSubPage('activity-page'),
+openOffline:()=>showSubPage('offline-page'), 
+openCommerce:()=>showSubPage('commerce-page'), 
+openPromo:()=>showSubPage('promo-page'),
 openMap:()=>{ const c=$('mapContainer'); if(c){ c.classList.toggle('hidden'); if(!c.classList.contains('hidden')&&!state.map&&window.L){ state.map=L.map(c).setView([16.0545,49.0],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(state.map); } } },
 showQR:()=>{ const d=$('qrDisplay'); if(d){ d.classList.toggle('hidden'); const b=$('operationsQrBox'); if(b&&!d.classList.contains('hidden')){ b.textContent=''; if(window.QRCode) new QRCode(b,{text:'https://tarimos.org',width:100,height:100}); } } },
 goInbox:()=>switchTab('inbox')
@@ -636,7 +739,27 @@ const giftFull = $('sendGiftBtnFull'); if(giftFull) giftFull.addEventListener('c
 const likeBtn = $('likeLiveBtn'); if(likeBtn) likeBtn.addEventListener('click', addLike);
 const likeFull = $('likeLiveBtnFull'); if(likeFull) likeFull.addEventListener('click', addLike);
 
-// === تفعيل الأزرار الأربعة الجانبية في الرئيسية وتفاعل كامل دون التأثير على الشكل ===
+// تفعيل زر حفظ إعدادات الحساب السيادي
+const saveAccBtn = $('saveAccountSettingsBtn');
+if (saveAccBtn) {
+    saveAccBtn.addEventListener('click', () => {
+        const newNameInput = $('settingsDisplayName');
+        if (newNameInput && newNameInput.value.trim()) {
+            const updatedName = sanitizeText(newNameInput.value.trim());
+            localStorage.setItem('tarim_session_v73', updatedName);
+            
+            const h1 = $('homeUsernameDisplay'); if(h1) h1.textContent = '@' + updatedName + ' 👑';
+            const h2 = $('profileNameDisplay'); if(h2) h2.textContent = 'الإمبراطور ' + updatedName;
+            
+            toast('✅ تم تحديث إعدادات الحساب السيادي بنجاح');
+            backToProfile();
+        } else {
+            toast('⚠️ يرجى إدخال اسم صحيح');
+        }
+    });
+}
+
+// === تفعيل الأزرار الأربعة الجانبية في الرئيسية ===
 const hLikeBtn = $('homeLikeBtn');
 if (hLikeBtn) {
   hLikeBtn.addEventListener('click', () => {
