@@ -1,6 +1,6 @@
 // server.js - TARIM OS V8.5 FINAL FIXED - يعالج خطأ <!DOCTYPE JSON
 const express = require('express');
-const http = http = require('http'); // تم تصحيح طريقة الاستدعاء
+const http = require('http');
 const path = require('path');
 const crypto = require('crypto');
 const { Server } = require('socket.io');
