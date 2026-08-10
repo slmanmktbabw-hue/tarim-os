@@ -1,4 +1,4 @@
-// public/app.js - TARIM OS V8.6 KING EDITION - الملك + TRIPLE-PAY + ADS + محصن 100%
+// public/app.js - TARIM OS V8.5.1 ULTIMATE SECURE - TRIPLE-PAY + ADS + NOWPayments + محصن 100%
 "use strict";
 (function () {
 const $ = id => document.getElementById(id);
@@ -22,13 +22,6 @@ lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
 watchTimer: null, currentWatchTime: 0, abortCtrl: null,
 giftType: 'heart', adBudget: 5
 };
-// === نظام الملك ===
-const KING_KEY = 'TARIM_KING_2026';
-const KING_USERS = ['al','slmanmktbabw-hue','الامبراطور','الملك'];
-function isKing(){
-  const u = (localStorage.getItem('tarim_session_v73')||'').toLowerCase();
-  return KING_USERS.includes(u) || localStorage.getItem('tarim_king_auth')===KING_KEY;
-}
 async function openNativeFullscreen(elem) {
 try {
 if (!elem) return;
@@ -156,17 +149,11 @@ state.capImg=null; renderAllFeeds(); updateCounters(); toast('🚀 تم النش
 }
 function forceUnlockCastle() {
 const el = $('userPhoneOrEmail');
-let raw = (el && el.value.trim())||'AL';
-if(raw.toUpperCase()==='KING'){
-  localStorage.setItem('tarim_king_auth', KING_KEY);
-  raw='AL';
-  toast('👑 تم تفعيل صلاحية الملك');
-}
-const u = sanitizeText(raw).slice(0,30)||'AL';
+const u = sanitizeText((el && el.value.trim())||'AL').slice(0,30)||'AL';
 localStorage.setItem('tarim_session_v73', u); localStorage.setItem('tarim_token_v73','offline_'+Date.now());
 const gate = $('authGate'); if(gate) gate.style.display = 'none';
-const h1=$('homeUsernameDisplay'); if(h1) h1.textContent='@'+u+' 👑'+(isKing()?' [الملك]':'');
-const h2=$('profileNameDisplay'); if(h2) h2.textContent='الإمبراطور '+u+(isKing()?' 👑':'');
+const h1=$('homeUsernameDisplay'); if(h1) h1.textContent='@'+u+' 👑';
+const h2=$('profileNameDisplay'); if(h2) h2.textContent='الإمبراطور '+u;
 renderAllFeeds(); updateCounters(); startUesWatchSimulation(); toast('أهلاً '+u+' 👑');
 }
 async function startLive(){
@@ -208,7 +195,7 @@ const lc = $('likeCount'); if(lc) lc.textContent = state.likes;
 const lf = $('likeCountFull'); if(lf) lf.textContent = state.likes;
 }
 
-// === V8.6 KING - نافذة الدفع الثلاثية + ضريبة الملك ===
+// === V8.5.1 TRIPLE-PAY - نافذة الدفع الثلاثية المحصنة ===
 function openGiftModal() {
   let modal = $('triplePayModal');
   if(modal){ modal.classList.remove('hidden'); return; }
@@ -228,7 +215,6 @@ function openGiftModal() {
         <button data-gift="crown" class="gift-type bg-slate-800 text-white p-2 rounded-lg text-[10px]">👑 1$</button>
         <button data-gift="rocket" class="gift-type bg-slate-800 text-white p-2 rounded-lg text-[10px]">🚀 5$</button>
       </div>
-      <div class="bg-slate-800/50 p-2 rounded text-[10px] text-slate-400 text-center">الملك 10% + المبدع 90% 👑</div>
       <button id="payOKX" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold p-4 rounded-xl flex justify-between items-center">
         <span>💎 OKX - فوري لليمن</span><span class="text-[10px] bg-black/20 px-2 py-1 rounded">مباشر</span>
       </button>
@@ -239,7 +225,7 @@ function openGiftModal() {
         <span>🅿️ PayPal - للأجانب</span><span class="text-[10px] bg-blue-500 text-white px-2 py-1 rounded">PayPal</span>
       </button>
     </div>
-    <p class="text-[10px] text-slate-500 mt-4 text-center">تستلم USDT مباشر على OKX: 0x53...ab96<br>الملك: 10% | المبدع: 90%</p>
+    <p class="text-[10px] text-slate-500 mt-4 text-center">تستلم USDT مباشر على OKX: 0x53...ab96<br>Mastercard عبر NOWPayments - بدون شركة</p>
   </div>`;
   document.body.appendChild(modal);
   $('closeTriplePay').addEventListener('click', closeGiftModal);
@@ -259,19 +245,19 @@ function closeGiftModal(){ const m=$('triplePayModal'); if(m) m.classList.add('h
 async function payWithOKX(){
   const g = $('giftAnim'); if(g){ g.textContent = '👑🎁💖'; setTimeout(()=>{g.textContent='';},2500); }
   const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
-  const currentGift = values[state.giftType]? state.giftType : 'heart';
+  const currentGift = values[state.giftType] ? state.giftType : 'heart';
   try{
     const res = await fetch('/api/gift', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), to:'streamer', type: currentGift, method:'okx', amount: values[currentGift] })
     });
     const data = await res.json();
-    if(data.ok){ toast(`💎 ${data.value}$ | الملك ${data.kingCut}$ + المبدع ${data.creatorCut}$ 👑 TX:${String(data.tx).slice(0,8)}`); }
+    if(data.ok){ toast(`💎 تم ${data.value} USDT عبر OKX - TX:${String(data.tx).slice(0,10)}... 👑`); }
   }catch(e){ toast('💎 تم إرسال الهدية عبر OKX! (Offline) 👑'); }
 }
 async function payWithCard(){
   const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
-  const currentGift = values[state.giftType]? state.giftType : 'heart';
+  const currentGift = values[state.giftType] ? state.giftType : 'heart';
   const amount = values[currentGift];
   toast(`💳 جاري إنشاء فاتورة ${amount}$ ببطاقة...`);
   try{
@@ -282,23 +268,23 @@ async function payWithCard(){
     const data = await res.json();
     if(data.ok && data.invoice_url){
       window.open(data.invoice_url, '_blank');
-      toast(`💳 ادفع ${amount}$ - الملك 10%`);
+      toast(`💳 ادفع ${amount}$ ببطاقتك - يصل USDT لمحفظتك`);
     } else if(data.demo){
       window.open(data.invoice_url, '_blank');
-      toast('💳 DEMO - ضع NOWPAY_API_KEY في Render');
+      toast('💳 DEMO - ضع NOWPAY_API_KEY في Render لتفعيل الحقيقي');
     }
   } catch(e){ toast('خطأ بطاقة - جرب OKX'); }
 }
 function payWithPayPal(){
   const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
-  const currentGift = values[state.giftType]? state.giftType : 'heart';
+  const currentGift = values[state.giftType] ? state.giftType : 'heart';
   const amount = values[currentGift];
   toast(`🅿️ PayPal ${amount}$ - قريباً`);
   window.open(`https://paypal.me/tarimos/${amount}`, '_blank');
 }
 function sendGift(){ openGiftModal(); }
 
-// === V8.6 KING - نظام الترويج + موافقة الملك ===
+// === نظام الترويج السيادي المحصن ===
 function initPromoPage(){
   const container = document.querySelector('#sub-promo-page');
   if(!container) return;
@@ -326,11 +312,10 @@ function initPromoPage(){
           <option value="العالم">🌐 العالم كله</option>
         </select>
       </div>
-      <div id="adPreview" class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-center text-xs text-cyan-400 font-bold">🚀 5$ = 500 مشاهدة في حضرموت | ضريبة الملك 20%</div>
+      <div id="adPreview" class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-center text-xs text-cyan-400 font-bold">🚀 5$ = 500 مشاهدة في حضرموت</div>
       <button id="payAdOKX" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold p-4 rounded-xl">💎 روّج الآن عبر OKX - فوري</button>
       <button id="payAdCard" class="w-full bg-slate-800 border border-yellow-500/50 text-white font-bold p-3 rounded-xl text-xs">💳 ادفع ببطاقة Mastercard - يصل USDT</button>
-      <div class="text-[10px] text-slate-500 text-center leading-4">مثال: مطعم في تريم يدفع 5$ = 400 مشاهدة + 1$ للملك<br>بدون فيسبوك - مباشر</div>
-      <div id="kingPanelAds"></div>
+      <div class="text-[10px] text-slate-500 text-center leading-4">مثال: مطعم في تريم يدفع 5$ = 500 شخص في تريم يشوف إعلانه اليوم<br>بدون فيسبوك - مباشر</div>
     </div>`;
     let selectedBudget = 5;
     box.querySelectorAll('.ad-budget').forEach(b=>{
@@ -339,16 +324,81 @@ function initPromoPage(){
         b.className='ad-budget bg-cyan-500 text-black p-2 rounded-lg text-xs font-bold border-cyan-500';
         selectedBudget = Number(b.dataset.budget) || 5;
         const t = sanitizeText($('adTarget').value);
-        $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${Math.floor(selectedBudget*0.8*100)} مشاهدة في ${t} | الملك ${ (selectedBudget*0.2).toFixed(1)}$`;
+        $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${selectedBudget*100} مشاهدة في ${t}`;
       });
     });
-    $('adTarget').addEventListener('change', ()=>{
+    $('adTarget').addEventListener('change', ()=>{ 
       const t = sanitizeText($('adTarget').value);
-      $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${Math.floor(selectedBudget*0.8*100)} مشاهدة في ${t} | الملك ${ (selectedBudget*0.2).toFixed(1)}$`;
+      $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${selectedBudget*100} مشاهدة في ${t}`; 
     });
     $('payAdOKX').addEventListener('click', async ()=>{
       const target = sanitizeText($('adTarget').value);
       toast(`💎 جاري ترويج ${selectedBudget}$ لـ ${target}...`);
       try{
         const res = await fetch('/api/promote', {
-          method:'POST', headers:{'Content-Type':'application/json'
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), budget: selectedBudget, target, method:'okx' })
+        });
+        const data = await res.json();
+        if(data.ok){ toast(data.msg); $('adPreview').textContent = '✅ تم الترويج! ID: '+ sanitizeText(data.adId); }
+      } catch(e){ toast('تم الترويج Offline - سيظهر قريباً'); }
+    });
+    $('payAdCard').addEventListener('click', async ()=>{
+      const target = sanitizeText($('adTarget').value);
+      toast(`💳 جاري إنشاء فاتورة إعلان ${selectedBudget}$...`);
+      try{
+        const res = await fetch('/api/create-ad-invoice', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ budget: selectedBudget, target, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL') })
+        });
+        const data = await res.json();
+        if(data.ok && data.invoice_url){ window.open(data.invoice_url, '_blank'); toast(`🚀 ادفع ${selectedBudget}$ بالبطاقة - يصير ${selectedBudget*100} مشاهدة`); }
+      } catch(e){ toast('خطأ - جرب OKX'); }
+    });
+}
+
+function setupUploadFix() {
+const btn = $('uploadTriggerBtn'); const input = $('videoInput'); const video = $('cameraPreview');
+if (!btn ||!input ||!video) return;
+btn.addEventListener('click', (e) => { e.preventDefault(); input.click(); });
+input.addEventListener('change', (e) => {
+const file = e.target.files && e.target.files[0]; if (!file) return;
+if (state.curStream) { state.curStream.getTracks().forEach(t=>t.stop()); state.curStream=null; }
+if (state.upURL) URL.revokeObjectURL(state.upURL);
+state.upURL = URL.createObjectURL(file); state.upIsVideo = file.type.startsWith('video/');
+video.srcObject = null; video.src = state.upURL; video.loop = true; video.muted = true; video.play().catch(()=>{});
+toast('✅ تم رفع: ' + sanitizeText(file.name.slice(0,20)));
+});
+}
+document.addEventListener('DOMContentLoaded', () => {
+const map={
+startLive, stopLive, switchCam, capturePhoto,
+filterNone:()=>setFilter('none'), filterBeauty:()=>setFilter('beauty'),
+tabHome:(b)=>switchTab('home',b), tabOperations:(b)=>switchTab('operations',b),
+tabCreate:(b)=>switchTab('create',b), tabInbox:(b)=>switchTab('inbox',b), tabProfile:(b)=>switchTab('profile',b),
+backToProfile, openAccountSettings:()=>showSubPage('account-settings'), openSecurity:()=>showSubPage('security-settings'),
+openQrPage:()=>showSubPage('qr-page'), openOkx:()=>showSubPage('okx-page'), openActivity:()=>showSubPage('activity-page'),
+openOffline:()=>showSubPage('offline-page'), openCommerce:()=>showSubPage('commerce-page'), openPromo:()=>showSubPage('promo-page'),
+openMap:()=>{ const c=$('mapContainer'); if(c){ c.classList.toggle('hidden'); if(!c.classList.contains('hidden')&&!state.map&&window.L){ state.map=L.map(c).setView([16.0545,49.0],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(state.map); } } },
+showQR:()=>{ const d=$('qrDisplay'); if(d){ d.classList.toggle('hidden'); const b=$('operationsQrBox'); if(b&&!d.classList.contains('hidden')){ b.textContent=''; if(window.QRCode) new QRCode(b,{text:'https://tarimos.org',width:100,height:100}); } } },
+goInbox:()=>switchTab('inbox')
+};
+document.addEventListener('click',(e)=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const act=btn.getAttribute('data-action'); if(map[act]) map[act](btn); });
+const sBtn = $('supportBtn'); if(sBtn) sBtn.addEventListener('click', (e) => { e.preventDefault(); if (window.TarimSupport && typeof window.TarimSupport.openModal === 'function') window.TarimSupport.openModal(); });
+const lBtn = $('loginBtn'); if(lBtn) lBtn.addEventListener('click',forceUnlockCastle);
+const uPass = $('userPass'); if(uPass) uPass.addEventListener('keydown',e=>{if(e.key==='Enter')forceUnlockCastle();});
+const pBtn = $('publishBtn'); if(pBtn) pBtn.addEventListener('click',publishPost);
+const sLiveBtn = $('startLiveBtn'); if(sLiveBtn) sLiveBtn.addEventListener('click',startLive);
+const stLiveBtn = $('stopLiveBtn'); if(stLiveBtn) stLiveBtn.addEventListener('click',stopLive);
+const stLiveFull = $('stopLiveBtnFull'); if(stLiveFull) stLiveFull.addEventListener('click',stopLive);
+const endTop = $('endLiveTopBtn'); if(endTop) endTop.addEventListener('click',stopLive);
+const giftBtn = $('sendGiftBtn'); if(giftBtn) giftBtn.addEventListener('click', sendGift);
+const giftFull = $('sendGiftBtnFull'); if(giftFull) giftFull.addEventListener('click', sendGift);
+const likeBtn = $('likeLiveBtn'); if(likeBtn) likeBtn.addEventListener('click', addLike);
+const likeFull = $('likeLiveBtnFull'); if(likeFull) likeFull.addEventListener('click', addLike);
+setupUploadFix();
+document.addEventListener('fullscreenchange', ()=>{ if (!document.fullscreenElement && state.liveMode) {} });
+const logoutBtn = $('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click',()=>{localStorage.clear(); location.reload();});
+if(localStorage.getItem('tarim_session_v73')){ const gate=$('authGate'); if(gate) gate.style.display='none'; renderAllFeeds(); updateCounters(); startUesWatchSimulation(); }
+});
+})();
