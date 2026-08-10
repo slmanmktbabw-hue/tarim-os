@@ -8,7 +8,7 @@ function createSupportModal() {
 
     const modal = document.createElement('div');
     modal.id = 'supportModal';
-    modal.className = 'hidden fixed inset-0 z-[75] bg-black/90 backdrop-blur-sm p-4 items-center justify-center';
+    modal.className = 'hidden fixed inset-0 z-[10002] bg-black/90 backdrop-blur-sm p-4 items-center justify-center';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     modal.style.display = 'none';
@@ -24,7 +24,7 @@ function createSupportModal() {
     title.textContent = '🛡️ فريق الدعم السيادي V7.3.1';
     const closeBtn = document.createElement('button');
     closeBtn.id = 'closeSupportBtn';
-    closeBtn.style.cssText = 'color:#94a3b8;background:#0f172a;padding:6px 12px;border-radius:10px;font-size:12px;border:1px solid rgba(255,255,255,.08)';
+    closeBtn.style.cssText = 'color:#94a3b8;background:#0f172a;padding:6px 12px;border-radius:10px;font-size:12px;border:1px solid rgba(255,255,255,.08);cursor:pointer';
     closeBtn.textContent = 'إغلاق ✕';
     header.append(title, closeBtn);
 
@@ -80,7 +80,6 @@ function openModal() {
     modal.style.display = 'flex';
     isOpen = true;
     document.body.style.overflow = 'hidden';
-    console.log('[SUPPORT V7.3.1] فتح');
 }
 
 function closeModal() {
@@ -95,7 +94,7 @@ function closeModal() {
 
 export function initSupport() {
     createSupportModal();
-    const supportBtn = document.getElementById('openSupportBtn');
+    const supportBtn = document.getElementById('supportBtn') || document.getElementById('openSupportBtn');
     if (supportBtn && !supportBtn.dataset.bound) {
         supportBtn.dataset.bound = 'true';
         supportBtn.addEventListener('click', (e) => { 
@@ -103,11 +102,9 @@ export function initSupport() {
             openModal(); 
         });
     }
-    
     document.addEventListener('keydown', (e) => { 
         if (e.key === 'Escape' && isOpen) closeModal(); 
     });
-    console.log('[TARIM SUPPORT V7.3.1 FINAL] Sovereign Support ESM Loaded - No Alert - ESM Shield');
 }
 
 if (typeof document !== 'undefined') {
