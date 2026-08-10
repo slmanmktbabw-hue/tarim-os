@@ -141,7 +141,8 @@ c.appendChild(header); c.appendChild(body); f.appendChild(c);
 }
 function publishPost() {
 const inp = $('postContentInput'); if (!inp ||!inp.value.trim()) { toast('اكتب شيئاً'); return; }
-const post={ id:Date.now(), content:inp.value.slice(0,1000), username:localStorage.getItem('tarim_session_v73')||'AL', createdAt:new Date().toISOString(), likes:0 };
+const cleanContent = sanitizeText(inp.value.slice(0,1000));
+const post={ id:Date.now(), content:cleanContent, username:sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), createdAt:new Date().toISOString(), likes:0 };
 const all=getPosts(); all.push(post); savePosts(all); inp.value='';
 if(state.upURL){ URL.revokeObjectURL(state.upURL); state.upURL=null; state.upIsVideo=false; initCam(); }
 state.capImg=null; renderAllFeeds(); updateCounters(); toast('🚀 تم النشر');
@@ -194,7 +195,7 @@ const lc = $('likeCount'); if(lc) lc.textContent = state.likes;
 const lf = $('likeCountFull'); if(lf) lf.textContent = state.likes;
 }
 
-// === V8.5.1 TRIPLE-PAY - نافذة الدفع الثلاثية + Mastercard -> USDT ===
+// === V8.5.1 TRIPLE-PAY - نافذة الدفع الثلاثية المحصنة ===
 function openGiftModal() {
   let modal = $('triplePayModal');
   if(modal){ modal.classList.remove('hidden'); return; }
@@ -233,7 +234,7 @@ function openGiftModal() {
     btn.addEventListener('click', ()=>{
       modal.querySelectorAll('.gift-type').forEach(b=>{ b.className='gift-type bg-slate-800 text-white p-2 rounded-lg text-[10px]'; });
       btn.className='gift-type bg-cyan-500 text-black p-2 rounded-lg text-[10px] font-bold';
-      state.giftType = btn.dataset.gift;
+      state.giftType = sanitizeText(btn.dataset.gift);
     });
   });
   $('payOKX').addEventListener('click', ()=>{ closeGiftModal(); payWithOKX(); });
@@ -244,23 +245,25 @@ function closeGiftModal(){ const m=$('triplePayModal'); if(m) m.classList.add('h
 async function payWithOKX(){
   const g = $('giftAnim'); if(g){ g.textContent = '👑🎁💖'; setTimeout(()=>{g.textContent='';},2500); }
   const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
+  const currentGift = values[state.giftType] ? state.giftType : 'heart';
   try{
     const res = await fetch('/api/gift', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ from: localStorage.getItem('tarim_session_v73')||'AL', to:'streamer', type: state.giftType||'heart', method:'okx', amount: values[state.giftType||'heart'] })
+      body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), to:'streamer', type: currentGift, method:'okx', amount: values[currentGift] })
     });
     const data = await res.json();
-    if(data.ok){ toast(`💎 تم ${data.value} USDT عبر OKX - TX:${data.tx.slice(0,10)}... 👑`); }
+    if(data.ok){ toast(`💎 تم ${data.value} USDT عبر OKX - TX:${String(data.tx).slice(0,10)}... 👑`); }
   }catch(e){ toast('💎 تم إرسال الهدية عبر OKX! (Offline) 👑'); }
 }
 async function payWithCard(){
   const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
-  const amount = values[state.giftType||'heart'];
+  const currentGift = values[state.giftType] ? state.giftType : 'heart';
+  const amount = values[currentGift];
   toast(`💳 جاري إنشاء فاتورة ${amount}$ ببطاقة...`);
   try{
     const res = await fetch('/api/create-invoice', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ amount, type: state.giftType||'heart', from: localStorage.getItem('tarim_session_v73')||'AL' })
+      body: JSON.stringify({ amount, type: currentGift, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL') })
     });
     const data = await res.json();
     if(data.ok && data.invoice_url){
@@ -274,13 +277,14 @@ async function payWithCard(){
 }
 function payWithPayPal(){
   const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
-  const amount = values[state.giftType||'heart'];
+  const currentGift = values[state.giftType] ? state.giftType : 'heart';
+  const amount = values[currentGift];
   toast(`🅿️ PayPal ${amount}$ - قريباً`);
   window.open(`https://paypal.me/tarimos/${amount}`, '_blank');
 }
 function sendGift(){ openGiftModal(); }
 
-// === نظام الترويج السيادي ===
+// === نظام الترويج السيادي المحصن ===
 function initPromoPage(){
   const container = document.querySelector('#sub-promo-page');
   if(!container) return;
@@ -318,31 +322,34 @@ function initPromoPage(){
       b.addEventListener('click', ()=>{
         box.querySelectorAll('.ad-budget').forEach(x=>{ x.className='ad-budget bg-slate-800 border border-slate-600 text-white p-2 rounded-lg text-xs'; });
         b.className='ad-budget bg-cyan-500 text-black p-2 rounded-lg text-xs font-bold border-cyan-500';
-        selectedBudget = Number(b.dataset.budget);
-        const t = $('adTarget').value;
+        selectedBudget = Number(b.dataset.budget) || 5;
+        const t = sanitizeText($('adTarget').value);
         $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${selectedBudget*100} مشاهدة في ${t}`;
       });
     });
-    $('adTarget').addEventListener('change', ()=>{ $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${selectedBudget*100} مشاهدة في ${$('adTarget').value}`; });
+    $('adTarget').addEventListener('change', ()=>{ 
+      const t = sanitizeText($('adTarget').value);
+      $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${selectedBudget*100} مشاهدة في ${t}`; 
+    });
     $('payAdOKX').addEventListener('click', async ()=>{
-      const target = $('adTarget').value;
+      const target = sanitizeText($('adTarget').value);
       toast(`💎 جاري ترويج ${selectedBudget}$ لـ ${target}...`);
       try{
         const res = await fetch('/api/promote', {
           method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ from: localStorage.getItem('tarim_session_v73'), budget: selectedBudget, target, method:'okx' })
+          body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), budget: selectedBudget, target, method:'okx' })
         });
         const data = await res.json();
-        if(data.ok){ toast(data.msg); $('adPreview').textContent = '✅ تم الترويج! ID: '+data.adId; }
+        if(data.ok){ toast(data.msg); $('adPreview').textContent = '✅ تم الترويج! ID: '+ sanitizeText(data.adId); }
       } catch(e){ toast('تم الترويج Offline - سيظهر قريباً'); }
     });
     $('payAdCard').addEventListener('click', async ()=>{
-      const target = $('adTarget').value;
+      const target = sanitizeText($('adTarget').value);
       toast(`💳 جاري إنشاء فاتورة إعلان ${selectedBudget}$...`);
       try{
         const res = await fetch('/api/create-ad-invoice', {
           method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ budget: selectedBudget, target, from: localStorage.getItem('tarim_session_v73') })
+          body: JSON.stringify({ budget: selectedBudget, target, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL') })
         });
         const data = await res.json();
         if(data.ok && data.invoice_url){ window.open(data.invoice_url, '_blank'); toast(`🚀 ادفع ${selectedBudget}$ بالبطاقة - يصير ${selectedBudget*100} مشاهدة`); }
@@ -360,7 +367,7 @@ if (state.curStream) { state.curStream.getTracks().forEach(t=>t.stop()); state.c
 if (state.upURL) URL.revokeObjectURL(state.upURL);
 state.upURL = URL.createObjectURL(file); state.upIsVideo = file.type.startsWith('video/');
 video.srcObject = null; video.src = state.upURL; video.loop = true; video.muted = true; video.play().catch(()=>{});
-toast('✅ تم رفع: ' + file.name.slice(0,20));
+toast('✅ تم رفع: ' + sanitizeText(file.name.slice(0,20)));
 });
 }
 document.addEventListener('DOMContentLoaded', () => {
