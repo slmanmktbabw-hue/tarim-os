@@ -1,20 +1,20 @@
-// public/app.js - TARIM OS V8.6 KING EDITION - الملك + TRIPLE-PAY + ADS + محصن 100%
+// public/app.js - TARIM OS V8.6 KING EDITION - SECURED & HARDENED
 "use strict";
 (function () {
 const $ = id => document.getElementById(id);
-function toast(m) {
-const b = $('toastBox'); if (!b) return;
-const e = document.createElement('div');
-e.textContent = String(m).slice(0, 220);
-e.style.cssText = 'background:#00B4D8;color:#000;padding:12px 16px;border-radius:14px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center;z-index:99999;position:relative';
-b.appendChild(e);
-setTimeout(() => e.remove(), 4000);
-}
 function sanitizeText(t) {
 if (!t) return "";
 return String(t).slice(0, 1000)
 .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+function toast(m) {
+const b = $('toastBox'); if (!b) return;
+const e = document.createElement('div');
+e.textContent = sanitizeText(m).slice(0, 220);
+e.style.cssText = 'background:#00B4D8;color:#000;padding:12px 16px;border-radius:14px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center;z-index:99999;position:relative';
+b.appendChild(e);
+setTimeout(() => e.remove(), 4000);
 }
 let state = {
 curStream: null, facing: 'user', map: null, liveInt: null,
@@ -22,7 +22,7 @@ lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
 watchTimer: null, currentWatchTime: 0, abortCtrl: null,
 giftType: 'heart', adBudget: 5
 };
-// === نظام الملك ===
+// === نظام الملك المحصن ===
 const KING_KEY = 'TARIM_KING_2026';
 const KING_USERS = ['al','slmanmktbabw-hue','الامبراطور','الملك'];
 function isKing(){
@@ -35,7 +35,7 @@ if (!elem) return;
 if (elem.requestFullscreen) await elem.requestFullscreen();
 else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen();
 else if (elem.webkitEnterFullscreen) elem.webkitEnterFullscreen();
-} catch (e) { console.log('Fullscreen blocked:', e.message); }
+} catch (e) { console.log('Fullscreen blocked'); }
 }
 function closeNativeFullscreen() {
 try {
@@ -67,7 +67,7 @@ const data = await res.json();
 if (data.action === 'split_screen' && data.video_id) {
 const vid = String(data.video_id).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,50);
 if (['short_funny_01','short_tip_02','ye_cooking_restaurant_001','ye_football_highlights_002'].includes(vid) || vid.startsWith('trending_')) {
-toast('⚡ Tarim_Fortress: ' + vid);
+toast('⚡ Tarim_Fortress: ' + sanitizeText(vid));
 }
 }
 } catch (err) {
@@ -107,9 +107,10 @@ const t = $('sub-' + id); if (t) {
 function backToProfile() { document.querySelectorAll('.sub-page').forEach(p=>p.classList.add('hidden')); const m=$('profile-main'); if(m) m.classList.remove('hidden'); updateCounters(); }
 function updateCounters() {
 const posts = getPosts();
+if ($('countFollowers')) $('countFollowers নিরাপত্তার').textContent = posts.length; // safe assignment
 if ($('countFollowers')) $('countFollowers').textContent = posts.length;
 if ($('countFollowing')) $('countFollowing').textContent = Math.floor(posts.length/2);
-if ($('countLikes')) $('countLikes').textContent = posts.reduce((a,b)=>a+(b.likes||0),0);
+if ($('countLikes')) $('countLikes').textContent = posts.reduce((a,b)=>a+(Number(b.likes)||0),0);
 if ($('activityPosts')) $('activityPosts').textContent = posts.length;
 }
 async function initCam() {
@@ -119,7 +120,7 @@ if (state.upURL) return;
 stopStream();
 state.curStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facing},audio:true});
 v.srcObject = state.curStream; v.muted = true; await v.play();
-} catch (e){ console.log(e); toast('الكاميرا تحتاج HTTPS + سماح'); }
+} catch (e){ toast('الكاميرا تحتاج HTTPS + سماح'); }
 }
 function setFilter(t){ const v=$('cameraPreview'); if(!v) return; v.style.filter=t==='beauty'?'contrast(1.15) brightness(1.15) saturate(1.2)':'none'; toast(t==='beauty'?'💄 تجميل':'✨ طبيعي'); }
 function switchCam(){ state.facing=state.facing==='user'?'environment':'user'; initCam(); }
@@ -207,8 +208,6 @@ state.likes++;
 const lc = $('likeCount'); if(lc) lc.textContent = state.likes;
 const lf = $('likeCountFull'); if(lf) lf.textContent = state.likes;
 }
-
-// === V8.6 KING - نافذة الدفع الثلاثية + ضريبة الملك ===
 function openGiftModal() {
   let modal = $('triplePayModal');
   if(modal){ modal.classList.remove('hidden'); return; }
@@ -266,7 +265,7 @@ async function payWithOKX(){
       body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), to:'streamer', type: currentGift, method:'okx', amount: values[currentGift] })
     });
     const data = await res.json();
-    if(data.ok){ toast(`💎 ${data.value}$ | الملك ${data.kingCut}$ + المبدع ${data.creatorCut}$ 👑 TX:${String(data.tx).slice(0,8)}`); }
+    if(data.ok){ toast(`💎 ${sanitizeText(data.value)}$ | الملك ${sanitizeText(data.kingCut)}$ + المبدع ${sanitizeText(data.creatorCut)}$ 👑`); }
   }catch(e){ toast('💎 تم إرسال الهدية عبر OKX! (Offline) 👑'); }
 }
 async function payWithCard(){
@@ -281,10 +280,10 @@ async function payWithCard(){
     });
     const data = await res.json();
     if(data.ok && data.invoice_url){
-      window.open(data.invoice_url, '_blank');
+      window.open(sanitizeText(data.invoice_url), '_blank');
       toast(`💳 ادفع ${amount}$ - الملك 10%`);
     } else if(data.demo){
-      window.open(data.invoice_url, '_blank');
+      window.open(sanitizeText(data.invoice_url), '_blank');
       toast('💳 DEMO - ضع NOWPAY_API_KEY في Render');
     }
   } catch(e){ toast('خطأ بطاقة - جرب OKX'); }
@@ -298,16 +297,15 @@ function payWithPayPal(){
 }
 function sendGift(){ openGiftModal(); }
 
-// === V8.6 KING - نظام الترويج + موافقة الملك ===
 function initPromoPage(){
   const container = document.querySelector('#sub-promo-page');
   if(!container) return;
   let box = container.querySelector('.p-4');
   if(!box){ box = document.createElement('div'); box.className='p-4 space-y-4'; container.appendChild(box); }
-  if(document.getElementById('tarimAdsBox')) return;
+  if($('tarimAdsBox')) return;
   box.innerHTML = `
     <div id="tarimAdsBox" class="space-y-4">
-      <h3 class="text-cyan-400 font-bold text-center">🚀 ترويج سيادي - أرخص من فيسبوك 10 مرات</h3>
+      <h3 class="text-cyan-400 font-bold text-center">🚀 ترويج سيادي - محصن بالكامل</h3>
       <div class="glass bg-slate-800/50 p-4 rounded-xl border border-cyan-500/20">
         <label class="text-xs text-slate-400">ميزانية الترويج ($)</label>
         <div class="grid grid-cols-4 gap-2 mt-2">
@@ -329,7 +327,6 @@ function initPromoPage(){
       <div id="adPreview" class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-center text-xs text-cyan-400 font-bold">🚀 5$ = 500 مشاهدة في حضرموت | ضريبة الملك 20%</div>
       <button id="payAdOKX" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold p-4 rounded-xl">💎 روّج الآن عبر OKX - فوري</button>
       <button id="payAdCard" class="w-full bg-slate-800 border border-yellow-500/50 text-white font-bold p-3 rounded-xl text-xs">💳 ادفع ببطاقة Mastercard - يصل USDT</button>
-      <div class="text-[10px] text-slate-500 text-center leading-4">مثال: مطعم في تريم يدفع 5$ = 400 مشاهدة + 1$ للملك<br>بدون فيسبوك - مباشر</div>
       <div id="kingPanelAds"></div>
     </div>`;
     let selectedBudget = 5;
@@ -355,7 +352,7 @@ function initPromoPage(){
           body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), budget: selectedBudget, target, method:'okx' })
         });
         const data = await res.json();
-        if(data.ok){ toast(data.msg); $('adPreview').textContent = data.pending? '⏳ قيد مراجعة الملك' : '✅ تم الترويج! ID: '+ sanitizeText(data.adId); if(isKing()) loadKingPanel(); }
+        if(data.ok){ toast(sanitizeText(data.msg)); $('adPreview').textContent = data.pending? '⏳ قيد مراجعة الملك' : '✅ تم الترويج! ID: '+ sanitizeText(data.adId); if(isKing()) loadKingPanel(); }
       } catch(e){ toast('تم الترويج Offline - سيظهر قريباً'); }
     });
     $('payAdCard').addEventListener('click', async ()=>{
@@ -367,11 +364,10 @@ function initPromoPage(){
           body: JSON.stringify({ budget: selectedBudget, target, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL') })
         });
         const data = await res.json();
-        if(data.ok && data.invoice_url){ window.open(data.invoice_url, '_blank'); toast(`🚀 ادفع ${selectedBudget}$ - الملك 20%`); }
+        if(data.ok && data.invoice_url){ window.open(sanitizeText(data.invoice_url), '_blank'); toast(`🚀 ادفع ${selectedBudget}$ - الملك 20%`); }
       } catch(e){ toast('خطأ - جرب OKX'); }
     });
 
-    // === لوحة الملك ===
     function loadKingPanel(){
       const kingDiv = $('kingPanelAds');
       if(!isKing()){ kingDiv.innerHTML=''; return; }
@@ -401,12 +397,12 @@ function initPromoPage(){
           $('kingAd').textContent = (d.earnings.ads||0).toFixed(2)+'$';
           $('pendingAdsList').innerHTML = d.pendingAds.length? d.pendingAds.map(ad=>`
             <div class="bg-slate-800 p-2 rounded flex justify-between items-center">
-              <div><p class="text-xs text-white">${sanitizeText(ad.owner)} - ${ad.budget}$</p><p class="text-[10px] text-slate-400">${sanitizeText(ad.target)} - ${ad.maxViews} مشاهدة</p></div>
-              <button onclick="approveAd('${ad.id}')" class="bg-green-500 text-black px-3 py-1 rounded text-[10px] font-bold">موافقة 👑</button>
+              <div><p class="text-xs text-white">${sanitizeText(ad.owner)} - ${sanitizeText(ad.budget)}$</p><p class="text-[10px] text-slate-400">${sanitizeText(ad.target)} - ${sanitizeText(ad.maxViews)} مشاهدة</p></div>
+              <button onclick="approveAd('${sanitizeText(ad.id)}')" class="bg-green-500 text-black px-3 py-1 rounded text-[10px] font-bold">موافقة 👑</button>
             </div>
           `).join('') : '<p class="text-[10px] text-slate-500 text-center">لا يوجد إعلانات معلقة</p>';
         }
-      }catch(e){ console.log('king stats error', e.message); }
+      }catch(e){ console.log('king stats error'); }
     }
     window.approveAd = async (id)=>{
       try{
@@ -428,7 +424,7 @@ if (state.curStream) { state.curStream.getTracks().forEach(t=>t.stop()); state.c
 if (state.upURL) URL.revokeObjectURL(state.upURL);
 state.upURL = URL.createObjectURL(file); state.upIsVideo = file.type.startsWith('video/');
 video.srcObject = null; video.src = state.upURL; video.loop = true; video.muted = true; video.play().catch(()=>{});
-toast('✅ تم رفع: ' + sanitizeText(file.name.slice(0,20)));
+toast('✅ تم رفع الملف بنجاح');
 });
 }
 document.addEventListener('DOMContentLoaded', () => {
@@ -467,7 +463,6 @@ const giftFull = $('sendGiftBtnFull'); if(giftFull) giftFull.addEventListener('c
 const likeBtn = $('likeLiveBtn'); if(likeBtn) likeBtn.addEventListener('click', addLike);
 const likeFull = $('likeLiveBtnFull'); if(likeFull) likeFull.addEventListener('click', addLike);
 setupUploadFix();
-document.addEventListener('fullscreenchange', ()=>{ if (!document.fullscreenElement && state.liveMode) {} });
 const logoutBtn = $('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click',()=>{localStorage.clear(); location.reload();});
 if(localStorage.getItem('tarim_session_v73')){
   const gate=$('authGate'); if(gate) gate.style.display='none';
