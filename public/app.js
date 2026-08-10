@@ -1,339 +1,299 @@
 // public/app.js - TARIM OS V8.3 ULTIMATE SECURE - Tarim_Fortress UES-Gateway Integrated + محصن 100% - FIXED UPLOAD + FULLSCREEN
 "use strict";
-
 (function () {
-  const $ = id => document.getElementById(id);
-
-  function toast(m) {
-    const b = $('toastBox'); if (!b) return;
-    const e = document.createElement('div');
-    e.textContent = String(m).slice(0, 200);
-    e.style.cssText = 'background:#00B4D8;color:#000;padding:12px 16px;border-radius:14px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center';
-    b.appendChild(e);
-    setTimeout(() => e.remove(), 3000);
-  }
-
-  function sanitizeText(t) {
-    if (!t) return "";
-    return String(t).slice(0, 1000)
-   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-   .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-  }
-
-  let state = {
-    curStream: null, facing: 'user', map: null, liveInt: null,
-    lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
-    watchTimer: null, currentWatchTime: 0, abortCtrl: null
-  };
-
-  // === FIX 1: Native Fullscreen API ===
-  async function openNativeFullscreen(elem) {
-    try {
-      if (!elem) return;
-      if (elem.requestFullscreen) await elem.requestFullscreen();
-      else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen();
-      else if (elem.webkitEnterFullscreen) elem.webkitEnterFullscreen(); // iOS video
-    } catch (e) {
-      console.log('Fullscreen API blocked:', e.message);
+const $ = id => document.getElementById(id);
+function toast(m) {
+const b = $('toastBox'); if (!b) return;
+const e = document.createElement('div');
+e.textContent = String(m).slice(0, 200);
+e.style.cssText = 'background:#00B4D8;color:#000;padding:12px 16px;border-radius:14px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center';
+b.appendChild(e);
+setTimeout(() => e.remove(), 3000);
+}
+function sanitizeText(t) {
+if (!t) return "";
+return String(t).slice(0, 1000)
+.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+.replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+let state = {
+curStream: null, facing: 'user', map: null, liveInt: null,
+lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
+watchTimer: null, currentWatchTime: 0, abortCtrl: null
+};
+// === FIX 1: Native Fullscreen API ===
+async function openNativeFullscreen(elem) {
+try {
+if (!elem) return;
+if (elem.requestFullscreen) await elem.requestFullscreen();
+else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen();
+else if (elem.webkitEnterFullscreen) elem.webkitEnterFullscreen();
+} catch (e) {
+console.log('Fullscreen API blocked:', e.message);
+}
+}
+function closeNativeFullscreen() {
+try {
+if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+} catch {}
+}
+function startUesWatchSimulation() {
+if (state.watchTimer) clearInterval(state.watchTimer);
+if (state.abortCtrl) state.abortCtrl.abort();
+state.currentWatchTime = 0;
+state.abortCtrl = new AbortController();
+state.watchTimer = setInterval(async () => {
+state.currentWatchTime += 5;
+if (state.currentWatchTime >= 20) {
+clearInterval(state.watchTimer);
+try {
+const res = await fetch('/get_next_video', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+signal: state.abortCtrl.signal,
+body: JSON.stringify({
+user_profile: { country: 'YE', interest: 'cooking', repeat_count: 0 },
+current_video: { duration: 45, watch_time: state.currentWatchTime }
+})
+});
+if (!res.ok) throw new Error('offline');
+const data = await res.json();
+if (data.action === 'split_screen' && data.video_id) {
+const vid = String(data.video_id).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,50);
+if (['short_funny_01','short_tip_02','ye_cooking_restaurant_001','ye_football_highlights_002'].includes(vid) || vid.startsWith('trending_')) {
+toast('⚡ Tarim_Fortress: ' + vid);
+}
+}
+} catch (err) {
+if (err.name!== 'AbortError') console.log('Tarim_Fortress: Offline Mode');
+}
+}
+}, 5000);
+}
+function stopStream() {
+if (state.curStream) { state.curStream.getTracks().forEach(t => t.stop()); state.curStream = null; }
+if (state.liveInt) { clearInterval(state.liveInt); state.liveInt = null; }
+if (state.watchTimer) { clearInterval(state.watchTimer); state.watchTimer = null; }
+if (state.abortCtrl) { state.abortCtrl.abort(); state.abortCtrl = null; }
+}
+function switchTab(name, btn) {
+if (state.liveMode) { toast('🔴 أنهي البث أولاً'); return; }
+stopStream();
+closeNativeFullscreen();
+document.querySelectorAll('.tab-content').forEach(t => { t.classList.remove('active'); t.classList.add('hidden'); });
+const tar = $('tab-' + name); if (tar) { tar.classList.remove('hidden'); tar.classList.add('active'); }
+document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('text-cyan-400'); b.classList.add('text-slate-400'); });
+if (btn) { btn.classList.remove('text-slate-400'); btn.classList.add('text-cyan-400'); }
+if (name === 'create') initCam();
+if (name === 'profile') { backToProfile(); updateCounters(); }
+if (name === 'home') { renderAllFeeds(); startUesWatchSimulation(); }
+}
+function showSubPage(id) {
+const main = $('profile-main'); if (main) main.classList.add('hidden');
+document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
+const t = $('sub-' + id); if (t) {
+  t.classList.remove('hidden');
+  if(id==='qr-page'){
+    const c=$('qrcode');
+    if(c){
+      c.textContent='';
+      if(window.QRCode) new QRCode(c,{text:'https://tarimos.org/user/'+sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'),width:128,height:128});
     }
   }
-  function closeNativeFullscreen() {
-    try {
-      if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
-      else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
-    } catch {}
-  }
-
-  function startUesWatchSimulation() {
-    if (state.watchTimer) clearInterval(state.watchTimer);
-    if (state.abortCtrl) state.abortCtrl.abort();
-    state.currentWatchTime = 0;
-    state.abortCtrl = new AbortController();
-
-    state.watchTimer = setInterval(async () => {
-      state.currentWatchTime += 5;
-      if (state.currentWatchTime >= 20) {
-        clearInterval(state.watchTimer);
-        try {
-          const res = await fetch('/get_next_video', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            signal: state.abortCtrl.signal,
-            body: JSON.stringify({
-              user_profile: { country: 'YE', interest: 'cooking', repeat_count: 0 },
-              current_video: { duration: 45, watch_time: state.currentWatchTime }
-            })
-          });
-          if (!res.ok) throw new Error('offline');
-          const data = await res.json();
-          if (data.action === 'split_screen' && data.video_id) {
-            const vid = String(data.video_id).replace(/[^a-zA-Z0-9_\-]/g,'').slice(0,50);
-            if (['short_funny_01','short_tip_02','ye_cooking_restaurant_001','ye_football_highlights_002'].includes(vid) || vid.startsWith('trending_')) {
-              toast('⚡ Tarim_Fortress: ' + vid);
-            }
-          }
-        } catch (err) {
-          if (err.name!== 'AbortError') console.log('Tarim_Fortress: Offline Mode');
-        }
-      }
-    }, 5000);
-  }
-
-  function stopStream() {
-    if (state.curStream) { state.curStream.getTracks().forEach(t => t.stop()); state.curStream = null; }
-    if (state.liveInt) { clearInterval(state.liveInt); state.liveInt = null; }
-    if (state.watchTimer) { clearInterval(state.watchTimer); state.watchTimer = null; }
-    if (state.abortCtrl) { state.abortCtrl.abort(); state.abortCtrl = null; }
-  }
-
-  function switchTab(name, btn) {
-    if (state.liveMode) { toast('🔴 أنهي البث أولاً'); return; }
-    stopStream();
-    closeNativeFullscreen();
-    document.querySelectorAll('.tab-content').forEach(t => { t.classList.remove('active'); t.classList.add('hidden'); });
-    const tar = $('tab-' + name); if (tar) { tar.classList.remove('hidden'); tar.classList.add('active'); }
-    document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('text-cyan-400'); b.classList.add('text-slate-400'); });
-    if (btn) btn.classList.add('text-cyan-400');
-    if (name === 'create') initCam();
-    if (name === 'profile') { backToProfile(); updateCounters(); }
-    if (name === 'home') { renderAllFeeds(); startUesWatchSimulation(); }
-  }
-
-  function showSubPage(id) {
-    const main = $('profile-main'); if (main) main.classList.add('hidden');
-    document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
-    const t = $('sub-' + id); if (t) { t.classList.remove('hidden'); if(id==='qr-page'){ const c=$('qrcode'); if(c){ c.textContent=''; if(window.QRCode) new QRCode(c,{text:'https://tarimos.org/user/'+sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'),width:128,height:128}); } } }
-  }
-  function backToProfile() { document.querySelectorAll('.sub-page').forEach(p=>p.classList.add('hidden')); $('profile-main')?.classList.remove('hidden'); updateCounters(); }
-  function updateCounters() {
-    const posts = getPosts();
-    if ($('countFollowers')) $('countFollowers').textContent = posts.length;
-    if ($('countFollowing')) $('countFollowing').textContent = Math.floor(posts.length/2);
-    if ($('countLikes')) $('countLikes').textContent = posts.reduce((a,b)=>a+(b.likes||0),0);
-    if ($('activityPosts')) $('activityPosts').textContent = posts.length;
-  }
-
-  async function initCam() {
-    const v = $('cameraPreview');
-    if(!v) return;
-    try {
-      if (state.upURL) return; // لا تشغل الكاميرا اذا في ملف مرفوع
-      stopStream();
-      state.curStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facing},audio:true});
-      v.srcObject = state.curStream;
-      v.muted = true;
-      await v.play();
-    } catch (e){
-      console.log(e);
-      toast('الكاميرا تحتاج HTTPS + سماح');
-    }
-  }
-
-  function setFilter(t){ const v=$('cameraPreview'); if(!v) return; v.style.filter=t==='beauty'?'contrast(1.15) brightness(1.15) saturate(1.2)':'none'; toast(t==='beauty'?'💄 تجميل':'✨ طبيعي'); }
-  function switchCam(){ state.facing=state.facing==='user'?'environment':'user'; initCam(); }
-  function capturePhoto(){ const v=$('cameraPreview'); if(!v) return; const c=document.createElement('canvas'); c.width=v.videoWidth||640; c.height=v.videoHeight||480; c.getContext('2d').drawImage(v,0,0); state.capImg=c.toDataURL('image/jpeg',0.85); toast('📸 تم التقاط صورة'); }
-
-  function getPosts() {
-    try {
-      const data=localStorage.getItem('tarim_posts_v73'); if(!data) return [];
-      const arr=JSON.parse(data); if(!Array.isArray(arr)) return [];
-      return arr.slice(-100).filter(p=>p && typeof p==='object' && typeof p.content==='string' && p.content.length<=1000);
-    } catch { return []; }
-  }
-  function savePosts(p){ try{ localStorage.setItem('tarim_posts_v73', JSON.stringify(p.slice(-100))); }catch{ toast('التخزين ممتلئ'); } }
-
-  function renderAllFeeds() {
-    const f = $('postsFeed'); if (!f) return;
-    f.textContent = '';
-    const posts = getPosts();
-    if (!posts.length){ const empty=document.createElement('div'); empty.className='glass p-8 rounded-2xl text-center text-slate-400 text-xs'; empty.textContent='لا منشورات بعد - ابدأ بث مباشر 👑'; f.appendChild(empty); return; }
-    posts.slice().reverse().forEach(p=>{
-      const c=document.createElement('div'); c.className='glass p-4 rounded-xl border border-cyan-500/20';
-      const header=document.createElement('div'); header.className='flex justify-between text-[10px] text-slate-400 mb-2';
-      const u=document.createElement('span'); u.className='text-cyan-400 font-bold'; u.textContent='@'+sanitizeText(p.username||'AL')+' 👑';
-      const t=document.createElement('span'); t.textContent=new Date(p.createdAt||Date.now()).toLocaleTimeString('ar');
-      header.appendChild(u); header.appendChild(t);
-      const body=document.createElement('p'); body.className='text-xs'; body.textContent=sanitizeText(p.content||'');
-      c.appendChild(header); c.appendChild(body); f.appendChild(c);
-    });
-  }
-
-  function publishPost() {
-    const inp = $('postContentInput'); if (!inp ||!inp.value.trim()) { toast('اكتب شيئاً'); return; }
-    const post={ id:Date.now(), content:inp.value.slice(0,1000), username:localStorage.getItem('tarim_session_v73')||'AL', createdAt:new Date().toISOString(), likes:0 };
-    const all=getPosts(); all.push(post); savePosts(all); inp.value='';
-    if(state.upURL){ URL.revokeObjectURL(state.upURL); state.upURL=null; state.upIsVideo=false; initCam(); }
-    state.capImg=null; renderAllFeeds(); updateCounters(); toast('🚀 تم النشر');
-  }
-
-  function forceUnlockCastle() {
-    const u = sanitizeText($('userPhoneOrEmail')?.value.trim()||'AL',30)||'AL';
-    localStorage.setItem('tarim_session_v73', u); localStorage.setItem('tarim_token_v73','offline_'+Date.now());
-    if ($('authGate')) $('authGate').style.display = 'none';
-    const h1=$('homeUsernameDisplay'); if(h1) h1.textContent='@'+u+' 👑';
-    const h2=$('profileNameDisplay'); if(h2) h2.textContent='الإمبراطور '+u;
-    renderAllFeeds(); updateCounters(); startUesWatchSimulation(); toast('أهلاً '+u+' 👑');
-  }
-
-  // === FIX 2: بث ملء الشاشة حقيقي ===
-  async function startLive(){
-    state.liveMode = true;
-    state.likes = 0;
-    state.lSec = 0;
-
-    await initCam(); // انتظر الكاميرا تشتغل أول
-
-    const wrap = $('cameraWrap');
-    if (wrap) {
-      wrap.classList.add('fullscreen-live');
-      await openNativeFullscreen(wrap); // يفتح الشاشة كاملة للهاتف
-    }
-
-    $('liveBadge')?.classList.remove('hidden');
-    $('liveControlsFull')?.classList.remove('hidden');
-    $('endLiveTopBtn')?.classList.remove('hidden');
-    $('normalControls')?.classList.add('hidden');
-    document.querySelector('header')?.classList.add('hidden');
-    document.querySelector('nav')?.classList.add('hidden');
-
-    if(state.liveInt) clearInterval(state.liveInt);
-    state.liveInt = setInterval(() => {
-      state.lSec++;
-      const m = String(Math.floor(state.lSec / 60)).padStart(2, '0');
-      const s = String(state.lSec % 60).padStart(2, '0');
-      if($('liveTimer')) $('liveTimer').textContent = m + ':' + s;
-    }, 1000);
-
-    toast('🔴 بث ملء الشاشة - كامل');
-  }
-
-  function stopLive(){
-    state.liveMode = false;
-    if(state.liveInt) { clearInterval(state.liveInt); state.liveInt = null; }
-    closeNativeFullscreen();
-    $('cameraWrap')?.classList.remove('fullscreen-live');
-    $('liveBadge')?.classList.add('hidden');
-    $('liveControlsFull')?.classList.add('hidden');
-    $('endLiveTopBtn')?.classList.add('hidden');
-    $('normalControls')?.classList.remove('hidden');
-    document.querySelector('header')?.classList.remove('hidden');
-    document.querySelector('nav')?.classList.remove('hidden');
-    stopStream();
-    setTimeout(()=>initCam(), 200);
-    toast('⏹️ تم إنهاء البث');
-  }
-
-  function addLike() {
-    state.likes++;
-    if($('likeCount')) $('likeCount').textContent = state.likes;
-    if($('likeCountFull')) $('likeCountFull').textContent = state.likes;
-  }
-
-  function sendGift() {
-    toast('🎁 تم إرسال الهدية بنجاح!');
-    const g = $('giftAnim');
-    if(g) {
-      g.textContent = '👑🎁💖';
-      setTimeout(() => { g.textContent = ''; }, 2000);
-    }
-  }
-
-  // === FIX 3: رفع الملفات - كان ناقص الربط ===
-  function setupUploadFix() {
-    const btn = $('uploadTriggerBtn');
-    const input = $('videoInput');
-    const video = $('cameraPreview');
-    if (!btn ||!input ||!video) return;
-
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      input.click(); // هذا اللي كان ناقص
-    });
-
-    input.addEventListener('change', (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-
-      if (state.curStream) { state.curStream.getTracks().forEach(t=>t.stop()); state.curStream=null; }
-      if (state.upURL) URL.revokeObjectURL(state.upURL);
-
-      state.upURL = URL.createObjectURL(file);
-      state.upIsVideo = file.type.startsWith('video/');
-
-      video.srcObject = null;
-      video.src = state.upURL;
-      video.loop = true;
-      video.muted = true;
-      video.play().catch(()=>{});
-
-      toast('✅ تم رفع: ' + file.name.slice(0,20));
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const map={
-      startLive,
-      stopLive,
-      switchCam,
-      capturePhoto,
-      filterNone:()=>setFilter('none'),
-      filterBeauty:()=>setFilter('beauty'),
-      tabHome:(b)=>switchTab('home',b),
-      tabOperations:(b)=>switchTab('operations',b),
-      tabCreate:(b)=>switchTab('create',b),
-      tabInbox:(b)=>switchTab('inbox',b),
-      tabProfile:(b)=>switchTab('profile',b),
-      backToProfile,
-      openAccountSettings:()=>showSubPage('account-settings'),
-      openSecurity:()=>showSubPage('security-settings'),
-      openQrPage:()=>showSubPage('qr-page'),
-      openOkx:()=>showSubPage('okx-page'),
-      openActivity:()=>showSubPage('activity-page'),
-      openOffline:()=>showSubPage('offline-page'),
-      openCommerce:()=>showSubPage('commerce-page'),
-      openPromo:()=>showSubPage('promo-page'),
-      openMap:()=>{ const c=$('mapContainer'); if(c){ c.classList.toggle('hidden'); if(!c.classList.contains('hidden')&&!state.map&&window.L){ state.map=L.map(c).setView([16.0545,49.0],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(state.map); } } },
-      showQR:()=>{ const d=$('qrDisplay'); if(d){ d.classList.toggle('hidden'); const b=$('operationsQrBox'); if(b&&!d.classList.contains('hidden')){ b.textContent=''; if(window.QRCode) new QRCode(b,{text:'https://tarimos.org',width:100,height:100}); } } },
-      goInbox:()=>switchTab('inbox')
-    };
-
-    document.addEventListener('click',(e)=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const act=btn.getAttribute('data-action'); if(map[act]) map[act](btn); });
-
-    $('supportBtn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (window.TarimSupport && typeof window.TarimSupport.openModal === 'function') {
-            window.TarimSupport.openModal();
-        }
-    });
-
-    $('loginBtn')?.addEventListener('click',forceUnlockCastle);
-    $('userPass')?.addEventListener('keydown',e=>{if(e.key==='Enter')forceUnlockCastle();});
-    $('publishBtn')?.addEventListener('click',publishPost);
-    $('startLiveBtn')?.addEventListener('click',startLive);
-    $('stopLiveBtn')?.addEventListener('click',stopLive);
-    $('stopLiveBtnFull')?.addEventListener('click',stopLive);
-    $('endLiveTopBtn')?.addEventListener('click',stopLive);
-
-    $('sendGiftBtn')?.addEventListener('click', sendGift);
-    $('sendGiftBtnFull')?.addEventListener('click', sendGift);
-    $('likeLiveBtn')?.addEventListener('click', addLike);
-    $('likeLiveBtnFull')?.addEventListener('click', addLike);
-
-    // تشغيل فيكس الرفع
-    setupUploadFix();
-
-    // لو المستخدم ضغط زر الرجوع في الجوال يخرج من الفول سكرين أول
-    document.addEventListener('fullscreenchange', ()=>{
-      if (!document.fullscreenElement && state.liveMode) {
-        // لا تغلق البث تلقائيا، فقط شيل الكلاس اذا خرج
-        const wrap = $('cameraWrap');
-        if (wrap &&!document.fullscreenElement) {
-          // يبقى في وضع البث لكن بدون فول سكرين API
-        }
-      }
-    });
-
-    $('logoutBtn')?.addEventListener('click',()=>{localStorage.clear(); location.reload();});
-    if(localStorage.getItem('tarim_session_v73')){ if($('authGate')) $('authGate').style.display='none'; renderAllFeeds(); updateCounters(); startUesWatchSimulation(); }
-  });
+}
+}
+function backToProfile() { document.querySelectorAll('.sub-page').forEach(p=>p.classList.add('hidden')); const m=$('profile-main'); if(m) m.classList.remove('hidden'); updateCounters(); }
+function updateCounters() {
+const posts = getPosts();
+if ($('countFollowers')) $('countFollowers').textContent = posts.length;
+if ($('countFollowing')) $('countFollowing').textContent = Math.floor(posts.length/2);
+if ($('countLikes')) $('countLikes').textContent = posts.reduce((a,b)=>a+(b.likes||0),0);
+if ($('activityPosts')) $('activityPosts').textContent = posts.length;
+}
+async function initCam() {
+const v = $('cameraPreview');
+if(!v) return;
+try {
+if (state.upURL) return;
+stopStream();
+state.curStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facing},audio:true});
+v.srcObject = state.curStream;
+v.muted = true;
+await v.play();
+} catch (e){
+console.log(e);
+toast('الكاميرا تحتاج HTTPS + سماح');
+}
+}
+function setFilter(t){ const v=$('cameraPreview'); if(!v) return; v.style.filter=t==='beauty'?'contrast(1.15) brightness(1.15) saturate(1.2)':'none'; toast(t==='beauty'?'💄 تجميل':'✨ طبيعي'); }
+function switchCam(){ state.facing=state.facing==='user'?'environment':'user'; initCam(); }
+function capturePhoto(){ const v=$('cameraPreview'); if(!v) return; const c=document.createElement('canvas'); c.width=v.videoWidth||640; c.height=v.videoHeight||480; c.getContext('2d').drawImage(v,0,0); state.capImg=c.toDataURL('image/jpeg',0.85); toast('📸 تم التقاط صورة'); }
+function getPosts() {
+try {
+const data=localStorage.getItem('tarim_posts_v73'); if(!data) return [];
+const arr=JSON.parse(data); if(!Array.isArray(arr)) return [];
+return arr.slice(-100).filter(p=>p && typeof p==='object' && typeof p.content==='string' && p.content.length<=1000);
+} catch { return []; }
+}
+function savePosts(p){ try{ localStorage.setItem('tarim_posts_v73', JSON.stringify(p.slice(-100))); }catch{ toast('التخزين ممتلئ'); } }
+function renderAllFeeds() {
+const f = $('postsFeed'); if (!f) return;
+f.textContent = '';
+const posts = getPosts();
+if (!posts.length){ const empty=document.createElement('div'); empty.className='glass p-8 rounded-2xl text-center text-slate-400 text-xs'; empty.textContent='لا منشورات بعد - ابدأ بث مباشر 👑'; f.appendChild(empty); return; }
+posts.slice().reverse().forEach(p=>{
+const c=document.createElement('div'); c.className='glass p-4 rounded-xl border border-cyan-500/20';
+const header=document.createElement('div'); header.className='flex justify-between text-[10px] text-slate-400 mb-2';
+const u=document.createElement('span'); u.className='text-cyan-400 font-bold'; u.textContent='@'+sanitizeText(p.username||'AL')+' 👑';
+const t=document.createElement('span'); t.textContent=new Date(p.createdAt||Date.now()).toLocaleTimeString('ar');
+header.appendChild(u); header.appendChild(t);
+const body=document.createElement('p'); body.className='text-xs'; body.textContent=sanitizeText(p.content||'');
+c.appendChild(header); c.appendChild(body); f.appendChild(c);
+});
+}
+function publishPost() {
+const inp = $('postContentInput'); if (!inp ||!inp.value.trim()) { toast('اكتب شيئاً'); return; }
+const post={ id:Date.now(), content:inp.value.slice(0,1000), username:localStorage.getItem('tarim_session_v73')||'AL', createdAt:new Date().toISOString(), likes:0 };
+const all=getPosts(); all.push(post); savePosts(all); inp.value='';
+if(state.upURL){ URL.revokeObjectURL(state.upURL); state.upURL=null; state.upIsVideo=false; initCam(); }
+state.capImg=null; renderAllFeeds(); updateCounters(); toast('🚀 تم النشر');
+}
+function forceUnlockCastle() {
+const el = $('userPhoneOrEmail');
+const u = sanitizeText((el && el.value.trim())||'AL').slice(0,30)||'AL';
+localStorage.setItem('tarim_session_v73', u); localStorage.setItem('tarim_token_v73','offline_'+Date.now());
+const gate = $('authGate'); if(gate) gate.style.display = 'none';
+const h1=$('homeUsernameDisplay'); if(h1) h1.textContent='@'+u+' 👑';
+const h2=$('profileNameDisplay'); if(h2) h2.textContent='الإمبراطور '+u;
+renderAllFeeds(); updateCounters(); startUesWatchSimulation(); toast('أهلاً '+u+' 👑');
+}
+async function startLive(){
+state.liveMode = true;
+state.likes = 0;
+state.lSec = 0;
+await initCam();
+const wrap = $('cameraWrap');
+if (wrap) {
+wrap.classList.add('fullscreen-live');
+await openNativeFullscreen(wrap);
+}
+const lb = $('liveBadge'); if(lb) lb.classList.remove('hidden');
+const lc = $('liveControlsFull'); if(lc) lc.classList.remove('hidden');
+const et = $('endLiveTopBtn'); if(et) et.classList.remove('hidden');
+const nc = $('normalControls'); if(nc) nc.classList.add('hidden');
+const hdr = document.querySelector('header'); if(hdr) hdr.classList.add('hidden');
+const nav = document.querySelector('nav'); if(nav) nav.classList.add('hidden');
+if(state.liveInt) clearInterval(state.liveInt);
+state.liveInt = setInterval(() => {
+state.lSec++;
+const m = String(Math.floor(state.lSec / 60)).padStart(2, '0');
+const s = String(state.lSec % 60).padStart(2, '0');
+const lt = $('liveTimer'); if(lt) lt.textContent = m + ':' + s;
+}, 1000);
+toast('🔴 بث ملء الشاشة - كامل');
+}
+function stopLive(){
+state.liveMode = false;
+if(state.liveInt) { clearInterval(state.liveInt); state.liveInt = null; }
+closeNativeFullscreen();
+const wrap = $('cameraWrap'); if(wrap) wrap.classList.remove('fullscreen-live');
+const lb = $('liveBadge'); if(lb) lb.classList.add('hidden');
+const lc = $('liveControlsFull'); if(lc) lc.classList.add('hidden');
+const et = $('endLiveTopBtn'); if(et) et.classList.add('hidden');
+const nc = $('normalControls'); if(nc) nc.classList.remove('hidden');
+const hdr = document.querySelector('header'); if(hdr) hdr.classList.remove('hidden');
+const nav = document.querySelector('nav'); if(nav) nav.classList.remove('hidden');
+stopStream();
+setTimeout(()=>initCam(), 200);
+toast('⏹️ تم إنهاء البث');
+}
+function addLike() {
+state.likes++;
+const lc = $('likeCount'); if(lc) lc.textContent = state.likes;
+const lf = $('likeCountFull'); if(lf) lf.textContent = state.likes;
+}
+function sendGift() {
+toast('🎁 تم إرسال الهدية بنجاح!');
+const g = $('giftAnim');
+if(g) {
+g.textContent = '👑🎁💖';
+setTimeout(() => { g.textContent = ''; }, 2000);
+}
+}
+function setupUploadFix() {
+const btn = $('uploadTriggerBtn');
+const input = $('videoInput');
+const video = $('cameraPreview');
+if (!btn ||!input ||!video) return;
+btn.addEventListener('click', (e) => {
+e.preventDefault();
+input.click();
+});
+input.addEventListener('change', (e) => {
+const file = e.target.files && e.target.files[0];
+if (!file) return;
+if (state.curStream) { state.curStream.getTracks().forEach(t=>t.stop()); state.curStream=null; }
+if (state.upURL) URL.revokeObjectURL(state.upURL);
+state.upURL = URL.createObjectURL(file);
+state.upIsVideo = file.type.startsWith('video/');
+video.srcObject = null;
+video.src = state.upURL;
+video.loop = true;
+video.muted = true;
+video.play().catch(()=>{});
+toast('✅ تم رفع: ' + file.name.slice(0,20));
+});
+}
+document.addEventListener('DOMContentLoaded', () => {
+const map={
+startLive, stopLive, switchCam, capturePhoto,
+filterNone:()=>setFilter('none'),
+filterBeauty:()=>setFilter('beauty'),
+tabHome:(b)=>switchTab('home',b),
+tabOperations:(b)=>switchTab('operations',b),
+tabCreate:(b)=>switchTab('create',b),
+tabInbox:(b)=>switchTab('inbox',b),
+tabProfile:(b)=>switchTab('profile',b),
+backToProfile,
+openAccountSettings:()=>showSubPage('account-settings'),
+openSecurity:()=>showSubPage('security-settings'),
+openQrPage:()=>showSubPage('qr-page'),
+openOkx:()=>showSubPage('okx-page'),
+openActivity:()=>showSubPage('activity-page'),
+openOffline:()=>showSubPage('offline-page'),
+openCommerce:()=>showSubPage('commerce-page'),
+openPromo:()=>showSubPage('promo-page'),
+openMap:()=>{ const c=$('mapContainer'); if(c){ c.classList.toggle('hidden'); if(!c.classList.contains('hidden')&&!state.map&&window.L){ state.map=L.map(c).setView([16.0545,49.0],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(state.map); } } },
+showQR:()=>{ const d=$('qrDisplay'); if(d){ d.classList.toggle('hidden'); const b=$('operationsQrBox'); if(b&&!d.classList.contains('hidden')){ b.textContent=''; if(window.QRCode) new QRCode(b,{text:'https://tarimos.org',width:100,height:100}); } } },
+goInbox:()=>switchTab('inbox')
+};
+document.addEventListener('click',(e)=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const act=btn.getAttribute('data-action'); if(map[act]) map[act](btn); });
+const sBtn = $('supportBtn'); if(sBtn) sBtn.addEventListener('click', (e) => {
+e.preventDefault();
+if (window.TarimSupport && typeof window.TarimSupport.openModal === 'function') {
+window.TarimSupport.openModal();
+}
+});
+const lBtn = $('loginBtn'); if(lBtn) lBtn.addEventListener('click',forceUnlockCastle);
+const uPass = $('userPass'); if(uPass) uPass.addEventListener('keydown',e=>{if(e.key==='Enter')forceUnlockCastle();});
+const pBtn = $('publishBtn'); if(pBtn) pBtn.addEventListener('click',publishPost);
+const sLiveBtn = $('startLiveBtn'); if(sLiveBtn) sLiveBtn.addEventListener('click',startLive);
+const stLiveBtn = $('stopLiveBtn'); if(stLiveBtn) stLiveBtn.addEventListener('click',stopLive);
+const stLiveFull = $('stopLiveBtnFull'); if(stLiveFull) stLiveFull.addEventListener('click',stopLive);
+const endTop = $('endLiveTopBtn'); if(endTop) endTop.addEventListener('click',stopLive);
+const giftBtn = $('sendGiftBtn'); if(giftBtn) giftBtn.addEventListener('click', sendGift);
+const giftFull = $('sendGiftBtnFull'); if(giftFull) giftFull.addEventListener('click', sendGift);
+const likeBtn = $('likeLiveBtn'); if(likeBtn) likeBtn.addEventListener('click', addLike);
+const likeFull = $('likeLiveBtnFull'); if(likeFull) likeFull.addEventListener('click', addLike);
+setupUploadFix();
+document.addEventListener('fullscreenchange', ()=>{
+if (!document.fullscreenElement && state.liveMode) {
+const wrap = $('cameraWrap');
+if (wrap &&!document.fullscreenElement) {}
+}
+});
+const logoutBtn = $('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click',()=>{localStorage.clear(); location.reload();});
+if(localStorage.getItem('tarim_session_v73')){ const gate=$('authGate'); if(gate) gate.style.display='none'; renderAllFeeds(); updateCounters(); startUesWatchSimulation(); }
+});
 })();
