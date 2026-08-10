@@ -30,8 +30,7 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
     var s = localStorage.getItem('tarim_session_v73');
     var seal = localStorage.getItem('tarim_seal_v73');
     var passed = localStorage.getItem('tarim_auth_gate_passed');
-    if(!s ||!seal || passed!== 'true'){
-      // لا تمسح هنا - اترك app.js يمسح - فقط تأكد البوابة ظاهرة
+    if(!s || !seal || passed !== 'true'){
       document.documentElement.classList.add('no-auth');
     }
   }catch(e){}
@@ -175,7 +174,7 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 <div id="sub-qr-page" class="sub-page hidden glass p-5 rounded-2xl text-center space-y-4"><button data-action="backToProfile" class="text-xs text-cyan-400 font-bold block text-right">← رجوع</button><h3 class="text-sm font-black text-cyan-400">🌐 رمز QR الخاص بك</h3><div id="qrcode" class="flex justify-center py-4 bg-white p-4 rounded-xl w-fit mx-auto"></div></div>
 <div id="sub-account-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4"><button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button><h3 class="text-sm font-black">👤 إعدادات الحساب السيادي</h3></div>
 <div id="sub-security-settings" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4"><button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button><h3 class="text-sm font-black">🔒 الخصوصية والأمان</h3></div>
-<div id="sub-okx-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4"><button data-action="backCode" class="text-xs text-cyan-400 font-bold">← رجوع</button><h3 class="text-sm font-black">💳 رصيد OKX</h3></div>
+<div id="sub-okx-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4"><button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button><h3 class="text-sm font-black">💳 رصيد OKX</h3></div>
 <div id="sub-activity-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4"><button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button><h3 class="text-sm font-black">🏛️ الأنشطة</h3><p class="text-xs">المنشورات: <span id="activityPosts">0</span></p></div>
 </div>
 </div>
