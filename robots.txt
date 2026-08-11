@@ -1,37 +1,76 @@
 # ===============================================
-# TARIM OS V7.3 - robots.txt - Sovereign Gate
-# بوابة القلعة السيادية - تريم
+# TARIM OS V7.4 - robots.txt - Sovereign Gate HARDENED
+# القاعدة الذهبية: لا تضع أي مسار سري هنا - الحماية بالتوثيق وليس بالإخفاء
 # ===============================================
 
-# --- 1. القانون العام لكل الجيوش ---
+# --- 1. القواعد العامة ---
 User-agent: *
 Allow: /
+# لا تضع /operations/ /inbox/ /wallet/ هنا أبداً - هذا يكشفها للمهاجم
 
-# --- 2. منع الجواسيس من دخول وزارات الدولة السيادية ---
-Disallow: /api/
-Disallow: /data/
-Disallow: /src/
-Disallow: /private/
-Disallow: /admin/
-Disallow: /.env
+# منع أرشفة الملفات التقنية والنسخ الاحتياطي فقط - وليس المسارات السرية
 Disallow: /*.json$
-Disallow: /server.js
-Disallow: /database.js
+Disallow: /*.log$
+Disallow: /*.env$
+Disallow: /*.git/
+Disallow: /data/
+Disallow: /backup/
+Disallow: /logs/
+Disallow: /private/
+Disallow: /tmp/
+Disallow: /api/private/
+Disallow: /api/internal/
 
-# --- 3. منع أرشفة صفحات العمليات الخاصة ---
-Disallow: /operations/
-Disallow: /inbox/
-Disallow: /wallet/
+# --- 2. حماية سيادية من بوتات الذكاء الاصطناعي والتنقيب ---
+# تم توسيع القائمة لأحدث بوتات 2026 - كل بوت يجب أن يكون له Disallow منفصل
 
-# --- 4. خريطة القلعة لجوجل - السيادة الرقمية ---
-Sitemap: https://tarimos.org/sitemap.xml
-
-# --- 5. حماية إضافية من بوتات الذكاء الاصطناعي الجشعة ---
 User-agent: GPTBot
+Disallow: /
+
 User-agent: ChatGPT-User
+Disallow: /
+
 User-agent: Google-Extended
+Disallow: /
+
 User-agent: CCBot
 Disallow: /
 
-# --- 6. سرعة الزحف - لا ترهقوا القلعة ---
-Crawl-delay: 1
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: YouBot
+Disallow: /
+
+# --- 3. خريطة القلعة الرقمية - العامة فقط ---
+Sitemap: https://tarimos.org/sitemap.xml
+
+# --- 4. لا تستخدم Crawl-delay - يتم تجاهله من Google وقد يستخدم ضدك في DoS
+# Crawl-delay: 1  <- تم حذفه
