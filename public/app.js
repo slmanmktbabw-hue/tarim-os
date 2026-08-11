@@ -1,4 +1,4 @@
-// public/app.js - TARIM OS V8.6 KING EDITION + UES-Gateway V2.1 SECURE
+// public/app.js - TARIM OS V8.6 KING EDITION - SECURED & HARDENED WITH SUB-PAGES & HOME BUTTONS
 "use strict";
 (function () {
 const $ = id => document.getElementById(id);
@@ -21,67 +21,6 @@ curStream: null, facing: 'user', map: null, liveInt: null,
 lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
 watchTimer: null, currentWatchTime: 0, abortCtrl: null,
 giftType: 'heart', adBudget: 5, homeLikesCount: 120
-};
-
-// === محرك UES-Gateway V2.1 SECURE المدمج (Rule-Based Engine) ===
-const UES_ENGINE = {
-    ALLOWED_COUNTRIES: new Set(['YE','SA','US','EG','AE','DE']),
-    ALLOWED_INTERESTS: new Set(['cooking','sports','fitness','travel','general','tech','news']),
-    rulesTriggered: 0,
-    maxRules: 1000000,
-    
-    sanitize(t, maxLen=20) {
-        if (!t) return "";
-        let str = String(t).slice(0, maxLen);
-        str = str.replace(/[^a-zA-Z0-9_\-]/g, '');
-        return str.toLowerCase();
-    },
-
-    recommend(userProfile, currentVideo) {
-        let country = this.sanitize(userProfile.country || 'US', 5).toUpperCase();
-        if (!this.ALLOWED_COUNTRIES.has(country)) country = 'US';
-
-        let interest = this.sanitize(userProfile.interest || 'general', 20);
-        if (!this.ALLOWED_INTERESTS.has(interest)) interest = 'general';
-
-        let duration = 30;
-        try {
-            duration = parseInt(currentVideo.duration, 10);
-            if (isNaN(duration)) duration = 30;
-            duration = Math.max(0, Math.min(duration, 600));
-        } catch(e) { duration = 30; }
-
-        let repeat = 0;
-        try {
-            repeat = parseInt(userProfile.repeat_count, 10);
-            if (isNaN(repeat)) repeat = 0;
-            repeat = Math.max(0, Math.min(repeat, 100));
-        } catch(e) { repeat = 0; }
-
-        if (this.rulesTriggered < this.maxRules) {
-            this.rulesTriggered++;
-        }
-
-        // القاعدة 1: كسر الملل
-        if (duration > 60) {
-            const arr = ["short_funny_01", "short_tip_02", "short_news_03"];
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
-
-        // القاعدة 2: التضاد
-        if (interest === 'fitness') return "protein_recipe_15s_003";
-        if (interest === 'travel') return "local_street_food_15s_004";
-
-        // القاعدة 3: التخصيص حسب البلد
-        if (country === 'YE' && interest === 'cooking') return "ye_cooking_restaurant_001";
-        if (country === 'YE' && interest === 'sports') return "ye_football_highlights_002";
-
-        // القاعدة 4: صدمة الفضول
-        if (repeat >= 3) return "shocking_curiosity_video_999";
-
-        const defaults = ["trending_01", "trending_02", "trending_03"];
-        return defaults[Math.floor(Math.random() * defaults.length)];
-    }
 };
 
 // === نظام الملك المحصن ===
@@ -139,7 +78,6 @@ if (document.fullscreenElement && document.exitFullscreen) document.exitFullscre
 else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
 } catch {}
 }
-
 function startUesWatchSimulation() {
 if (state.watchTimer) clearInterval(state.watchTimer);
 if (state.abortCtrl) state.abortCtrl.abort();
@@ -149,35 +87,30 @@ state.watchTimer = setInterval(async () => {
 state.currentWatchTime += 5;
 if (state.currentWatchTime >= 20) {
 clearInterval(state.watchTimer);
-const profile = { country: 'YE', interest: 'cooking', repeat_count: 0 };
-const curVid = { duration: 45, watch_time: state.currentWatchTime };
 try {
 const res = await fetch('/get_next_video', {
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
 signal: state.abortCtrl.signal,
 body: JSON.stringify({
-user_profile: profile,
-current_video: curVid
+user_profile: { country: 'YE', interest: 'cooking', repeat_count: 0 },
+current_video: { duration: 45, watch_time: state.currentWatchTime }
 })
 });
 if (!res.ok) throw new Error('offline');
 const data = await res.json();
 if (data.action === 'split_screen' && data.video_id) {
 const vid = String(data.video_id).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,50);
-toast('⚡ UES-Gateway V2.1: ' + sanitizeText(vid));
+if (['short_funny_01','short_tip_02','ye_cooking_restaurant_001','ye_football_highlights_002'].includes(vid) || vid.startsWith('trending_')) {
+toast('⚡ Tarim_Fortress: ' + sanitizeText(vid));
+}
 }
 } catch (err) {
-if (err.name!== 'AbortError') {
-// تشغيل المحرك المحلي المحصن في حال عدم الاتصال
-const recVid = UES_ENGINE.recommend(profile, curVid);
-toast('⚡ UES Secure Local: ' + sanitizeText(recVid));
-}
+if (err.name!== 'AbortError') console.log('Tarim_Fortress: Offline Mode');
 }
 }
 }, 5000);
 }
-
 function stopStream() {
 if (state.curStream) { state.curStream.getTracks().forEach(t => t.stop()); state.curStream = null; }
 if (state.liveInt) { clearInterval(state.liveInt); state.liveInt = null; }
@@ -366,8 +299,10 @@ function openGiftModal() {
     <p class="text-[10px] text-slate-500 mt-4 text-center">تستلم USDT مباشر على OKX: 0x53...c0af6<br>الملك: 10% | المبدع: 90%</p>
   </div>`;
   document.body.appendChild(modal);
-  $('closeTriplePay').addEventListener('click', closeGiftModal);
+  
+  modal.querySelector('#closeTriplePay').addEventListener('click', closeGiftModal);
   modal.addEventListener('click', (e)=>{ if(e.target===modal) closeGiftModal(); });
+  
   modal.querySelectorAll('.gift-type').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       modal.querySelectorAll('.gift-type').forEach(b=>{ b.className='gift-type bg-slate-800 text-white p-2 rounded-lg text-[10px]'; });
@@ -375,9 +310,10 @@ function openGiftModal() {
       state.giftType = sanitizeText(btn.dataset.gift);
     });
   });
-  $('payOKX').addEventListener('click', ()=>{ closeGiftModal(); payWithOKX(); });
-  $('payCard').addEventListener('click', ()=>{ closeGiftModal(); payWithCard(); });
-  $('payPayPal').addEventListener('click', payWithPayPal);
+  
+  modal.querySelector('#payOKX').addEventListener('click', ()=>{ closeGiftModal(); payWithOKX(); });
+  modal.querySelector('#payCard').addEventListener('click', ()=>{ closeGiftModal(); payWithCard(); });
+  modal.querySelector('#payPayPal').addEventListener('click', payWithPayPal);
 }
 function closeGiftModal(){ const m=$('triplePayModal'); if(m) m.classList.add('hidden'); }
 async function payWithOKX(){
@@ -425,10 +361,9 @@ function sendGift(){ openGiftModal(); }
 function initPromoPage(){
   const container = document.querySelector('#sub-promo-page');
   if(!container) return;
-  let box = container.querySelector('.p-4');
-  if(!box){ box = document.createElement('div'); box.className='p-4 space-y-4'; container.appendChild(box); }
-  if($('tarimAdsBox')) return;
-  box.innerHTML = `
+  
+  container.innerHTML = `
+    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold mb-3">← رجوع</button>
     <div id="tarimAdsBox" class="space-y-4">
       <h3 class="text-cyan-400 font-bold text-center">🚀 ترويج سيادي - محصن بالكامل</h3>
       <div class="glass bg-slate-800/50 p-4 rounded-xl border border-cyan-500/20">
@@ -454,20 +389,23 @@ function initPromoPage(){
       <button id="payAdCard" class="w-full bg-slate-800 border border-yellow-500/50 text-white font-bold p-3 rounded-xl text-xs">💳 ادفع ببطاقة Mastercard - يصل USDT</button>
       <div id="kingPanelAds"></div>
     </div>`;
+
     let selectedBudget = 5;
-    box.querySelectorAll('.ad-budget').forEach(b=>{
+    container.querySelectorAll('.ad-budget').forEach(b=>{
       b.addEventListener('click', ()=>{
-        box.querySelectorAll('.ad-budget').forEach(x=>{ x.className='ad-budget bg-slate-800 border border-slate-600 text-white p-2 rounded-lg text-xs'; });
+        container.querySelectorAll('.ad-budget').forEach(x=>{ x.className='ad-budget bg-slate-800 border border-slate-600 text-white p-2 rounded-lg text-xs'; });
         b.className='ad-budget bg-cyan-500 text-black p-2 rounded-lg text-xs font-bold border-cyan-500';
         selectedBudget = Number(b.dataset.budget) || 5;
         const t = sanitizeText($('adTarget').value);
         $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${Math.floor(selectedBudget*0.8*100)} مشاهدة في ${t} | الملك ${ (selectedBudget*0.2).toFixed(1)}$`;
       });
     });
+    
     $('adTarget').addEventListener('change', ()=>{
       const t = sanitizeText($('adTarget').value);
       $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${Math.floor(selectedBudget*0.8*100)} مشاهدة في ${t} | الملك ${ (selectedBudget*0.2).toFixed(1)}$`;
     });
+    
     $('payAdOKX').addEventListener('click', async ()=>{
       const target = sanitizeText($('adTarget').value);
       toast(`💎 جاري ترويج ${selectedBudget}$ لـ ${target}...`);
@@ -480,6 +418,7 @@ function initPromoPage(){
         if(data.ok){ toast(sanitizeText(data.msg)); $('adPreview').textContent = data.pending? '⏳ قيد مراجعة الملك' : '✅ تم الترويج! ID: '+ sanitizeText(data.adId); if(isKing()) loadKingPanel(); }
       } catch(e){ toast('تم الترويج Offline - سيظهر قريباً'); }
     });
+    
     $('payAdCard').addEventListener('click', async ()=>{
       const target = sanitizeText($('adTarget').value);
       toast(`💳 جاري إنشاء فاتورة إعلان ${selectedBudget}$...`);
@@ -700,3 +639,38 @@ if(localStorage.getItem('tarim_session_v73')){
 }
 });
 })();
+
+// --- UES-Gateway Logic (Local JS Implementation) ---
+const UES_ENGINE = {
+    ALLOWED_VIDEOS: [
+        "short_funny_01","short_tip_02","short_news_03",
+        "protein_recipe_15s_003","local_street_food_15s_004",
+        "ye_cooking_restaurant_001","ye_football_highlights_002",
+        "shocking_curiosity_video_999","trending_01","trending_02","trending_03"
+    ],
+    
+    recommend(profile, currentVideo) {
+        const country = (profile.country || 'US').toUpperCase();
+        const interest = (profile.interest || 'general').toLowerCase();
+        const duration = Math.min(Math.max(currentVideo.duration || 30, 0), 600);
+        const repeat = Math.min(Math.max(profile.repeat_count || 0, 0), 100);
+
+        if (duration > 60) return ["short_funny_01", "short_tip_02", "short_news_03"][Math.floor(Math.random()*3)];
+        if (interest === 'fitness') return "protein_recipe_15s_003";
+        if (interest === 'travel') return "local_street_food_15s_004";
+        if (country === 'YE' && interest === 'cooking') return "ye_cooking_restaurant_001";
+        if (country === 'YE' && interest === 'sports') return "ye_football_highlights_002";
+        if (repeat >= 3) return "shocking_curiosity_video_999";
+        
+        return ["trending_01", "trending_02", "trending_03"][Math.floor(Math.random()*3)];
+    }
+};
+
+function checkUES(watchTime, profile, currentVideo) {
+    if (watchTime > 20) {
+        const nextVideo = UES_ENGINE.recommend(profile, currentVideo);
+        console.log(`🚀 UES Triggered: Next Video -> ${nextVideo}`);
+        return { action: 'split_screen', video_id: nextVideo };
+    }
+    return { action: 'wait' };
+}
