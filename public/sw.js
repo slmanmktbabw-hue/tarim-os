@@ -1,7 +1,8 @@
-// public/sw.js - TARIM OS V7.4 - Sovereign Offline Guard FORTRESS
-const CACHE_CORE = 'tarim-os-v7-4-core';
-const CACHE_TILES = 'tarim-os-v7-4-tiles';
-const CACHE_VERSION = 'V7.4 FORTRESS';
+// public/sw.js - TARIM OS V7.3.1 FINAL SEAL - Sovereign Offline Guard - ESM Shield
+const CACHE_CORE = 'tarim-os-v7-3-1-final-seal-core';
+const CACHE_ESM = 'tarim-os-v7-3-1-esm-shield';
+const CACHE_TILES = 'tarim-os-v7-3-1-tiles';
+const CACHE_VERSION = 'V7.3.1 FINAL SEAL - ESM Shield - esm.unpkg.com?bundle&target=es2022&min';
 
 const CORE_ASSETS = [
   './',
@@ -15,115 +16,108 @@ const CORE_ASSETS = [
   './icons/icon-512.png'
 ];
 
-// لا نخزن ESM في install أبداً - نجلبه عند الحاجة فقط
+const ESM_SHIELD_ASSETS = [
+  'https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min',
+  'https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min&css',
+  'https://esm.unpkg.com/socket.io-client@4.8.1?bundle&target=es2022&min'
+];
+
+// تثبيت - حفظ القلب ودرع ESM
 self.addEventListener('install', (e) => {
+  console.log(`[SW ${CACHE_VERSION}] تثبيت الحارس السيادي`);
   e.waitUntil(
-    caches.open(CACHE_CORE)
-     .then(c => c.addAll(CORE_ASSETS))
-     .then(() => self.skipWaiting())
-     .catch(() => self.skipWaiting()) // حتى لو فشل كاش، لا تعلق التثبيت
+    Promise.all([
+      caches.open(CACHE_CORE).then(c => c.addAll(CORE_ASSETS)),
+      caches.open(CACHE_ESM).then(c => c.addAll(ESM_SHIELD_ASSETS))
+    ]).then(() => self.skipWaiting())
   );
 });
 
+// تفعيل - حذف الكاش القديم
 self.addEventListener('activate', (e) => {
-  const allowed = [CACHE_CORE, CACHE_TILES];
+  console.log(`[SW ${CACHE_VERSION}] تفعيل وتنظيف`);
   e.waitUntil(
     caches.keys().then(keys => Promise.all(
       keys.map(k => {
-        // احذف أي كاش لا يبدأ بـ tarim-os-v7-4-
-        if (!allowed.includes(k) && k.startsWith('tarim-os-')) {
+        if (!k.includes('v7-3-1-final-seal')) {
+          console.log('[SW] حذف كاش قديم:', k);
           return caches.delete(k);
         }
-        // احذف الكاش القديم v7-3-1 نهائياً
-        if (k.includes('v7-3-1')) return caches.delete(k);
       })
     )).then(() => self.clients.claim())
   );
 });
 
-// دالة تنظيف كاش الخرائط - حد أقصى 150 صورة
-async function trimTileCache() {
-  const cache = await caches.open(CACHE_TILES);
-  const keys = await cache.keys();
-  if (keys.length > 150) {
-    await cache.delete(keys[0]); // احذف الأقدم
-  }
-}
-
+// جلب - استراتيجية سيادية ثلاثية
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  if (!url.protocol.startsWith('http')) return;
-  // لا تتعامل إلا مع GET
-  if (e.request.method!== 'GET') return;
-
-  // 1. API و Socket - Network Only - لا تلمس الكاش أبداً
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/socket.io/') || url.pathname === '/api' || url.pathname === '/share') {
+  // 1. لا تحفظ API أبداً - JWT حساس
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/socket.io/')) {
     return e.respondWith(
-      fetch(e.request, { cache: 'no-store' })
-       .catch(() => new Response(JSON.stringify({ ok:false, offline:true }), { status: 503, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }))
+      fetch(e.request).catch(() => new Response(JSON.stringify({ message: 'Offline - السيرفر غير متصل V7.3.1' }), { status: 503, headers: { 'Content-Type': 'application/json' } }))
     );
   }
 
-  // 2. خريطة حضرموت - Stale While Revalidate مع حد وبدون opaque
+  // 2. خريطة حضرموت - Cache First مع التخزين الديناميكي
   if (url.hostname.includes('tile.openstreetmap.org')) {
     e.respondWith(
-      caches.open(CACHE_TILES).then(async cache => {
-        const cached = await cache.match(e.request);
-        const fetchPromise = fetch(e.request).then(res => {
-          // لا تخزن opaque أبداً - فقط ok حقيقي
-          if (res && res.ok && res.type!== 'opaque') {
-            cache.put(e.request, res.clone()).then(() => trimTileCache()).catch(()=>{});
-          }
-          return res;
-        }).catch(() => cached);
-        return cached || fetchPromise;
-      })
+      caches.open(CACHE_TILES).then(cache =>
+        cache.match(e.request).then(cached => {
+          if (cached) return cached;
+          return fetch(e.request).then(res => {
+            if (res.ok) cache.put(e.request, res.clone());
+            return res;
+          }).catch(() => cached);
+        })
+      )
     );
     return;
   }
 
-  // 3. ESM - Network First مع سقوط للكاش - لا تخزن للأبد
-  if (url.hostname === 'esm.unpkg.com' || url.hostname === 'esm.sh') {
+  // 3. درع ESM - esm.unpkg.com - Cache First دائم
+  if (url.hostname === 'esm.unpkg.com') {
     e.respondWith(
-      fetch(e.request, { cache: 'no-cache' }).then(res => {
-        if (res && res.ok) {
-          // خزن مؤقتاً فقط، وسيتم تحديثه في كل مرة
+      caches.open(CACHE_ESM).then(cache =>
+        cache.match(e.request).then(cached => {
+          if (cached) return cached;
+          return fetch(e.request).then(res => {
+            if (res.ok) cache.put(e.request, res.clone());
+            return res;
+          });
+        })
+      )
+    );
+    return;
+  }
+
+  // 4. باقي الملفات - Cache First ثم شبكة ثم index.html
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).then(res => {
+        // لا نحفظ إلا الناجح ومن نفس المصدر
+        if (res.ok && url.origin === location.origin) {
           const clone = res.clone();
-          caches.open(CACHE_CORE).then(c => c.put(e.request, clone)).catch(()=>{});
+          caches.open(CACHE_CORE).then(c => c.put(e.request, clone));
         }
         return res;
-      }).catch(() => caches.match(e.request))
-    );
-    return;
-  }
-
-  // 4. الملفات الأساسية - Cache First لكن فقط لنفس الأصل
-  if (url.origin === location.origin) {
-    e.respondWith(
-      caches.match(e.request).then(cached => {
-        if (cached) return cached;
-        return fetch(e.request).then(res => {
-          // لا تخزن إلا صفحات وأصول ثابتة، وليس API
-          if (res && res.ok && res.headers.get('content-type')?.match(/text\/html|javascript|css|image\/png/)) {
-            const clone = res.clone();
-            caches.open(CACHE_CORE).then(c => c.put(e.request, clone)).catch(()=>{});
-          }
-          return res;
-        }).catch(() => {
-          if (e.request.mode === 'navigate') return caches.match('./index.html');
-        });
-      })
-    );
-  }
+      }).catch(() => {
+        // Offline - ارجع الرئيسية
+        if (e.request.mode === 'navigate') {
+          return caches.match('./index.html');
+        }
+      });
+    })
+  );
 });
 
-// رسائل محصنة - تقبل فقط من نفس الأصل
+// رسائل من app.js
 self.addEventListener('message', (e) => {
-  // تحقق أن الرسالة من نافذة تابعة لنا
-  if (!e.source) return;
-  if (e.data === 'SKIP_WAITING') {
-    // فقط إذا كان العميل من نفس الأصل
-    self.skipWaiting();
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
+  if (e.data === 'GET_VERSION' && e.ports && e.ports[0]) {
+    e.ports[0].postMessage(CACHE_VERSION);
   }
 });
+
+console.log(`[SW] ${CACHE_VERSION} - الحارس السيادي جاهز - Offline First - تريم حضرموت`);
