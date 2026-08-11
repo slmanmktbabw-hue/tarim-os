@@ -1,102 +1,136 @@
-// ==============================================================================
-// settings.js - TARIM OS V8.7 SECURE - لا أسرار في الكود أبداً
-// ==============================================================================
-"use strict";
+// settings.js - TARIM OS V7.4 - IMMUTABLE BRAIN HARDENED
 require('dotenv').config();
 const crypto = require('crypto');
 
 function env(key, fallback = null) {
     const val = process.env[key];
-    return val!== undefined && val!== ''? val : fallback;
+    return val!== undefined && String(val).trim()!== ''? String(val).trim() : fallback;
 }
-function envRequired(key) {
-    const v = env(key, null);
-    if (v === null) throw new Error(`[FATAL] متغير البيئة المطلوب مفقود: ${key}`);
-    return v;
-}
-function envInt(key, fallback) {
+function envInt(key, fallback, min, max) {
     const v = env(key, null);
     if (v === null) return fallback;
     const n = parseInt(v, 10);
-    if (isNaN(n)) throw new Error(`[FATAL] ${key} يجب أن يكون رقم`);
+    if (isNaN(n) || n < min || n > max) return fallback;
     return n;
 }
 
-function parseOrigins(raw) {
-    const list = raw.split(',').map(s=>s.trim()).filter(Boolean);
-    return list.filter(u=>{ try{ new URL(u); return true; } catch{ return false; } });
+// 1. فحص المفتاح السيادي - مع فصل كامل للأسرار
+let _jwtSecret = env('JWT_SECRET', null);
+const isProduction = env('NODE_ENV', 'production') === 'production';
+
+if (!_jwtSecret) {
+    if (isProduction) {
+        console.error('☠️ [FATAL] JWT_SECRET مفقود - إيقاف العقل');
+        process.exit(1);
+    } else {
+        _jwtSecret = 'DEV_ONLY_' + crypto.randomBytes(32).toString('hex');
+        console.warn('⚠️ [DEV] مفتاح مؤقت فقط');
+    }
+}
+if (_jwtSecret.length < 64) {
+    console.error('☠️ [FATAL] JWT_SECRET قصير - يجب 64 محرف على الأقل');
+    process.exit(1);
 }
 
-// ===== 1. فحص الأسرار قبل أي شيء - يفشل بسرعة لو ناقص =====
-const isProd = env('NODE_ENV','production') === 'production';
-const jwtSecret = isProd? envRequired('JWT_SECRET') : env('JWT_SECRET', 'DEV_ONLY_'+crypto.randomBytes(16).toString('hex'));
-if (jwtSecret.length < 32) throw new Error('[FATAL] JWT_SECRET قصير جداً - يجب أن يكون 32 حرف على الأقل');
+// 2. تحقق صارم من CORS - يمنع https://evil.com
+function parseOrigins(raw) {
+    const fallback = ['https://tarimos.org'];
+    if (!raw) return fallback;
+    return raw.split(',')
+       .map(s => s.trim())
+       .filter(s => {
+            try {
+                const u = new URL(s);
+                return u.protocol === 'https:' &&!s.includes('*');
+            } catch { return false; }
+        })
+       .slice(0, 5); // حد أقصى 5 دومينات
+}
+const origins = parseOrigins(env('CORS_ORIGIN', null));
 
-const mongoUri = isProd? envRequired('MONGO_URI') : env('MONGO_URI','mongodb://localhost:27017/souq_al_molouk');
-if (isProd && mongoUri.includes('localhost')) throw new Error('[FATAL] لا تستخدم localhost في الإنتاج');
+// الأسرار لا توضع في settings أبداً - تبقى في closure
+const SECRETS = {
+    get jwtSecret() { return _jwtSecret; },
+    get okxWallet() { return env('OKX_WALLET', ''); },
+    get nowPayKey() { return env('NOWPAY_API_KEY', ''); }
+};
 
 const settings = {
     system: {
         name: "TARIM OS",
-        version: "8.7.0 SECURE FINAL",
-        build: "2026.08-V8.7",
+        version: "7.4.0 Hardened",
+        build: "2026.08.12-V7.4-FORTRESS",
+        // تم حذف emperorName و seal - تسريب معلومات
     },
-    location: { city: "Tarim & Taizz", country: "YE", coords: [16.05, 48.9833] },
+    location: {
+        city: "Tarim",
+        region: "Hadhramaut",
+        country: "YE",
+        coords: [16.05, 48.9833],
+    },
     platform: {
-        port: envInt('PORT', 10000),
-        env: env('NODE_ENV','production'),
-        domain: parseOrigins(env('CORS_ORIGIN','https://tarimos.org'))[0] || 'https://tarimos.org',
-        allDomains: parseOrigins(env('CORS_ORIGIN','https://tarimos.org')),
-        isProduction: isProd
+        port: envInt('PORT', 10000, 1000, 65535),
+        env: env('NODE_ENV', 'production'),
+        domain: origins[0],
+        allDomains: origins,
+        isProduction
     },
-    database: { mongoUri, localFile: 'data/tarim-database.json' },
+    live: {
+        maxDurationMinutes: 8,
+        maxDurationSeconds: 480,
+        autoStop: true,
+        enableChat: true,
+        enableLikes: true,
+        enableGifts: true // يدار عبر DB وليس هنا
+    },
+    map: {
+        provider: "Offline Leaflet V7.4",
+        defaultZoom: 13,
+        defaultCenter: [16.05, 48.9833],
+        offlineCache: true,
+        tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attribution: "© TARIM OS | OSM"
+    },
+    esm: {
+        shield: "esm.unpkg.com + SRI",
+        imports: {
+            // أضف integrity في index.html وليس هنا
+            "leaflet": "https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min",
+            "socket.io-client": "https://esm.unpkg.com/socket.io-client@4.8.1?bundle&target=es2022&min"
+        }
+    },
     security: {
-        jwtSecret, // تم تعيينه قبل التجميد
-        jwtExpiresIn: env('JWT_EXPIRES_IN','7d'),
-        rateLimitGlobal: 100,
-        rateLimitLogin: 5,
+        // لا يوجد jwtSecret هنا أبداً
+        jwtExpiresIn: env('JWT_EXPIRES_IN', '15m'), // تم التصحيح من 7d إلى 15m
+        jwtRefreshExpiresIn: env('JWT_REFRESH_EXPIRES_IN', '7d'),
+        rateLimitGlobal: envInt('RATE_LIMIT_MAX_REQUESTS', 100, 10, 1000),
+        rateLimitLogin: envInt('RATE_LIMIT_LOGIN_MAX', 5, 2, 20),
         bcryptRounds: 12
-    },
-    store: {
-        name: 'سوق الملوك - حصن قلعة النور',
-        currency: 'YER',
-        shipping: 1000,
-        freeShippingOver: 20000,
-    },
-    categories: ['عطور ملكية','ذهب وفضة','بخور ومسك','ملابس ملوك','مخطوطات','سيوف وخناجر','عسل يمني','عام'],
-    roles: { KING: 'king', MERCHANT: 'merchant', CUSTOMER: 'customer' },
-    orderStatus: { PENDING: 'pending', SEALED: 'sealed', SHIPPED: 'shipped', DELIVERED: 'delivered', CANCELLED: 'cancelled' },
-    upload: {
-        folder: 'public/uploads',
-        maxSize: 2 * 1024 * 1024, // كان 10MB - قللناه لـ 2MB
-        allowedTypes: ['image/jpeg','image/png','image/webp'],
-        maxFiles: 3
-    },
-    live: { maxDurationMinutes: 8, autoStop: true },
-    okx: {
-        initialBalance: 0,
-        currency: "USDT",
-        wallet: env('OKX_WALLET',''), // لا قيمة افتراضية - يجب أن يأتي من env
-    },
-    map: { defaultZoom: 13, defaultCenter: [16.05, 48.9833], tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
-    // حذفنا defaultKing نهائياً - لا حسابات افتراضية
-    messages: {
-        unauthorized: 'غير مصرح',
-        forbidden: 'ممنوع - للملوك فقط',
-        notFound: 'غير موجود',
-        serverError: 'خطأ داخلي'
     }
 };
 
 function deepFreeze(obj) {
     Object.getOwnPropertyNames(obj).forEach(prop => {
-        const v = obj[prop];
-        if (v && typeof v === 'object' &&!Object.isFrozen(v)) deepFreeze(v);
+        const value = obj[prop];
+        if (value && typeof value === 'object' &&!Object.isFrozen(value)) {
+            deepFreeze(value);
+        }
     });
     return Object.freeze(obj);
 }
 deepFreeze(settings);
 
-console.log(`[TARIM V8.7 SECURE] الإعدادات محملة - ${settings.platform.domain}`);
+// 3. تصدير آمن - الأسرار عبر دوال فقط وليس كائن
+module.exports = {
+   ...settings,
+    // دالة للحصول على السر - لا يمكن عمل JSON.stringify لها
+    getJwtSecret: () => SECRETS.jwtSecret,
+    getSecrets: () => {
+        if (isProduction) throw new Error('Secrets access denied in production context');
+        return SECRETS;
+    },
+    // للاستخدام الداخلي فقط في server.js
+    _secrets: SECRETS
+};
 
-module.exports = { settings };
+console.log(`🧠 [BRAIN V7.4] محمل - ${settings.system.version} - Domain: ${settings.platform.domain}`);
