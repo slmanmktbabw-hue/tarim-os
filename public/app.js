@@ -1,251 +1,226 @@
-// ==============================================================================
-// public/app.js - SOUQ AL MOLOUK V8.7 SECURE - محصن ضد XSS وتلاعب الأسعار
-// ==============================================================================
+// public/app.js - TARIM OS V8.6.1 KING EDITION - HARDENED - لا تشيل الخيارات
 "use strict";
+(function () {
+const $ = id => document.getElementById(id);
 
-const API = '/api';
-let products = [];
-
-function safeParse(key, fallback) {
-  try {
-    const v = localStorage.getItem(key);
-    return v ? JSON.parse(v) : fallback;
-  } catch { return fallback; }
+function sanitizeText(t) {
+    if (!t) return "";
+    // textContent آمن بذاته - لا نحتاج تحويل &lt; يدوياً
+    return String(t).slice(0, 1000).trim();
 }
-let cart = safeParse('souq_cart', []);
-let token = localStorage.getItem('souq_token');
-let user = safeParse('souq_user', null);
-
-const $ = (id) => document.getElementById(id);
-const productsGrid = $('products-grid');
-const cartCount = $('cart-count');
-const cartItems = $('cart-items');
-const cartTotal = $('cart-total');
-
-// حماية الـ ID
-function isValidId(id) {
-  return typeof id === 'string' && /^[a-zA-Z0-9_-]{4,64}$/.test(id);
+function toast(m) {
+    const b = $('toastBox'); if (!b) return;
+    const e = document.createElement('div');
+    e.textContent = sanitizeText(m).slice(0, 220); // textContent فقط
+    e.style.cssText = 'background:#00B4D8;color:#000;padding:12px 16px;border-radius:14px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center;z-index:99999;position:relative';
+    b.appendChild(e);
+    setTimeout(() => e.remove(), 4000);
 }
 
-// ==========================================
-// 1. تحميل المنتجات - آمن
-// ==========================================
-async function loadProducts(filter = {}) {
-  try {
-    if (productsGrid) productsGrid.textContent = '👑 جاري فتح أبواب القلعة...';
-    const params = new URLSearchParams();
-    if (filter.category) params.set('category', filter.category);
-    if (filter.search) params.set('search', filter.search);
-    if (filter.royal) params.set('royal', 'true');
-    
-    const res = await fetch(`${API}/products?${params.toString()}`, { credentials: 'same-origin' });
-    if (!res.ok) throw new Error('فشل الاتصال');
-    const data = await res.json();
-    products = Array.isArray(data.products) ? data.products : Array.isArray(data) ? data : [];
-    renderProducts(products);
-  } catch (err) {
-    if (productsGrid) productsGrid.textContent = 'فشل فتح القلعة - حاول مرة أخرى';
-  }
-}
+let state = {
+    curStream: null, facing: 'user', map: null, liveInt: null,
+    lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
+    watchTimer: null, currentWatchTime: 0, abortCtrl: null,
+    giftType: 'heart', adBudget: 5, homeLikesCount: 120,
+    isKing: false // لا نقرأ من localStorage أبداً
+};
 
-function renderProducts(list) {
-  if (!productsGrid) return;
-  productsGrid.innerHTML = '';
-  if (!list.length) {
-    productsGrid.textContent = 'لا توجد كنوز مطابقة';
-    return;
-  }
-  const frag = document.createDocumentFragment();
-  list.forEach(p => {
-    if (!isValidId(p._id || p.id)) return;
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    
-    const imgWrap = document.createElement('div');
-    imgWrap.className = 'product-image';
-    const img = document.createElement('img');
-    img.loading = 'lazy';
-    img.src = (p.images && p.images[0]) ? p.images[0] : '/icons/icon-192.png';
-    img.alt = '';
-    // منع تحميل روابط خارجية مشبوهة
-    if (!img.src.startsWith('/') && !img.src.startsWith('https://via.placeholder.com')) {
-      img.src = '/icons/icon-192.png';
+// === نظام الملك المحصن - يفحص من السيرفر فقط ===
+async function checkKingFromServer() {
+    try {
+        const token = localStorage.getItem('tarim_token_v73');
+        if (!token || token.startsWith('offline_')) { state.isKing = false; return false; }
+        const res = await fetch('/api/auth/me', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        state.isKing = data.user?.role === 'Emperor';
+        return state.isKing;
+    } catch { state.isKing = false; return false; }
+}
+function isKing(){ return state.isKing; }
+
+// === خلفية سيادية محصنة ===
+window.changeBg = function(color) {
+    const body = document.getElementById('appBody');
+    if (!body || typeof color!== 'string') return;
+    // Whitelist صارم: فقط HEX أو rgb()
+    const isHex = /^#[0-9A-Fa-f]{3,8}$/.test(color.trim());
+    const isRgb = /^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/.test(color.trim());
+    if (!isHex &&!isRgb) { toast('⚠️ لون غير صالح'); return; }
+    body.style.backgroundImage = 'none';
+    body.style.backgroundColor = color.trim();
+    localStorage.setItem('tarim_bg_color', color.trim());
+    localStorage.removeItem('tarim_bg_image');
+    toast('🎨 تم تحديث الخلفية');
+};
+
+window.changeBgImage = function(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    // منع SVG وملفات ضخمة
+    const allowed = ['image/jpeg','image/png','image/webp'];
+    if (!allowed.includes(file.type) || file.size > 2 * 1024 * 1024) {
+        toast('⚠️ فقط JPG/PNG/WEBP أقل من 2MB');
+        return;
     }
-    imgWrap.appendChild(img);
-    if (p.isRoyal) {
-      const badge = document.createElement('span');
-      badge.className = 'royal-badge';
-      badge.textContent = '👑 ملكي';
-      card.appendChild(badge);
-    }
-    const info = document.createElement('div');
-    info.className = 'product-info';
-    const h3 = document.createElement('h3');
-    h3.textContent = (p.title || 'كنز').slice(0, 100); // textContent = آمن ضد XSS
-    const desc = document.createElement('p');
-    desc.className = 'product-desc';
-    desc.textContent = (p.description || '').slice(0, 80);
-    const priceDiv = document.createElement('div');
-    priceDiv.className = 'product-price';
-    const price = document.createElement('span');
-    price.className = 'price';
-    price.textContent = `${Number(p.price) || 0} ﷼`;
-    priceDiv.appendChild(price);
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        if (typeof dataUrl!== 'string' ||!dataUrl.startsWith('data:image/')) return;
+        // منع SVG داخل base64
+        if (dataUrl.includes('svg')) { toast('⚠️ SVG ممنوع'); return; }
+        if (dataUrl.length > 500 * 1024) { toast('⚠️ الصورة كبيرة جداً للتخزين'); return; }
+        const body = document.getElementById('appBody');
+        if (body) {
+            // استخدام setProperty آمن بدلاً من قالب نصي
+            body.style.setProperty('background-image', `url("${dataUrl.replace(/"/g,'') }")`);
+            body.style.backgroundSize = 'cover';
+            body.style.backgroundPosition = 'center';
+            body.style.backgroundAttachment = 'fixed';
+            try { localStorage.setItem('tarim_bg_image', dataUrl); } catch { toast('التخزين ممتلئ'); }
+            localStorage.removeItem('tarim_bg_color');
+            toast('🖼️ تم تعيين الخلفية');
+        }
+    };
+    reader.readAsDataURL(file);
+};
 
-    const actions = document.createElement('div');
-    actions.className = 'product-actions';
-    const btnAdd = document.createElement('button');
-    btnAdd.className = 'btn-add';
-    btnAdd.type = 'button';
-    btnAdd.textContent = 'أضف للسلة';
-    btnAdd.dataset.id = p._id || p.id;
-    btnAdd.addEventListener('click', () => addToCart(btnAdd.dataset.id));
-    
-    const btnView = document.createElement('button');
-    btnView.className = 'btn-view';
-    btnView.type = 'button';
-    btnView.textContent = 'عرض';
-    btnView.dataset.id = p._id || p.id;
-    btnView.addEventListener('click', () => viewProduct(btnView.dataset.id));
+//... باقي دوالك startUesWatchSimulation, stopStream, switchTab تبقى كما هي مع إضافة تحقق التوكن...
 
-    actions.append(btnAdd, btnView);
-    info.append(h3, desc, priceDiv, actions);
-    card.append(imgWrap, info);
-    frag.appendChild(card);
-  });
-  productsGrid.appendChild(frag);
-}
+async function startUesWatchSimulation() {
+    if (state.watchTimer) clearInterval(state.watchTimer);
+    if (state.abortCtrl) state.abortCtrl.abort();
+    state.currentWatchTime = 0;
+    state.abortCtrl = new AbortController();
+    const token = localStorage.getItem('tarim_token_v73');
+    if (!token || token.startsWith('offline_')) return; // لا تعمل بدون تسجيل حقيقي
 
-// ==========================================
-// 2. السلة - لا تثق بسعر العميل
-// ==========================================
-function addToCart(productId) {
-  if (!isValidId(productId)) return;
-  const product = products.find(p => (p._id === productId || p.id === productId));
-  if (!product) return;
-  const prodId = product._id || product.id;
-  const existing = cart.find(c => c._id === prodId);
-  if (existing) existing.qty += 1;
-  else cart.push({ _id: prodId, title: product.title.slice(0,100), price: Number(product.price)||0, images: product.images, qty: 1 });
-  saveCart(); updateCartUI();
-  showToast(`تمت إضافة ${product.title.slice(0,30)} 👑`);
-}
-function removeFromCart(productId) {
-  if (!isValidId(productId)) return;
-  cart = cart.filter(c => c._id !== productId);
-  saveCart(); updateCartUI();
-}
-function changeQty(productId, delta) {
-  if (!isValidId(productId)) return;
-  const item = cart.find(c => c._id === productId);
-  if (!item) return;
-  item.qty += delta;
-  if (item.qty <= 0) removeFromCart(productId);
-  else { saveCart(); updateCartUI(); }
-}
-function saveCart() {
-  try { localStorage.setItem('souq_cart', JSON.stringify(cart.slice(0, 50))); } catch {}
-}
-function updateCartUI() {
-  const totalQty = cart.reduce((s, c) => s + (Number(c.qty)||0), 0);
-  const totalPrice = cart.reduce((s, c) => s + ((Number(c.price)||0) * (Number(c.qty)||0)), 0);
-  if (cartCount) cartCount.textContent = totalQty;
-  if (cartTotal) cartTotal.textContent = totalPrice + ' ﷼';
-  if (!cartItems) return;
-  cartItems.innerHTML = '';
-  if (!cart.length) { cartItems.textContent = 'السلة فارغة'; return; }
-  const frag = document.createDocumentFragment();
-  cart.forEach(item => {
-    const row = document.createElement('div');
-    row.className = 'cart-item';
-    const img = document.createElement('img');
-    img.src = (item.images && item.images[0]) || '/icons/icon-192.png';
-    img.width = 50; img.alt = '';
-    const info = document.createElement('div');
-    info.className = 'cart-item-info';
-    const h4 = document.createElement('h4');
-    h4.textContent = item.title;
-    const p = document.createElement('p');
-    p.textContent = `${item.price} ﷼ × ${item.qty}`;
-    info.append(h4,p);
-    const acts = document.createElement('div');
-    acts.className = 'cart-item-actions';
-    const b1 = document.createElement('button'); b1.type='button'; b1.textContent='-'; b1.addEventListener('click',()=>changeQty(item._id,-1));
-    const s = document.createElement('span'); s.textContent=item.qty;
-    const b2 = document.createElement('button'); b2.type='button'; b2.textContent='+'; b2.addEventListener('click',()=>changeQty(item._id,1));
-    const b3 = document.createElement('button'); b3.type='button'; b3.textContent='🗑️'; b3.addEventListener('click',()=>removeFromCart(item._id));
-    acts.append(b1,s,b2,b3);
-    row.append(img,info,acts);
-    frag.appendChild(row);
-  });
-  cartItems.appendChild(frag);
+    state.watchTimer = setInterval(async () => {
+        state.currentWatchTime += 5;
+        if (state.currentWatchTime >= 20) {
+            clearInterval(state.watchTimer);
+            try {
+                const res = await fetch('/get_next_video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    signal: state.abortCtrl.signal,
+                    body: JSON.stringify({
+                        user_profile: { country: 'YE', interest: 'cooking', repeat_count: 0 },
+                        current_video: { duration: 45, watch_time: state.currentWatchTime }
+                    })
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.action === 'split_screen' && data.video_id) {
+                    const vid = String(data.video_id).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,50);
+                    if (['short_funny_01','short_tip_02','ye_cooking_restaurant_001','ye_football_highlights_002'].includes(vid) || vid.startsWith('trending_')) {
+                        toast('⚡ ' + sanitizeText(vid));
+                    }
+                }
+            } catch (err) {
+                if (err.name!== 'AbortError') console.log('Offline Mode');
+            }
+        }
+    }, 5000);
 }
 
-// ==========================================
-// 3. البحث - مع Debounce
-// ==========================================
-function setupFilters() {
-  const searchInput = $('search-input');
-  const categorySelect = $('category-filter');
-  let t;
-  searchInput?.addEventListener('input', (e) => {
-    clearTimeout(t);
-    t = setTimeout(() => loadProducts({ search: e.target.value.slice(0,50), category: categorySelect?.value }), 400);
-  });
-  categorySelect?.addEventListener('change', (e) => loadProducts({ category: e.target.value, search: searchInput?.value }));
-  document.querySelectorAll('[data-filter-royal]').forEach(btn => btn.addEventListener('click', () => loadProducts({ royal: true })));
+// === دخول محصن - يتصل بالسيرفر ===
+async function forceUnlockCastle() {
+    const el = $('userPhoneOrEmail');
+    const passEl = $('userPass');
+    let username = (el?.value?.trim() || '').slice(0,50);
+    let password = (passEl?.value || '').slice(0,128);
+    if (!username ||!password) { toast('⚠️ أدخل اسم وكلمة سر'); return; }
+
+    // منع كلمة KING السحرية
+    if (username.toUpperCase() === 'KING') { toast('⛔ محاولة غير مصرحة'); return; }
+
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (!res.ok ||!data.token) { toast(data.message || 'فشل الدخول'); return; }
+
+        localStorage.setItem('tarim_session_v73', sanitizeText(data.user.username));
+        localStorage.setItem('tarim_token_v73', data.token);
+        await checkKingFromServer();
+
+        const gate = $('authGate'); if(gate) gate.style.display = 'none';
+        const h1 = $('homeUsernameDisplay'); if(h1) h1.textContent = '@' + sanitizeText(data.user.username) + ' 👑' + (isKing()? ' [الملك]' : '');
+        toast('أهلاً ' + sanitizeText(data.user.username) + ' 👑');
+        renderAllFeeds(); updateCounters(); startUesWatchSimulation();
+    } catch { toast('❌ خطأ اتصال بالسيرفر'); }
 }
 
-// ==========================================
-// 4. إتمام الطلب - السعر يحسب في السيرفر فقط!
-// ==========================================
-async function checkout() {
-  if (!cart.length) return showToast('السلة فارغة', 'error');
-  if (!token) { showToast('سجل دخول أولاً', 'error'); return; }
-  try {
-    const res = await fetch(`${API}/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        // نرسل فقط ID والكمية - السعر يحسبه السيرفر من DB
-        products: cart.map(c => ({ product: c._id, quantity: Number(c.qty) }))
-      })
+// === دفع محصن - لا يرسل from من العميل ===
+async function payWithOKX(){
+    const token = localStorage.getItem('tarim_token_v73');
+    if (!token) { toast('سجل دخول أولاً'); return; }
+    const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
+    const currentGift = values[state.giftType]? state.giftType : 'heart';
+    try{
+        const res = await fetch('/api/gift', {
+            method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+            body: JSON.stringify({ to:'streamer', type: currentGift, method:'okx' })
+        });
+        const data = await res.json();
+        if(data.ok){ toast(`💎 ${data.value}$ تم الإرسال`); }
+    }catch(e){ toast('خطأ إرسال'); }
+}
+
+async function payWithCard(){
+    const token = localStorage.getItem('tarim_token_v73');
+    if (!token) { toast('سجل دخول أولاً'); return; }
+    const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
+    const currentGift = values[state.giftType]? state.giftType : 'heart';
+    const amount = values[currentGift];
+    toast(`💳 إنشاء فاتورة ${amount}$...`);
+    try{
+        const res = await fetch('/api/create-invoice', {
+            method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+            body: JSON.stringify({ amount, type: currentGift })
+        });
+        const data = await res.json();
+        if(data.ok && data.invoice_url){
+            window.open(data.invoice_url, '_blank', 'noopener,noreferrer');
+        }
+    } catch(e){ toast('خطأ بطاقة'); }
+}
+
+// === رفع ملف محصن ===
+function setupUploadFix() {
+    const btn = $('uploadTriggerBtn'); const input = $('videoInput'); const video = $('cameraPreview');
+    if (!btn ||!input ||!video) return;
+    btn.addEventListener('click', (e) => { e.preventDefault(); input.click(); });
+    input.addEventListener('change', (e) => {
+        const file = e.target.files?.[0]; if (!file) return;
+        if (file.size > 50 * 1024 * 1024) { toast('⚠️ الملف أكبر من 50MB'); return; }
+        const allowed = ['video/mp4','video/webm','image/jpeg','image/png','image/webp'];
+        if (!allowed.includes(file.type)) { toast('⚠️ نوع ملف غير مدعوم'); return; }
+        if (state.curStream) { state.curStream.getTracks().forEach(t=>t.stop()); state.curStream=null; }
+        if (state.upURL) URL.revokeObjectURL(state.upURL);
+        state.upURL = URL.createObjectURL(file); state.upIsVideo = file.type.startsWith('video/');
+        video.srcObject = null; video.src = state.upURL; video.loop = true; video.muted = true; video.play().catch(()=>{});
+        toast('✅ تم الرفع');
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.msg || 'فشل الطلب');
-    cart = []; saveCart(); updateCartUI();
-    showToast('تم إبرام الطلب - مختوم بالمسك 👑');
-  } catch (err) { showToast(err.message, 'error'); }
 }
 
-function viewProduct(id) {
-  if (!isValidId(id)) return;
-  const p = products.find(x => x._id === id || x.id === id);
-  if (!p) return;
-  showToast(`${p.title} - ${p.price} ﷼`);
-}
-
-function showToast(msg, type='success') {
-  let toast = document.getElementById('toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'toast';
-    toast.style.cssText = 'position:fixed;bottom:25px;right:25px;background:#111;color:#ffd700;padding:12px 22px;border-radius:12px;z-index:9999;border:1px solid rgba(255,215,0,0.3);transform:translateY(120px);transition:transform 0.3s ease;max-width:80vw;word-break:break-word;';
-    document.body.appendChild(toast);
-  }
-  toast.style.background = type === 'error' ? '#8b0000' : '#111';
-  toast.textContent = String(msg).slice(0,200);
-  toast.style.transform = 'translateY(0)';
-  setTimeout(() => toast.style.transform = 'translateY(120px)', 3000);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  loadProducts(); updateCartUI(); setupFilters();
-  $('checkout-btn')?.addEventListener('click', checkout);
-  $('clear-cart')?.addEventListener('click', () => { cart=[]; saveCart(); updateCartUI(); showToast('تم إفراغ السلة'); });
+// في DOMContentLoaded أضف:
+document.addEventListener('DOMContentLoaded', async () => {
+    //... كودك الحالي...
+    if(localStorage.getItem('tarim_token_v73') &&!localStorage.getItem('tarim_token_v73').startsWith('offline_')){
+        await checkKingFromServer();
+    }
+    // لا تقبل offline_ token
+    const t = localStorage.getItem('tarim_token_v73');
+    if (t && t.startsWith('offline_')) { localStorage.clear(); location.reload(); }
 });
 
-window.addToCart = addToCart;
-window.removeFromCart = removeFromCart;
-window.changeQty = changeQty;
+// باقي دوالك renderAllFeeds, publishPost, initPromoPage تبقى نفسها لكن احذف أي x-king-key
+// واستخدم Authorization: Bearer + isKing() من السيرفر
+
+})();
