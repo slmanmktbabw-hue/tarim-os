@@ -1,46 +1,52 @@
-# TARIM OS V7.4 - Imperial Sovereign OS - FINAL SEAL GOLD 🐉👑🛡️
+# TARIM OS V7.3.1 - Imperial Sovereign OS - FINAL SEAL GOLD 🐉👑🛡️
 
-> أول نظام تشغيل إمبراطوري حضرمي سيادي - Offline First + سيادة كاملة - من تريم إلى العالم.
+> أول نظام تشغيل إمبراطوري حضرمي سيادي - يعمل Offline + خريطة حضرموت + بث مباشر + سيادة كاملة - من تريم إلى العالم.
 
-![Sovereign Shield](https://img.shields.io/badge/Shield-Sovereign%20V7.4%20HARDENED-0a0a0a?style=for-the-badge&logo=shield)
-![Security](https://img.shields.io/badge/Security-Hardened%20Headers%20%7C%20SRI%20%7C%20CSP-success?style=flat-square)
+![Sovereign Shield](https://img.shields.io/badge/Shield-Sovereign%20V7.3.1%20FINAL%20GOLD-0a0a0a?style=for-the-badge&logo=shield)
+![Security](https://img.shields.io/badge/Security-Helmet%20V8%20%7C%20JWT%20%7C%20RateLimit-success?style=flat-square)
+![ESM](https://img.shields.io/badge/ESM-esm.unpkg.com%3Fbundle%26target%3Des2022%26min-blue?style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square)
-![Offline](https://img.shields.io/badge/Offline-Ready-2E7D32?style=flat-square)
+![Offline](https://img.shields.io/badge/Map-Offline%20Leaflet-2E7D32?style=flat-square)
 
-**Live:** [tarimos.org](https://tarimos.org) | **Status:** `Production Hardened` | **License:** `Sovereign`
-
----
-
-### 🏰 المميزات السيادية
-
-نظام سيادي متكامل يعمل بمبدأ **Offline First** مع 5 أركان رئيسية: الواجهة الرئيسية، العمليات الميدانية، محطة الإنشاء، مركز الوارد، والملف السيادي.
-
-- **أداء عالي:** واجهة خفيفة وسريعة مبنية بـ Vanilla JS
-- **يعمل بدون إنترنت:** خريطة حضرموت Offline + PWA Cache
-- **بث ومراسلة آمنة:** اتصال مشفر بالكامل
-
-### ⚙️ التقنيات المحصنة V7.4
-
-#### الواجهة الأمامية:
-* **Architecture:** Vanilla JS + HTML5 + CSS3 - PWA Ready
-* **Security First:** تحميل الموارد الخارجية عبر ESM مع تفعيل Subresource Integrity (SRI) و Content Security Policy (CSP)
-* **Offline:** Service Worker مع استراتيجية Cache-First الآمنة
-
-#### الخلفية (Backend):
-* **Stack:** Node.js + Express.js (LTS)
-* **Security Headers:** Helmet + HSTS + CSP + Strict CORS
-* **Protection:** Rate-Limiting + JWT Short-Lived + Secure Cookies (HttpOnly, Secure, SameSite=Strict)
-* **Database:** PostgreSQL مع تشفير SSL/TLS (verify-full) في الإنتاج
+**Live:** [tarimos.org](https://tarimos.org) | **Mirror:** [Render Instance](https://tarim-os-1.onrender.com) | **Status:** `Production Ready V7.3.1 FINAL SEAL GOLD` | **License:** `Sovereign`
 
 ---
 
-### 🚀 التشغيل الآمن
+### 🏰 المميزات السيادية - 5 أركان الدولة
 
-> **تنبيه أمني:** لا تقم أبداً برفع ملف `.env` الحقيقي. استخدم القالب فقط.
+1. **الرئيسية (🏰):** نظام Reels سيادي ملء الشاشة - فيديو + لايك + تعليق + حفظ + مشاركة - `V7.3.1 API MODE`
+2. **العمليات (⚡):** 4 أقسام سيادية: 
+    * بث مباشر 8 دقائق حقيقي + تبديل كاميرا.
+    * مراسلة آمنة مشفرة عبر JWT.
+    * خريطة حضرموت Offline بتقنية Leaflet ESM.
+    * ختم QR السيادي للمواقع الميدانية.
+3. **الإنشاء (+):** محطة إنشاء متكاملة Fullscreen - كاميرا + رفع صور/فيديو + بث + فلاتر احترافية + إضاءة.
+4. **الوارد (💬):** Inbox تفاعلي - إشعارات فورية + قصاصات الجمهور - API حقيقي.
+5. **الملف (👤):** محفظة OKX مبسطة + QR كود + إعدادات سيادية + PWA Install + خروج آمن.
 
-1. **التهيئة:**
+---
+
+### ⚙️ التقنيات المحصنة V7.3.1 FINAL SEAL GOLD
+
+#### الواجهة السيادية:
+* **Vanilla JS + HTML5 + CSS3:** تصميم خفيف وسريع بدون React (68vh TikTok Cards).
+* **ESM Shield:** تحميل المكتبات (Leaflet) عبر `esm.unpkg` لضمان أمان النطاق.
+* **Architecture:** 3 عقول مربوطة (`ai-eye.js` + `app.js` + `support.js`) باستخدام `importmap`.
+* **PWA:** دعم كامل للعمل بدون إنترنت عبر `sw.js V7.3.1`.
+
+#### القصر الخلفي (Backend):
+* **Stack:** Node.js + Express.js V4.18 (Render Ready).
+* **Security:** Helmet V8 + CORS + Rate-Limit 150/5 + JWT Sovereign.
+* **Custom Headers:** `X-Sovereign-Shield` مفعل للحماية من الهجمات.
+* **Database:** نظام هجين JSON للبيانات الخفيفة مع دعم PostgreSQL للإنتاج.
+
+---
+
+### 🚀 خطوات التشغيل (Deployment)
+
+لإطلاق القلعة على خادمك الخاص:
+
+1. **نسخ المستودع:**
    ```bash
-   git clone https://github.com/slmanmkt/tarim-os.git
+   git clone [https://github.com/slmanmkt/tarim-os.git](https://github.com/slmanmkt/tarim-os.git)
    cd tarim-os
-   cp .env.example .env
-   # قم بتعبئة المفاتيح العشوائية: openssl rand -base64 64
