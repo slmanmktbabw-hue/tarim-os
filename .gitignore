@@ -1,144 +1,78 @@
-# ==============================================================================
-# TARIM OS V7.4 - SOVEREIGN SHIELD - .gitignore (HARDENED)
-# درع القلعة السيادي - نسخة محصنة 100% ضد التسريب
-# ==============================================================================
+# ===============================================
+# TARIM OS V7.3 - SOVEREIGN SHIELD - .gitignore
+# درع القلعة السيادي - الإنتاج الحقيقي
+# ===============================================
 
-# --- 1. درع المصانع ---
-**/node_modules/
+# --- 1. درع المصانع - لا ترفع المصنع كامل ---
+node_modules/
 .pnp/
 .pnp.js
-.pnp.cjs
-.pnp.loader.mjs
-.yarn/
-!.yarn/patches/
-!.yarn/plugins/
-!.yarn/releases/
-!.yarn/sdks/
-!.yarn/versions/
 
 # --- 2. درع الأسرار السيادية - أخطر قسم 👑🔐 ---
-# القاعدة: احجب كل شيء ثم اسمح بالقوالب فقط
+# القاعدة الذهبية: كل شيء فيه سر لا يرتفع
+.env
+.env.local
+.env.production
+.env.development
+.env.*.local
+*.pem
+*.key
+*.crt
+*.cert
+secrets/
+private/
 
-# حجب شامل لكل ملفات البيئة في أي مكان في المشروع
-**/.env
-**/.env.*
-**/.env*.local
-**/.env.local
-**/.env.development
-**/.env.production
-**/.env.staging
-**/.env.test
+# --- السماح الاستثنائي - مهم جداً ---
+# هذا الملف الوحيد المسموح يرتفع ليعرف الجنود شكل الأسرار
+!.env.example
 
-# مفاتيح وشهادات
-**/*.pem
-**/*.key
-**/*.crt
-**/*.cert
-**/*.pfx
-**/*.p12
-**/*.jks
-**/*.keystore
-**/*.kdbx
-**/secrets/
-**/private/
-**/.secret/
+# --- 3. درع بيانات الدولة والمخابرات ---
+data.json
+data/
+database/
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+public/uploads/
+storage/
+backups/
+*.dump
 
-# خدمات سحابية - ثغرة كانت مفتوحة عندك
-**/*service-account*.json
-**/*credentials*.json
-**/auth.json
-**/token.json
-**/.aws/
-**/.gcloud/
-**/.azure/
-**/.docker/config.json
-**/.kube/
-**/.cloudflared/
-**/.npmrc
-**/.pypirc
-**/.envrc
+# --- 4. درع السجلات - لا تكشف تحركات الجيش ---
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+.DS_Store
+Thumbs.db
 
-# SSH - تم التصحيح: لا تحجب *.pub
-**/id_rsa
-**/id_ed25519
-**/id_ecdsa
-**/id_dsa
-**/id_rsa_*
-**/id_ed25519_*
-**/.ssh/
+# --- 5. درع البناء والتوزيع ---
+dist/
+build/
+.next/
+out/
+coverage/
+.nyc_output/
+.cache/
+tmp/
+temp/
 
-# Terraform & IaC Secrets
-**/*.tfstate
-**/*.tfstate.*
-**/.terraform/
-**/terraform.tfvars
-**/terraform.tfvars.json
+# --- 6. درع أدوات المطورين الجاسوسة ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.env.swp
 
-# --- 3. السماح الاستثنائي للقوالب الآمنة - يجب أن يكون في الأسفل ---
-# مهم جداً: الاستثناء يجب أن يكون بعد الحجب وبنفس عمق المسار
-!**/.env.example
-!**/.env.template
-!**/.env.sample
-!**/.env.example.*
+# --- 7. درع الحماية النهائية للقلعة ---
+# ملفات نظام التشغيل
+.DS_Store
+ehthumbs.db
+Desktop.ini
 
-# --- 4. درع بيانات الدولة وقواعد البيانات ---
-**/data.json
-**/data/
-**/database/
-**/*.db
-**/*.sqlite
-**/*.sqlite3
-**/*.sqlite-wal
-**/*.sqlite-shm
-**/*.db-journal
-**/uploads/
-**/public/uploads/
-**/storage/
-**/backups/
-**/*.dump
-**/*.sql.gz
-**/*.bak
-
-# --- 5. درع السجلات ---
-**/npm-debug.log*
-**/yarn-debug.log*
-**/yarn-error.log*
-**/pnpm-debug.log*
-**/logs/
-**/*.log
-**/.DS_Store
-**/Thumbs.db
-**/Desktop.ini
-**/ehthumbs.db
-
-# --- 6. درع البناء والتوزيع ---
-**/dist/
-**/build/
-**/.next/
-**/out/
-**/coverage/
-**/.nyc_output/
-**/.cache/
-**/tmp/
-**/temp/
-**/.parcel-cache/
-**/.turbo/
-
-# --- 7. درع أدوات المطورين ---
-**/.vscode/
-**/.idea/
-**/.fleet/
-**/*.swp
-**/*.swo
-**/*~
-**/.env.swp
-**/docker-compose.override.yml
-**/*.local.yml
-**/.vercel
-**/.netlify
-**/.expo/
-
-# --- 8. درع الحماية النهائية ---
-**/test-results/
-**/playwright-report/
-**/.history/
+# ملفات الاختبار والطوارئ
+test-results/
+playwright-report/
