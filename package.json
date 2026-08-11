@@ -1,48 +1,20 @@
 {
   "name": "tarim-os",
-  "version": "7.4.0",
-  "private": true,
-  "description": "TARIM OS V7.4 - Imperial Sovereign Shield - Hardened Production",
-  "type": "commonjs",
+  "version": "7.3.1",
   "engines": {
-    "node": ">=20.11.0",
-    "npm": ">=10.0.0"
+    "node": ">=18.0.0"
   },
-  "engineStrict": true,
-  "packageManager": "npm@10.8.2",
   "scripts": {
     "start": "NODE_ENV=production node server.js",
-    "dev": "node --watch server.js",
-    "prestart": "npm run security:check",
-    "security:check": "npm audit signatures && npm run lint:deps",
-    "lint:deps": "npx depcheck && npx npm-check -u",
-    "audit:fix": "npm audit fix --force"
+    "dev": "node server.js"
   },
   "dependencies": {
-    "bcrypt": "5.1.1",
-    "cookie-parser": "1.4.6",
-    "cors": "2.8.5",
-    "dotenv": "16.4.7",
-    "express": "4.21.2",
-    "express-rate-limit": "7.5.0",
-    "express-validator": "7.2.0",
-    "helmet": "8.0.0",
-    "hpp": "0.2.3",
-    "jsonwebtoken": "9.0.2",
-    "socket.io": "4.8.1",
-    "xss-clean": "0.1.4"
-  },
-  "overrides": {
-    "jsonwebtoken": {
-      "jws": "4.0.0"
-    },
-    "express": {
-      "qs": "6.13.0"
-    },
-    "cookie": "0.7.2",
-    "on-headers": "1.1.0"
-  },
-  "config": {
-    "audit-level": "moderate"
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "socket.io": "^4.7.5"
   }
 }
