@@ -1,38 +1,38 @@
 {
   "id": "/",
-  "name": "TARIM OS & سوق الملوك - النظام السيادي",
-  "short_name": "سوق الملوك",
-  "description": "سوق الملوك للعطور والبخور اليمني المختوم بالمسك - تريم وتعز",
+  "name": "TARIM OS - المنصة السيادية الحضرمية",
+  "short_name": "TARIM OS",
+  "description": "منصة فيديو حضرمية سيادية - من تريم إلى العالم",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "background_color": "#030B1A",
-  "theme_color": "#030B1A",
+  "orientation": "portrait",
+  "background_color": "#020A18",
+  "theme_color": "#020A18",
   "lang": "ar",
   "dir": "rtl",
-  "categories": ["shopping", "lifestyle"],
+  "categories": ["social", "entertainment"],
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-192.png",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -40,49 +40,28 @@
   ],
   "shortcuts": [
     {
-      "name": "عرض الكنوز الملكية",
-      "short_name": "الكنوز",
-      "description": "عرض العطور والبخور المختومة بالمسك",
-      "url": "/?action=royal",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "name": "🔴 بث مباشر",
+      "short_name": "بث مباشر",
+      "description": "ابدأ بثاً مباشراً",
+      "url": "/?action=live",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "سلة الملوك",
-      "short_name": "السلة",
-      "description": "إدارة طلباتك الملكية",
-      "url": "/?action=cart",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
-    },
-    {
-      "name": "خريطة تريم وحضرموت",
+      "name": "🗺️ خريطة حضرموت",
       "short_name": "الخريطة",
-      "description": "الخريطة السيادية Offline",
+      "description": "افتح خريطة تريم",
       "url": "/?action=map",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
-    }
-  ],
-  "screenshots": [
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
     {
-      "src": "/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "سوق الملوك - الواجهة الرئيسية"
+      "name": "🏰 الرئيسية",
+      "short_name": "الرئيسية",
+      "description": "فيديوهات حضرموت",
+      "url": "/",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
     }
   ],
-  "share_target": {
-    "action": "/api/share-target",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
-  },
   "launch_handler": {
     "client_mode": "navigate-existing"
-  },
-  "handle_links": "auto",
-  "prefer_related_applications": false
+  }
 }
