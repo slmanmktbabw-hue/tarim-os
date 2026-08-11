@@ -273,7 +273,6 @@ b.appendChild(e);
 setTimeout(() => e.remove(), 4000);
 }
 
-// دالة تغيير وتخزين الخلفية السيادية (ألوان)
 window.changeBg = function(color) {
   const body = $('appBody');
   if(body) {
@@ -285,7 +284,6 @@ window.changeBg = function(color) {
   }
 };
 
-// دالة تعيين صورة شخصية كخلفية سيادية
 window.changeBgImage = function(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
@@ -718,7 +716,6 @@ toast('✅ تم رفع الملف بنجاح');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-// استرجاع الخلفية المحفوظة (صورة أو لون) عند التشغيل
 const savedBgImage = localStorage.getItem('tarim_bg_image');
 const body = $('appBody');
 if(savedBgImage && body){
