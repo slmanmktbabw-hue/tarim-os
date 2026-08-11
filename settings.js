@@ -1,131 +1,102 @@
-// settings.js - TARIM OS V7.3 Sovereign Brain - IMMUTABLE FINAL SEAL
+// ==============================================================================
+// settings.js - TARIM OS V8.7 SECURE - لا أسرار في الكود أبداً
+// ==============================================================================
+"use strict";
 require('dotenv').config();
 const crypto = require('crypto');
 
 function env(key, fallback = null) {
     const val = process.env[key];
-    return val !== undefined && val !== '' ? val : fallback;
+    return val!== undefined && val!== ''? val : fallback;
 }
-
+function envRequired(key) {
+    const v = env(key, null);
+    if (v === null) throw new Error(`[FATAL] متغير البيئة المطلوب مفقود: ${key}`);
+    return v;
+}
 function envInt(key, fallback) {
     const v = env(key, null);
     if (v === null) return fallback;
     const n = parseInt(v, 10);
-    return isNaN(n) ? fallback : n;
+    if (isNaN(n)) throw new Error(`[FATAL] ${key} يجب أن يكون رقم`);
+    return n;
 }
+
+function parseOrigins(raw) {
+    const list = raw.split(',').map(s=>s.trim()).filter(Boolean);
+    return list.filter(u=>{ try{ new URL(u); return true; } catch{ return false; } });
+}
+
+// ===== 1. فحص الأسرار قبل أي شيء - يفشل بسرعة لو ناقص =====
+const isProd = env('NODE_ENV','production') === 'production';
+const jwtSecret = isProd? envRequired('JWT_SECRET') : env('JWT_SECRET', 'DEV_ONLY_'+crypto.randomBytes(16).toString('hex'));
+if (jwtSecret.length < 32) throw new Error('[FATAL] JWT_SECRET قصير جداً - يجب أن يكون 32 حرف على الأقل');
+
+const mongoUri = isProd? envRequired('MONGO_URI') : env('MONGO_URI','mongodb://localhost:27017/souq_al_molouk');
+if (isProd && mongoUri.includes('localhost')) throw new Error('[FATAL] لا تستخدم localhost في الإنتاج');
 
 const settings = {
     system: {
         name: "TARIM OS",
-        fullName: "من تريم إلى العالم",
-        version: "7.3.0 Imperial Sovereign Final",
-        build: "2026.05.13-V7.3-ESM-SHIELD",
-        sovereign: "AL",
-        emperorName: "أبو سلمان",
-        seal: "TARIM-OS-V7.3-ESM-SHIELD-ACTIVE"
+        version: "8.7.0 SECURE FINAL",
+        build: "2026.08-V8.7",
     },
-
-    location: {
-        city: "Tarim",
-        region: "Hadhramaut",
-        country: "YE",
-        coords: [16.05, 48.9833],
-        lat: 16.05,
-        lng: 48.9833
-    },
-
+    location: { city: "Tarim & Taizz", country: "YE", coords: [16.05, 48.9833] },
     platform: {
         port: envInt('PORT', 10000),
-        env: env('NODE_ENV', 'production'),
-        domain: (env('CORS_ORIGIN', 'https://tarimos.org').split(',')[0] || 'https://tarimos.org').trim(),
-        allDomains: env('CORS_ORIGIN', 'https://tarimos.org').split(',').map(s => s.trim()),
-        isProduction: env('NODE_ENV', 'production') === 'production'
+        env: env('NODE_ENV','production'),
+        domain: parseOrigins(env('CORS_ORIGIN','https://tarimos.org'))[0] || 'https://tarimos.org',
+        allDomains: parseOrigins(env('CORS_ORIGIN','https://tarimos.org')),
+        isProduction: isProd
     },
-
-    live: {
-        maxDurationMinutes: 8,
-        maxDurationSeconds: 8 * 60,
-        autoStop: true,
-        enableChat: true,
-        enableLikes: true,
-        enableGifts: false
-    },
-
-    camera: {
-        defaultFacing: "environment",
-        enableTorch: true,
-        enableSwitch: true
-    },
-
-    map: {
-        provider: "Offline Leaflet V7.3",
-        defaultZoom: 13,
-        defaultCenter: [16.05, 48.9833],
-        offlineCache: true,
-        tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        fallbackTileUrl: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-        attribution: "© TARIM OS V7.3 Sovereign Map | OSM"
-    },
-
-    esm: {
-        shield: "esm.unpkg.com",
-        target: "es2022",
-        bundle: true,
-        min: true,
-        imports: {
-            "leaflet": "https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min",
-            "lucide": "https://esm.unpkg.com/lucide@0.400.0?bundle&target=es2022&min",
-            "socket.io-client": "https://esm.unpkg.com/socket.io-client@4.8.1?bundle&target=es2022&min"
-        },
-        css: {
-            "leaflet": "https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min&css"
-        }
-    },
-
-    okx: {
-        initialBalance: 1000,
-        currency: "TARIM",
-        generateWallet: () => `0x53${crypto.randomBytes(16).toString('hex').slice(0, 4)}...${crypto.randomBytes(2).toString('hex')}`
-    },
-
+    database: { mongoUri, localFile: 'data/tarim-database.json' },
     security: {
-        jwtSecret: env('JWT_SECRET', null),
-        jwtExpiresIn: env('JWT_EXPIRES_IN', '7d'),
-        rateLimitGlobal: 150,
+        jwtSecret, // تم تعيينه قبل التجميد
+        jwtExpiresIn: env('JWT_EXPIRES_IN','7d'),
+        rateLimitGlobal: 100,
         rateLimitLogin: 5,
-        helmetEnabled: true,
         bcryptRounds: 12
     },
-
-    aiEye: {
-        offline: true,
-        model: "TarimAI v7.3 Sovereign ESM",
-        language: "ar",
-        version: "7.3.0"
+    store: {
+        name: 'سوق الملوك - حصن قلعة النور',
+        currency: 'YER',
+        shipping: 1000,
+        freeShippingOver: 20000,
+    },
+    categories: ['عطور ملكية','ذهب وفضة','بخور ومسك','ملابس ملوك','مخطوطات','سيوف وخناجر','عسل يمني','عام'],
+    roles: { KING: 'king', MERCHANT: 'merchant', CUSTOMER: 'customer' },
+    orderStatus: { PENDING: 'pending', SEALED: 'sealed', SHIPPED: 'shipped', DELIVERED: 'delivered', CANCELLED: 'cancelled' },
+    upload: {
+        folder: 'public/uploads',
+        maxSize: 2 * 1024 * 1024, // كان 10MB - قللناه لـ 2MB
+        allowedTypes: ['image/jpeg','image/png','image/webp'],
+        maxFiles: 3
+    },
+    live: { maxDurationMinutes: 8, autoStop: true },
+    okx: {
+        initialBalance: 0,
+        currency: "USDT",
+        wallet: env('OKX_WALLET',''), // لا قيمة افتراضية - يجب أن يأتي من env
+    },
+    map: { defaultZoom: 13, defaultCenter: [16.05, 48.9833], tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
+    // حذفنا defaultKing نهائياً - لا حسابات افتراضية
+    messages: {
+        unauthorized: 'غير مصرح',
+        forbidden: 'ممنوع - للملوك فقط',
+        notFound: 'غير موجود',
+        serverError: 'خطأ داخلي'
     }
 };
 
 function deepFreeze(obj) {
     Object.getOwnPropertyNames(obj).forEach(prop => {
-        const value = obj[prop];
-        if (value && typeof value === 'object' && !Object.isFrozen(value)) {
-            deepFreeze(value);
-        }
+        const v = obj[prop];
+        if (v && typeof v === 'object' &&!Object.isFrozen(v)) deepFreeze(v);
     });
     return Object.freeze(obj);
 }
 deepFreeze(settings);
 
-if (!settings.security.jwtSecret) {
-    console.error('☠️ [TARIM BRAIN V7.3] JWT_SECRET مفقود - العقل يرفض العمل');
-    if (settings.platform.isProduction) {
-        process.exit(1);
-    } else {
-        console.warn('⚠️ [DEV ONLY] استخدام مفتاح مؤقت - ممنوع في الإنتاج');
-        settings.security.jwtSecret = 'DEV_ONLY_TEMP_KEY_REPLACE_IN_PROD_' + crypto.randomBytes(32).toString('hex');
-    }
-}
+console.log(`[TARIM V8.7 SECURE] الإعدادات محملة - ${settings.platform.domain}`);
 
-console.log(`🧠 [TARIM BRAIN V7.3] العقل السيادي محمل - الإصدار ${settings.system.version} - ESM Shield: ${settings.esm.shield}`);
-
-module.exports = settings;
+module.exports = { settings };
