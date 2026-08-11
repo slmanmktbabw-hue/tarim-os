@@ -1,4 +1,4 @@
-// public/app.js - TARIM OS V8.6 KING EDITION - SECURED & HARDENED WITH SUB-PAGES & HOME BUTTONS
+// public/app.js - TARIM OS V8.6 KING EDITION + UES-Gateway V2.1 SECURE
 "use strict";
 (function () {
 const $ = id => document.getElementById(id);
@@ -21,6 +21,67 @@ curStream: null, facing: 'user', map: null, liveInt: null,
 lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
 watchTimer: null, currentWatchTime: 0, abortCtrl: null,
 giftType: 'heart', adBudget: 5, homeLikesCount: 120
+};
+
+// === محرك UES-Gateway V2.1 SECURE المدمج (Rule-Based Engine) ===
+const UES_ENGINE = {
+    ALLOWED_COUNTRIES: new Set(['YE','SA','US','EG','AE','DE']),
+    ALLOWED_INTERESTS: new Set(['cooking','sports','fitness','travel','general','tech','news']),
+    rulesTriggered: 0,
+    maxRules: 1000000,
+    
+    sanitize(t, maxLen=20) {
+        if (!t) return "";
+        let str = String(t).slice(0, maxLen);
+        str = str.replace(/[^a-zA-Z0-9_\-]/g, '');
+        return str.toLowerCase();
+    },
+
+    recommend(userProfile, currentVideo) {
+        let country = this.sanitize(userProfile.country || 'US', 5).toUpperCase();
+        if (!this.ALLOWED_COUNTRIES.has(country)) country = 'US';
+
+        let interest = this.sanitize(userProfile.interest || 'general', 20);
+        if (!this.ALLOWED_INTERESTS.has(interest)) interest = 'general';
+
+        let duration = 30;
+        try {
+            duration = parseInt(currentVideo.duration, 10);
+            if (isNaN(duration)) duration = 30;
+            duration = Math.max(0, Math.min(duration, 600));
+        } catch(e) { duration = 30; }
+
+        let repeat = 0;
+        try {
+            repeat = parseInt(userProfile.repeat_count, 10);
+            if (isNaN(repeat)) repeat = 0;
+            repeat = Math.max(0, Math.min(repeat, 100));
+        } catch(e) { repeat = 0; }
+
+        if (this.rulesTriggered < this.maxRules) {
+            this.rulesTriggered++;
+        }
+
+        // القاعدة 1: كسر الملل
+        if (duration > 60) {
+            const arr = ["short_funny_01", "short_tip_02", "short_news_03"];
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // القاعدة 2: التضاد
+        if (interest === 'fitness') return "protein_recipe_15s_003";
+        if (interest === 'travel') return "local_street_food_15s_004";
+
+        // القاعدة 3: التخصيص حسب البلد
+        if (country === 'YE' && interest === 'cooking') return "ye_cooking_restaurant_001";
+        if (country === 'YE' && interest === 'sports') return "ye_football_highlights_002";
+
+        // القاعدة 4: صدمة الفضول
+        if (repeat >= 3) return "shocking_curiosity_video_999";
+
+        const defaults = ["trending_01", "trending_02", "trending_03"];
+        return defaults[Math.floor(Math.random() * defaults.length)];
+    }
 };
 
 // === نظام الملك المحصن ===
@@ -78,6 +139,7 @@ if (document.fullscreenElement && document.exitFullscreen) document.exitFullscre
 else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
 } catch {}
 }
+
 function startUesWatchSimulation() {
 if (state.watchTimer) clearInterval(state.watchTimer);
 if (state.abortCtrl) state.abortCtrl.abort();
@@ -87,30 +149,35 @@ state.watchTimer = setInterval(async () => {
 state.currentWatchTime += 5;
 if (state.currentWatchTime >= 20) {
 clearInterval(state.watchTimer);
+const profile = { country: 'YE', interest: 'cooking', repeat_count: 0 };
+const curVid = { duration: 45, watch_time: state.currentWatchTime };
 try {
 const res = await fetch('/get_next_video', {
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
 signal: state.abortCtrl.signal,
 body: JSON.stringify({
-user_profile: { country: 'YE', interest: 'cooking', repeat_count: 0 },
-current_video: { duration: 45, watch_time: state.currentWatchTime }
+user_profile: profile,
+current_video: curVid
 })
 });
 if (!res.ok) throw new Error('offline');
 const data = await res.json();
 if (data.action === 'split_screen' && data.video_id) {
 const vid = String(data.video_id).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,50);
-if (['short_funny_01','short_tip_02','ye_cooking_restaurant_001','ye_football_highlights_002'].includes(vid) || vid.startsWith('trending_')) {
-toast('⚡ Tarim_Fortress: ' + sanitizeText(vid));
-}
+toast('⚡ UES-Gateway V2.1: ' + sanitizeText(vid));
 }
 } catch (err) {
-if (err.name!== 'AbortError') console.log('Tarim_Fortress: Offline Mode');
+if (err.name!== 'AbortError') {
+// تشغيل المحرك المحلي المحصن في حال عدم الاتصال
+const recVid = UES_ENGINE.recommend(profile, curVid);
+toast('⚡ UES Secure Local: ' + sanitizeText(recVid));
+}
 }
 }
 }, 5000);
 }
+
 function stopStream() {
 if (state.curStream) { state.curStream.getTracks().forEach(t => t.stop()); state.curStream = null; }
 if (state.liveInt) { clearInterval(state.liveInt); state.liveInt = null; }
