@@ -1,211 +1,129 @@
-// ==============================================================================
-// public/sw.js - TARIM OS V8.7 & SOUQ AL MOLOUK - SOVEREIGN SERVICE WORKER
-// الحارس السيادي الآمن - مختوم بالمسك 👑🛡️
-// ==============================================================================
-
-const CACHE_VERSION = 'V8.7-FINAL-SEAL';
-const CACHE_CORE = `tarim-os-souq-v8.7-core`;
-const CACHE_ESM = `tarim-os-souq-v8.7-esm-shield`;
-const CACHE_TILES = `tarim-os-souq-v8.7-tiles`;
-const ALL_CACHES = [CACHE_CORE, CACHE_ESM, CACHE_TILES];
+// public/sw.js - TARIM OS V7.4 - Sovereign Offline Guard FORTRESS
+const CACHE_CORE = 'tarim-os-v7-4-core';
+const CACHE_TILES = 'tarim-os-v7-4-tiles';
+const CACHE_VERSION = 'V7.4 FORTRESS';
 
 const CORE_ASSETS = [
-  '/',
-  '/index.html',
-  '/admin.html',
-  '/privacy.html',
-  '/manifest.json',
-  '/app.js',
-  '/ai-eye.js',
-  '/support.js',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './app.js',
+  './ai-eye.js',
+  './support.js',
+  './privacy.html',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
-const ESM_SHIELD_ASSETS = [
-  'https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min',
-  'https://esm.unpkg.com/leaflet@1.9.4?bundle&target=es2022&min&css',
-  'https://esm.unpkg.com/socket.io-client@4.8.1?bundle&target=es2022&min'
-];
+// لا نخزن ESM في install أبداً - نجلبه عند الحاجة فقط
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_CORE)
+     .then(c => c.addAll(CORE_ASSETS))
+     .then(() => self.skipWaiting())
+     .catch(() => self.skipWaiting()) // حتى لو فشل كاش، لا تعلق التثبيت
+  );
+});
 
-const MAX_TILES = 300;
-const MAX_IMAGES = 100;
+self.addEventListener('activate', (e) => {
+  const allowed = [CACHE_CORE, CACHE_TILES];
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.map(k => {
+        // احذف أي كاش لا يبدأ بـ tarim-os-v7-4-
+        if (!allowed.includes(k) && k.startsWith('tarim-os-')) {
+          return caches.delete(k);
+        }
+        // احذف الكاش القديم v7-3-1 نهائياً
+        if (k.includes('v7-3-1')) return caches.delete(k);
+      })
+    )).then(() => self.clients.claim())
+  );
+});
 
-// أداة تنظيف الكاش LRU
-async function trimCache(cacheName, maxItems) {
-  const cache = await caches.open(cacheName);
+// دالة تنظيف كاش الخرائط - حد أقصى 150 صورة
+async function trimTileCache() {
+  const cache = await caches.open(CACHE_TILES);
   const keys = await cache.keys();
-  if (keys.length > maxItems) {
-    await cache.delete(keys[0]);
-    return trimCache(cacheName, maxItems);
+  if (keys.length > 150) {
+    await cache.delete(keys[0]); // احذف الأقدم
   }
 }
 
-// ===== 1. التثبيت =====
-self.addEventListener('install', (e) => {
-  console.log(`[SW ${CACHE_VERSION}] تثبيت الحارس`);
-  e.waitUntil(
-    (async () => {
-      const coreCache = await caches.open(CACHE_CORE);
-      // addAll يفشل لو ملف واحد فشل، نستخدم allSettled
-      await Promise.allSettled(
-        CORE_ASSETS.map(url => coreCache.add(new Request(url, {cache: 'reload', credentials: 'same-origin'})))
-      );
-      const esmCache = await caches.open(CACHE_ESM);
-      await Promise.allSettled(ESM_SHIELD_ASSETS.map(url => esmCache.add(new Request(url, {mode: 'cors'}))));
-      await self.skipWaiting();
-    })()
-  );
-});
-
-// ===== 2. التفعيل - تنظيف آمن =====
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    (async () => {
-      const keys = await caches.keys();
-      await Promise.all(
-        keys.map(k => {
-          // لا تحذف إلا كاشاتنا القديمة فقط - Whitelist
-          if (k.startsWith('tarim-os-souq-') &&!ALL_CACHES.includes(k)) {
-            console.log('[SW] حذف كاش قديم:', k);
-            return caches.delete(k);
-          }
-        })
-      );
-      await self.clients.claim();
-    })()
-  );
-});
-
-// ===== 3. الجلب - الاستراتيجية السيادية الآمنة =====
 self.addEventListener('fetch', (e) => {
-  const req = e.request;
-  const url = new URL(req.url);
+  const url = new URL(e.request.url);
 
-  // تجاهل طلبات ليست http/https وطلبات غير GET
   if (!url.protocol.startsWith('http')) return;
-  if (req.method!== 'GET') return; // لا تعترض POST/PUT/DELETE
-  if (url.pathname.startsWith('/chrome-extension')) return;
+  // لا تتعامل إلا مع GET
+  if (e.request.method!== 'GET') return;
 
-  // أ. API & Socket.io - Network Only + Offline JSON
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/socket.io/')) {
-    e.respondWith(
-      fetch(req, {credentials: 'same-origin'}).catch(() =>
-        new Response(JSON.stringify({ success: false, message: 'Offline - TARIM OS V8.7' }), {
-          status: 503,
-          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
-        })
-      )
+  // 1. API و Socket - Network Only - لا تلمس الكاش أبداً
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/socket.io/') || url.pathname === '/api' || url.pathname === '/share') {
+    return e.respondWith(
+      fetch(e.request, { cache: 'no-store' })
+       .catch(() => new Response(JSON.stringify({ ok:false, offline:true }), { status: 503, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }))
     );
-    return;
   }
 
-  // ب. الخرائط - Cache First مع حد أقصى
+  // 2. خريطة حضرموت - Stale While Revalidate مع حد وبدون opaque
   if (url.hostname.includes('tile.openstreetmap.org')) {
     e.respondWith(
-      (async () => {
-        const cache = await caches.open(CACHE_TILES);
-        const cached = await cache.match(req);
-        if (cached) return cached;
-        try {
-          const res = await fetch(req);
-          if (res && res.ok) {
-            await cache.put(req, res.clone());
-            trimCache(CACHE_TILES, MAX_TILES);
-          }
-          return res;
-        } catch { return cached; }
-      })()
-    );
-    return;
-  }
-
-  // ج. درع ESM Shield - Cache First آمن
-  if (url.hostname === 'esm.unpkg.com') {
-    e.respondWith(
-      (async () => {
-        const cache = await caches.open(CACHE_ESM);
-        const cached = await cache.match(req);
-        if (cached) return cached;
-        try {
-          const res = await fetch(req, {mode: 'cors'});
-          if (res && res.ok) await cache.put(req, res.clone());
-          return res;
-        } catch { return cached || Response.error(); }
-      })()
-    );
-    return;
-  }
-
-  // د. الصور والكنوز - Stale While Revalidate مع حماية
-  if (req.destination === 'image' || url.pathname.includes('/uploads/')) {
-    e.respondWith(
-      (async () => {
-        const cache = await caches.open(CACHE_CORE);
-        const cached = await cache.match(req);
-        const fetchPromise = fetch(req).then(res => {
+      caches.open(CACHE_TILES).then(async cache => {
+        const cached = await cache.match(e.request);
+        const fetchPromise = fetch(e.request).then(res => {
+          // لا تخزن opaque أبداً - فقط ok حقيقي
           if (res && res.ok && res.type!== 'opaque') {
-            cache.put(req, res.clone());
-            trimCache(CACHE_CORE, MAX_IMAGES + CORE_ASSETS.length);
+            cache.put(e.request, res.clone()).then(() => trimTileCache()).catch(()=>{});
           }
           return res;
-        }).catch(() => null);
-        return cached || await fetchPromise || Response.error();
-      })()
+        }).catch(() => cached);
+        return cached || fetchPromise;
+      })
     );
     return;
   }
 
-  // هـ. الصفحات - Network First ثم Cache ثم index.html
-  e.respondWith(
-    (async () => {
-      try {
-        const res = await fetch(req);
-        if (res && res.ok && url.origin === self.location.origin) {
-          const cache = await caches.open(CACHE_CORE);
-          cache.put(req, res.clone());
+  // 3. ESM - Network First مع سقوط للكاش - لا تخزن للأبد
+  if (url.hostname === 'esm.unpkg.com' || url.hostname === 'esm.sh') {
+    e.respondWith(
+      fetch(e.request, { cache: 'no-cache' }).then(res => {
+        if (res && res.ok) {
+          // خزن مؤقتاً فقط، وسيتم تحديثه في كل مرة
+          const clone = res.clone();
+          caches.open(CACHE_CORE).then(c => c.put(e.request, clone)).catch(()=>{});
         }
         return res;
-      } catch {
-        const cached = await caches.match(req);
-        if (cached) return cached;
-        if (req.mode === 'navigate' || req.headers.get('accept')?.includes('text/html')) {
-          return caches.match('/index.html');
-        }
-        return new Response('Offline', {status: 503});
-      }
-    })()
-  );
-});
-
-// ===== 4. استقبال الرسائل - مؤمن =====
-self.addEventListener('message', (e) => {
-  // حماية: اقبل رسائل من نفس الأصل فقط
-  if (e.origin!== self.location.origin) return;
-
-  const data = e.data;
-  if (data === 'SKIP_WAITING' || data === 'skipWaiting') {
-    self.skipWaiting();
-  }
-  if (data && data.type === 'GET_VERSION' && e.ports && e.ports[0]) {
-    e.ports[0].postMessage(CACHE_VERSION);
-  }
-  // تم إلغاء clearCache المفتوح - الآن يحتاج تأكيد
-  if (data && data.type === 'CLEAR_SOVEREIGN_CACHE' && data.confirm === true) {
-    e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('tarim-os-souq-')).map(k => caches.delete(k)))));
-  }
-});
-
-// ===== 5. المزامنة - مصحح =====
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-orders' || event.tag === 'sync-royal-orders') {
-    event.waitUntil(
-      (async () => {
-        console.log('🔄 مزامنة الطلبات المعلقة...');
-        // هنا ضع كود قراءة IndexedDB وإرسال الطلبات
-        // مثال: await syncPendingOrdersFromIDB();
-        return true;
-      })()
+      }).catch(() => caches.match(e.request))
     );
+    return;
+  }
+
+  // 4. الملفات الأساسية - Cache First لكن فقط لنفس الأصل
+  if (url.origin === location.origin) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        if (cached) return cached;
+        return fetch(e.request).then(res => {
+          // لا تخزن إلا صفحات وأصول ثابتة، وليس API
+          if (res && res.ok && res.headers.get('content-type')?.match(/text\/html|javascript|css|image\/png/)) {
+            const clone = res.clone();
+            caches.open(CACHE_CORE).then(c => c.put(e.request, clone)).catch(()=>{});
+          }
+          return res;
+        }).catch(() => {
+          if (e.request.mode === 'navigate') return caches.match('./index.html');
+        });
+      })
+    );
+  }
+});
+
+// رسائل محصنة - تقبل فقط من نفس الأصل
+self.addEventListener('message', (e) => {
+  // تحقق أن الرسالة من نافذة تابعة لنا
+  if (!e.source) return;
+  if (e.data === 'SKIP_WAITING') {
+    // فقط إذا كان العميل من نفس الأصل
+    self.skipWaiting();
   }
 });
