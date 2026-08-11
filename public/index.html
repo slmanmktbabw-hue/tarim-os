@@ -2,138 +2,83 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<!-- درع CSP السيادي V8.7 - بدون unsafe-inline للسكربتات -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' blob: data: https://*.tile.openstreetmap.org; media-src 'self' blob:; connect-src 'self' https://*.tile.openstreetmap.org https://esm.unpkg.com; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'">
+<!-- CSP محصنة - بدون unsafe-inline وبدون https: المفتوحة -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' https://unpkg.com https://fonts.googleapis.com; img-src 'self' data: https://*.tile.openstreetmap.org; media-src 'self' blob:; connect-src 'self' https://esm.unpkg.com https://esm.sh https://*.tile.openstreetmap.org https://tarimos.org wss://tarimos.org; font-src 'self' https://fonts.gstatic.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>سوق الملوك & TARIM OS | V8.7 SECURE</title>
+<title>TARIM OS | V8.6.1 FORTRESS</title>
 
-<script src="https://cdn.tailwindcss.com" integrity="sha384-EXAMPLE-REPLACE-WITH-REAL-HASH" crossorigin="anonymous"></script>
+<!-- Tailwind - يفضل نقله لملف محلي في الإنتاج -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Leaflet مع SRI - محصن ضد اختراق unpkg -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslcBwQ360RtcqqsYDgpuzQfCOXcF" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslskYDBQsMvci/3Q+YwG5m6Oap16xoUS6w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:system-ui,'Segoe UI',Tahoma,sans-serif;background:#030B1A;color:#fff;padding-bottom:90px;direction:rtl}
-a{color:inherit;text-decoration:none}
+body{font-family:system-ui;background:#030B1A;color:#fff;padding-bottom:80px;direction:rtl;transition:background 0.3s ease}
 .glass{background:rgba(15,23,42,.95);backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,.2)}
 .tab-content{display:none}.tab-content.active{display:block!important}
 .hidden{display:none!important}
 #toastBox{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;width:91%;max-width:320px;pointer-events:none}
-.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:16px}
-.product-card{background:#1a1a1a;border:1px solid rgba(255,215,0,.2);border-radius:14px;overflow:hidden;position:relative;transition:.3s}
-.product-card:hover{transform:translateY(-3px);border-color:#ffd700}
-#cart-sidebar{position:fixed;top:0;left:-380px;width:340px;max-width:90vw;height:100vh;background:#111;border-right:2px solid #ffd700;z-index:20000;padding:15px;overflow-y:auto;transition:.3s}
-#cart-sidebar.open{left:0}
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;z-index:15000}
-#overlay.show{display:block}
-.cart-badge{background:#c0392b;color:#fff;border-radius:50%;padding:1px 6px;font-size:10px;margin-right:4px}
 </style>
 </head>
 <body id="appBody" class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-cover bg-center bg-fixed">
 
-<!-- بوابة المصادقة - بدون قيم افتراضية -->
+<!-- بوابة دخول محصنة - بدون قيم افتراضية -->
 <div id="authGate" class="fixed inset-0 z-[10000] bg-[#030B1A] flex items-center justify-center p-4">
 <div class="glass w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-cyan-500/40 text-center space-y-4">
-<h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑 V8.7</h1>
-<p class="text-xs text-slate-400">سوق الملوك & حصن قلعة النور</p>
-<input id="userPhoneOrEmail" type="text" maxlength="50" autocomplete="username" spellcheck="false" placeholder="البريد أو الهاتف" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
-<input id="userPass" type="password" maxlength="128" autocomplete="current-password" placeholder="كلمة المرور" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
-<button id="loginBtn" type="button" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl text-xs">دخول القلعة 🔑</button>
+<h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑 V8.6.1</h1>
+<p class="text-xs text-slate-400">FORTRESS - دخول آمن</p>
+<input id="userPhoneOrEmail" type="text" placeholder="اسم المستخدم" maxlength="30" autocomplete="username" spellcheck="false" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
+<input id="userPass" type="password" placeholder="كلمة السر" maxlength="128" autocomplete="current-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
+<button id="loginBtn" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-xl text-xs">دخول القلعة 🔑</button>
 <p id="loginError" class="text-[11px] text-rose-400 hidden bg-rose-500/10 p-2 rounded-lg"></p>
 </div>
 </div>
 
-<div id="toastBox"></div>
-<div id="overlay"></div>
-<div id="cart-sidebar">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-    <h3 style="color:#ffd700;font-size:14px;">🛒 سلة الملوك (<span id="cart-count-2">0</span>)</h3>
-    <button type="button" id="closeCartBtn" style="background:#222;border:0;color:#fff;padding:4px 8px;border-radius:6px;cursor:pointer;">✖️</button>
-  </div>
-  <div id="cart-items"></div>
-  <div class="cart-footer">
-    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;">
-      <strong>الإجمالي:</strong> <strong id="cart-total" style="color:#ffd700;">0 ﷼</strong>
-    </div>
-    <button type="button" id="checkout-btn" class="w-full bg-[#ffd700] text-black font-bold py-2.5 rounded-xl text-xs cursor-pointer">إتمام الطلب 👑</button>
-    <button type="button" id="clear-cart" class="w-full bg-slate-800 text-white py-2 rounded-xl text-xs mt-2 cursor-pointer">تفريغ السلة</button>
-  </div>
-</div>
+<div id="toastBox" aria-live="polite"></div>
 
+<!-- باقي الصفحات تبقى كما هي مع حذف البريد والمحفظة المكشوفة -->
 <header class="w-full glass border-b border-cyan-500/20 px-4 py-3 flex justify-between items-center text-xs z-40 fixed top-0 left-0 right-0">
-<button type="button" id="aiEyeBtn" class="text-cyan-400 font-bold">👁️ عين الذكاء</button>
-<span id="homeUsernameDisplay" class="font-black text-cyan-300">سوق الملوك & TARIM OS</span>
-<div class="flex items-center gap-2">
-  <button type="button" id="openCartBtn" class="text-yellow-400 font-bold bg-yellow-400/10 px-2.5 py-1 rounded-lg border border-yellow-400/30">🛒 السلة <span id="cart-count" class="cart-badge">0</span></button>
-  <button type="button" id="supportBtn" class="text-slate-300 font-bold">🛡️ الدعم</button>
-</div>
+<button id="aiEyeBtn" class="text-cyan-400 font-bold" type="button">👁️ عين الذكاء</button>
+<span id="homeUsernameDisplay" class="font-black text-cyan-300">TARIM OS</span>
+<button id="supportBtn" class="text-slate-300 font-bold" type="button">🛡️ الدعم</button>
 </header>
 
 <main class="flex-1 w-full max-w-md mx-auto p-4 pt-[70px]">
-<!-- باقي الصفحات تبقى نفسها لكن بدون onclick -->
 <div id="tab-home" class="tab-content active space-y-4">
-<div class="glass p-4 rounded-2xl border border-cyan-500/30">
-    <input id="search-input" maxlength="100" placeholder="ابحث عن عطر، بخور..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+<div class="glass p-5 rounded-2xl border border-cyan-500/30 min-h-[440px] flex flex-col justify-between">
+    <div class="flex justify-start items-center text-xs text-cyan-400 font-bold mb-6">
+        <span>🌴 تريم - حضرموت - بث سيادي</span>
+    </div>
+    <div class="flex-1 flex flex-col items-center justify-center text-center py-12">
+        <p class="text-cyan-400 text-xs font-bold">فيديو سيادي - محمي</p>
+    </div>
+    <div class="absolute left-5 bottom-24 flex flex-col items-center space-y-4">
+        <button id="homeLikeBtn" type="button" class="flex flex-col items-center"><span class="text-2xl">❤️</span><span id="homeLikeCount" class="text-[11px]">0</span></button>
+        <button id="homeCommentBtn" type="button" class="flex flex-col items-center"><span class="text-2xl">💬</span><span class="text-[11px]">0</span></button>
+        <button id="homeShareBtn" type="button" class="flex flex-col items-center"><span class="text-2xl">🚀</span><span class="text-[10px]">مشاركة</span></button>
+        <button id="homeSaveBtn" type="button" class="flex flex-col items-center"><span class="text-2xl">🔖</span><span class="text-[10px]">حفظ</span></button>
+    </div>
 </div>
-<div id="products-grid" class="products-grid"><p style="grid-column:1/-1;text-align:center;padding:30px;color:#ffd700;">👑 جاري تحميل الكنوز...</p></div>
+<div id="postsFeed" class="space-y-3"></div>
 </div>
+<!--... باقي التابات Operations, Create, Inbox, Profile تبقى نفسها مع حذف 0x53...ab96 ووضعها ديناميكي من السيرفر... -->
 </main>
 
 <nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 px-4 py-2 flex justify-around items-center z-40">
-<button type="button" data-action="tabHome" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px]"><span class="text-xl">🏰</span>الرئيسية</button>
-<button type="button" data-action="tabOperations" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">⚡</span>العمليات</button>
-<button type="button" data-action="tabCreate" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">➕</span>إنشاء</button>
-<button type="button" data-action="tabInbox" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">💬</span>الوارد</button>
-<button type="button" data-action="tabProfile" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">👤</span>الملفات</button>
+<button data-action="tabHome" type="button" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px]"><span class="text-xl">🏰</span>الرئيسية</button>
+<button data-action="tabOperations" type="button" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">⚡</span>العمليات</button>
+<button data-action="tabCreate" type="button" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">➕</span>إنشاء</button>
+<button data-action="tabInbox" type="button" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">💬</span>الوارد</button>
+<button data-action="tabProfile" type="button" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">👤</span>الملفات</button>
 </nav>
-
-<footer class="w-full text-center py-4 text-[11px] text-slate-500 bg-[#030B1A]/80 border-t border-slate-900 mb-16">
-  <p>👑 سوق الملوك - حصن قلعة النور - تعز وتريم</p>
-  <p>مختوم بالمسك 2026 - V8.7 SECURE</p>
-</footer>
-
-<!-- سكربتات آمنة بدون inline handlers -->
-<script type="module">
-const ALLOWED_BG = new Set(['#030B1A','#09090b','#0f172a','#1e1b4b']);
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-
-function safeToggleCart(){
-  document.getElementById('cart-sidebar')?.classList.toggle('open');
-  document.getElementById('overlay')?.classList.toggle('show');
-}
-document.getElementById('openCartBtn')?.addEventListener('click', safeToggleCart);
-document.getElementById('closeCartBtn')?.addEventListener('click', safeToggleCart);
-document.getElementById('overlay')?.addEventListener('click', safeToggleCart);
-
-window.changeBg = (color) => {
-  if(!ALLOWED_BG.has(color)) return;
-  document.getElementById('appBody').style.backgroundImage = 'none';
-  document.getElementById('appBody').style.backgroundColor = color;
-  localStorage.setItem('souq_bg', color);
-  localStorage.removeItem('souq_bg_img'); // ممنوع تخزين صور كبيرة
-};
-
-document.getElementById('customBgInput')?.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if(!file) return;
-  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){ alert('نوع الصورة غير مسموح'); return; }
-  if(file.size > MAX_FILE_SIZE){ alert('الصورة كبيرة جداً - الحد 2MB'); return; }
-  const url = URL.createObjectURL(file);
-  document.getElementById('appBody').style.backgroundImage = `url("${url}")`;
-  // لا تخزن الصورة في localStorage أبداً - يسبب DoS
-  setTimeout(()=> URL.revokeObjectURL(url), 60000);
-});
-
-const savedBg = localStorage.getItem('souq_bg');
-if(savedBg && ALLOWED_BG.has(savedBg)){
-  document.getElementById('appBody').style.backgroundColor = savedBg;
-}
-</script>
 
 <script src="./ai-eye.js" type="module"></script>
 <script src="./support.js" type="module"></script>
-<script src="/app.js" type="module"></script>
+<script src="/app.js"></script>
 </body>
 </html>
