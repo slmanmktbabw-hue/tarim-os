@@ -1,133 +1,150 @@
-// security.js - TARIM OS V7.3.1 FINAL SEAL - Royal Security Shield - ESM Shield
-// 🐉◈⚖️👑 esm.unpkg.com?bundle&target=es2022&min - FINAL SEAL
+// ==============================================================================
+// security.js - TARIM OS V8.7 SECURE SHIELD - لا ثغرات
+// ==============================================================================
+"use strict";
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
-const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-// 0. فحص المفتاح السيادي - إصلاح سقوط Render
-function checkSovereignKey() {
-    if (!process.env.JWT_SECRET) {
-        if (process.env.NODE_ENV === 'production') {
-            console.warn('⚠️ [TARIM SECURITY WARN] JWT_SECRET غير موجود في Render - توليد مؤقت - ضعه في Environment Variables فوراً!');
-            console.warn('⚠️ اذهب إلى Render Dashboard > Environment > JWT_SECRET');
-            process.env.JWT_SECRET = crypto.randomBytes(64).toString('base64');
-            console.log('🔑 [TARIM SECURITY] تم توليد مفتاح مؤقت - السيرفر سيعمل لكن ضع واحد ثابت!');
-        } else {
-            console.warn('⚠️ [DEV] JWT_SECRET غير موجود - استخدام مفتاح تطوير');
-            process.env.JWT_SECRET = 'DEV-TARIM-OS-V7-3-1-FINAL-SEAL-LOCAL-ONLY-' + crypto.randomBytes(16).toString('hex');
-        }
-    } else {
-        console.log('✅ [TARIM SECURITY] JWT_SECRET موجود - الدرع فعال V7.3.1');
-    }
+// 1. فحص قاتل - السيرفر لا يعمل بدون مفتاح
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  throw new Error('[FATAL] JWT_SECRET مفقود أو قصير جداً - يجب 32 حرف على الأقل');
 }
-checkSovereignKey();
 
-// 1. الدرع العام V7.3.1 - 150 طلب / 15 دقيقة
+// 2. Rate Limiters - بدون استثناءات
 const sovereignLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 150,
-    message: {
-        success: false,
-        message: "🛡️ تنبيه سيادي V7.3.1 FINAL: تم تفعيل الدرع - انتظر دقيقة - ESM Shield"
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
-    skip: (req) => req.path === '/api/status' || req.path === '/api/health',
+  windowMs: 15 * 60 * 1000,
+  max: 150,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, msg: 'طلبات كثيرة - انتظر 15 دقيقة' },
+  keyGenerator: (req) => req.ip + '-' + (req.user?.id || 'guest')
 });
-
-// 2. الدرع الخاص - 5 محاولات دخول فقط
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 80,
+  message: { success: false, msg: 'تهدئة - طلبات كثيرة' }
+});
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 5,
-    message: {
-        success: false,
-        message: "🔐 بوابة الإمبراطور مقفلة 15 دقيقة V7.3.1 - محاولات كثيرة"
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, msg: 'البوابة مقفلة 15 دقيقة - محاولات كثيرة' }
 });
 
-// 3. خوذة Helmet V8 الملكية - esm.unpkg.com فقط - لا cdnjs ولا unpkg العادي
+// 3. Helmet V8.7 - بدون blob وبدون unsafe-inline للسكربت
 const helmetShield = helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: [
-                "'self'",
-                "'unsafe-inline'",
-                "https://esm.unpkg.com",
-                "https://esm.sh",
-                "blob:"
-            ],
-            styleSrc: [
-                "'self'",
-                "'unsafe-inline'",
-                "https://esm.unpkg.com",
-                "https://fonts.googleapis.com"
-            ],
-            fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
-            imgSrc: [
-                "'self'",
-                "data:",
-                "blob:",
-                "https://*.tile.openstreetmap.org",
-                "https://esm.unpkg.com",
-                "https://*.tile.openstreetmap.fr",
-                "https://*.tile.opentopomap.org"
-            ],
-            mediaSrc: ["'self'", "blob:", "data:"],
-            connectSrc: [
-                "'self'",
-                "ws:",
-                "wss:",
-                "https://esm.unpkg.com",
-                "https://esm.sh",
-                "https://*.tile.openstreetmap.org",
-                "https://tarim-os.onrender.com"
-            ],
-            workerSrc: ["'self'", "blob:"],
-            frameAncestors: ["'none'"],
-            baseUri: ["'self'"],
-            formAction: ["'self'"]
-        }
-    },
-    crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-    hsts: {
-        maxAge: 31536000,
-        includeSubDomains: true,
-        preload: true
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://unpkg.com", "https://esm.unpkg.com", "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com"],
+      imgSrc: ["'self'", "data:", "https://*.tile.openstreetmap.org"],
+      mediaSrc: ["'self'", "blob:"],
+      connectSrc: ["'self'", "wss:", "https://esm.unpkg.com", "https://*.tile.openstreetmap.org"],
+      workerSrc: ["'self'"], // حذف blob:
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      objectSrc: ["'none'"]
     }
+  },
+  crossOriginEmbedderPolicy: false,
+  hsts: { maxAge: 31536000, includeSubDomains: true }
 });
 
-// 4. ختم السيادة V7.3.1 FINAL SEAL
-function sovereignHeaders(req, res, next) {
-    res.setHeader('X-Sovereign-Shield', 'TARIM-OS-V7.3.1-FINAL-SEAL-ESM-SHIELD-ACTIVE');
-    res.setHeader('X-Powered-By', 'TARIM OS V7.3.1 FINAL SEAL Sovereign Engine');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    res.setHeader('Permissions-Policy', 'camera=(self), microphone=(self), geolocation=(self)');
-    res.setHeader('X-Tarim-Version', 'V7.3.1-FINAL-SEAL');
+function secureHeaders(req,res,next){
+  res.removeHeader('X-Powered-By');
+  res.setHeader('X-Content-Type-Options','nosniff');
+  res.setHeader('X-Frame-Options','DENY');
+  res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy','camera=(self), microphone=(self), geolocation=(self)');
+  next();
+}
+
+// 4. التوكن - بدون fallback
+function createToken(payload){
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+}
+function verifyToken(token){
+  try { return jwt.verify(token, process.env.JWT_SECRET); }
+  catch { return null; }
+}
+async function hashPassword(p){ return bcrypt.hash(p, 12); }
+async function checkPassword(p,h){ return bcrypt.compare(p,h); }
+
+function isStrongPassword(pass){
+  if (!pass || typeof pass!== 'string') return false;
+  if (pass.length < 8) return false;
+  // حرف كبير + صغير + رقم
+  return /[A-Z]/.test(pass) && /[a-z]/.test(pass) && /[0-9]/.test(pass);
+}
+
+// 5. تطهير قوي ضد NoSQL Injection
+function sanitizeInput(obj){
+  if (!obj || typeof obj!== 'object') return obj;
+  const clean = Array.isArray(obj)? [] : {};
+  for (let k in obj){
+    const v = obj[k];
+    if (k.startsWith('$') || k.includes('.')) continue; // منع $gt
+    if (typeof v === 'string') clean[k] = v.replace(/\$/g,'').trim().slice(0,500);
+    else if (typeof v === 'object') clean[k] = sanitizeInput(v);
+    else if (typeof v === 'number' || typeof v === 'boolean') clean[k] = v;
+  }
+  return clean;
+}
+function sanitizeMiddleware(req,res,next){
+  if (req.body) req.body = sanitizeInput(req.body);
+  if (req.query) req.query = sanitizeInput(req.query);
+  next();
+}
+
+// 6. حراس
+function auth(req,res,next){
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ')? authHeader.slice(7) : null;
+  if (!token) return res.status(401).json({ success:false, msg:'غير مصرح' });
+  const decoded = verifyToken(token);
+  if (!decoded) return res.status(401).json({ success:false, msg:'توكن منتهي' });
+  req.user = decoded;
+  next();
+}
+function isKing(req,res,next){
+  if (req.user?.role!== 'king') return res.status(403).json({ success:false, msg:'للملوك فقط' });
+  next();
+}
+function allowRoles(...roles){
+  return (req,res,next)=>{
+    if (!roles.includes(req.user?.role)) return res.status(403).json({ success:false, msg:'ممنوع' });
     next();
+  };
 }
 
-// 5. التهيئة الشاملة - الترتيب الصحيح
-function royalSecurityMiddleware(req, res, next) {
-    return sovereignHeaders(req, res, next);
+function setup(app){
+  app.use(helmetShield);
+  app.use(secureHeaders);
+  app.use(sanitizeMiddleware);
+  app.use('/api/', sovereignLimiter);
+  app.use('/api/', apiLimiter);
+  app.use('/api/auth/login', authLimiter);
+  console.log('🛡️ V8.7 SECURE SHIELD Active');
 }
+setup.auth = auth;
+setup.isKing = isKing;
 
-royalSecurityMiddleware.setup = function(app) {
-    app.use(helmetShield);
-    app.use(sovereignHeaders);
-    app.use('/api/', sovereignLimiter);
-    app.use('/api/login', authLimiter);
-    app.use('/api/posts', sovereignLimiter);
-    console.log('🛡️ [TARIM SECURITY V7.3.1] الدرع مفعل - ESM Shield - RateLimit 150/5 - Helmet V8 - FINAL SEAL');
-};
-
-royalSecurityMiddleware.sovereignLimiter = sovereignLimiter;
-royalSecurityMiddleware.authLimiter = authLimiter;
-royalSecurityMiddleware.helmetShield = helmetShield;
-
-module.exports = royalSecurityMiddleware;
+module.exports = setup;
+module.exports.createToken = createToken;
+module.exports.verifyToken = verifyToken;
+module.exports.hashPassword = hashPassword;
+module.exports.checkPassword = checkPassword;
+module.exports.protect = auth;
+module.exports.allowRoles = allowRoles;
+module.exports.isKing = isKing;
+module.exports.auth = auth;
+module.exports.loginLimiter = authLimiter;
+module.exports.apiLimiter = apiLimiter;
+module.exports.sanitizeMiddleware = sanitizeMiddleware;
+module.exports.isStrongPassword = isStrongPassword;
+module.exports.setup = setup;
