@@ -1,150 +1,149 @@
-// ==============================================================================
-// security.js - TARIM OS V8.7 SECURE SHIELD - لا ثغرات
-// ==============================================================================
-"use strict";
+// security.js - TARIM OS V7.4 - ROYAL SHIELD HARDENED
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
-// 1. فحص قاتل - السيرفر لا يعمل بدون مفتاح
-if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
-  throw new Error('[FATAL] JWT_SECRET مفقود أو قصير جداً - يجب 32 حرف على الأقل');
-}
-
-// 2. Rate Limiters - بدون استثناءات
-const sovereignLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 150,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { success: false, msg: 'طلبات كثيرة - انتظر 15 دقيقة' },
-  keyGenerator: (req) => req.ip + '-' + (req.user?.id || 'guest')
-});
-const apiLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 80,
-  message: { success: false, msg: 'تهدئة - طلبات كثيرة' }
-});
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { success: false, msg: 'البوابة مقفلة 15 دقيقة - محاولات كثيرة' }
-});
-
-// 3. Helmet V8.7 - بدون blob وبدون unsafe-inline للسكربت
-const helmetShield = helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://unpkg.com", "https://esm.unpkg.com", "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com"],
-      imgSrc: ["'self'", "data:", "https://*.tile.openstreetmap.org"],
-      mediaSrc: ["'self'", "blob:"],
-      connectSrc: ["'self'", "wss:", "https://esm.unpkg.com", "https://*.tile.openstreetmap.org"],
-      workerSrc: ["'self'"], // حذف blob:
-      frameAncestors: ["'none'"],
-      baseUri: ["'self'"],
-      formAction: ["'self'"],
-      objectSrc: ["'none'"]
+function checkSovereignKey() {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        if (process.env.NODE_ENV === 'production') {
+            console.error('❌ [FATAL] JWT_SECRET مفقود في الإنتاج - إيقاف القلعة');
+            process.exit(1);
+        } else {
+            console.warn('⚠️ [DEV] استخدام مفتاح تطوير مؤقت');
+            process.env.JWT_SECRET = 'DEV-ONLY-' + crypto.randomBytes(32).toString('hex');
+        }
+    } else if (secret.length < 64) {
+        console.error('❌ [FATAL] JWT_SECRET قصير جداً - يجب أن يكون 64 محرف على الأقل');
+        process.exit(1);
+    } else {
+        console.log('✅ [SECURITY V7.4] JWT_SECRET فعال - الدرع نشط');
     }
-  },
-  crossOriginEmbedderPolicy: false,
-  hsts: { maxAge: 31536000, includeSubDomains: true }
+}
+checkSovereignKey();
+
+// 1. الدرع العام - 100 طلب / 15 دقيقة - مع مفتاح آمن لا يمكن تزويره
+const sovereignLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: { success: false, message: "🛡️ تم تجاوز الحد المسموح - حاول بعد 15 دقيقة" },
+    standardHeaders: true,
+    legacyHeaders: false,
+    // الحل الصحيح لتزوير IP خلف Cloudflare/Render
+    keyGenerator: (req) => {
+        // خذ أول IP حقيقي فقط بعد الوثوق بالبروكسي
+        const ip = req.ip || req.headers['cf-connecting-ip'] || 'unknown';
+        return ip;
+    },
+    // لا تتجاوز الـ rate limit أبداً - حتى /status يجب أن يكون محمي
+    skip: (req) => false
 });
 
-function secureHeaders(req,res,next){
-  res.removeHeader('X-Powered-By');
-  res.setHeader('X-Content-Type-Options','nosniff');
-  res.setHeader('X-Frame-Options','DENY');
-  res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy','camera=(self), microphone=(self), geolocation=(self)');
-  next();
-}
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { success: false, message: "🔐 بوابة مقفلة 15 دقيقة - محاولات كثيرة" },
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => {
+        const ip = req.ip || req.headers['cf-connecting-ip'] || 'unknown';
+        const user = req.body?.username?.slice(0, 50) || 'no-user';
+        return `${ip}|${user}`; // قفل لكل IP + اسم مستخدم
+    }
+});
 
-// 4. التوكن - بدون fallback
-function createToken(payload){
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
-}
-function verifyToken(token){
-  try { return jwt.verify(token, process.env.JWT_SECRET); }
-  catch { return null; }
-}
-async function hashPassword(p){ return bcrypt.hash(p, 12); }
-async function checkPassword(p,h){ return bcrypt.compare(p,h); }
+// 2. خوذة Helmet V7.4 - محصنة 100%
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGINS?.split(',')[0] || 'https://tarimos.org';
 
-function isStrongPassword(pass){
-  if (!pass || typeof pass!== 'string') return false;
-  if (pass.length < 8) return false;
-  // حرف كبير + صغير + رقم
-  return /[A-Z]/.test(pass) && /[a-z]/.test(pass) && /[0-9]/.test(pass);
-}
+const helmetShield = helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: [
+                "'self'",
+                "https://esm.unpkg.com",
+                "https://esm.sh"
+                // لا يوجد unsafe-inline أبداً
+            ],
+            styleSrc: [
+                "'self'",
+                "https://fonts.googleapis.com",
+                "https://esm.unpkg.com"
+                // تم حذف unsafe-inline - ثغرة XSS
+            ],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: [
+                "'self'",
+                "data:",
+                "https://*.tile.openstreetmap.org"
+                // تم حذف blob: و opentopomap - تقليل السطح
+            ],
+            mediaSrc: ["'self'", "blob:"], // blob مسموح فقط للكاميرا المحلية
+            connectSrc: [
+                "'self'",
+                ALLOWED_ORIGIN,
+                "https://esm.unpkg.com",
+                "https://esm.sh"
+                // تم حذف ws: wss: المفتوحة - كانت تسمح لأي موقع بسرقة الـ socket
+            ],
+            workerSrc: ["'self'", "blob:"],
+            frameAncestors: ["'none'"],
+            baseUri: ["'self'"],
+            formAction: ["'self'"],
+            objectSrc: ["'none'"], // منع Flash/Java القديم
+            upgradeInsecureRequests: []
+        }
+    },
+    crossOriginEmbedderPolicy: true, // كان false - ثغرة
+    crossOriginOpenerPolicy: { policy: "same-origin" },
+    crossOriginResourcePolicy: { policy: "same-site" }, // كان cross-origin - ثغرة
+    hsts: {
+        maxAge: 63072000, // سنتين
+        includeSubDomains: true,
+        preload: true
+    },
+    noSniff: true,
+    frameguard: { action: 'deny' },
+    hidePoweredBy: true // يحذف X-Powered-By نهائياً
+});
 
-// 5. تطهير قوي ضد NoSQL Injection
-function sanitizeInput(obj){
-  if (!obj || typeof obj!== 'object') return obj;
-  const clean = Array.isArray(obj)? [] : {};
-  for (let k in obj){
-    const v = obj[k];
-    if (k.startsWith('$') || k.includes('.')) continue; // منع $gt
-    if (typeof v === 'string') clean[k] = v.replace(/\$/g,'').trim().slice(0,500);
-    else if (typeof v === 'object') clean[k] = sanitizeInput(v);
-    else if (typeof v === 'number' || typeof v === 'boolean') clean[k] = v;
-  }
-  return clean;
-}
-function sanitizeMiddleware(req,res,next){
-  if (req.body) req.body = sanitizeInput(req.body);
-  if (req.query) req.query = sanitizeInput(req.query);
-  next();
-}
+// 3. ختم السيادة - بدون تسريب معلومات
+function sovereignHeaders(req, res, next) {
+    // لا تكشف إصدارك أبداً - احذف هذه الرؤوس
+    res.removeHeader('X-Powered-By');
+    // res.setHeader('X-Sovereign-Shield',...) <- احذفه، يكشف نظامك
+    // res.setHeader('X-Tarim-Version',...) <- احذفه، يعطي المهاجم رقم الإصدار
 
-// 6. حراس
-function auth(req,res,next){
-  const authHeader = req.headers.authorization || '';
-  const token = authHeader.startsWith('Bearer ')? authHeader.slice(7) : null;
-  if (!token) return res.status(401).json({ success:false, msg:'غير مصرح' });
-  const decoded = verifyToken(token);
-  if (!decoded) return res.status(401).json({ success:false, msg:'توكن منتهي' });
-  req.user = decoded;
-  next();
-}
-function isKing(req,res,next){
-  if (req.user?.role!== 'king') return res.status(403).json({ success:false, msg:'للملوك فقط' });
-  next();
-}
-function allowRoles(...roles){
-  return (req,res,next)=>{
-    if (!roles.includes(req.user?.role)) return res.status(403).json({ success:false, msg:'ممنوع' });
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    // أقل صلاحيات ممكنة - لا تفتح الكاميرا لكل الصفحات
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+    res.setHeader('X-DNS-Prefetch-Control', 'off');
     next();
-  };
 }
 
-function setup(app){
-  app.use(helmetShield);
-  app.use(secureHeaders);
-  app.use(sanitizeMiddleware);
-  app.use('/api/', sovereignLimiter);
-  app.use('/api/', apiLimiter);
-  app.use('/api/auth/login', authLimiter);
-  console.log('🛡️ V8.7 SECURE SHIELD Active');
+function royalSecurityMiddleware(req, res, next) {
+    return sovereignHeaders(req, res, next);
 }
-setup.auth = auth;
-setup.isKing = isKing;
 
-module.exports = setup;
-module.exports.createToken = createToken;
-module.exports.verifyToken = verifyToken;
-module.exports.hashPassword = hashPassword;
-module.exports.checkPassword = checkPassword;
-module.exports.protect = auth;
-module.exports.allowRoles = allowRoles;
-module.exports.isKing = isKing;
-module.exports.auth = auth;
-module.exports.loginLimiter = authLimiter;
-module.exports.apiLimiter = apiLimiter;
-module.exports.sanitizeMiddleware = sanitizeMiddleware;
-module.exports.isStrongPassword = isStrongPassword;
-module.exports.setup = setup;
+royalSecurityMiddleware.setup = function(app) {
+    // أهم سطر - يجب أن يكون أول شيء قبل أي rate limit
+    const trustProxyCount = process.env.TRUST_PROXY? parseInt(process.env.TRUST_PROXY) : 1;
+    app.set('trust proxy', trustProxyCount);
+
+    app.use(helmetShield);
+    app.use(sovereignHeaders);
+
+    // تطبيق الدرع العام على كل الـ API بدون استثناء
+    app.use('/api/', sovereignLimiter);
+    app.use('/api/login', authLimiter);
+
+    console.log('🛡️ [V7.4 HARDENED] الدرع مفعل - Helmet Strict - RateLimit 100/5 - No Info Leak');
+};
+
+royalSecurityMiddleware.sovereignLimiter = sovereignLimiter;
+royalSecurityMiddleware.authLimiter = authLimiter;
+royalSecurityMiddleware.helmetShield = helmetShield;
+
+module.exports = royalSecurityMiddleware;
