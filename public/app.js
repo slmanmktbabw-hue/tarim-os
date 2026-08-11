@@ -134,9 +134,10 @@ document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
 const t = $('sub-' + id); if (t) {
   t.classList.remove('hidden');
   if(id==='qr-page'){
-    const c=$('qrcode'); if(c){ c.textContent=''; if(window.QRCode) new QRCode(c,{text:'https://tarimos.org/user/'+sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz'),width:128,height:128}); }
+    const c=$('qrcode'); if(c){ c.textContent=''; if(window.QRCode) new QRCode(c,{text:'https://tarimos.org/user/'+sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'),width:128,height:128}); }
   }
   if(id==='promo-page'){ initPromoPage(); }
+  if(id==='manage-posts'){ renderManagePosts(); }
 }
 }
 function backToProfile() { document.querySelectorAll('.sub-page').forEach(p=>p.classList.add('hidden')); const m=$('profile-main'); if(m) m.classList.remove('hidden'); updateCounters(); }
@@ -174,30 +175,53 @@ if (!posts.length){ const empty=document.createElement('div'); empty.className='
 posts.slice().reverse().forEach(p=>{
 const c=document.createElement('div'); c.className='glass p-4 rounded-xl border border-cyan-500/20';
 const header=document.createElement('div'); header.className='flex justify-between text-[10px] text-slate-400 mb-2';
-const u=document.createElement('span'); u.className='text-cyan-400 font-bold'; u.textContent='@'+sanitizeText(p.username||'Gooaz')+' 👑';
+const u=document.createElement('span'); u.className='text-cyan-400 font-bold'; u.textContent='@'+sanitizeText(p.username||'AL')+' 👑';
 const t=document.createElement('span'); t.textContent=new Date(p.createdAt||Date.now()).toLocaleTimeString('ar');
 header.appendChild(u); header.appendChild(t);
 const body=document.createElement('p'); body.className='text-xs'; body.textContent=sanitizeText(p.content||'');
 c.appendChild(header); c.appendChild(body); f.appendChild(c);
 });
 }
+function renderManagePosts() {
+const list = $('managePostsList'); if(!list) return;
+list.textContent = '';
+const posts = getPosts();
+if(!posts.length){ list.innerHTML = '<div class="p-4 text-center text-slate-400 bg-slate-900 rounded-xl">لا توجد منشورات لإدارتها</div>'; return; }
+posts.slice().reverse().forEach(p=>{
+  const item = document.createElement('div');
+  item.className = 'bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center';
+  item.innerHTML = `<span class="truncate max-w-[200px]">${sanitizeText(p.content)}</span>
+  <button onclick="deletePost(${p.id})" class="bg-rose-500/20 text-rose-400 px-3 py-1 rounded-lg text-[10px] font-bold">حذف</button>`;
+  list.appendChild(item);
+});
+}
+window.deletePost = function(id){
+  let posts = getPosts();
+  posts = posts.filter(p => p.id !== id);
+  savePosts(posts);
+  renderManagePosts();
+  renderAllFeeds();
+  updateCounters();
+  toast('🗑️ تم حذف المنشور بنجاح');
+};
+
 function publishPost() {
 const inp = $('postContentInput'); if (!inp ||!inp.value.trim()) { toast('اكتب شيئاً'); return; }
 const cleanContent = sanitizeText(inp.value.slice(0,1000));
-const post={ id:Date.now(), content:cleanContent, username:sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz'), createdAt:new Date().toISOString(), likes:0 };
+const post={ id:Date.now(), content:cleanContent, username:sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), createdAt:new Date().toISOString(), likes:0 };
 const all=getPosts(); all.push(post); savePosts(all); inp.value='';
 if(state.upURL){ URL.revokeObjectURL(state.upURL); state.upURL=null; state.upIsVideo=false; initCam(); }
 state.capImg=null; renderAllFeeds(); updateCounters(); toast('🚀 تم النشر');
 }
 function forceUnlockCastle() {
 const el = $('userPhoneOrEmail');
-let raw = (el && el.value.trim())||'Gooaz';
+let raw = (el && el.value.trim())||'AL';
 if(raw.toUpperCase()==='KING'){
   localStorage.setItem('tarim_king_auth', KING_KEY);
-  raw='Gooaz';
+  raw='AL';
   toast('👑 تم تفعيل صلاحية الملك');
 }
-const u = sanitizeText(raw).slice(0,30)||'Gooaz';
+const u = sanitizeText(raw).slice(0,30)||'AL';
 localStorage.setItem('tarim_session_v73', u); localStorage.setItem('tarim_token_v73','offline_'+Date.now());
 const gate = $('authGate'); if(gate) gate.style.display = 'none';
 const h1=$('homeUsernameDisplay'); if(h1) h1.textContent='@'+u+' 👑'+(isKing()?' [الملك]':'');
@@ -272,7 +296,7 @@ function openGiftModal() {
         <span>🅿️ PayPal - للأجانب</span><span class="text-[10px] bg-blue-500 text-white px-2 py-1 rounded">PayPal</span>
       </button>
     </div>
-    <p class="text-[10px] text-slate-500 mt-4 text-center">تستلم USDT مباشر على OKX: 0x53...ab96<br>الملك: 10% | المبدع: 90%</p>
+    <p class="text-[10px] text-slate-500 mt-4 text-center">تستلم USDT مباشر على OKX: 0x53...c0af6<br>الملك: 10% | المبدع: 90%</p>
   </div>`;
   document.body.appendChild(modal);
   $('closeTriplePay').addEventListener('click', closeGiftModal);
@@ -296,7 +320,7 @@ async function payWithOKX(){
   try{
     const res = await fetch('/api/gift', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz'), to:'streamer', type: currentGift, method:'okx', amount: values[currentGift] })
+      body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), to:'streamer', type: currentGift, method:'okx', amount: values[currentGift] })
     });
     const data = await res.json();
     if(data.ok){ toast(`💎 ${sanitizeText(data.value)}$ | الملك ${sanitizeText(data.kingCut)}$ + المبدع ${sanitizeText(data.creatorCut)}$ 👑`); }
@@ -310,7 +334,7 @@ async function payWithCard(){
   try{
     const res = await fetch('/api/create-invoice', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ amount, type: currentGift, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz') })
+      body: JSON.stringify({ amount, type: currentGift, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL') })
     });
     const data = await res.json();
     if(data.ok && data.invoice_url){
@@ -383,7 +407,7 @@ function initPromoPage(){
       try{
         const res = await fetch('/api/promote', {
           method:'POST', headers:{'Content-Type':'application/json','x-king-key': isKing()?KING_KEY:''},
-          body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz'), budget: selectedBudget, target, method:'okx' })
+          body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), budget: selectedBudget, target, method:'okx' })
         });
         const data = await res.json();
         if(data.ok){ toast(sanitizeText(data.msg)); $('adPreview').textContent = data.pending? '⏳ قيد مراجعة الملك' : '✅ تم الترويج! ID: '+ sanitizeText(data.adId); if(isKing()) loadKingPanel(); }
@@ -395,7 +419,7 @@ function initPromoPage(){
       try{
         const res = await fetch('/api/create-ad-invoice', {
           method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ budget: selectedBudget, target, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'Gooaz') })
+          body: JSON.stringify({ budget: selectedBudget, target, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL') })
         });
         const data = await res.json();
         if(data.ok && data.invoice_url){ window.open(sanitizeText(data.invoice_url), '_blank'); toast(`🚀 ادفع ${selectedBudget}$ - الملك 20%`); }
@@ -489,6 +513,19 @@ openActivity:()=>showSubPage('activity-page'),
 openOffline:()=>showSubPage('offline-page'), 
 openCommerce:()=>showSubPage('commerce-page'), 
 openPromo:()=>showSubPage('promo-page'),
+openManagePosts:()=>showSubPage('manage-posts'),
+openBgSettings:()=>showSubPage('account-settings'),
+openPolicy:()=>showSubPage('policy-page'),
+shareProfileLink: async ()=>{
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: 'TARIM OS', text: 'حسابي السيادي في تريم OS', url: window.location.href });
+    } else {
+      await navigator.clipboard.writeText(window.location.href);
+      toast('🔗 تم نسخ رابط الملف الشخصي');
+    }
+  } catch(e) { toast('تم النسخ'); }
+},
 openMap:()=>{ const c=$('mapContainer'); if(c){ c.classList.toggle('hidden'); if(!c.classList.contains('hidden')&&!state.map&&window.L){ state.map=L.map(c).setView([16.0545,49.0],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(state.map); } } },
 showQR:()=>{ const d=$('qrDisplay'); if(d){ d.classList.toggle('hidden'); const b=$('operationsQrBox'); if(b&&!d.classList.contains('hidden')){ b.textContent=''; if(window.QRCode) new QRCode(b,{text:'https://tarimos.org',width:100,height:100}); } } },
 goInbox:()=>switchTab('inbox')
