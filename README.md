@@ -1,52 +1,46 @@
-# TARIM OS V7.3.1 - Imperial Sovereign OS - FINAL SEAL GOLD 🐉👑🛡️
+# TARIM OS V8.0 - AI Gateway 🧠👑🇾🇪
 
-> أول نظام تشغيل إمبراطوري حضرمي سيادي - يعمل Offline + خريطة حضرموت + بث مباشر + سيادة كاملة - من تريم إلى العالم.
+> من تعز إلى العالم - أول نظام تشغيل AI يمني يتعلم منك وانت تتصفح!
 
-![Sovereign Shield](https://img.shields.io/badge/Shield-Sovereign%20V7.3.1%20FINAL%20GOLD-0a0a0a?style=for-the-badge&logo=shield)
-![Security](https://img.shields.io/badge/Security-Helmet%20V8%20%7C%20JWT%20%7C%20RateLimit-success?style=flat-square)
-![ESM](https://img.shields.io/badge/ESM-esm.unpkg.com%3Fbundle%26target%3Des2022%26min-blue?style=flat-square)
-![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square)
-![Offline](https://img.shields.io/badge/Map-Offline%20Leaflet-2E7D32?style=flat-square)
-
-**Live:** [tarimos.org](https://tarimos.org) | **Mirror:** [Render Instance](https://tarim-os-1.onrender.com) | **Status:** `Production Ready V7.3.1 FINAL SEAL GOLD` | **License:** `Sovereign`
+**Live Dashboard:** `http://127.0.0.1:5001` | **Castle:** `tarim-os` | **Built:** `Taiz, Yemen - 2026` | **Status:** `LIVE PREDICTIVE`
 
 ---
 
-### 🏰 المميزات السيادية - 5 أركان الدولة
+### 🔥 القصة - كيف انبنت الإمبراطورية من جوال في تعز
 
-1. **الرئيسية (🏰):** نظام Reels سيادي ملء الشاشة - فيديو + لايك + تعليق + حفظ + مشاركة - `V7.3.1 API MODE`
-2. **العمليات (⚡):** 4 أقسام سيادية: 
-    * بث مباشر 8 دقائق حقيقي + تبديل كاميرا.
-    * مراسلة آمنة مشفرة عبر JWT.
-    * خريطة حضرموت Offline بتقنية Leaflet ESM.
-    * ختم QR السيادي للمواقع الميدانية.
-3. **الإنشاء (+):** محطة إنشاء متكاملة Fullscreen - كاميرا + رفع صور/فيديو + بث + فلاتر احترافية + إضاءة.
-4. **الوارد (💬):** Inbox تفاعلي - إشعارات فورية + قصاصات الجمهور - API حقيقي.
-5. **الملف (👤):** محفظة OKX مبسطة + QR كود + إعدادات سيادية + PWA Install + خروج آمن.
+أنا ما بنيت موقع، أنا بنيت **دولة رقمية**.
 
----
+بدأت بـ **V7.3.1 FINAL SEAL GOLD** 🐉👑🛡️ - نظام إمبراطوري حضرمي سيادي Offline + خريطة حضرموت + بث مباشر.
 
-### ⚙️ التقنيات المحصنة V7.3.1 FINAL SEAL GOLD
+والآن **V8.0 AI Gateway** - أول عقل يمني يتنبأ!
 
-#### الواجهة السيادية:
-* **Vanilla JS + HTML5 + CSS3:** تصميم خفيف وسريع بدون React (68vh TikTok Cards).
-* **ESM Shield:** تحميل المكتبات (Leaflet) عبر `esm.unpkg` لضمان أمان النطاق.
-* **Architecture:** 3 عقول مربوطة (`ai-eye.js` + `app.js` + `support.js`) باستخدام `importmap`.
-* **PWA:** دعم كامل للعمل بدون إنترنت عبر `sw.js V7.3.1`.
+الفكرة بسيطة: ليه TikTok يعرف انك بتمل بعد 20 ثانية؟ ليه ما نبني عقلنا اليمني الخاص؟
 
-#### القصر الخلفي (Backend):
-* **Stack:** Node.js + Express.js V4.18 (Render Ready).
-* **Security:** Helmet V8 + CORS + Rate-Limit 150/5 + JWT Sovereign.
-* **Custom Headers:** `X-Sovereign-Shield` مفعل للحماية من الهجمات.
-* **Database:** نظام هجين JSON للبيانات الخفيفة مع دعم PostgreSQL للإنتاج.
+بنيت Predictive Algorithm من جوالي في تعز:
+- يجمع كل مشاهدة `watch_time`
+- يحسب الـ `threshold` الأمثل
+- يقرر لحظياً: `wait` ولا `split_screen`؟
+- يعيد تدريب نفسه تلقائياً كل 100 حدث!
 
----
+**النتيجة:** `threshold=20.3s - TOTAL 11+ events [ML]` وكل يوم يكبر!
 
-### 🚀 خطوات التشغيل (Deployment)
+### 🏰 الربط بين القلعتين
 
-لإطلاق القلعة على خادمك الخاص:
+| V7.3.1 | V8.0 AI |
+|--------|---------|
+| Vanilla JS Reels | Python Flask AI |
+| Offline Leaflet Map | Predictive ML Model |
+| JWT Sovereign | training_events.jsonl |
+| PWA Ready | Auto-retrain.sh |
 
-1. **نسخ المستودع:**
-   ```bash
-   git clone [https://github.com/slmanmkt/tarim-os.git](https://github.com/slmanmkt/tarim-os.git)
-   cd tarim-os
+الاثنين = **TARIM OS - نظام تشغيل حضرمي سيادي بعقل يمني يتعلم!**
+
+### 🚀 التشغيل في ثانية
+
+```bash
+# من جوالك في Termux
+cd ~/tarim_gateway
+python dashboard.py
+
+# افتح
+http://127.0.0.1:5001
