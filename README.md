@@ -1,4 +1,4 @@
-# TARIM OS V8.0 - AI Gateway 🧠👑🇾🇪
+# TARIM OS V8.0 - AI Gateway 🧠👑
 
 > من تعز إلى العالم - أول نظام تشغيل AI يمني يتعلم منك وانت تتصفح!
 
