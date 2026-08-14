@@ -1,4 +1,4 @@
-// public/ai-eye.js - TARIM OS V8.8 - Sovereign AI Shield HARDENED
+// public/ai-eye.js - TARIM OS V12.0 - Sovereign AI Shield HARDENED
 "use strict";
 
 // 1. محرك الفحص - محصن ضد Unicode Bypass و ReDoS
@@ -20,7 +20,7 @@ function normalizeForCheck(str) {
 }
 
 export const TarimAI = Object.freeze({
-    version: "Sovereign v8.8 HARDENED",
+    version: "Sovereign v12.0 HARDENED",
     offline: true,
     analyze(text) {
         if (typeof text!== 'string' ||!text.trim()) {
@@ -56,13 +56,12 @@ class AIEye {
     constructor() {
         this.events = [];
         this.startTime = Date.now();
-        this.maxEvents = 30; // كان 50
+        this.maxEvents = 30;
         this.maxVisitors = 20;
         this.lastAnalyzeAt = 0;
         try {
-            // استخدم sessionStorage بدل localStorage - لا يبقى بعد إغلاق التبويب
-            // ومفتاح جديد لا يكشف اسم مشروع قديم
-            const raw = sessionStorage.getItem('tarim_eye_v88');
+            // تحديث المفتاح لتوافق نسخة الإمبراطورية V12
+            const raw = sessionStorage.getItem('tarim_eye_v12');
             this.visitors = raw? JSON.parse(raw).slice(-this.maxVisitors) : [];
         } catch { this.visitors = []; }
         this.init();
@@ -70,15 +69,13 @@ class AIEye {
     init() {
         this.trackVisit();
         this.trackClicks();
-        // تم حذف protectImages - لا فائدة أمنية ويكسر الوصول
     }
     trackVisit() {
         try {
-            // لا تخزن Query Params أبداً - فقط الـ pathname المجرد بدون?token=
             const safePath = location.pathname.split('?')[0].slice(0, 80);
             if (this.visitors.length >= this.maxVisitors) this.visitors.shift();
             this.visitors.push({ p: safePath, t: Date.now() });
-            sessionStorage.setItem('tarim_eye_v88', JSON.stringify(this.visitors));
+            sessionStorage.setItem('tarim_eye_v12', JSON.stringify(this.visitors));
         } catch {}
     }
     trackClicks() {
@@ -87,7 +84,6 @@ class AIEye {
             const target = e.target.closest('[data-product]');
             if (!target) return;
             let product = target.getAttribute('data-product') || '';
-            // تطهير صارم لـ data-product - يسمح فقط بحروف وأرقام ومسافة و -
             product = String(product).replace(/[^a-zA-Z0-9\u0600-\u06FF\s\-_]/g, '').slice(0, 30).trim();
             if (!product) return;
             if (this.events.length >= this.maxEvents) this.events.shift();
@@ -108,7 +104,7 @@ class AIEye {
     }
     canAnalyze() {
         const now = Date.now();
-        if (now - this.lastAnalyzeAt < 1000) return false; // منع الإغراق - تحليل كل ثانية فقط
+        if (now - this.lastAnalyzeAt < 1000) return false;
         this.lastAnalyzeAt = now;
         return true;
     }
@@ -127,7 +123,7 @@ class AIEye {
     }
     clear() {
         this.events = []; this.visitors = [];
-        try { sessionStorage.removeItem('tarim_eye_v88'); } catch {}
+        try { sessionStorage.removeItem('tarim_eye_v12'); } catch {}
     }
 }
 
