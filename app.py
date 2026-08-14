@@ -315,8 +315,8 @@ def api_analyze_camera():
         img=Image.open(io.BytesIO(base64.b64decode(d.get('image','').split(',')[1])))
         brightness = sum(img.convert("L").getdata()) / (img.size[0] * img.size[1])
         ear = round(0.28 if brightness > 40 else 0.15, 2)
-        mar = round(0.05 if brightness > 40 else 0.35, 2) # يكشف التثاؤب إذا ارتفع MAR
-        perclos = 12 if ear > 0.20 else 45 # نسبة إغلاق العين خلال الدقيقة
+        mar = round(0.05 if brightness > 40 else 0.35, 2)
+        perclos = 12 if ear > 0.20 else 45
         pose = "Forward 🟢" if brightness > 40 else "Head Turned / Distracted 🛑"
         
         if ear > 0.20 and mar < 0.20 and "Forward" in pose:
