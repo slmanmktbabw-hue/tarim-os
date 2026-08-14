@@ -1,0 +1,6 @@
+flask
+gunicorn
+redis
+python-dotenv
+scikit-learn
+numpy

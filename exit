@@ -1,0 +1,160 @@
+from flask import Flask, request, jsonify, render_template_string
+import json, os, cv2, base64, numpy as np
+from datetime import datetime
+import mediapipe as mp
+
+app = Flask(__name__)
+LOG_FILE = "logs/training_events.jsonl"
+AUDIO_DIR = "sessions/audio"
+MODEL_FILE = "model.json"
+
+os.makedirs("logs", exist_ok=True)
+os.makedirs(AUDIO_DIR, exist_ok=True)
+
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5)
+
+def load_threshold():
+    try:
+        with open(MODEL_FILE, encoding='utf-8') as f:
+            return json.load(f).get("threshold", 20.3)
+    except:
+        return 20.3
+
+def log_event(wt, action, source="TARIM", extra={}):
+    with open(LOG_FILE, "a", encoding='utf-8') as f:
+        f.write(json.dumps({
+            "watch_time": wt, 
+            "action": action, 
+            "source": source, 
+            "extra": extra, 
+            "timestamp": datetime.now().isoformat()
+        }, ensure_ascii=False) + "\n")
+
+def analyze_face(image_b64):
+    try:
+        if ',' in image_b64:
+            image_b64 = image_b64.split(',')[1]
+        img_data = base64.b64decode(image_b64)
+        nparr = np.frombuffer(img_data, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if img is None:
+            return 0
+        rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        results = face_mesh.process(rgb_img)
+        return len(results.multi_face_landmarks) if results.multi_face_landmarks else 0
+    except:
+        return 0
+
+@app.route('/')
+def index():
+    return render_template_string('''
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Tarim OS - Live Gateway</title>
+    <style>
+        body { background: #0b0f0c; color: #00ff66; font-family: monospace; text-align: center; padding: 20px; }
+        video { display: block; margin: 10px auto; border: 1px solid #00ff66; border-radius: 8px; max-width: 320px; width: 100%; }
+        button { background: #00ff66; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 5px; margin: 5px; }
+        .box { background: #111e14; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #1a3a22; }
+    </style>
+</head>
+<body>
+    <h2>👑 TARIM OS - CAMERA & MIC GATEWAY 🛡️</h2>
+    
+    <div class="box">
+        <h3>📷 تحليل الوجه بالكاميرا</h3>
+        <video id="webcam" autoplay playsinline></video>
+        <button onclick="captureAndSendFace()">التقاط وتحليل الوجه</button>
+        <p id="faceResult">الحالة: جاهز</p>
+    </div>
+
+    <div class="box">
+        <h3>🎙️ تسجيل وبث الصوت</h3>
+        <button id="recordBtn" onclick="toggleRecording()">بدء تسجيل الصوت</button>
+        <p id="micResult">الحالة: متوقف</p>
+    </div>
+
+    <script>
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(stream => { document.getElementById('webcam').srcObject = stream; })
+            .catch(err => alert('خطأ في الوصول للكاميرا: ' + err));
+
+        function captureAndSendFace() {
+            const video = document.getElementById('webcam');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 320;
+            canvas.height = video.videoHeight || 240;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageB64 = canvas.toDataURL('image/jpeg');
+
+            fetch('/api/analyze_camera', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageB64 })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('faceResult').innerText = `الوجوه المكتشفة: ${data.faces_detected} | Threshold: ${data.threshold}`;
+            });
+        }
+
+        let mediaRecorder;
+        let audioChunks = [];
+
+        async function toggleRecording() {
+            const btn = document.getElementById('recordBtn');
+            if (!mediaRecorder || mediaRecorder.state === "inactive") {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = newBlob(audioChunks, { type: 'audio/wav' });
+                    const formData = new FormData();
+                    formData.append('audio', blob, 'mic.wav');
+                    fetch('/api/upload_audio', { method: 'POST', body: formData })
+                        .then(res => res.json())
+                        .then(data => { document.getElementById('micResult').innerText = data.message; });
+                };
+                mediaRecorder.start();
+                btn.innerText = "إيقاف وحفظ الصوت";
+                document.getElementById('micResult').innerText = "جاري التسجيل...";
+            } else {
+                mediaRecorder.stop();
+                btn.innerText = "بدء تسجيل الصوت";
+            }
+        }
+    </script>
+</body>
+</html>
+''')
+
+@app.route('/api/analyze_camera', methods=['POST'])
+def api_analyze_camera():
+    data = request.json or {}
+    image_b64 = data.get('image', '')
+    faces_count = analyze_face(image_b64)
+    threshold = load_threshold()
+    log_event(wt=threshold, action="camera_analysis", extra={"faces": faces_count})
+    return jsonify({"success": True, "faces_detected": faces_count, "threshold": threshold})
+
+@app.route('/api/upload_audio', methods=['POST'])
+def api_upload_audio():
+    try:
+        audio_file = request.files['audio']
+        filename = f"audio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.wav"
+        filepath = os.path.join(AUDIO_DIR, filename)
+        audio_file.save(filepath)
+        threshold = load_threshold()
+        log_event(wt=threshold, action="audio_saved", extra={"file": filename})
+        return jsonify({"success": True, "message": "Audio saved successfully", "file": filename})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=False)
+
