@@ -1,0 +1,78 @@
+# ===============================================
+# TARIM OS V7.3 - SOVEREIGN SHIELD - .gitignore
+# درع القلعة السيادي - الإنتاج الحقيقي
+# ===============================================
+
+# --- 1. درع المصانع - لا ترفع المصنع كامل ---
+node_modules/
+.pnp/
+.pnp.js
+
+# --- 2. درع الأسرار السيادية - أخطر قسم 👑🔐 ---
+# القاعدة الذهبية: كل شيء فيه سر لا يرتفع
+.env
+.env.local
+.env.production
+.env.development
+.env.*.local
+*.pem
+*.key
+*.crt
+*.cert
+secrets/
+private/
+
+# --- السماح الاستثنائي - مهم جداً ---
+# هذا الملف الوحيد المسموح يرتفع ليعرف الجنود شكل الأسرار
+!.env.example
+
+# --- 3. درع بيانات الدولة والمخابرات ---
+data.json
+data/
+database/
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+public/uploads/
+storage/
+backups/
+*.dump
+
+# --- 4. درع السجلات - لا تكشف تحركات الجيش ---
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+.DS_Store
+Thumbs.db
+
+# --- 5. درع البناء والتوزيع ---
+dist/
+build/
+.next/
+out/
+coverage/
+.nyc_output/
+.cache/
+tmp/
+temp/
+
+# --- 6. درع أدوات المطورين الجاسوسة ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.env.swp
+
+# --- 7. درع الحماية النهائية للقلعة ---
+# ملفات نظام التشغيل
+.DS_Store
+ehthumbs.db
+Desktop.ini
+
+# ملفات الاختبار والطوارئ
+test-results/
+playwright-report/

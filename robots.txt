@@ -1,0 +1,37 @@
+# ===============================================
+# TARIM OS V7.3 - robots.txt - Sovereign Gate
+# بوابة القلعة السيادية - تريم
+# ===============================================
+
+# --- 1. القانون العام لكل الجيوش ---
+User-agent: *
+Allow: /
+
+# --- 2. منع الجواسيس من دخول وزارات الدولة السيادية ---
+Disallow: /api/
+Disallow: /data/
+Disallow: /src/
+Disallow: /private/
+Disallow: /admin/
+Disallow: /.env
+Disallow: /*.json$
+Disallow: /server.js
+Disallow: /database.js
+
+# --- 3. منع أرشفة صفحات العمليات الخاصة ---
+Disallow: /operations/
+Disallow: /inbox/
+Disallow: /wallet/
+
+# --- 4. خريطة القلعة لجوجل - السيادة الرقمية ---
+Sitemap: https://tarimos.org/sitemap.xml
+
+# --- 5. حماية إضافية من بوتات الذكاء الاصطناعي الجشعة ---
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: Google-Extended
+User-agent: CCBot
+Disallow: /
+
+# --- 6. سرعة الزحف - لا ترهقوا القلعة ---
+Crawl-delay: 1

@@ -1,0 +1,91 @@
+{
+  "id": "/?v=7.3.1-final-seal",
+  "name": "TARIM OS V7.3.1 FINAL - النظام السيادي الإمبراطوري ESM Shield",
+  "short_name": "TARIM OS V7.3.1",
+  "description": "أول منصة فيديو حضرمية سيادية V7.3.1 FINAL SEAL - ESM Shield esm.unpkg.com?bundle&target=es2022&min + bcrypt 12 + JWT + Offline Map تريم حضرموت + بث مباشر 8 دقائق - من تريم إلى العالم 👑",
+  "start_url": "/?source=pwa&v=7.3.1",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#020A18",
+  "theme_color": "#020A18",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["social", "entertainment", "navigation", "photo", "video"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "🔴 بث مباشر 8 دقائق V7.3.1",
+      "short_name": "بث مباشر",
+      "description": "ابدأ بثاً سيادياً مباشراً JWT محمي",
+      "url": "/?action=live&v=7.3.1",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "🗺️ خريطة حضرموت Offline ESM",
+      "short_name": "الخريطة",
+      "description": "افتح خريطة تريم Offline بـ Leaflet ESM",
+      "url": "/?action=map&v=7.3.1",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "🏰 الرئيسية - تيك توك سيادي",
+      "short_name": "الرئيسية",
+      "description": "فيديوهات حضرموت السيادية",
+      "url": "/?action=home&v=7.3.1",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "TARIM OS V7.3.1 FINAL - الرئيسية تيك توك"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "TARIM OS V7.3.1 - خريطة حضرموت Offline"
+    }
+  ],
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+tarim",
+      "url": "/?protocol=%s&v=7.3.1"
+    }
+  ],
+  "share_target": {
+    "action": "/?share&v=7.3.1",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
