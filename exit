@@ -8,9 +8,11 @@ LOG_FILE = "logs/training_events.jsonl"
 AUDIO_DIR = "sessions/audio"
 MODEL_FILE = "model.json"
 
+# إنشاء المجلدات الضرورية
 os.makedirs("logs", exist_ok=True)
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
+# إعداد MediaPipe للتعرف على الوجه
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5)
 
@@ -113,7 +115,7 @@ def index():
                 audioChunks = [];
                 mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                 mediaRecorder.onstop = () => {
-                    const blob = newBlob(audioChunks, { type: 'audio/wav' });
+                    const blob = new Blob(audioChunks, { type: 'audio/wav' });
                     const formData = new FormData();
                     formData.append('audio', blob, 'mic.wav');
                     fetch('/api/upload_audio', { method: 'POST', body: formData })
@@ -151,10 +153,9 @@ def api_upload_audio():
         audio_file.save(filepath)
         threshold = load_threshold()
         log_event(wt=threshold, action="audio_saved", extra={"file": filename})
-        return jsonify({"success": True, "message": "Audio saved successfully", "file": filename})
+        return jsonify({"success": True, "message": "تم حفظ الصوت بنجاح", "file": filename})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
-
