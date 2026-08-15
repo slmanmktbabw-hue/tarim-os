@@ -247,75 +247,45 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
     <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
     <h3 class="text-sm font-black text-cyan-400">🔒 الخصوصية والأمان السيادي</h3>
     <div class="space-y-3 text-xs">
-        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-            <div>
-                <p class="font-bold text-white">حماية Passkey السيادية</p>
-                <p class="text-[10px] text-slate-400">مفتاح الأمان مشفر ومفعل على OKX</p>
-            </div>
-            <span class="bg-green-500/20 text-green-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">مفعل ✅</span>
+        <div class="p-3 bg-slate-900 rounded-xl border border-slate-700">
+            <p class="text-white font-bold mb-1">تشفير الجلسة</p>
+            <p class="text-slate-400">نظام V8.6 يقوم بتشفير بياناتك محلياً لحظياً.</p>
         </div>
+        <button class="w-full bg-rose-500/20 text-rose-400 py-3 rounded-xl font-bold border border-rose-500/30">مسح بيانات ذاكرة التخزين المؤقت</button>
     </div>
-</div>
-
-<div id="sub-okx-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
-    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
-    <h3 class="text-sm font-black text-cyan-400">💰 رصيد OKX الملكي (USDT)</h3>
-    <div class="glass bg-slate-900 p-4 rounded-xl border border-cyan-500/30 text-center space-y-2">
-        <p class="text-xs text-slate-400">الرصيد المتاح حالياً</p>
-        <p class="text-2xl font-black text-cyan-400">0.00 $ <span class="text-xs text-slate-400">USDT</span></p>
-        <p class="text-[10px] text-slate-500">معرف المحفظة: 0x53...c0af6</p>
-    </div>
-</div>
-
-<div id="sub-activity-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
-    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
-    <h3 class="text-sm font-black text-cyan-400">📊 مركز الانشطة السيادية</h3>
-    <div class="space-y-2 text-xs">
-        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-            <span>إجمالي المنشورات النشطة</span>
-            <span id="activityPosts" class="text-cyan-400 font-bold">0</span>
-        </div>
-    </div>
-</div>
-
-<div id="sub-offline-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
-    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
-    <h3 class="text-sm font-black text-cyan-400">📺 فيديوهات دون اتصال (Tarim OS Cache)</h3>
-    <div class="p-4 text-center text-xs text-slate-400 bg-slate-900 rounded-xl">لا توجد فيديوهات مخزنة حالياً في الذاكرة المحلية.</div>
-</div>
-
-<div id="sub-commerce-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
-    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
-    <h3 class="text-sm font-black text-cyan-400">👥 المجموعة التجارية السيادية</h3>
-    <div class="p-4 text-center text-xs text-slate-400 bg-slate-900 rounded-xl">متجر Zid وعمليات الحراج مرتبطة بنجاح.</div>
 </div>
 
 <div id="sub-manage-posts" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
     <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
     <h3 class="text-sm font-black text-cyan-400">📄 إدارة المنشورات</h3>
-    <div id="managePostsList" class="space-y-2 text-xs"></div>
+    <div id="managePostsList" class="space-y-2"></div>
 </div>
-
-<div id="sub-policy-page" class="sub-page hidden glass p-5 rounded-2xl text-right space-y-4">
-    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold">← رجوع</button>
-    <h3 class="text-sm font-black text-cyan-400">📜 السياسة والخصوصية</h3>
-    <div class="p-4 text-xs text-slate-300 bg-slate-900 rounded-xl space-y-2">
-        <p>Tarim OS V8.6 - نظام تشغيل سيادي محصن بالكامل يضمن أمان بياناتك وتشفر كافة المعاملات عبر OKX ومنافذ الحماية الذكية.</p>
-    </div>
-</div>
-
 </div>
 </main>
-<nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 px-4 py-2 flex justify-around items-center z-40">
-<button data-action="tabHome" class="nav-btn flex flex-col items-center text-cyan-400 text-[10px]"><span class="text-xl">🏰</span>الرئيسية</button>
-<button data-action="tabOperations" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">⚡</span>العمليات</button>
-<button data-action="tabCreate" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">➕</span>إنشاء</button>
-<button data-action="tabInbox" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">💬</span>الوارد</button>
-<button data-action="tabProfile" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]"><span class="text-xl">👤</span>الملفات</button>
+
+<!-- Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 glass border-t border-cyan-500/20 px-6 py-3 flex justify-between items-center z-50">
+    <button data-action="tabHome" class="flex flex-col items-center gap-1 text-cyan-400">
+        <span class="text-xl">🏠</span>
+        <span class="text-[9px] font-bold">الرئيسية</span>
+    </button>
+    <button data-action="tabOperations" class="flex flex-col items-center gap-1 text-slate-400">
+        <span class="text-xl">⚡</span>
+        <span class="text-[9px] font-bold">عمليات</span>
+    </button>
+    <button data-action="tabCreate" class="bg-cyan-500 text-black p-3 rounded-full -mt-8 shadow-[0_0_15px_rgba(6,182,212,0.5)]">
+        <span class="text-2xl">➕</span>
+    </button>
+    <button data-action="tabInbox" class="flex flex-col items-center gap-1 text-slate-400">
+        <span class="text-xl">💬</span>
+        <span class="text-[9px] font-bold">الرسائل</span>
+    </button>
+    <button data-action="tabProfile" class="flex flex-col items-center gap-1 text-slate-400">
+        <span class="text-xl">👤</span>
+        <span class="text-[9px] font-bold">الملف</span>
+    </button>
 </nav>
 
-<script src="./ai-eye.js" type="module"></script>
-<script src="./support.js" type="module"></script>
-<script src="/app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
