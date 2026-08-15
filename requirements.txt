@@ -4,3 +4,4 @@ redis
 python-dotenv
 scikit-learn
 numpy
+pillow
