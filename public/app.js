@@ -211,7 +211,11 @@ const cleanContent = sanitizeText(inp.value.slice(0,1000));
 const post={ id:Date.now(), content:cleanContent, username:sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), createdAt:new Date().toISOString(), likes:0 };
 const all=getPosts(); all.push(post); savePosts(all); inp.value='';
 if(state.upURL){ URL.revokeObjectURL(state.upURL); state.upURL=null; state.upIsVideo=false; initCam(); }
-state.capImg=null; renderAllFeeds(); updateCounters(); toast('🚀 تم النشر');
+state.capImg=null; 
+renderAllFeeds(); 
+updateCounters(); 
+toast('🚀 تم النشر');
+switchTab('home', document.querySelector('[data-action="tabHome"]')); // الانتقال الفوري للرئيسية وتحديث العرض
 }
 function forceUnlockCastle() {
 const el = $('userPhoneOrEmail');
