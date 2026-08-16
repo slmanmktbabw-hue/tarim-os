@@ -1,480 +1,680 @@
-// TARIM OS V8.6 KING SECURE - Main Application Script
-const KING_KEY = 'TARIM_KING_2026';
-const KING_USERS = ['Gooaz', 'google_529@', 'أبو سلمان'];
-
-let currentUser = {
-    username: 'Gooaz',
-    displayName: 'الإمبراطور AL',
-    okxId: '0x53...c0af6',
-    isKing: true,
-    followers: 1250,
-    following: 140,
-    likes: 9840,
-    okxBalance: 520.50
+// public/app.js - TARIM OS V8.6 KING EDITION - SECURED & HARDENED WITH SUB-PAGES & HOME BUTTONS
+"use strict";
+(function () {
+const $ = id => document.getElementById(id);
+function sanitizeText(t) {
+if (!t) return "";
+return String(t).slice(0, 1000)
+.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+.replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+function toast(m) {
+const b = $('toastBox'); if (!b) return;
+const e = document.createElement('div');
+e.textContent = sanitizeText(m).slice(0, 220);
+e.style.cssText = 'background:#00B4D8;color:#000;padding:12px 16px;border-radius:14px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center;z-index:99999;position:relative';
+b.appendChild(e);
+setTimeout(() => e.remove(), 4000);
+}
+let state = {
+curStream: null, facing: 'user', map: null, liveInt: null,
+lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
+watchTimer: null, currentWatchTime: 0, abortCtrl: null,
+giftType: 'heart', adBudget: 5, homeLikesCount: 120
 };
 
-let posts = [
-    { id: 1, author: 'Google_529@', text: 'مرحباً بكم في منصة تريم الإمبراطورية V8.6 KING SECURE 🌴 #تريم #حضرموت', likes: 120, comments: 45, type: 'post' }
-];
-
-let localStream = null;
-let isLiveActive = false;
-let liveTimerInterval = null;
-let liveSeconds = 0;
-
-document.addEventListener('DOMContentLoaded', () => {
-    initAuth();
-    initNavigation();
-    initCameraAndCreate();
-    initProfileAndSettings();
-    initAIHelper();
-    initOperations();
-    renderAllFeeds();
-    loadUserBg();
-});
-
-// Toast Notification
-function showToast(message, type = 'info') {
-    const box = document.getElementById('toastBox');
-    if (!box) return;
-    const alertEl = document.createElement('div');
-    alertEl.className = `p-3 mb-2 rounded-xl text-xs font-bold text-white shadow-lg transition-all transform translate-y-0 ${type === 'error' ? 'bg-rose-600' : 'bg-cyan-600'}`;
-    alertEl.textContent = sanitizeText(message);
-    box.appendChild(alertEl);
-    setTimeout(() => {
-        alertEl.style.opacity = '0';
-        setTimeout(() => alertEl.remove(), 300);
-    }, 3000);
+// === نظام الملك المحصن ===
+const KING_KEY = 'TARIM_KING_2026';
+const KING_USERS = ['al','slmanmktbabw-hue','الامبراطور','الملك','gooaz'];
+function isKing(){
+  const u = (localStorage.getItem('tarim_session_v73')||'').toLowerCase();
+  return KING_USERS.includes(u) || localStorage.getItem('tarim_king_auth')===KING_KEY;
 }
 
-function sanitizeText(str) {
-    if (!str) return '';
-    return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-// Auth Gate
-function initAuth() {
-    const loginBtn = document.getElementById('loginBtn');
-    const authGate = document.getElementById('authGate');
-    const loginError = document.getElementById('loginError');
-
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            const userVal = document.getElementById('userPhoneOrEmail').value.trim();
-            const passVal = document.getElementById('userPass').value.trim();
-
-            if (userVal === '' || passVal === '') {
-                loginError.textContent = 'يرجى إدخال اسم المستخدم وكلمة المرور';
-                loginError.classList.remove('hidden');
-                return;
-            }
-
-            currentUser.username = userVal;
-            currentUser.isKing = KING_USERS.includes(userVal) || userVal.toLowerCase().includes('gooaz');
-            
-            authGate.classList.add('hidden');
-            showToast('تم تسجيل الدخول بنجاح إلى القلعة السيادية 👑');
-            updateProfileUI();
-        });
-    }
-
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            authGate.classList.remove('hidden');
-            showToast('تم تسجيل الخروج بنجاح');
-        });
-    }
-}
-
-// Navigation Tabs
-function initNavigation() {
-    const navButtons = document.querySelectorAll('nav button[data-action], button[data-action]');
-    navButtons.forEach(btn => {
-        const action = btn.getAttribute('data-action');
-        if (!action) return;
-
-        btn.addEventListener('click', () => {
-            if (action.startsWith('tab')) {
-                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-                const tabId = 'tab-' + action.replace('tab', '').toLowerCase();
-                const targetTab = document.getElementById(tabId);
-                if (targetTab) targetTab.classList.add('active');
-
-                document.querySelectorAll('nav button').forEach(b => b.classList.remove('text-cyan-400'));
-                document.querySelectorAll('nav button').forEach(b => b.classList.add('text-slate-400'));
-                if (btn.closest('nav')) {
-                    btn.classList.remove('text-slate-400');
-                    btn.classList.add('text-cyan-400');
-                }
-            } else if (action === 'openAccountSettings') {
-                showSubPage('sub-account-settings');
-            } else if (action === 'openSecurity') {
-                showSubPage('sub-security-settings');
-            } else if (action === 'openPromo') {
-                showSubPage('sub-promo-page');
-            } else if (action === 'openQrPage') {
-                showSubPage('sub-qr-page');
-                generateQRCodeDisplay();
-            } else if (action === 'openManagePosts') {
-                showSubPage('sub-manage-posts');
-                renderManagePosts();
-            } else if (action === 'backToProfile') {
-                hideAllSubPages();
-            } else if (action === 'openOkx') {
-                showToast(`رصيد OKX الملكي: $${currentUser.okxBalance} USDT 💰`);
-            } else if (action === 'openActivity') {
-                showToast('مركز النشاطات السيادية: الجلسة مؤمنة بنسبة 100%');
-            } else if (action === 'openOffline') {
-                showToast('لا توجد فيديوهات مخزنة دون اتصال حالياً');
-            } else if (action === 'openCommerce') {
-                showToast('المجموعة التجارية: مكتب أبو سلمان للخدمات العامة (تعز / تريم)');
-            } else if (action === 'shareProfileLink') {
-                navigator.clipboard?.writeText(window.location.href);
-                showToast('تم نسخ رابط الملف الشخصي السيادي 🔗');
-            }
-        });
-    });
-}
-
-function showSubPage(pageId) {
-    document.getElementById('profile-main').classList.add('hidden');
-    document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
-    const target = document.getElementById(pageId);
-    if (target) target.classList.remove('hidden');
-}
-
-function hideAllSubPages() {
-    document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
-    document.getElementById('profile-main').classList.remove('hidden');
-}
-
-// Camera & Create
-function initCameraAndCreate() {
-    const videoElem = document.getElementById('cameraPreview');
-    const uploadBtn = document.getElementById('uploadTriggerBtn');
-    const videoInput = document.getElementById('videoInput');
-    const publishBtn = document.getElementById('publishBtn');
-    const startLiveBtn = document.getElementById('startLiveBtn');
-    const stopLiveBtn = document.getElementById('stopLiveBtn');
-    const stopLiveBtnFull = document.getElementById('stopLiveBtnFull');
-    const endLiveTopBtn = document.getElementById('endLiveTopBtn');
-    const cameraWrap = document.getElementById('cameraWrap');
-    const liveControlsFull = document.getElementById('liveControlsFull');
-    const normalControls = document.getElementById('normalControls');
-    const liveBadge = document.getElementById('liveBadge');
-
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-            .then(stream => {
-                localStream = stream;
-                if (videoElem) videoElem.srcObject = stream;
-            })
-            .catch(err => {
-                console.warn('Camera access unavailable:', err);
-            });
-    }
-
-    if (uploadBtn && videoInput) {
-        uploadBtn.addEventListener('click', () => videoInput.click());
-        videoInput.addEventListener('change', (e) => {
-            if (e.target.files && e.target.files[0]) {
-                showToast('تم إرفاق الملف بنجاح جاهز للنشر 📹');
-            }
-        });
-    }
-
-    if (startLiveBtn) {
-        startLiveBtn.addEventListener('click', () => {
-            isLiveActive = true;
-            liveBadge.classList.remove('hidden');
-            endLiveTopBtn.classList.remove('hidden');
-            cameraWrap.classList.add('fullscreen-live');
-            liveControlsFull.classList.remove('hidden');
-            normalControls.classList.add('hidden');
-            startLiveTimer();
-            showToast('🔴 بدأ البث المباشر السيادي بملء الشاشة');
-        });
-    }
-
-    const stopLiveHandler = () => {
-        isLiveActive = false;
-        liveBadge.classList.add('hidden');
-        endLiveTopBtn.classList.add('hidden');
-        cameraWrap.classList.remove('fullscreen-live');
-        liveControlsFull.classList.add('hidden');
-        normalControls.classList.remove('hidden');
-        stopLiveTimer();
-        showToast('⏹️ تم إنهاء البث المباشر بنجاح');
-    };
-
-    if (stopLiveBtn) stopLiveBtn.addEventListener('click', stopLiveHandler);
-    if (stopLiveBtnFull) stopLiveBtnFull.addEventListener('click', stopLiveHandler);
-    if (endLiveTopBtn) endLiveTopBtn.addEventListener('click', stopLiveHandler);
-
-    if (publishBtn) {
-        publishBtn.addEventListener('click', () => {
-            const input = document.getElementById('postContentInput');
-            const val = input ? input.value.trim() : '';
-            if (!val && !videoInput.files.length) {
-                showToast('يرجى كتابة وصف أو إرفاق وسائط النشر', 'error');
-                return;
-            }
-            posts.unshift({
-                id: Date.now(),
-                author: currentUser.username,
-                text: sanitizeText(val || 'منشور جديد سيادي'),
-                likes: 0,
-                comments: 0,
-                type: 'post'
-            });
-            if (input) input.value = '';
-            renderAllFeeds();
-            showToast('🚀 تم نشر المحتوى بنجاح في القلعة');
-        });
-    }
-}
-
-function startLiveTimer() {
-    liveSeconds = 0;
-    const timerElem = document.getElementById('liveTimer');
-    liveTimerInterval = setInterval(() => {
-        liveSeconds++;
-        const mins = String(Math.floor(liveSeconds / 60)).padStart(2, '0');
-        const secs = String(liveSeconds % 60).padStart(2, '0');
-        if (timerElem) timerElem.textContent = `${mins}:${secs}`;
-    }, 1000);
-}
-
-function stopLiveTimer() {
-    if (liveTimerInterval) clearInterval(liveTimerInterval);
-    const timerElem = document.getElementById('liveTimer');
-    if (timerElem) timerElem.textContent = '00:00';
-}
-
-// Feeds & Rendering
-function renderAllFeeds() {
-    const postsFeed = document.getElementById('postsFeed');
-    if (!postsFeed) return;
-    postsFeed.innerHTML = '';
-
-    posts.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'glass p-4 rounded-2xl space-y-2 border border-cyan-500/30';
-        div.innerHTML = `
-            <div class="flex justify-between items-center text-xs text-cyan-400 font-bold">
-                <span>👑 ${sanitizeText(p.author)}</span>
-                <span class="text-[10px] text-slate-400">تريم - حضرموت</span>
-            </div>
-            <p class="text-xs text-white">${sanitizeText(p.text)}</p>
-            <div class="flex justify-between items-center text-xs text-slate-400 pt-2 border-t border-slate-800">
-                <button onclick="likePost(${p.id})" class="flex items-center gap-1 hover:text-rose-400">❤️ <span>${p.likes}</span></button>
-                <button class="flex items-center gap-1">💬 <span>${p.comments}</span> تعليقات</button>
-                <button onclick="sharePost()" class="flex items-center gap-1">🚀 مشاركة</button>
-            </div>
-        `;
-        postsFeed.appendChild(div);
-    });
-}
-
-function likePost(id) {
-    const post = posts.find(p => p.id === id);
-    if (post) {
-        post.likes++;
-        renderAllFeeds();
-        showToast('❤️ تم تسجيل الإعجاب');
-    }
-}
-
-function sharePost() {
-    showToast('🔗 تم نسخ رابط المنشور السيادي');
-}
-
-function renderManagePosts() {
-    const list = document.getElementById('managePostsList');
-    if (!list) return;
-    list.innerHTML = '';
-
-    if (posts.length === 0) {
-        list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">لا توجد منشورات حالياً</p>';
-        return;
-    }
-
-    posts.forEach(p => {
-        const item = document.createElement('div');
-        item.className = 'bg-slate-900 border border-slate-700 p-3 rounded-xl flex justify-between items-center text-xs';
-        item.innerHTML = `
-            <span class="truncate flex-1 ml-2 text-right">${sanitizeText(p.text)}</span>
-            <button onclick="deletePost(${p.id})" class="bg-rose-500/20 text-rose-400 px-3 py-1.5 rounded-lg font-bold border border-rose-500/40">حذف</button>
-        `;
-        list.appendChild(item);
-    });
-}
-
-function deletePost(id) {
-    posts = posts.filter(p => p.id !== id);
-    renderManagePosts();
-    renderAllFeeds();
-    showToast('🗑️ تم حذف المنشور بنجاح');
-}
-
-// Profile & Settings
-function initProfileAndSettings() {
-    const saveSettingsBtn = document.getElementById('saveAccountSettingsBtn');
-    if (saveSettingsBtn) {
-        saveSettingsBtn.addEventListener('click', () => {
-            const nameInput = document.getElementById('settingsDisplayName').value.trim();
-            const okxInput = document.getElementById('settingsOkxId').value.trim();
-            
-            if (nameInput) currentUser.displayName = nameInput;
-            if (okxInput) currentUser.okxId = okxInput;
-
-            updateProfileUI();
-            hideAllSubPages();
-            showToast('💾 تم حفظ التعديلات السيادية بنجاح');
-        });
-    }
-}
-
-function updateProfileUI() {
-    const nameDisplay = document.getElementById('profileNameDisplay');
-    const homeUsername = document.getElementById('homeUsernameDisplay');
-    if (nameDisplay) nameDisplay.textContent = currentUser.displayName;
-    if (homeUsername) homeUsername.textContent = `TARIM OS V8.6 - ${currentUser.displayName}`;
-}
-
-// Background Customization
-function changeBg(color) {
-    document.body.style.backgroundImage = 'none';
-    document.body.style.backgroundColor = color;
+// دالة تغيير وتخزين الخلفية السيادية (ألوان)
+window.changeBg = function(color) {
+  const body = document.getElementById('appBody');
+  if(body) {
+    body.style.backgroundImage = 'none';
+    body.style.backgroundColor = color;
     localStorage.setItem('tarim_bg_color', color);
     localStorage.removeItem('tarim_bg_image');
-    showToast('🎨 تم تغيير الخلفية بنجاح');
+    toast('🎨 تم تحديث خلفية التطبيق بنجاح');
+  }
+};
+
+// دالة تعيين صورة شخصية كخلفية سيادية
+window.changeBgImage = function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const body = document.getElementById('appBody');
+    if(body) {
+      body.style.backgroundImage = `url('${dataUrl}')`;
+      body.style.backgroundSize = 'cover';
+      body.style.backgroundPosition = 'center';
+      body.style.backgroundAttachment = 'fixed';
+      localStorage.setItem('tarim_bg_image', dataUrl);
+      localStorage.removeItem('tarim_bg_color');
+      toast('🖼️ تم تعيين صورتك الشخصية كخلفية بنجاح');
+    }
+  };
+  reader.readAsDataURL(file);
+};
+
+async function openNativeFullscreen(elem) {
+try {
+if (!elem) return;
+if (elem.requestFullscreen) await elem.requestFullscreen();
+else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen();
+else if (elem.webkitEnterFullscreen) elem.webkitEnterFullscreen();
+} catch (e) { console.log('Fullscreen blocked'); }
 }
-
-function changeBgImage(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const imgUrl = e.target.result;
-            document.body.style.backgroundImage = `url('${imgUrl}')`;
-            localStorage.setItem('tarim_bg_image', imgUrl);
-            showToast('🖼️ تم تعيين الخلفية الشخصية بنجاح');
-        };
-        reader.readAsDataURL(file);
-    }
+function closeNativeFullscreen() {
+try {
+if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+} catch {}
 }
-
-function loadUserBg() {
-    const savedImg = localStorage.getItem('tarim_bg_image');
-    const savedColor = localStorage.getItem('tarim_bg_color');
-    if (savedImg) {
-        document.body.style.backgroundImage = `url('${savedImg}')`;
-    } else if (savedColor) {
-        document.body.style.backgroundColor = savedColor;
-    }
+function startUesWatchSimulation() {
+if (state.watchTimer) clearInterval(state.watchTimer);
+if (state.abortCtrl) state.abortCtrl.abort();
+state.currentWatchTime = 0;
+state.abortCtrl = new AbortController();
+state.watchTimer = setInterval(async () => {
+state.currentWatchTime += 5;
+if (state.currentWatchTime >= 20) {
+clearInterval(state.watchTimer);
+try {
+const res = await fetch('/get_next_video', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+signal: state.abortCtrl.signal,
+body: JSON.stringify({
+user_profile: { country: 'YE', interest: 'cooking', repeat_count: 0 },
+current_video: { duration: 45, watch_time: state.currentWatchTime }
+})
+});
+if (!res.ok) throw new Error('offline');
+const data = await res.json();
+if (data.action === 'split_screen' && data.video_id) {
+const vid = String(data.video_id).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,50);
+if (['short_funny_01','short_tip_02','ye_cooking_restaurant_001','ye_football_highlights_002'].includes(vid) || vid.startsWith('trending_')) {
+toast('⚡ Tarim_Fortress: ' + sanitizeText(vid));
 }
-
-// AI Helper (عين الذكاء)
-function initAIHelper() {
-    const aiEyeBtn = document.getElementById('aiEyeBtn');
-    const aiModal = document.getElementById('aiModal');
-    const aiCloseBtn = document.getElementById('aiCloseBtn');
-    const aiSendBtn = document.getElementById('aiSendBtn');
-    const aiInput = document.getElementById('aiInput');
-    const aiMessages = document.getElementById('aiMessages');
-
-    if (aiEyeBtn && aiModal) {
-        aiEyeBtn.addEventListener('click', () => aiModal.classList.remove('hidden'));
-    }
-    if (aiCloseBtn && aiModal) {
-        aiCloseBtn.addEventListener('click', () => aiModal.classList.add('hidden'));
-    }
-
-    if (aiSendBtn && aiInput && aiMessages) {
-        const appendMsg = (sender, text) => {
-            const m = document.createElement('div');
-            m.className = sender === 'user' ? 'text-right text-cyan-300' : 'text-left text-slate-300';
-            m.innerHTML = `<span class="font-bold">${sender === 'user' ? 'أنت' : 'عين الذكاء'}:</span> ${sanitizeText(text)}`;
-            aiMessages.appendChild(m);
-            aiMessages.scrollTop = aiMessages.scrollHeight;
-        };
-
-        appendMsg('ai', 'أهلاً بك يا أبو سلمان في النظام الملكي. كيف يمكنني مساعدتك في عمليات تريم والمنصة اليوم؟');
-
-        aiSendBtn.addEventListener('click', () => {
-            const text = aiInput.value.trim();
-            if (!text) return;
-            appendMsg('user', text);
-            aiInput.value = '';
-
-            setTimeout(() => {
-                let reply = 'تم استلاستفسارك ومعالجته عبر درع الحماية السيادي بنجاح.';
-                if (text.includes('سعر') || text.includes('okx')) {
-                    reply = 'منصة OKX متصلة بنجاح، رصيدك الحالي آمن ومعاملات P2P تعمل بكفاءة عالية.';
-                } else if (text.includes('تريم') || text.includes('حضرموت')) {
-                    reply = 'نظام خريطة حضرموت وخدمات مكتب أبو سلمان تعمل بأعلى أداء.';
-                }
-                appendMsg('ai', reply);
-            }, 800);
-        });
-    }
 }
-
-// Operations & QR
-function initOperations() {
-    const inboxSendBtn = document.getElementById('sendInboxMsgBtn');
-    const inboxInput = document.getElementById('inboxInputField');
-    const inboxList = document.getElementById('inboxMessagesList');
-
-    if (inboxSendBtn && inboxInput && inboxList) {
-        inboxSendBtn.addEventListener('click', () => {
-            const val = inboxInput.value.trim();
-            if (!val) return;
-
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-xs text-right';
-            msgDiv.innerHTML = `<span class="text-cyan-400 font-bold block mb-1">أنت:</span>${sanitizeText(val)}`;
-            inboxList.appendChild(msgDiv);
-            inboxInput.value = '';
-
-            setTimeout(() => {
-                const replyDiv = document.createElement('div');
-                replyDiv.className = 'bg-cyan-950/40 border border-cyan-500/30 p-2.5 rounded-xl text-xs text-right';
-                replyDiv.innerHTML = `<span class="text-cyan-300 font-bold block mb-1">فريق الدعم السيادي:</span>تم استلام رسالتك وسيتم الرد الفوري.`;
-                inboxList.appendChild(replyDiv);
-                inboxList.scrollTop = inboxList.scrollHeight;
-            }, 1000);
-        });
-    }
+} catch (err) {
+if (err.name!== 'AbortError') console.log('Tarim_Fortress: Offline Mode');
 }
+}
+}, 5000);
+}
+function stopStream() {
+if (state.curStream) { state.curStream.getTracks().forEach(t => t.stop()); state.curStream = null; }
+if (state.liveInt) { clearInterval(state.liveInt); state.liveInt = null; }
+if (state.watchTimer) { clearInterval(state.watchTimer); state.watchTimer = null; }
+if (state.abortCtrl) { state.abortCtrl.abort(); state.abortCtrl = null; }
+}
+function switchTab(name, btn) {
+if (state.liveMode) { toast('🔴 أنهي البث أولاً'); return; }
+stopStream(); closeNativeFullscreen();
+document.querySelectorAll('.tab-content').forEach(t => { t.classList.remove('active'); t.classList.add('hidden'); });
+const tar = $('tab-' + name); if (tar) { tar.classList.remove('hidden'); tar.classList.add('active'); }
+document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('text-cyan-400'); b.classList.add('text-slate-400'); });
+if (btn) { btn.classList.remove('text-slate-400'); btn.classList.add('text-cyan-400'); }
+if (name === 'create') initCam();
+if (name === 'profile') { backToProfile(); updateCounters(); }
+if (name === 'home') { renderAllFeeds(); startUesWatchSimulation(); }
+}
+function showSubPage(id) {
+const main = $('profile-main'); if (main) main.classList.add('hidden');
+document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
+const t = $('sub-' + id); if (t) {
+  t.classList.remove('hidden');
+  if(id==='qr-page'){
+    const c=$('qrcode'); if(c){ c.textContent=''; if(window.QRCode) new QRCode(c,{text:'https://tarimos.org/user/'+sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'),width:128,height:128}); }
+  }
+  if(id==='promo-page'){ initPromoPage(); }
+  if(id==='manage-posts'){ renderManagePosts(); }
+}
+}
+function backToProfile() { document.querySelectorAll('.sub-page').forEach(p=>p.classList.add('hidden')); const m=$('profile-main'); if(m) m.classList.remove('hidden'); updateCounters(); }
+function updateCounters() {
+const posts = getPosts();
+if ($('countFollowers')) $('countFollowers').textContent = posts.length || 1;
+if ($('countFollowing')) $('countFollowing').textContent = Math.floor(posts.length/2);
+if ($('countLikes')) $('countLikes').textContent = posts.reduce((a,b)=>a+(Number(b.likes)||0),0);
+if ($('activityPosts')) $('activityPosts').textContent = posts.length;
+}
+async function initCam() {
+const v = $('cameraPreview'); if(!v) return;
+try {
+if (state.upURL) return;
+stopStream();
+state.curStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facing},audio:true});
+v.srcObject = state.curStream; v.muted = true; await v.play();
+} catch (e){ toast('الكاميرا تحتاج HTTPS + سماح'); }
+}
+function setFilter(t){ const v=$('cameraPreview'); if(!v) return; v.style.filter=t==='beauty'?'contrast(1.15) brightness(1.15) saturate(1.2)':'none'; toast(t==='beauty'?'💄 تجميل':'✨ طبيعي'); }
+function switchCam(){ state.facing=state.facing==='user'?'environment':'user'; initCam(); }
+function capturePhoto(){ const v=$('cameraPreview'); if(!v) return; const c=document.createElement('canvas'); c.width=v.videoWidth||640; c.height=v.videoHeight||480; c.getContext('2d').drawImage(v,0,0); state.capImg=c.toDataURL('image/jpeg',0.85); toast('📸 تم التقاط صورة'); }
+function getPosts() {
+try {
+const data=localStorage.getItem('tarim_posts_v73'); if(!data) return [];
+const arr=JSON.parse(data); if(!Array.isArray(arr)) return [];
+return arr.slice(-100).filter(p=>p && typeof p==='object' && typeof p.content==='string' && p.content.length<=1000);
+} catch { return []; }
+}
+function savePosts(p){ try{ localStorage.setItem('tarim_posts_v73', JSON.stringify(p.slice(-100))); }catch{ toast('التخزين ممتلئ'); } }
+function renderAllFeeds() {
+const f = $('postsFeed'); if (!f) return; f.textContent = '';
+const posts = getPosts();
+if (!posts.length){ const empty=document.createElement('div'); empty.className='glass p-8 rounded-2xl text-center text-slate-400 text-xs'; empty.textContent='لا منشورات بعد - ابدأ بث مباشر 👑'; f.appendChild(empty); return; }
+posts.slice().reverse().forEach(p=>{
+const c=document.createElement('div'); c.className='glass p-4 rounded-xl border border-cyan-500/20';
+const header=document.createElement('div'); header.className='flex justify-between text-[10px] text-slate-400 mb-2';
+const u=document.createElement('span'); u.className='text-cyan-400 font-bold'; u.textContent='@'+sanitizeText(p.username||'AL')+' 👑';
+const t=document.createElement('span'); t.textContent=new Date(p.createdAt||Date.now()).toLocaleTimeString('ar');
+header.appendChild(u); header.appendChild(t);
+const body=document.createElement('p'); body.className='text-xs'; body.textContent=sanitizeText(p.content||'');
+c.appendChild(header); c.appendChild(body); f.appendChild(c);
+});
+}
+function renderManagePosts() {
+const list = $('managePostsList'); if(!list) return;
+list.textContent = '';
+const posts = getPosts();
+if(!posts.length){ list.innerHTML = '<div class="p-4 text-center text-slate-400 bg-slate-900 rounded-xl">لا توجد منشورات لإدارتها</div>'; return; }
+posts.slice().reverse().forEach(p=>{
+  const item = document.createElement('div');
+  item.className = 'bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center';
+  item.innerHTML = `<span class="truncate max-w-[200px]">${sanitizeText(p.content)}</span>
+  <button onclick="deletePost(${p.id})" class="bg-rose-500/20 text-rose-400 px-3 py-1 rounded-lg text-[10px] font-bold">حذف</button>`;
+  list.appendChild(item);
+});
+}
+window.deletePost = function(id){
+  let posts = getPosts();
+  posts = posts.filter(p => p.id !== id);
+  savePosts(posts);
+  renderManagePosts();
+  renderAllFeeds();
+  updateCounters();
+  toast('🗑️ تم حذف المنشور بنجاح');
+};
 
-function generateQRCodeDisplay() {
-    const qrContainer = document.getElementById('qrcode');
-    const opsQrContainer = document.getElementById('operationsQrBox');
-    const qrText = `TARIM_OS_V8.6_SECURE:${currentUser.username}:${currentUser.okxId}`;
+function publishPost() {
+const inp = $('postContentInput'); if (!inp ||!inp.value.trim()) { toast('اكتب شيئاً'); return; }
+const cleanContent = sanitizeText(inp.value.slice(0,1000));
+const post={ id:Date.now(), content:cleanContent, username:sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), createdAt:new Date().toISOString(), likes:0 };
+const all=getPosts(); all.push(post); savePosts(all); inp.value='';
+if(state.upURL){ URL.revokeObjectURL(state.upURL); state.upURL=null; state.upIsVideo=false; initCam(); }
+state.capImg=null; 
+renderAllFeeds(); 
+updateCounters(); 
+toast('🚀 تم النشر');
+switchTab('home', document.querySelector('[data-action="tabHome"]')); // الانتقال الفوري للرئيسية وتحديث العرض
+}
+function forceUnlockCastle() {
+const el = $('userPhoneOrEmail');
+let raw = (el && el.value.trim())||'AL';
+if(raw.toUpperCase()==='KING'){
+  localStorage.setItem('tarim_king_auth', KING_KEY);
+  raw='AL';
+  toast('👑 تم تفعيل صلاحية الملك');
+}
+const u = sanitizeText(raw).slice(0,30)||'AL';
+localStorage.setItem('tarim_session_v73', u); localStorage.setItem('tarim_token_v73','offline_'+Date.now());
+const gate = $('authGate'); if(gate) gate.style.display = 'none';
+const h1=$('homeUsernameDisplay'); if(h1) h1.textContent='@'+u+' 👑'+(isKing()?' [الملك]':'');
+const h2=$('profileNameDisplay'); if(h2) h2.textContent='الإمبراطور '+u+(isKing()?' 👑':'');
+renderAllFeeds(); updateCounters(); startUesWatchSimulation(); toast('أهلاً '+u+' 👑');
+}
+async function startLive(){
+state.liveMode = true; state.likes = 0; state.lSec = 0;
+await initCam();
+const wrap = $('cameraWrap');
+if (wrap) { wrap.classList.add('fullscreen-live'); await openNativeFullscreen(wrap); }
+const lb = $('liveBadge'); if(lb) lb.classList.remove('hidden');
+const lc = $('liveControlsFull'); if(lc) lc.classList.remove('hidden');
+const et = $('endLiveTopBtn'); if(et) et.classList.remove('hidden');
+const nc = $('normalControls'); if(nc) nc.classList.add('hidden');
+const hdr = document.querySelector('header'); if(hdr) hdr.classList.add('hidden');
+const nav = document.querySelector('nav'); if(nav) nav.classList.add('hidden');
+if(state.liveInt) clearInterval(state.liveInt);
+state.liveInt = setInterval(() => {
+state.lSec++;
+const m = String(Math.floor(state.lSec / 60)).padStart(2, '0');
+const s = String(state.lSec % 60).padStart(2, '0');
+const lt = $('liveTimer'); if(lt) lt.textContent = m + ':' + s;
+}, 1000);
+toast('🔴 بث ملء الشاشة - كامل');
+}
+function stopLive(){
+state.liveMode = false;
+if(state.liveInt) { clearInterval(state.liveInt); state.liveInt = null; }
+closeNativeFullscreen();
+const wrap = $('cameraWrap'); if(wrap) wrap.classList.remove('fullscreen-live');
+const lb = $('liveBadge'); if(lb) lb.classList.add('hidden');
+const lc = $('liveControlsFull'); if(lc) lc.classList.add('hidden');
+const et = $('endLiveTopBtn'); if(et) et.classList.add('hidden');
+const nc = $('normalControls'); if(nc) nc.classList.remove('hidden');
+const hdr = document.querySelector('header'); if(hdr) hdr.classList.remove('hidden');
+const nav = document.querySelector('nav'); if(nav) nav.classList.remove('hidden');
+stopStream(); setTimeout(()=>initCam(), 200); toast('⏹️ تم إنهاء البث');
+}
+function addLike() {
+state.likes++;
+const lc = $('likeCount'); if(lc) lc.textContent = state.likes;
+const lf = $('likeCountFull'); if(lf) lf.textContent = state.likes;
+}
+function openGiftModal() {
+  let modal = $('triplePayModal');
+  if(modal){ modal.classList.remove('hidden'); return; }
+  modal = document.createElement('div');
+  modal.id = 'triplePayModal';
+  modal.className = 'fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-[9999] p-4';
+  modal.innerHTML = `
+  <div class="bg-slate-900 border border-cyan-500/30 rounded-[24px] p-6 w-full max-w-sm shadow-2xl">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-cyan-400 font-bold">🎁 اختر طريقة الدفع - سيادي</h3>
+      <button id="closeTriplePay" class="text-slate-400 text-xl">✕</button>
+    </div>
+    <div class="grid gap-3">
+      <div class="grid grid-cols-4 gap-2 mb-2">
+        <button data-gift="heart" class="gift-type bg-cyan-500 text-black p-2 rounded-lg text-[10px] font-bold">❤️ 0.1$</button>
+        <button data-gift="rose" class="gift-type bg-slate-800 text-white p-2 rounded-lg text-[10px]">🌹 0.5$</button>
+        <button data-gift="crown" class="gift-type bg-slate-800 text-white p-2 rounded-lg text-[10px]">👑 1$</button>
+        <button data-gift="rocket" class="gift-type bg-slate-800 text-white p-2 rounded-lg text-[10px]">🚀 5$</button>
+      </div>
+      <div class="bg-slate-800/50 p-2 rounded text-[10px] text-slate-400 text-center">الملك 10% + المبدع 90% 👑</div>
+      <button id="payOKX" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold p-4 rounded-xl flex justify-between items-center">
+        <span>💎 OKX - فوري لليمن</span><span class="text-[10px] bg-black/20 px-2 py-1 rounded">مباشر</span>
+      </button>
+      <button id="payCard" class="bg-slate-800 border border-yellow-500/50 text-white font-bold p-4 rounded-xl flex justify-between items-center">
+        <span>💳 Mastercard / Visa</span><span class="text-[10px] bg-yellow-500 text-black px-2 py-1 rounded">بطاقة</span>
+      </button>
+      <button id="payPayPal" class="bg-slate-800 border border-slate-600 text-white font-bold p-4 rounded-xl flex justify-between items-center">
+        <span>🅿️ PayPal - للأجانب</span><span class="text-[10px] bg-blue-500 text-white px-2 py-1 rounded">PayPal</span>
+      </button>
+    </div>
+    <p class="text-[10px] text-slate-500 mt-4 text-center">تستلم USDT مباشر على OKX: 0x53...c0af6<br>الملك: 10% | المبدع: 90%</p>
+  </div>`;
+  document.body.appendChild(modal);
+  
+  modal.querySelector('#closeTriplePay').addEventListener('click', closeGiftModal);
+  modal.addEventListener('click', (e)=>{ if(e.target===modal) closeGiftModal(); });
+  
+  modal.querySelectorAll('.gift-type').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      modal.querySelectorAll('.gift-type').forEach(b=>{ b.className='gift-type bg-slate-800 text-white p-2 rounded-lg text-[10px]'; });
+      btn.className='gift-type bg-cyan-500 text-black p-2 rounded-lg text-[10px] font-bold';
+      state.giftType = sanitizeText(btn.dataset.gift);
+    });
+  });
+  
+  modal.querySelector('#payOKX').addEventListener('click', ()=>{ closeGiftModal(); payWithOKX(); });
+  modal.querySelector('#payCard').addEventListener('click', ()=>{ closeGiftModal(); payWithCard(); });
+  modal.querySelector('#payPayPal').addEventListener('click', payWithPayPal);
+}
+function closeGiftModal(){ const m=$('triplePayModal'); if(m) m.classList.add('hidden'); }
+async function payWithOKX(){
+  const g = $('giftAnim'); if(g){ g.textContent = '👑🎁💖'; setTimeout(()=>{g.textContent='';},2500); }
+  const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
+  const currentGift = values[state.giftType]? state.giftType : 'heart';
+  try{
+    const res = await fetch('/api/gift', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), to:'streamer', type: currentGift, method:'okx', amount: values[currentGift] })
+    });
+    const data = await res.json();
+    if(data.ok){ toast(`💎 ${sanitizeText(data.value)}$ | الملك ${sanitizeText(data.kingCut)}$ + المبدع ${sanitizeText(data.creatorCut)}$ 👑`); }
+  }catch(e){ toast('💎 تم إرسال الهدية عبر OKX! (Offline) 👑'); }
+}
+async function payWithCard(){
+  const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
+  const currentGift = values[state.giftType]? state.giftType : 'heart';
+  const amount = values[currentGift];
+  toast(`💳 جاري إنشاء فاتورة ${amount}$ ببطاقة...`);
+  try{
+    const res = await fetch('/api/create-invoice', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ amount, type: currentGift, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL') })
+    });
+    const data = await res.json();
+    if(data.ok && data.invoice_url){
+      window.open(sanitizeText(data.invoice_url), '_blank');
+      toast(`💳 ادفع ${amount}$ - الملك 10%`);
+    } else if(data.demo){
+      window.open(sanitizeText(data.invoice_url), '_blank');
+      toast('💳 DEMO - ضع NOWPAY_API_KEY في Render');
+    }
+  } catch(e){ toast('خطأ بطاقة - جرب OKX'); }
+}
+function payWithPayPal(){
+  const values = { heart:0.1, rose:0.5, crown:1, rocket:5 };
+  const currentGift = values[state.giftType]? state.giftType : 'heart';
+  const amount = values[currentGift];
+  toast(`🅿️ PayPal ${amount}$ - قريباً`);
+  window.open(`https://paypal.me/tarimos/${amount}`, '_blank');
+}
+function sendGift(){ openGiftModal(); }
+
+function initPromoPage(){
+  const container = document.querySelector('#sub-promo-page');
+  if(!container) return;
+  
+  container.innerHTML = `
+    <button data-action="backToProfile" class="text-xs text-cyan-400 font-bold mb-3">← رجوع</button>
+    <div id="tarimAdsBox" class="space-y-4">
+      <h3 class="text-cyan-400 font-bold text-center">🚀 ترويج سيادي - محصن بالكامل</h3>
+      <div class="glass bg-slate-800/50 p-4 rounded-xl border border-cyan-500/20">
+        <label class="text-xs text-slate-400">ميزانية الترويج ($)</label>
+        <div class="grid grid-cols-4 gap-2 mt-2">
+          <button data-budget="1" class="ad-budget bg-slate-800 border border-slate-600 text-white p-2 rounded-lg text-xs">1$ = 100</button>
+          <button data-budget="5" class="ad-budget bg-cyan-500 text-black p-2 rounded-lg text-xs font-bold border-cyan-500">5$ = 500</button>
+          <button data-budget="10" class="ad-budget bg-slate-800 border border-slate-600 text-white p-2 rounded-lg text-xs">10$ = 1k</button>
+          <button data-budget="20" class="ad-budget bg-slate-800 border border-slate-600 text-white p-2 rounded-lg text-xs">20$ = 2k</button>
+        </div>
+      </div>
+      <div class="glass bg-slate-800/50 p-4 rounded-xl">
+        <label class="text-xs text-slate-400">استهداف</label>
+        <select id="adTarget" class="w-full bg-slate-900 text-white p-3 rounded-lg mt-2 text-xs border border-slate-700">
+          <option value="حضرموت">📍 حضرموت فقط</option>
+          <option value="اليمن">🇾🇪 كل اليمن</option>
+          <option value="الخليج">🌍 الخليج + اليمن</option>
+          <option value="العالم">🌐 العالم كله</option>
+        </select>
+      </div>
+      <div id="adPreview" class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-center text-xs text-cyan-400 font-bold">🚀 5$ = 500 مشاهدة في حضرموت | ضريبة الملك 20%</div>
+      <button id="payAdOKX" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold p-4 rounded-xl">💎 روّج الآن عبر OKX - فوري</button>
+      <button id="payAdCard" class="w-full bg-slate-800 border border-yellow-500/50 text-white font-bold p-3 rounded-xl text-xs">💳 ادفع ببطاقة Mastercard - يصل USDT</button>
+      <div id="kingPanelAds"></div>
+    </div>`;
+
+    let selectedBudget = 5;
+    container.querySelectorAll('.ad-budget').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        container.querySelectorAll('.ad-budget').forEach(x=>{ x.className='ad-budget bg-slate-800 border border-slate-600 text-white p-2 rounded-lg text-xs'; });
+        b.className='ad-budget bg-cyan-500 text-black p-2 rounded-lg text-xs font-bold border-cyan-500';
+        selectedBudget = Number(b.dataset.budget) || 5;
+        const t = sanitizeText($('adTarget').value);
+        $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${Math.floor(selectedBudget*0.8*100)} مشاهدة في ${t} | الملك ${ (selectedBudget*0.2).toFixed(1)}$`;
+      });
+    });
     
-    if (qrContainer && window.QRCode) {
-        qrContainer.innerHTML = '';
-        new QRCode(qrContainer, {
-            text: qrText,
-            width: 128,
-            height: 128,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
+    $('adTarget').addEventListener('change', ()=>{
+      const t = sanitizeText($('adTarget').value);
+      $('adPreview').textContent = `🚀 ${selectedBudget}$ = ${Math.floor(selectedBudget*0.8*100)} مشاهدة في ${t} | الملك ${ (selectedBudget*0.2).toFixed(1)}$`;
+    });
+    
+    $('payAdOKX').addEventListener('click', async ()=>{
+      const target = sanitizeText($('adTarget').value);
+      toast(`💎 جاري ترويج ${selectedBudget}$ لـ ${target}...`);
+      try{
+        const res = await fetch('/api/promote', {
+          method:'POST', headers:{'Content-Type':'application/json','x-king-key': isKing()?KING_KEY:''},
+          body: JSON.stringify({ from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL'), budget: selectedBudget, target, method:'okx' })
         });
-    }
-    if (opsQrContainer && window.QRCode) {
-        opsQrContainer.innerHTML = '';
-        new QRCode(opsQrContainer, {
-            text: qrText,
-            width: 100,
-            height: 100,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
+        const data = await res.json();
+        if(data.ok){ toast(sanitizeText(data.msg)); $('adPreview').textContent = data.pending? '⏳ قيد مراجعة الملك' : '✅ تم الترويج! ID: '+ sanitizeText(data.adId); if(isKing()) loadKingPanel(); }
+      } catch(e){ toast('تم الترويج Offline - سيظهر قريباً'); }
+    });
+    
+    $('payAdCard').addEventListener('click', async ()=>{
+      const target = sanitizeText($('adTarget').value);
+      toast(`💳 جاري إنشاء فاتورة إعلان ${selectedBudget}$...`);
+      try{
+        const res = await fetch('/api/create-ad-invoice', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ budget: selectedBudget, target, from: sanitizeText(localStorage.getItem('tarim_session_v73')||'AL') })
         });
+        const data = await res.json();
+        if(data.ok && data.invoice_url){ window.open(sanitizeText(data.invoice_url), '_blank'); toast(`🚀 ادفع ${selectedBudget}$ - الملك 20%`); }
+      } catch(e){ toast('خطأ - جرب OKX'); }
+    });
+
+    function loadKingPanel(){
+      const kingDiv = $('kingPanelAds');
+      if(!isKing()){ kingDiv.innerHTML=''; return; }
+      kingDiv.innerHTML = `
+        <div class="bg-yellow-500/10 border-2 border-yellow-500/50 p-4 rounded-xl mt-4">
+          <p class="text-yellow-400 font-bold text-xs mb-2">👑 لوحة الملك - صلاحية نشر الإعلانات والهدايا</p>
+          <div class="grid grid-cols-3 gap-2 mb-3">
+            <div class="bg-slate-900 p-2 rounded text-center"><p class="text-[10px] text-slate-400">إجمالي الملك</p><p id="kingTotal" class="text-yellow-400 font-bold text-xs">0$</p></div>
+            <div class="bg-slate-900 p-2 rounded text-center"><p class="text-[10px] text-slate-400">من الهدايا 10%</p><p id="kingGift" class="text-cyan-400 font-bold text-xs">0$</p></div>
+            <div class="bg-slate-900 p-2 rounded text-center"><p class="text-[10px] text-slate-400">من الإعلانات 20%</p><p id="kingAd" class="text-green-400 font-bold text-xs">0$</p></div>
+          </div>
+          <p class="text-yellow-400 font-bold text-xs">📩 إعلانات تنتظر موافقتك: <span id="pendingCount">0</span></p>
+          <div id="pendingAdsList" class="mt-2 space-y-2 max-h-60 overflow-y-auto"></div>
+          <button id="loadPending" class="w-full bg-yellow-500 text-black p-2 rounded-lg text-xs mt-2 font-bold">🔄 تحديث</button>
+        </div>`;
+      $('loadPending').addEventListener('click', fetchKingStats);
+      fetchKingStats();
     }
+    async function fetchKingStats(){
+      try{
+        const r = await fetch('/api/king/stats?key='+KING_KEY);
+        const d = await r.json();
+        if(d.ok){
+          $('pendingCount').textContent = d.pendingAds.length;
+          $('kingTotal').textContent = (d.earnings.total||0).toFixed(2)+'$';
+          $('kingGift').textContent = (d.earnings.gifts||0).toFixed(2)+'$';
+          $('kingAd').textContent = (d.earnings.ads||0).toFixed(2)+'$';
+          $('pendingAdsList').innerHTML = d.pendingAds.length? d.pendingAds.map(ad=>`
+            <div class="bg-slate-800 p-2 rounded flex justify-between items-center">
+              <div><p class="text-xs text-white">${sanitizeText(ad.owner)} - ${sanitizeText(ad.budget)}$</p><p class="text-[10px] text-slate-400">${sanitizeText(ad.target)} - ${sanitizeText(ad.maxViews)} مشاهدة</p></div>
+              <button onclick="approveAd('${sanitizeText(ad.id)}')" class="bg-green-500 text-black px-3 py-1 rounded text-[10px] font-bold">موافقة 👑</button>
+            </div>
+          `).join('') : '<p class="text-[10px] text-slate-500 text-center">لا يوجد إعلانات معلقة</p>';
+        }
+      }catch(e){ console.log('king stats error'); }
+    }
+    window.approveAd = async (id)=>{
+      try{
+        const r = await fetch('/api/king/approve-ad', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ adId:id, key:KING_KEY }) });
+        const d = await r.json();
+        if(d.ok){ toast('✅ تمت موافقة الملك - الإعلان الآن نشط'); fetchKingStats(); }
+      }catch(e){ toast('خطأ موافقة'); }
+    };
+    loadKingPanel();
+}
+
+function setupUploadFix() {
+const btn = $('uploadTriggerBtn'); const input = $('videoInput'); const video = $('cameraPreview');
+if (!btn ||!input ||!video) return;
+btn.addEventListener('click', (e) => { e.preventDefault(); input.click(); });
+input.addEventListener('change', (e) => {
+const file = e.target.files && e.target.files[0]; if (!file) return;
+if (state.curStream) { state.curStream.getTracks().forEach(t=>t.stop()); state.curStream=null; }
+if (state.upURL) URL.revokeObjectURL(state.upURL);
+state.upURL = URL.createObjectURL(file); state.upIsVideo = file.type.startsWith('video/');
+video.srcObject = null; video.src = state.upURL; video.loop = true; video.muted = true; video.play().catch(()=>{});
+toast('✅ تم رفع الملف بنجاح');
+});
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+const savedBgImage = localStorage.getItem('tarim_bg_image');
+const body = $('appBody');
+if(savedBgImage && body){
+  body.style.backgroundImage = `url('${savedBgImage}')`;
+  body.style.backgroundSize = 'cover';
+  body.style.backgroundPosition = 'center';
+  body.style.backgroundAttachment = 'fixed';
+} else {
+  const savedBg = localStorage.getItem('tarim_bg_color');
+  if(savedBg && body) body.style.backgroundColor = savedBg;
+}
+
+const map={
+startLive, stopLive, switchCam, capturePhoto,
+filterNone:()=>setFilter('none'), filterBeauty:()=>setFilter('beauty'),
+tabHome:(b)=>switchTab('home',b), tabOperations:(b)=>switchTab('operations',b),
+tabCreate:(b)=>switchTab('create',b), tabInbox:(b)=>switchTab('inbox',b), tabProfile:(b)=>switchTab('profile',b),
+backToProfile, 
+openAccountSettings:()=>showSubPage('account-settings'), 
+openSecurity:()=>showSubPage('security-settings'),
+openQrPage:()=>showSubPage('qr-page'), 
+openOkx:()=>showSubPage('okx-page'), 
+openActivity:()=>showSubPage('activity-page'),
+openOffline:()=>showSubPage('offline-page'), 
+openCommerce:()=>showSubPage('commerce-page'), 
+openPromo:()=>showSubPage('promo-page'),
+openManagePosts:()=>showSubPage('manage-posts'),
+openBgSettings:()=>showSubPage('account-settings'),
+openPolicy:()=>showSubPage('policy-page'),
+shareProfileLink: async ()=>{
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: 'TARIM OS', text: 'حسابي السيادي في تريم OS', url: window.location.href });
+    } else {
+      await navigator.clipboard.writeText(window.location.href);
+      toast('🔗 تم نسخ رابط الملف الشخصي');
+    }
+  } catch(e) { toast('تم النسخ'); }
+},
+openMap:()=>{ const c=$('mapContainer'); if(c){ c.classList.toggle('hidden'); if(!c.classList.contains('hidden')&&!state.map&&window.L){ state.map=L.map(c).setView([16.0545,49.0],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(state.map); } } },
+showQR:()=>{ const d=$('qrDisplay'); if(d){ d.classList.toggle('hidden'); const b=$('operationsQrBox'); if(b&&!d.classList.contains('hidden')){ b.textContent=''; if(window.QRCode) new QRCode(b,{text:'https://tarimos.org',width:100,height:100}); } } },
+goInbox:()=>switchTab('inbox')
+};
+document.addEventListener('click',(e)=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const act=btn.getAttribute('data-action'); if(map[act]) map[act](btn); });
+
+const sBtn = $('supportBtn');
+if(sBtn) sBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  if(isKing()){
+    showSubPage('promo-page');
+    toast('👑 أهلاً ملك تريم - لوحة التحكم في الترويج');
+  } else {
+    if (window.TarimSupport && typeof window.TarimSupport.openModal === 'function') window.TarimSupport.openModal();
+  }
+});
+
+const lBtn = $('loginBtn'); if(lBtn) lBtn.addEventListener('click',forceUnlockCastle);
+const uPass = $('userPass'); if(uPass) uPass.addEventListener('keydown',e=>{if(e.key==='Enter')forceUnlockCastle();});
+const pBtn = $('publishBtn'); if(pBtn) pBtn.addEventListener('click',publishPost);
+const sLiveBtn = $('startLiveBtn'); if(sLiveBtn) sLiveBtn.addEventListener('click',startLive);
+const stLiveBtn = $('stopLiveBtn'); if(stLiveBtn) stLiveBtn.addEventListener('click',stopLive);
+const stLiveFull = $('stopLiveBtnFull'); if(stLiveFull) stLiveFull.addEventListener('click',stopLive);
+const endTop = $('endLiveTopBtn'); if(endTop) endTop.addEventListener('click',stopLive);
+const giftBtn = $('sendGiftBtn'); if(giftBtn) giftBtn.addEventListener('click', sendGift);
+const giftFull = $('sendGiftBtnFull'); if(giftFull) giftFull.addEventListener('click', sendGift);
+const likeBtn = $('likeLiveBtn'); if(likeBtn) likeBtn.addEventListener('click', addLike);
+const likeFull = $('likeLiveBtnFull'); if(likeFull) likeFull.addEventListener('click', addLike);
+
+const saveAccBtn = $('saveAccountSettingsBtn');
+if (saveAccBtn) {
+    saveAccBtn.addEventListener('click', () => {
+        const newNameInput = $('settingsDisplayName');
+        if (newNameInput && newNameInput.value.trim()) {
+            const updatedName = sanitizeText(newNameInput.value.trim());
+            localStorage.setItem('tarim_session_v73', updatedName);
+            
+            const h1 = $('homeUsernameDisplay'); if(h1) h1.textContent = '@' + updatedName + ' 👑';
+            const h2 = $('profileNameDisplay'); if(h2) h2.textContent = 'الإمبراطور ' + updatedName;
+            
+            toast('✅ تم تحديث إعدادات الحساب السيادي بنجاح');
+            backToProfile();
+        } else {
+            toast('⚠️ يرجى إدخال اسم صحيح');
+        }
+    });
+}
+
+const hLikeBtn = $('homeLikeBtn');
+if (hLikeBtn) {
+  hLikeBtn.addEventListener('click', () => {
+    state.homeLikesCount++;
+    const countEl = $('homeLikeCount');
+    if (countEl) countEl.textContent = state.homeLikesCount;
+    toast('❤️ تم تسجيل الإعجاب');
+  });
+}
+
+const hCommentBtn = $('homeCommentBtn');
+if (hCommentBtn) {
+  hCommentBtn.addEventListener('click', () => {
+    switchTab('inbox');
+    toast('💬 الانتقال إلى صندوق الوارد للتعليق');
+  });
+}
+
+const hShareBtn = $('homeShareBtn');
+if (hShareBtn) {
+  hShareBtn.addEventListener('click', async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'TARIM OS', text: 'شاهد محتوى سيادي من تريم', url: window.location.href });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast('🚀 تم نسخ رابط المشاركة');
+      }
+    } catch (e) {
+      toast('تمت المشاركة بنجاح');
+    }
+  });
+}
+
+const hSaveBtn = $('homeSaveBtn');
+if (hSaveBtn) {
+  hSaveBtn.addEventListener('click', () => {
+    try {
+      let saved = JSON.parse(localStorage.getItem('tarim_saved_v73') || '[]');
+      saved.push({ id: Date.now(), title: 'فيديو سيادي' });
+      localStorage.setItem('tarim_saved_v73', JSON.stringify(saved));
+      toast('🔖 تم حفظ العنصر بنجاح');
+    } catch (e) {
+      toast('تم الحفظ');
+    }
+  });
+}
+
+setupUploadFix();
+const logoutBtn = $('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click',()=>{localStorage.clear(); location.reload();});
+if(localStorage.getItem('tarim_session_v73')){
+  const gate=$('authGate'); if(gate) gate.style.display='none';
+  const u = localStorage.getItem('tarim_session_v73');
+  const h1=$('homeUsernameDisplay'); if(h1) h1.textContent='@'+sanitizeText(u)+' 👑'+(isKing()?' [الملك]':'');
+  const h2=$('profileNameDisplay'); if(h2) h2.textContent='الإمبراطور '+sanitizeText(u)+(isKing()?' 👑':'');
+  renderAllFeeds(); updateCounters(); startUesWatchSimulation();
+}
+});
+})();
+
+// --- UES-Gateway Logic (Local JS Implementation) ---
+const UES_ENGINE = {
+    ALLOWED_VIDEOS: [
+        "short_funny_01","short_tip_02","short_news_03",
+        "protein_recipe_15s_003","local_street_food_15s_004",
+        "ye_cooking_restaurant_001","ye_football_highlights_002",
+        "shocking_curiosity_video_999","trending_01","trending_02","trending_03"
+    ],
+    
+    recommend(profile, currentVideo) {
+        const country = (profile.country || 'US').toUpperCase();
+        const interest = (profile.interest || 'general').toLowerCase();
+        const duration = Math.min(Math.max(currentVideo.duration || 30, 0), 600);
+        const repeat = Math.min(Math.max(profile.repeat_count || 0, 0), 100);
+
+        if (duration > 60) return ["short_funny_01", "short_tip_02", "short_news_03"][Math.floor(Math.random()*3)];
+        if (interest === 'fitness') return "protein_recipe_15s_003";
+        if (interest === 'travel') return "local_street_food_15s_004";
+        if (country === 'YE' && interest === 'cooking') return "ye_cooking_restaurant_001";
+        if (country === 'YE' && interest === 'sports') return "ye_football_highlights_002";
+        if (repeat >= 3) return "shocking_curiosity_video_999";
+        
+        return ["trending_01", "trending_02", "trending_03"][Math.floor(Math.random()*3)];
+    }
+};
+
+function checkUES(watchTime, profile, currentVideo) {
+    if (watchTime > 20) {
+        const nextVideo = UES_ENGINE.recommend(profile, currentVideo);
+        console.log(`🚀 UES Triggered: Next Video -> ${nextVideo}`);
+        return { action: 'split_screen', video_id: nextVideo };
+    }
+    return { action: 'wait' };
 }
