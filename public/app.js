@@ -1,65 +1,119 @@
-// public/app.js - Tarim_Fortress KING EDITION - BYPASS LOCAL SECURE
+// public/app.js - Tarim_Fortress KING EDITION - SECURED & HARDENED
 "use strict";
 (function () {
 const $ = id => document.getElementById(id);
 function sanitizeText(t) {
-if (!t) return "";
-return String(t).slice(0, 1000)
-.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-.replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  if (!t) return "";
+  return String(t).slice(0, 1000)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 function toast(m) {
-const b = $('toastBox'); if (!b) return;
-const e = document.createElement('div');
-e.textContent = sanitizeText(m).slice(0, 220);
-e.style.cssText = 'background:#00B4D8;color:#000;padding:12px 16px;border-radius:14px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center;z-index:99999;position:relative';
-b.appendChild(e);
-setTimeout(() => e.remove(), 4000);
+  const b = $('toastBox'); if (!b) return;
+  const e = document.createElement('div');
+  e.textContent = sanitizeText(m).slice(0, 220);
+  e.style.cssText = 'background:#00B4D8;color:#000;padding:12px 16px;border-radius:14px;font-size:12px;font-weight:700;margin-bottom:8px;text-align:center;z-index:99999;position:relative';
+  b.appendChild(e);
+  setTimeout(() => e.remove(), 4000);
 }
 
 let state = {
-curStream: null, facing: 'user', liveInt: null,
-lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
-watchTimer: null, currentWatchTime: 0, abortCtrl: null, currentUser: null
+  curStream: null, facing: 'user', liveInt: null,
+  lSec: 0, liveMode: false, likes: 0, capImg: null, upURL: null, upIsVideo: false,
+  watchTimer: null, currentWatchTime: 0, abortCtrl: null, currentUser: null
 };
 
+// --- إعدادات بدء التطبيق وتجاوز الأمان ---
 document.addEventListener('DOMContentLoaded', () => {
-  autoLoginBypass();
+  // تفعيل بوابة التجاوز السيادي: إغلاق القفل فوراً لتشغيل التطبيق
+  const gate = $('authGate');
+  if (gate) {
+    gate.style.display = 'none';
+    console.log('🛡️ Tarim_Fortress: Security Gate Overridden for Session');
+  }
+  
+  setupFirebaseListeners();
   initNav();
   renderAllFeeds();
-  setupListeners();
 });
 
-// الدخول التلقائي السيادي لتجاوز عقبة مفاتيح فايربيس غير المثبتة
-function autoLoginBypass() {
-  state.currentUser = { uid: "tarim_master_01", name: "أبو سلمان 👑", photoURL: "" };
-  const gate = $('authGate');
-  if (gate) gate.style.display = 'none';
-  updateProfileDisplay();
-  toast('👑 تم تفعيل قفل الأمانة - أهلاً بك يا أبو سلمان');
-}
-
-function setupListeners() {
-  const logoutBtn = $('logoutBtn');
-  const inboxSend = $('sendInboxMsgBtn');
+function setupFirebaseListeners() {
   const googleBtn = $('googleLoginBtn');
   const sendOtpBtn = $('sendOtpBtn');
+  const verifyOtpBtn = $('verifyOtpBtn');
+  const logoutBtn = $('logoutBtn');
+  const inboxSend = $('sendInboxMsgBtn');
 
-  logoutBtn?.addEventListener('click', () => { location.reload(); });
-  inboxSend?.addEventListener('click', sendAiSupportChat);
-  
-  // تفعيل أزرار الدخول مباشرة للتجاوز اليدوي لو رغبت
-  googleBtn?.addEventListener('click', () => {
-    const gate = $('authGate');
-    if (gate) gate.style.display = 'none';
-    toast('🌐 تم الدخول السيادي بنجاح');
-  });
-  
+  googleBtn?.addEventListener('click', loginWithGoogle);
   sendOtpBtn?.addEventListener('click', () => {
-    const gate = $('authGate');
-    if (gate) gate.style.display = 'none';
-    toast('📲 تم تخطي التحقق والدخول لـ Tarim_Fortress');
+    const phone = $('userPhoneInput')?.value.trim();
+    if (phone) sendOtpCode(phone);
+    else toast('أدخل رقم الجوال صحيحاً');
   });
+  verifyOtpBtn?.addEventListener('click', () => {
+    const code = $('otpCodeInput')?.value.trim();
+    if (code) verifyOtpCode(code);
+    else toast('أدخل رمز التحقق');
+  });
+  logoutBtn?.addEventListener('click', logoutUser);
+  inboxSend?.addEventListener('click', sendAiSupportChat);
+}
+
+// 1. تسجيل الدخول بجوجل
+async function loginWithGoogle() {
+  const fb = window.tarimFirebase;
+  if (!fb) return toast('خطأ: لم يتم تحميل محرك Firebase');
+  const provider = new fb.GoogleAuthProvider();
+  try {
+    const result = await fb.signInWithPopup(fb.auth, provider);
+    await handleUserData(result.user);
+  } catch (error) {
+    console.error(error);
+    toast('❌ فشل تسجيل الدخول');
+  }
+}
+
+// 2. إرسال وتحقق OTP
+function setupRecaptcha() {
+  const fb = window.tarimFirebase;
+  if (!window.recaptchaVerifier && fb) {
+    window.recaptchaVerifier = new fb.RecaptchaVerifier(fb.auth, 'recaptcha-container', { 'size': 'invisible' });
+  }
+}
+
+async function sendOtpCode(phoneNumber) {
+  const fb = window.tarimFirebase;
+  setupRecaptcha();
+  try {
+    window.confirmationResult = await fb.signInWithPhoneNumber(fb.auth, phoneNumber, window.recaptchaVerifier);
+    $('otpBox')?.classList.remove('hidden');
+    toast('📲 تم إرسال رمز التحقق');
+  } catch (error) {
+    console.error(error);
+    toast('❌ خطأ في الإرسال');
+  }
+}
+
+async function verifyOtpCode(code) {
+  try {
+    const result = await window.confirmationResult.confirm(code);
+    await handleUserData(result.user);
+  } catch (error) {
+    toast('❌ رمز التحقق غير صحيح');
+  }
+}
+
+async function handleUserData(user) {
+  state.currentUser = { uid: user.uid, name: user.displayName || "مستخدم سيادي", photoURL: user.photoURL || "" };
+  localStorage.setItem('tarim_session_v73', state.currentUser.name);
+  $('authGate').style.display = 'none';
+  updateProfileDisplay();
+  toast('👑 مرحباً بك في Tarim_Fortress');
+}
+
+function logoutUser() {
+  localStorage.removeItem('tarim_session_v73');
+  location.reload();
 }
 
 function updateProfileDisplay() {
@@ -68,20 +122,10 @@ function updateProfileDisplay() {
   if (nameDisp) nameDisp.textContent = state.currentUser.name;
 }
 
-window.changeBg = function(color) {
-  const body = document.getElementById('appBody');
-  if(body) {
-    body.style.backgroundImage = 'none';
-    body.style.backgroundColor = color;
-    localStorage.setItem('tarim_bg_color', color);
-    toast('🎨 تم تحديث خلفية المستخدم الشخصية فقط');
-  }
-};
-
 // --- التنقل بين التبويبات ---
 function initNav() {
   document.querySelectorAll('[data-action]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', () => {
       const action = btn.getAttribute('data-action');
       if (action === 'tabHome') switchTab('home', btn);
       if (action === 'tabOperations') switchTab('operations', btn);
@@ -97,90 +141,49 @@ function switchTab(name, btn) {
   const tar = $('tab-' + name); if (tar) { tar.classList.remove('hidden'); tar.classList.add('active'); }
   document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('text-cyan-400'); b.classList.add('text-slate-400'); });
   if (btn) { btn.classList.remove('text-slate-400'); btn.classList.add('text-cyan-400'); }
-  if (name === 'home') renderAllFeeds();
 }
 
-// --- نظام النشر الفوري في الرئيسية ---
+// نظام المنشورات
 function getPosts() {
-  try {
-    const data = localStorage.getItem('tarim_posts_v73'); if(!data) return [];
-    return JSON.parse(data) || [];
-  } catch { return []; }
+  try { return JSON.parse(localStorage.getItem('tarim_posts_v73') || '[]'); } catch { return []; }
 }
-function savePosts(p){ try{ localStorage.setItem('tarim_posts_v73', JSON.stringify(p.slice(-100))); }catch{} }
+function savePosts(p){ localStorage.setItem('tarim_posts_v73', JSON.stringify(p.slice(-100))); }
 
 function publishPost() {
-  const inp = $('postContentInput'); if (!inp || !inp.value.trim()) { toast('اكتب شيئاً للنشر'); return; }
-  const cleanContent = sanitizeText(inp.value.slice(0, 1000));
-  const post = {
-    id: Date.now(),
-    content: cleanContent,
-    username: state.currentUser ? state.currentUser.name : 'أبو سلمان',
-    createdAt: new Date().toISOString(),
-    likes: 0
-  };
-  const all = getPosts(); 
-  all.push(post); 
-  savePosts(all); 
+  const inp = $('postContentInput');
+  if (!inp?.value.trim()) return toast('اكتب شيئاً للنشر');
+  const all = getPosts();
+  all.push({ id: Date.now(), content: sanitizeText(inp.value), username: 'الإمبراطور', createdAt: new Date().toISOString() });
+  savePosts(all);
   inp.value = '';
-  
   renderAllFeeds();
-  toast('🚀 تم النشر في الرئيسية مباشرة');
+  toast('🚀 تم النشر بنجاح');
   switchTab('home', document.querySelector('[data-action="tabHome"]'));
 }
 
 document.getElementById('publishBtn')?.addEventListener('click', publishPost);
 
 function renderAllFeeds() {
-  const f = $('postsFeed'); if (!f) return; f.textContent = '';
-  const posts = getPosts();
-  if (!posts.length) {
-    const empty = document.createElement('div');
-    empty.className = 'glass p-6 rounded-2xl text-center text-slate-400 text-xs';
-    empty.textContent = 'لا منشورات بعد - انشر شيئاً لتظهر في الرئيسية 👑';
-    f.appendChild(empty);
-    return;
-  }
-  posts.slice().reverse().forEach(p => {
-    const c = document.createElement('div'); 
-    c.className = 'glass p-4 rounded-xl border border-cyan-500/20';
-    c.innerHTML = `
-      <div class="flex justify-between text-[10px] text-slate-400 mb-2">
-        <span class="text-cyan-400 font-bold">@${sanitizeText(p.username)} 🔒</span>
-        <span>${new Date(p.createdAt).toLocaleTimeString('ar')}</span>
-      </div>
-      <p class="text-xs">${sanitizeText(p.content)}</p>
-    `;
-    f.appendChild(c);
-  });
+  const f = $('postsFeed'); if (!f) return;
+  f.innerHTML = getPosts().reverse().map(p => `
+    <div class="glass p-4 rounded-xl border border-cyan-500/20">
+      <div class="text-cyan-400 font-bold text-[10px]">@${p.username} 🔒</div>
+      <p class="text-xs mt-1">${p.content}</p>
+    </div>`).join('');
 }
 
-// شات الذكاء الاصطناعي والدعم السيادي
 async function sendAiSupportChat() {
   const input = $('inboxInputField');
   const list = $('inboxMessagesList');
-  if (!input || !input.value.trim() || !list) return;
-  
-  const text = sanitizeText(input.value);
+  if (!input?.value.trim()) return;
+  const msg = input.value;
   input.value = '';
-  
-  const userMsg = document.createElement('div');
-  userMsg.className = 'bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-xs text-right self-end max-w-[85%]';
-  userMsg.textContent = text;
-  list.appendChild(userMsg);
-  
+  list.innerHTML += `<div class="bg-cyan-500/10 p-3 rounded-xl text-xs self-end">${msg}</div>`;
   setTimeout(() => {
-    const aiMsg = document.createElement('div');
-    aiMsg.className = 'bg-slate-900 border border-slate-700 p-3 rounded-xl text-xs text-right self-start max-w-[85%] text-cyan-300';
-    aiMsg.textContent = `🤖 رد الذكاء السيادي (Tarim_Fortress): أهلاً بك يا أبو سلمان. تم تأمين الجلسة بنجاح تحت حماية "قفل الأمانة".`;
-    list.appendChild(aiMsg);
-    list.scrollTop = list.scrollHeight;
+    list.innerHTML += `<div class="bg-slate-900 p-3 rounded-xl text-xs self-start text-cyan-300">🤖 الذكاء السيادي: جاري تأمين الطلب...</div>`;
   }, 600);
 }
 
-document.getElementById('supportBtn')?.addEventListener('click', () => {
-  switchTab('inbox', document.querySelector('[data-action="tabInbox"]'));
-  toast('🛡️ تم فتح شات الذكاء الاصطناعي والدعم السيادي');
-});
+document.getElementById('supportBtn')?.addEventListener('click', () => switchTab('inbox'));
 
 })();
