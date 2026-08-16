@@ -1,4 +1,4 @@
-// server.js - TARIM OS V8.5.1 TRIPLE-PAY SECURE & OPTIMIZED - لا يسقط أبداً
+// server.js - TARIM OS V8.6 KING EDITION - TRIPLE-PAY SECURE & OPTIMIZED - لا يسقط أبداً
 const express = require('express');
 const http = require('http');
 const path = require('path');
@@ -32,7 +32,7 @@ let securityMiddleware;
 try {
   securityMiddleware = require('./security');
   securityMiddleware.setup(app);
-  console.log('🛡️ Security Shield V8.5.1 Loaded');
+  console.log('🛡️ Security Shield V8.6 Loaded');
 } catch(e) {
   console.log('⚠️ Security optional:', e.message);
 }
@@ -41,7 +41,7 @@ try {
 let db;
 try {
   db = require('./database');
-  console.log('[TARIM DB V8.5] تم إنشاء القاعدة بصلاحية 600');
+  console.log('[TARIM DB V8.6] تم إنشاء القاعدة بصلاحية 600');
 } catch(e) { db = { users: [], posts: [], saveGift: null }; }
 
 let router;
@@ -50,7 +50,7 @@ try {
   app.use('/api', router);
 } catch(e) {
   console.log('Router optional');
-  app.get('/api/status', (req, res) => res.json({ status: 'TARIM OS V8.5.1 TRIPLE-PAY SECURE LIVE', version: 'V8.5.1', jwt:!!process.env.JWT_SECRET, okx_wallet: OKX_PAYOUT_WALLET, nowpay:!!NOWPAY_API_KEY }));
+  app.get('/api/status', (req, res) => res.json({ status: 'TARIM OS V8.6 KING EDITION TRIPLE-PAY SECURE LIVE', version: 'V8.6', jwt:!!process.env.JWT_SECRET, okx_wallet: OKX_PAYOUT_WALLET, nowpay:!!NOWPAY_API_KEY }));
 }
 
 // === TARIM UES Engine Gateway Route ===
@@ -73,7 +73,7 @@ app.post('/get_next_video', (req, res) => {
 });
 
 // ==================================================================
-// === الجيش 4 - سلاح المال الثلاثي - OKX + Mastercard + PayPal ===
+// === سلاح المال الثلاثي - OKX + Mastercard + PayPal ===
 // ==================================================================
 const giftValues = {
   'heart': 0.1,
@@ -127,7 +127,7 @@ app.post('/gift', (req, res) => {
 });
 
 // ==================================================================
-// === الجيش 5 - سلاح الإعلانات - ترويج سيادي ===
+// === سلاح الإعلانات - ترويج سيادي ===
 // ==================================================================
 app.post('/api/promote', (req, res) => {
   try {
@@ -154,7 +154,6 @@ app.post('/api/promote', (req, res) => {
     };
     
     adsDB.push(ad);
-    // حماية الذاكرة: الاحتفاظ فقط بأحدث 500 إعلان لتجنب امتلاء السيرفر
     if (adsDB.length > 500) adsDB.shift();
 
     io.emit('new-ad', ad);
@@ -178,7 +177,7 @@ app.get('/api/ads', (req,res)=>{
 });
 
 // ==================================================================
-// === الجيش 6 - NOWPayments - Mastercard/Visa -> USDT -> OKX ===
+// === NOWPayments - Mastercard/Visa -> USDT -> OKX ===
 // ==================================================================
 app.post('/api/create-invoice', async (req, res) => {
   try {
@@ -263,7 +262,6 @@ app.post('/api/create-ad-invoice', async (req,res)=>{
 // === IPN Webhook محصن لتأكيد الدفع الحقيقي من NOWPayments ===
 app.post('/api/ipn/nowpayments', (req,res)=>{
   try{
-    // التحقق من توقيع الـ IPN إذا كان المفتاح متوفراً لمنع الهجمات والطلبات الوهمية
     if (NOWPAY_IPN_SECRET) {
       const sigHeader = req.headers['x-nowpayments-sig'];
       if (!sigHeader) {
@@ -317,7 +315,7 @@ app.get('*', (req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`👑 TARIM OS V8.5.1 TRIPLE-PAY SECURE LIVE on port ${PORT}`);
+  console.log(`👑 TARIM OS V8.6 KING EDITION TRIPLE-PAY SECURE LIVE on port ${PORT}`);
   console.log(`✅ JWT_SECRET: ${process.env.JWT_SECRET? 'موجود' : 'مؤقت'}`);
   console.log(`💎 OKX Wallet: ${OKX_PAYOUT_WALLET}`);
   console.log(`💳 NOWPayments: ${NOWPAY_API_KEY? 'مفعل ✅' : 'DEMO - ضع المفتاح في Env ⚠️'}`);
