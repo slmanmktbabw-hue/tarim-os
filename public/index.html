@@ -2,47 +2,13 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com https://www.gstatic.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.tailwindcss.com; img-src 'self' blob: data: https:; media-src 'self' blob:; connect-src 'self' https:; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="referrer" content="no-referrer">
-<title>TARIM OS | V8.6 KING SECURE - محصن بالكامل</title>
+<title>TARIM OS | V8.6 OPEN EDITION - بلا حماية</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-<!-- Firebase App & Services SDK v10 -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { 
-    getAuth, 
-    signInWithPopup, 
-    GoogleAuthProvider, 
-    RecaptchaVerifier, 
-    signInWithPhoneNumber 
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "SENDER_ID",
-    appId: "APP_ID"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-
-  window.tarimFirebase = { 
-    auth, db, storage, GoogleAuthProvider, signInWithPopup, 
-    RecaptchaVerifier, signInWithPhoneNumber, doc, setDoc, getDoc, ref, uploadBytes, getDownloadURL 
-  };
-</script>
 
 <style>
 body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;padding-bottom:80px;direction:rtl;transition:background 0.3s ease, background-image 0.3s ease}
@@ -57,38 +23,10 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 </head>
 <body id="appBody" class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-cover bg-center bg-fixed">
 
-<!-- نافذة تسجيل الدخول الحقيقي عبر Firebase -->
-<div id="authGate" class="fixed inset-0 z-[10000] bg-[#030B1A] flex items-center justify-center p-4">
-<div class="glass w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-cyan-500/40 text-center space-y-4">
-<h1 class="text-2xl font-black text-cyan-400">TARIM OS 👑 V8.6 SECURE</h1>
-<p class="text-xs text-slate-400">Tarim_Fortress - قفل الأمانة السيادي</p>
-
-<!-- تبديل الدخول بالجوال أو جوجل -->
-<div class="space-y-3">
-  <input id="userPhoneInput" type="text" placeholder="رقم الجوال (مثال: +96773...)" maxlength="20" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
-  <button id="sendOtpBtn" class="w-full bg-slate-800 border border-cyan-500/40 text-cyan-300 font-bold py-2.5 rounded-xl text-xs">إرسال رمز التحقق OTP 📲</button>
-  
-  <div id="otpBox" class="hidden space-y-2">
-    <input id="otpCodeInput" type="text" placeholder="أدخل رمز التحقق 6 أرقام" maxlength="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white text-center focus:outline-none focus:border-cyan-400">
-    <button id="verifyOtpBtn" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs">تأكيد الرمز والدخول 🔑</button>
-  </div>
-
-  <div class="text-[10px] text-slate-500">- أو -</div>
-
-  <button id="googleLoginBtn" class="w-full bg-white text-black font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2">
-    <span>🌐 تسجيل الدخول بواسطة جوجل</span>
-  </button>
-</div>
-
-<div id="recaptcha-container"></div>
-<p id="loginError" class="text-[11px] text-rose-400 hidden bg-rose-500/10 p-2 rounded-lg"></p>
-</div>
-</div>
-
 <div id="toastBox"></div>
 <div id="aiModal" class="hidden fixed inset-0 z-[10001] bg-black/80 flex items-center justify-center p-4">
 <div class="glass w-full max-w-sm rounded-2xl p-4 space-y-3 border border-cyan-500/40">
-<div class="flex justify-between"><h3 class="text-sm font-bold text-cyan-400">👁️ عين الذكاء - الدعم السيادي</h3><button id="aiCloseBtn" class="text-xs">✕</button></div>
+<div class="flex justify-between"><h3 class="text-sm font-bold text-cyan-400">👁️ عين الذكاء - الدعم المفتوح</h3><button id="aiCloseBtn" class="text-xs">✕</button></div>
 <div id="aiMessages" class="h-64 overflow-y-auto space-y-2 text-xs bg-slate-900 rounded-xl p-3"></div>
 <div class="flex gap-2"><input id="aiInput" maxlength="500" spellcheck="false" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs" placeholder="اسأل عين الذكاء..."><button id="aiSendBtn" class="bg-cyan-500 text-black px-4 py-2 rounded-xl text-xs font-bold">إرسال</button></div>
 </div>
@@ -96,7 +34,7 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 
 <header class="w-full glass border-b border-cyan-500/20 px-4 py-3 flex justify-between items-center text-xs z-40 fixed top-0 left-0 right-0">
 <button id="aiEyeBtn" class="text-cyan-400 font-bold">👁️ عين الذكاء</button>
-<span id="homeUsernameDisplay" class="font-black text-cyan-300 tracking-wider">TARIM FORTRESS SECURE</span>
+<span id="homeUsernameDisplay" class="font-black text-cyan-300 tracking-wider">TARIM FORTRESS OPEN</span>
 <button id="supportBtn" class="text-slate-300 font-bold">🛡️ فريق الدعم</button>
 </header>
 
@@ -104,13 +42,13 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 <div id="tab-home" class="tab-content active space-y-4">
 <div class="glass p-5 rounded-2xl relative border border-cyan-500/30 min-h-[440px] flex flex-col justify-between">
     <div class="flex justify-start items-center text-xs text-cyan-400 font-bold mb-6">
-        <span>👑 Tarim_Fortress 🌴 تريم - حضرموت</span>
+        <span>👑 Tarim_Fortress 🌴 تريم - حضرموت (وضع مفتوح)</span>
     </div>
     <div class="flex-1 flex flex-col items-center justify-center text-center my-auto py-12">
         <div class="text-slate-500 mb-2">
             <svg class="w-16 h-16 mx-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
         </div>
-        <p class="text-cyan-400 text-xs font-bold">فيديو سيادي يملأ الشاشة - محمي (قفل الأمانة)</p>
+        <p class="text-cyan-400 text-xs font-bold">النظام يعمل بصلاحيات كاملة بلا قيود</p>
     </div>
     <div class="absolute left-5 bottom-24 flex flex-col items-center space-y-4 text-white z-10">
         <button id="homeLikeBtn" class="flex flex-col items-center focus:outline-none"><span class="text-2xl">❤️</span><span id="homeLikeCount" class="text-[11px] font-bold mt-1">120</span></button>
@@ -119,7 +57,7 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
         <button id="homeSaveBtn" class="flex flex-col items-center focus:outline-none"><span class="text-2xl">🔖</span><span class="text-[10px] font-bold mt-1">حفظ</span></button>
     </div>
     <div class="text-center text-[11px] text-slate-300 mt-4 pt-3 border-t border-slate-800">
-        tarim.fortress@auth.system
+        tarim.fortress@open.system
     </div>
 </div>
 <div id="activeLivesFeed" class="space-y-2"></div>
@@ -128,10 +66,10 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 
 <div id="tab-operations" class="tab-content space-y-4">
 <div class="glass p-5 rounded-2xl text-center space-y-4 border border-cyan-500/40">
-<h3 class="text-sm font-black text-cyan-400">⚡ قسم العمليات السيادية</h3>
+<h3 class="text-sm font-black text-cyan-400">⚡ قسم العمليات المفتوحة</h3>
 <div class="grid grid-cols-1 gap-2 text-xs">
-<button data-action="startLive" class="bg-slate-900 border border-rose-500/30 p-4 rounded-xl flex justify-between items-center w-full"><span>🔴 بث مباشر سيادي</span><span>بدء ←</span></button>
-<button data-action="goInbox" class="bg-slate-900 border border-slate-700 p-4 rounded-xl flex justify-between items-center w-full"><span>💬 المراسلة الآمنة</span><span>فتح ←</span></button>
+<button data-action="startLive" class="bg-slate-900 border border-rose-500/30 p-4 rounded-xl flex justify-between items-center w-full"><span>🔴 بث مباشر حر</span><span>بدء ←</span></button>
+<button data-action="goInbox" class="bg-slate-900 border border-slate-700 p-4 rounded-xl flex justify-between items-center w-full"><span>💬 المراسلة المباشرة</span><span>فتح ←</span></button>
 <button data-action="openMap" class="bg-slate-900 border border-slate-700 p-4 rounded-xl flex justify-between items-center w-full"><span>🗺️ خريطة حضرموت Offline</span><span>عرض ←</span></button>
 <button data-action="showQR" class="bg-slate-900 border border-slate-700 p-4 rounded-xl flex justify-between items-center w-full"><span>🔐 QR الختم الميداني</span><span>عرض ←</span></button>
 </div>
@@ -183,7 +121,7 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
 
 <div id="tab-inbox" class="tab-content space-y-4">
 <div class="glass p-5 rounded-2xl space-y-3 border border-cyan-500/40">
-<h3 class="text-sm font-black text-cyan-400 text-center">💬 شات الذكاء الاصطناعي السيادي 🔒</h3>
+<h3 class="text-sm font-black text-cyan-400 text-center">💬 شات الذكاء الاصطناعي (مفتوح) 🔓</h3>
 <div id="inboxMessagesList" class="space-y-2 text-right max-h-[45vh] overflow-y-auto flex flex-col gap-2"></div>
 <div class="flex gap-2"><input id="inboxInputField" type="text" maxlength="500" spellcheck="false" placeholder="اسأل شات الدعم الذكي..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-xs text-white text-right"><button id="sendInboxMsgBtn" class="bg-cyan-500 text-black font-bold px-5 py-3 rounded-xl text-xs">إرسال</button></div>
 </div>
@@ -200,7 +138,7 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
   <span id="profileAvatarText">AL</span>
 </div>
 <h3 id="profileNameDisplay" class="text-sm font-black text-cyan-400">الإمبراطور AL</h3>
-<p class="text-[11px] text-cyan-300">قفل الأمانة مفعل 🔒</p>
+<p class="text-[11px] text-cyan-300">وضع التشغيل الحر مفعل 🔓</p>
 <div class="grid grid-cols-3 gap-2 py-2 text-xs border-y border-slate-800">
   <div><span id="countFollowers" class="block font-bold text-cyan-400">1</span>متابع</div>
   <div><span id="countFollowing" class="block font-bold text-cyan-400">0</span>يتابع</div>
@@ -216,7 +154,6 @@ body{font-family:system-ui;background:#030B1A;color:#fff;user-select:none;paddin
     <span>👤 تعديل البروفايل والصورة</span>
     <span class="text-cyan-400">←</span>
   </button>
-  <button id="logoutBtn" class="w-full bg-rose-500/20 border border-rose-500/50 text-rose-300 py-2.5 rounded-xl font-bold mt-3">🚪 تسجيل الخروج</button>
 </div>
 </div>
 </div>
