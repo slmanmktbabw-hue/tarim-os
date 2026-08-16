@@ -1,8 +1,8 @@
-// public/sw.js - TARIM OS V7.3.1 FINAL SEAL - Sovereign Offline Guard - ESM Shield
-const CACHE_CORE = 'tarim-os-v7-3-1-final-seal-core';
-const CACHE_ESM = 'tarim-os-v7-3-1-esm-shield';
-const CACHE_TILES = 'tarim-os-v7-3-1-tiles';
-const CACHE_VERSION = 'V7.3.1 FINAL SEAL - ESM Shield - esm.unpkg.com?bundle&target=es2022&min';
+// public/sw.js - TARIM OS V8.6 KING EDITION - Sovereign Offline Guard - ESM Shield
+const CACHE_CORE = 'tarim-os-v8-6-core';
+const CACHE_ESM = 'tarim-os-v8-6-esm-shield';
+const CACHE_TILES = 'tarim-os-v8-6-tiles';
+const CACHE_VERSION = 'V8.6 KING EDITION - ESM Shield - esm.unpkg.com?bundle&target=es2022&min';
 
 const CORE_ASSETS = [
   './',
@@ -24,7 +24,7 @@ const ESM_SHIELD_ASSETS = [
 
 // تثبيت - حفظ القلب ودرع ESM
 self.addEventListener('install', (e) => {
-  console.log(`[SW ${CACHE_VERSION}] تثبيت الحارس السيادي`);
+  console.log(`[SW ${CACHE_VERSION}] تثبيت الحارس السيادي V8.6`);
   e.waitUntil(
     Promise.all([
       caches.open(CACHE_CORE).then(c => c.addAll(CORE_ASSETS)),
@@ -35,11 +35,11 @@ self.addEventListener('install', (e) => {
 
 // تفعيل - حذف الكاش القديم
 self.addEventListener('activate', (e) => {
-  console.log(`[SW ${CACHE_VERSION}] تفعيل وتنظيف`);
+  console.log(`[SW ${CACHE_VERSION}] تفعيل وتنظيف الكاش القديم`);
   e.waitUntil(
     caches.keys().then(keys => Promise.all(
       keys.map(k => {
-        if (!k.includes('v7-3-1-final-seal')) {
+        if (!k.includes('v8-6')) {
           console.log('[SW] حذف كاش قديم:', k);
           return caches.delete(k);
         }
@@ -55,7 +55,7 @@ self.addEventListener('fetch', (e) => {
   // 1. لا تحفظ API أبداً - JWT حساس
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/socket.io/')) {
     return e.respondWith(
-      fetch(e.request).catch(() => new Response(JSON.stringify({ message: 'Offline - السيرفر غير متصل V7.3.1' }), { status: 503, headers: { 'Content-Type': 'application/json' } }))
+      fetch(e.request).catch(() => new Response(JSON.stringify({ message: 'Offline - السيرفر غير متصل V8.6' }), { status: 503, headers: { 'Content-Type': 'application/json' } }))
     );
   }
 
@@ -96,14 +96,12 @@ self.addEventListener('fetch', (e) => {
     caches.match(e.request).then(cached => {
       if (cached) return cached;
       return fetch(e.request).then(res => {
-        // لا نحفظ إلا الناجح ومن نفس المصدر
         if (res.ok && url.origin === location.origin) {
           const clone = res.clone();
           caches.open(CACHE_CORE).then(c => c.put(e.request, clone));
         }
         return res;
       }).catch(() => {
-        // Offline - ارجع الرئيسية
         if (e.request.mode === 'navigate') {
           return caches.match('./index.html');
         }
