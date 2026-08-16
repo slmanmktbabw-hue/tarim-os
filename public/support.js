@@ -1,4 +1,4 @@
-// public/support.js - TARIM OS V7.3.1 FINAL SEAL - ESM SHIELD - NO ALERT
+// public/support.js - TARIM OS V8.6 KING EDITION - ESM SHIELD - NO ALERT
 "use strict";
 
 let isOpen = false;
@@ -21,7 +21,7 @@ function createSupportModal() {
     header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:16px;margin-bottom:16px';
     const title = document.createElement('h3');
     title.style.cssText = 'font-size:13px;font-weight:900;color:#22d3ee';
-    title.textContent = '🛡️ فريق الدعم السيادي V7.3.1';
+    title.textContent = '🛡️ فريق الدعم السيادي V8.6 KING';
     const closeBtn = document.createElement('button');
     closeBtn.id = 'closeSupportBtn';
     closeBtn.style.cssText = 'color:#94a3b8;background:#0f172a;padding:6px 12px;border-radius:10px;font-size:12px;border:1px solid rgba(255,255,255,.08);cursor:pointer';
@@ -35,7 +35,7 @@ function createSupportModal() {
     info.style.cssText = 'background:rgba(15,23,42,.7);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;gap:8px';
     const p1 = document.createElement('p');
     p1.style.cssText = 'font-size:13px;color:#e2e8f0';
-    p1.textContent = 'أهلاً بك يا إمبراطور AL في مركز القيادة من تريم حضرموت V7.3.1 FINAL SEAL.';
+    p1.textContent = 'أهلاً بك يا إمبراطور AL في مركز القيادة من تريم حضرموت V8.6 KING EDITION.';
     const p2 = document.createElement('p');
     p2.style.cssText = 'font-size:11px;color:#94a3b8;line-height:1.8';
     p2.textContent = 'نعمل 24/7 لحماية سيادة منصتك. ESM Shield • bcrypt 12 • JWT • متوسط الرد 8 دقائق. tarimos.org';
@@ -45,14 +45,14 @@ function createSupportModal() {
     actions.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px';
 
     const waBtn = document.createElement('a');
-    waBtn.href = 'https://wa.me/967000000000?text=سلام%20فريق%20TARIM%20OS%20V7.3.1%20FINAL';
+    waBtn.href = 'https://wa.me/967000000000?text=سلام%20فريق%20TARIM%20OS%20V8.6%20KING';
     waBtn.target = '_blank'; 
     waBtn.rel = 'noopener';
     waBtn.style.cssText = 'background:#059669;color:#fff;text-align:center;padding:12px;border-radius:12px;font-size:12px;font-weight:700;display:block';
     waBtn.textContent = '💬 واتساب سيادي';
 
     const mailBtn = document.createElement('a');
-    mailBtn.href = 'mailto:sovereign@tarimos.org?subject=دعم%20TARIM%20OS%20V7.3.1%20FINAL';
+    mailBtn.href = 'mailto:sovereign@tarimos.org?subject=دعم%20TARIM%20OS%20V8.6%20KING';
     mailBtn.style.cssText = 'background:#0f172a;color:#fff;text-align:center;padding:12px;border-radius:12px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.1);display:block';
     mailBtn.textContent = '✉️ بريد سيادي';
 
@@ -60,7 +60,7 @@ function createSupportModal() {
 
     const footer = document.createElement('p');
     footer.style.cssText = 'font-size:10px;color:#64748b;text-align:center;margin-top:8px';
-    footer.textContent = 'Tarim, Hadhramaut 16.05,48.98 • V7.3.1 FINAL SEAL • ESM Shield • من تريم إلى العالم - 2026';
+    footer.textContent = 'Tarim, Hadhramaut 16.05,48.98 • V8.6 KING EDITION • ESM Shield • من تريم إلى العالم - 2026';
 
     body.append(info, actions, footer);
     box.append(header, body);
